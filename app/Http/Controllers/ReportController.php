@@ -14,19 +14,14 @@ class ReportController extends Controller
 {
     public function index()
     {
-        // Gate::authorize('viewAny', Report::class); // Custom permission
-        if (!auth()->user()->can('view_reports')) {
-            abort(403);
-        }
+        Gate::authorize('view_reports');
 
         return view('reports.index');
     }
 
     public function financial(Request $request)
     {
-        if (!auth()->user()->can('view_financial_reports')) {
-            abort(403);
-        }
+        Gate::authorize('view_financial_reports');
 
         $startDate = $request->get('start_date', now()->startOfMonth());
         $endDate = $request->get('end_date', now()->endOfMonth());
@@ -70,9 +65,7 @@ class ReportController extends Controller
 
     public function patientDemographics()
     {
-        if (!auth()->user()->can('view_reports')) {
-            abort(403);
-        }
+        Gate::authorize('view_reports');
 
         $genderStats = Patient::select('gender', DB::raw('count(*) as total'))
             ->groupBy('gender')

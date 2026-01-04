@@ -16,6 +16,7 @@ use App\Models\Prescription;
 use App\Models\Medicine;
 use App\Models\Department;
 use App\Models\Doctor;
+use App\Models\Clinic;
 use App\Models\User as SubjectUser;
 use App\Models\MedicineBatch;
 use App\Models\Visit;
@@ -36,6 +37,7 @@ use App\Policies\DepartmentPolicy;
 use App\Policies\DoctorPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\MedicineBatchPolicy;
+use App\Policies\ClinicPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 use Illuminate\Support\Facades\Gate;
@@ -63,6 +65,7 @@ class AuthServiceProvider extends ServiceProvider
         SubjectUser::class => UserPolicy::class,
         Medicine::class => MedicinePolicy::class,
         MedicineBatch::class => MedicineBatchPolicy::class,
+        Clinic::class => ClinicPolicy::class,
     ];
 
 
@@ -81,6 +84,12 @@ class AuthServiceProvider extends ServiceProvider
             if ($user->hasPermission($ability)) {
                 return true;
             }
+        });
+        Gate::define('view_reports', function ($user) {
+            return $user->hasPermission('view_reports');
+        });
+        Gate::define('view_financial_reports', function ($user) {
+            return $user->hasPermission('view_financial_reports');
         });
     }
 }

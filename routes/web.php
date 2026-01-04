@@ -141,6 +141,10 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // --- Admin & Settings ---
 
+    // System Clinics (Super Admin only via policy)
+    Route::resource('clinics', \App\Http\Controllers\ClinicController::class)
+        ->middleware('can:viewAny,App\Models\Clinic');
+
     // Doctors Management
     Route::resource('doctors', DoctorController::class)->middleware('can:view_doctors');
     Route::get('doctors/{doctor}/schedule', [DoctorController::class, 'schedule'])->name('doctors.schedule')->middleware('can:manage_doctor_schedule');
