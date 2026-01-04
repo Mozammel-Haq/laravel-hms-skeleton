@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\Clinic;
 use App\Models\Invoice;
 use App\Models\Patient;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class ReportController extends Controller
     {
         // Gate::authorize('viewAny', Report::class); // Custom permission
         if (!auth()->user()->can('view_reports')) {
-             abort(403);
+            abort(403);
         }
 
         return view('reports.index');
@@ -24,7 +25,7 @@ class ReportController extends Controller
     public function financial(Request $request)
     {
         if (!auth()->user()->can('view_financial_reports')) {
-             abort(403);
+            abort(403);
         }
 
         $startDate = $request->get('start_date', now()->startOfMonth());
@@ -32,7 +33,7 @@ class ReportController extends Controller
 
         $revenue = Invoice::whereBetween('created_at', [$startDate, $endDate])
             ->sum('total_amount');
-            
+
         $paid = Invoice::whereBetween('created_at', [$startDate, $endDate])
             ->where('status', 'paid')
             ->sum('total_amount');
@@ -43,17 +44,17 @@ class ReportController extends Controller
     public function compare(Request $request)
     {
         if (!auth()->user()->hasRole('Super Admin')) {
-             abort(403, 'Only Super Admin can compare clinics.');
+            abort(403, 'Only Super Admin can compare clinics.');
         }
 
         $clinicIds = $request->input('clinics', []);
-        
+
         if (empty($clinicIds)) {
             return redirect()->back()->with('error', 'Please select at least one clinic to compare.');
         }
 
-        $clinics = \App\Models\Clinic::whereIn('id', $clinicIds)->get();
-        
+        $clinics = Clinic::whereIn('id', $clinicIds)->get();
+
         // Basic Stats for each clinic
         $stats = [];
         foreach ($clinics as $clinic) {
@@ -69,8 +70,8 @@ class ReportController extends Controller
 
     public function patientDemographics()
     {
-         if (!auth()->user()->can('view_reports')) {
-             abort(403);
+        if (!auth()->user()->can('view_reports')) {
+            abort(403);
         }
 
         $genderStats = Patient::select('gender', DB::raw('count(*) as total'))
