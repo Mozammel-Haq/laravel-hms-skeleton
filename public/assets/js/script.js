@@ -19,10 +19,10 @@ Template Name: Preclinic - Bootstrap Admin Template
 		$('html').addClass('menu-opened');
 		return false;
 	});
-	$(".sidebar-close").on("click", function () { 
+	$(".sidebar-close").on("click", function () {
 		$wrapper.removeClass('slide-nav');
 		$('.sidebar-overlay').removeClass('opened');
-		$('html').removeClass('menu-opened');             
+		$('html').removeClass('menu-opened');
 	});
 
 	$(".sidebar-overlay").on("click", function () {
@@ -59,11 +59,11 @@ Template Name: Preclinic - Bootstrap Admin Template
 		//Trial Item
 		if($('.trial-item').length > 0) {
 			$(".trial-item .close-icon").on("click", function () {
-				$(this).closest(".trial-item").hide(); 
+				$(this).closest(".trial-item").hide();
 			});
 		}
-			
-	
+
+
 	// Sidebar Initiate
 	init();
 	$(document).on('mouseover', function(e) {
@@ -83,7 +83,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 
 	var selectAllItems = "#select-all";
 	var checkboxItem = ".form-check.form-check-md :checkbox";
-	$(selectAllItems).on('click', function(){	
+	$(selectAllItems).on('click', function(){
 		if (this.checked) {
 		$(checkboxItem).each(function() {
 			this.checked = true;
@@ -94,7 +94,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		});
 		}
 
-		
+
 	});
 
 
@@ -105,7 +105,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		const isMini = $body.hasClass('mini-sidebar');
 		const isFullWidth = $html.attr('data-layout') === 'full-width';
 		const isHidden = $html.attr('data-layout') === 'hidden';
-	
+
 		if (isMini) {
 			$body.removeClass('mini-sidebar');
 			$(this).addClass('active');
@@ -121,7 +121,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 				$(".header-left").removeClass("active");
 			}, 100);
 		}
-	
+
 		// If <html> has data-layout="full-width", apply full-width class to <body>
 		if (isFullWidth) {
 			$body.addClass('full-width').removeClass('mini-sidebar');
@@ -140,8 +140,8 @@ Template Name: Preclinic - Bootstrap Admin Template
 			$(document).on('click', '.sidebar-close', function () {
 				$('body').removeClass('full-width');
 			});
-		} 
-	
+		}
+
 		return false;
 	});
 
@@ -152,7 +152,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 			const isMini = $body.hasClass('mini-sidebar');
 			const isFullWidth = $html.attr('data-layout') === 'full-width';
 			const isHidden = $html.attr('data-layout') === 'hidden';
-		
+
 			if (isMini) {
 				$body.removeClass('mini-sidebar');
 				$(this).addClass('active');
@@ -168,7 +168,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 					$(".header-left").removeClass("active");
 				}, 100);
 			}
-		
+
 			// If <html> has data-layout="full-width", apply full-width class to <body>
 			if (isFullWidth) {
 				$body.addClass('full-width').removeClass('mini-sidebar');
@@ -179,7 +179,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 			} else {
 				$body.removeClass('full-width');
 			}
-	
+
 			// If <html> has data-layout="hidden", apply hidden-layout class to <body>
 			if (isHidden) {
 				$body.toggleClass('hidden-layout');
@@ -187,11 +187,11 @@ Template Name: Preclinic - Bootstrap Admin Template
 				$(document).on('click', '.sidebar-close', function () {
 					$('body').removeClass('full-width');
 				});
-			} 
-		
+			}
+
 			return false;
 		});
-	
+
 /*	document.addEventListener("DOMContentLoaded", function () {
 		const appStyle = document.getElementById("app-style");
 		if (appStyle && appStyle.href.includes("rtl.min.css")) {
@@ -199,33 +199,33 @@ Template Name: Preclinic - Bootstrap Admin Template
 		}
 	});*/
 
-	// Select 2	
+	// Select 2
 	if ($('.select2').length > 0) {
 		$(".select2").select2();
 	}
 
-	// Select 2    
+	// Select 2
     if ($('.select').length > 0) {
         $('.select').select2({
             minimumResultsForSearch: -1,
             width: '100%'
         });
     }
-	
+
 	// Filter Close
 
 	document.addEventListener("DOMContentLoaded", function () {
 		if (document.querySelector('.filter-dropdown')) {
 			const closeBtn = document.getElementById("close-filter");
 			const filterDropdown = document.getElementById("filter-dropdown");
-	
+
 			if (closeBtn && filterDropdown) {
 				closeBtn.addEventListener("click", function () {
 					filterDropdown.classList.remove("show");
 				});
 			}
 		}
-	});	
+	});
 
 	// Quill Editor
 
@@ -306,14 +306,14 @@ Template Name: Preclinic - Bootstrap Admin Template
 			}
 		});
 	});
-	
-	
+
+
 	// filter dropdown
 	document.addEventListener("DOMContentLoaded", function () {
 		if (document.querySelector('.filter-dropdown')) {
 			const closeBtn = document.getElementById("close-filter");
 			const filterDropdown = document.getElementById("filter-dropdown");
-	
+
 			if (closeBtn && filterDropdown) {
 				closeBtn.addEventListener("click", function () {
 					filterDropdown.classList.remove("show");
@@ -352,7 +352,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		if (profileSection) {
 		  const uploadTrigger = document.getElementById('uploadTrigger');
 		  const fileInput = document.getElementById('profileUpload');
-	
+
 		  if (uploadTrigger && fileInput) {
 			uploadTrigger.addEventListener('click', function () {
 			  fileInput.click();
@@ -366,7 +366,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		if (profileSection) {
 		  const uploadTrigger = document.getElementById('uploadTrigger1');
 		  const fileInput = document.getElementById('profileUpload1');
-	
+
 		  if (uploadTrigger && fileInput) {
 			uploadTrigger.addEventListener('click', function () {
 			  fileInput.click();
@@ -380,7 +380,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		if (profileSection) {
 		  const uploadTrigger = document.getElementById('uploadTrigger2');
 		  const fileInput = document.getElementById('profileUpload2');
-	
+
 		  if (uploadTrigger && fileInput) {
 			uploadTrigger.addEventListener('click', function () {
 			  fileInput.click();
@@ -394,7 +394,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		if (profileSection) {
 		  const uploadTrigger = document.getElementById('uploadTrigger3');
 		  const fileInput = document.getElementById('profileUpload3');
-	
+
 		  if (uploadTrigger && fileInput) {
 			uploadTrigger.addEventListener('click', function () {
 			  fileInput.click();
@@ -408,7 +408,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		if (profileSection) {
 		  const uploadTrigger = document.getElementById('uploadTrigger4');
 		  const fileInput = document.getElementById('profileUpload4');
-	
+
 		  if (uploadTrigger && fileInput) {
 			uploadTrigger.addEventListener('click', function () {
 			  fileInput.click();
@@ -422,7 +422,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		if (profileSection) {
 		  const uploadTrigger = document.getElementById('uploadTrigger5');
 		  const fileInput = document.getElementById('profileUpload5');
-	
+
 		  if (uploadTrigger && fileInput) {
 			uploadTrigger.addEventListener('click', function () {
 			  fileInput.click();
@@ -451,7 +451,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 	if($('.datatable').length > 0) {
 		$('.datatable').DataTable({
 			"bFilter": true,
-			"sDom": 'fBtlpi',  
+			"sDom": 'fBtlpi',
 			"ordering": false,
 			"language": {
 				search: ' ',
@@ -471,9 +471,9 @@ Template Name: Preclinic - Bootstrap Admin Template
 			initComplete: (settings, json)=>{
 				$('.dataTables_filter').appendTo('#tableSearch');
 				$('.dataTables_filter').appendTo('.search-input');
-			},	
+			},
 		});
-	}	
+	}
 
 	// Datetimepicker
 	if($('.datetimepicker').length > 0 ){
@@ -528,7 +528,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		if($('.reportrange').length > 0) {
 			var start = moment().subtract(29, "days"),
 				end = moment();
-	
+
 			function report_range(start, end) {
 				$(".reportrange span").html(start.format("D MMM YY") + " - " + end.format("D MMM YY"))
 			}
@@ -603,7 +603,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 	// Add new complaint input on '+' click
 	$(document).on('click', '.add-complaint', function (e) {
 		e.preventDefault();
-	
+
 		const newComplaint = `
 		<div class="mb-3 complaint-list-item">
 			<div class="input-group">
@@ -614,11 +614,11 @@ Template Name: Preclinic - Bootstrap Admin Template
 			</div>
 		</div>
 		`;
-	
+
 		// Insert before the add button row
 		$(this).closest('.complaint-list-item').before(newComplaint);
 	});
-  
+
 	// Remove complaint input on trash icon click
 	$(document).on('click', '.remove-complaint', function (e) {
 		e.preventDefault();
@@ -628,7 +628,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 	// Add new Advices input on '+' click
 	$(document).on('click', '.add-advices', function (e) {
 		e.preventDefault();
-	
+
 		const newComplaint = `
 			<div class="mb-3 advices-list-item">
 				<label class="form-label mb-1 text-dark fs-14 fw-medium">Advice</label>
@@ -638,11 +638,11 @@ Template Name: Preclinic - Bootstrap Admin Template
 				</div>
 			</div>
 		`;
-	
+
 		// Insert before the add button row
 		$(this).closest('.advices-list-item').before(newComplaint);
 	});
-  
+
 	// Remove complaint input on trash icon click
 	$(document).on('click', '.remove-advices', function (e) {
 		e.preventDefault();
@@ -653,7 +653,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 	// Add new invest input on '+' click
 	$(document).on('click', '.add-invest', function (e) {
 		e.preventDefault();
-	
+
 		const newComplaint = `
 			<div class="mb-3 invest-list-item">
 				<label class="form-label mb-1 text-dark fs-14 fw-medium">Investigation & Procedure</label>
@@ -663,11 +663,11 @@ Template Name: Preclinic - Bootstrap Admin Template
 				</div>
 			</div>
 		`;
-	
+
 		// Insert before the add button row
 		$(this).closest('.invest-list-item').before(newComplaint);
 	});
-  
+
 	// Remove invest input on trash icon click
 	$(document).on('click', '.remove-invest', function (e) {
 		e.preventDefault();
@@ -680,7 +680,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		// Ensure no duplicate bindings
 		$(document).off('click', '.add-diagnosis').on('click', '.add-diagnosis', function (e) {
 			e.preventDefault();
-	
+
 			const newDiagnosis = `
 				<div class="row diagnosis-list-item">
 					<div class="col-lg-6">
@@ -694,8 +694,8 @@ Template Name: Preclinic - Bootstrap Admin Template
 								<option>Back Pain</option>
 							</select>
 						</div>
-					</div> 
-	
+					</div>
+
 					<div class="col-lg-6">
 						<div class="mb-3">
 							<div class="input-group">
@@ -705,7 +705,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 								</a>
 							</div>
 						</div>
-					</div> 
+					</div>
 				</div>
 			`;
 
@@ -718,10 +718,10 @@ Template Name: Preclinic - Bootstrap Admin Template
                 });
             }, 100);
               }, 100);
-	
+
 			$('.diagnosis-list').append(newDiagnosis);
 		});
-	
+
 		// Remove a diagnosis input row
 		$(document).off('click', '.remove-diagnosis').on('click', '.remove-diagnosis', function (e) {
 			e.preventDefault();
@@ -735,7 +735,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		// Ensure no duplicate bindings
 		$(document).off('click', '.add-reminder').on('click', '.add-reminder', function (e) {
 			e.preventDefault();
-	
+
 			const newDiagnosis = `
 					<div class="row d-flex align-items-center mb-3 reminder-list-item">
 						<div class="col-md-2">
@@ -790,10 +790,10 @@ Template Name: Preclinic - Bootstrap Admin Template
                 });
             }, 100);
               }, 100);
-	
+
 			$('.reminder-list').append(newDiagnosis);
 		});
-	
+
 		// Remove a diagnosis input row
 		$(document).off('click', '.remove-reminder').on('click', '.remove-reminder', function (e) {
 			e.preventDefault();
@@ -805,7 +805,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 	// Add new invoice input on '+' click
 	$(document).on('click', '.add-invoice', function (e) {
 		e.preventDefault();
-	
+
 		const newComplaint = `
 			<div class="row invoice-list-item">
 				<div class="col-lg-8">
@@ -842,11 +842,11 @@ Template Name: Preclinic - Bootstrap Admin Template
                 });
             }, 100);
               }, 100);
-	
+
 		// Insert before the add button row
 		$(this).closest('.invoice-list-item').before(newComplaint);
 	});
-	
+
 	// Remove invest input on trash icon click
 	$(document).on('click', '.remove-invoice', function (e) {
 		e.preventDefault();
@@ -857,7 +857,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 	// Add new medication input on '+' click
 	$(document).on('click', '.add-medication', function (e) {
 		e.preventDefault();
-	
+
 		const newComplaint = `
 			<!-- start row -->
 			<div class="row medication-list-item">
@@ -909,7 +909,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 								<select class="select form-control rounded">
 									<option>Select</option>
 									<option>Morning</option>
-									<option>Afternoon</option> 
+									<option>Afternoon</option>
 								</select>
 							</div>
 						</div> <!-- end col -->
@@ -931,11 +931,11 @@ Template Name: Preclinic - Bootstrap Admin Template
 			</div>
 			<!-- end row -->
 		`;
-	
+
 		// Insert before the add button row
 		$(this).closest('.medication-list-item').before(newComplaint);
 	});
-	
+
 	// Remove invest input on trash icon click
 	$(document).on('click', '.remove-medication', function (e) {
 		e.preventDefault();
@@ -945,7 +945,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 
 	$(document).on('click', '.add-invoices', function (e) {
 		e.preventDefault();
-	
+
 		const newInvoice = `
 			<tr class="invoices-list-item">
 				<td><input type="text" class="form-control" /></td>
@@ -958,24 +958,24 @@ Template Name: Preclinic - Bootstrap Admin Template
 				</button></td>
 			</tr>
 		`;
-	
+
 		// Insert before the last row (the add button row)
 		$('.invoices-list tr:last').before(newInvoice);
 	});
-	
+
 	// Remove Invoices input on trash icon click
 	$(document).on('click', '.remove-invoices', function (e) {
 		e.preventDefault();
 		$(this).closest('.invoices-list-item').remove();
 	});
-  
+
 	//   Language Settings
 	document.querySelectorAll('.toggle-star').forEach(function(button) {
 		button.addEventListener('click', function() {
 		this.classList.toggle('active');
 		});
 	});
-	
+
 	// Tooltip
 	if($('[data-bs-toggle="tooltip"]').length > 0) {
 		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -992,7 +992,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 
 
 	// add break
-	document.addEventListener("DOMContentLoaded", function () { 
+	document.addEventListener("DOMContentLoaded", function () {
 		const section = document.getElementById("break-hours-section");
 		if (!section) return;
 
@@ -1035,10 +1035,10 @@ Template Name: Preclinic - Bootstrap Admin Template
 	function initChoices() {
 		document.querySelectorAll('[data-choices]').forEach(item => {
 			const config = {
-				allowHTML: true  
+				allowHTML: true
 			};
 			const attrs = item.attributes;
-	
+
 			if (attrs['data-choices-groups']) {
 				config.placeholderValue = 'This is a placeholder set in the config';
 			}
@@ -1075,15 +1075,15 @@ Template Name: Preclinic - Bootstrap Admin Template
 			if (attrs['data-choices-text-disabled-true']) {
 				config.addItems = false;
 			}
-	
+
 			const instance = new Choices(item, config);
-	
+
 			if (attrs['data-choices-text-disabled-true']) {
 				instance.disable();
 			}
 		});
 	}
-		
+
 	// Call it when the DOM is ready
 	document.addEventListener('DOMContentLoaded', initChoices);
 
@@ -1239,7 +1239,7 @@ Template Name: Preclinic - Bootstrap Admin Template
 		});
 	}
 
-	// Select 2    
+	// Select 2
     if ($('.select').length > 0) {
         $('.select').select2({
             minimumResultsForSearch: -1,
@@ -1280,6 +1280,141 @@ Template Name: Preclinic - Bootstrap Admin Template
 		}, report_range), report_range(end, end);
 	}
 
-	
+
 })();
 
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Dummy datasets
+    const chartData = {
+        monthly: {
+            categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+            series: [
+                { name: 'Clinics Created', data: [3,5,4,6,7,8,6,9,7,10,12,14] },
+                { name: 'Clinic Admin Accounts', data: [2,4,3,5,6,6,5,7,6,8,9,11] },
+                { name: 'System Users Onboarded', data: [180,260,220,310,340,420,460,510,580,640,720,810] }
+            ]
+        },
+        weekly: {
+            categories: ['Week 1','Week 2','Week 3','Week 4'],
+            series: [
+                { name: 'Clinics Created', data: [2,3,4,3] },
+                { name: 'Clinic Admin Accounts', data: [1,2,3,2] },
+                { name: 'System Users Onboarded', data: [120,180,210,260] }
+            ]
+        },
+        yearly: {
+            categories: ['2021','2022','2023','2024','2025'],
+            series: [
+                { name: 'Clinics Created', data: [18,26,34,42,48] },
+                { name: 'Clinic Admin Accounts', data: [15,22,30,38,45] },
+                { name: 'System Users Onboarded', data: [2400,3600,4800,6200,7200] }
+            ]
+        }
+    };
+
+    var options = {
+        chart: {
+            type: 'area',
+            height: 280,
+            toolbar: { show: false }
+        },
+        series: chartData.monthly.series,
+        colors: ['#0d6efd', '#20c997', '#ffc107'],
+        dataLabels: { enabled: false },
+        stroke: { curve: 'smooth', width: 2 },
+        xaxis: { categories: chartData.monthly.categories },
+        yaxis: [
+            { title: { text: 'Clinics / Admins' } },
+            { opposite: true, title: { text: 'System Users' } }
+        ],
+        tooltip: { shared: true, intersect: false },
+        legend: { position: 'bottom' },
+        grid: { borderColor: '#f1f1f1' }
+    };
+
+    var chart = new ApexCharts(
+        document.querySelector("#system-activity-chart"),
+        options
+    );
+
+    chart.render();
+
+    // Dropdown switching logic
+    document.querySelectorAll('.dropdown-item[data-range]').forEach(function (item) {
+        item.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const range = this.getAttribute('data-range');
+
+            document.getElementById('systemChartRange').innerHTML =
+                this.textContent + ' <i class="ti ti-chevron-down ms-1"></i>';
+
+            chart.updateOptions({
+                xaxis: {
+                    categories: chartData[range].categories
+                },
+                series: chartData[range].series
+            });
+        });
+    });
+
+});
+
+// Superadmin Chart top
+document.addEventListener("DOMContentLoaded", function () {
+
+  function miniBarChart(selector, data, color) {
+    new ApexCharts(document.querySelector(selector), {
+      chart: {
+        type: 'bar',
+        height: 54,
+        sparkline: { enabled: true }
+      },
+      series: [{
+        data: data
+      }],
+      colors: [color],
+      plotOptions: {
+        bar: {
+          columnWidth: '60%',
+          borderRadius: 2
+        }
+      },
+      tooltip: {
+        enabled: false
+      }
+    }).render();
+  }
+
+  function miniAreaChart(selector, data, color) {
+    new ApexCharts(document.querySelector(selector), {
+      chart: {
+        type: 'area',
+        height: 54,
+        sparkline: { enabled: true }
+      },
+      series: [{
+        data: data
+      }],
+      stroke: {
+        width: 2,
+        curve: 'smooth'
+      },
+      fill: {
+        opacity: 0.3
+      },
+      colors: [color],
+      tooltip: {
+        enabled: false
+      }
+    }).render();
+  }
+
+  // Charts
+  miniBarChart("#chart-clinics", [40, 15, 60, 15, 90, 20, 70], "#2e37a4");
+  miniAreaChart("#chart-admins", [20, 45, 30, 60, 40, 70, 50], "#f36c3d");
+  miniBarChart("#chart-users", [80, 35, 50, 45, 35, 60, 50], "#06aed4");
+  miniAreaChart("#chart-revenue", [100, 120, 110, 140, 130, 160, 180], "#28c76f");
+
+});

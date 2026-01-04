@@ -16,19 +16,10 @@ use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StaffController;
+use App\Http\Middleware\EnsureClinicContext;
 use App\Models\Clinic;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -38,7 +29,7 @@ Route::get('/', function () {
 require __DIR__ . '/auth.php';
 
 // Authenticated & Tenant Context Routes
-Route::middleware(['auth', 'verified', \App\Http\Middleware\EnsureClinicContext::class])->group(function () {
+Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
