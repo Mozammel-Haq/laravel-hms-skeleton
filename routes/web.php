@@ -20,21 +20,17 @@ use App\Http\Middleware\EnsureClinicContext;
 use App\Models\Clinic;
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/', function () {
     return redirect()->route('login');
 });
-
-// Authentication Routes (Breeze)
 require __DIR__ . '/auth.php';
 
-// Authenticated & Tenant Context Routes
+
 Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(function () {
 
-    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // System: Switch Clinic (Super Admin only)
+    //=====Switch Clinic=======
     Route::get('/system/switch-clinic/{clinic}', function (Clinic $clinic) {
         $user = auth()->user();
         if (!$user || !$user->hasRole('Super Admin')) {
@@ -44,12 +40,10 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         return redirect()->route('dashboard');
     })->name('system.switch-clinic');
 
-    // Profile Management
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // --- Core Modules ---
 
     // Patients
     Route::resource('patients', PatientController::class)->middleware('can:view_patients');

@@ -15,7 +15,7 @@ class PatientController extends Controller
      */
     public function index()
     {
-        Gate::authorize('viewAny', Patient::class);
+        Gate::authorize('view', Patient::class);
 
         $patients = Patient::latest()->paginate(10);
         return view('patients.index', compact('patients'));
@@ -51,7 +51,7 @@ class PatientController extends Controller
     public function show(Patient $patient)
     {
         Gate::authorize('view', $patient);
-        
+
         $patient->load(['appointments', 'admissions']);
         return view('patients.show', compact('patient'));
     }
