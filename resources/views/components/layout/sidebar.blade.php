@@ -37,7 +37,7 @@
             <div class="sidebar-top shadow-sm p-2 rounded-1 mb-3 dropend">
                 @php($currentClinic = \App\Models\Clinic::find(\App\Support\TenantContext::getClinicId()))
                 <a href="javascript:void(0);" class="drop-arrow-none"
-                   @if (auth()->check() && auth()->user()->hasRole('Super Admin')) data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-offset="0,22" aria-haspopup="false" aria-expanded="false" @endif>
+                    @if (auth()->check() && auth()->user()->hasRole('Super Admin')) data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-offset="0,22" aria-haspopup="false" aria-expanded="false" @endif>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <span class="avatar rounded-circle flex-shrink-0 p-2"><img
@@ -58,45 +58,48 @@
                 </a>
 
                 @if (auth()->check() && auth()->user()->hasRole('Super Admin'))
-                <div class="dropdown-menu" style="min-width: 250px;">
-                    <!-- Single Switch Section -->
-                    <div class="px-3 py-2 border-bottom">
-                        <h6 class="mb-2 text-uppercase fs-11 text-muted">Switch Active Clinic</h6>
-                        <div style="max-height: 150px; overflow-y: auto;">
-                            @foreach (\App\Models\Clinic::orderBy('name')->get() as $clinic)
-                                <a class="dropdown-item d-flex justify-content-between align-items-center px-2 py-1 rounded {{ $currentClinic->id == $clinic->id ? 'bg-light' : '' }}"
-                                    href="{{ route('system.switch-clinic', $clinic->id) }}">
-                                    <span class="text-truncate" style="max-width: 150px;">{{ $clinic->name }}</span>
-                                    @if($currentClinic->id == $clinic->id)
-                                        <i class="ti ti-check text-success"></i>
-                                    @else
-                                        <i class="ti ti-chevron-right fs-12"></i>
-                                    @endif
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Multi-Select Comparison Section -->
-                    <div class="px-3 py-2 bg-light">
-                        <h6 class="mb-2 text-uppercase fs-11 text-muted">Compare & Reports</h6>
-                        <form action="{{ route('reports.compare') }}" method="GET">
-                            <div class="mb-2" style="max-height: 150px; overflow-y: auto;">
+                    <div class="dropdown-menu" style="min-width: 250px;">
+                        <!-- Single Switch Section -->
+                        <div class="px-3 py-2 border-bottom">
+                            <h6 class="mb-2 text-uppercase fs-11 text-muted">Switch Active Clinic</h6>
+                            <div style="max-height: 150px; overflow-y: auto;">
                                 @foreach (\App\Models\Clinic::orderBy('name')->get() as $clinic)
-                                    <div class="form-check form-check-sm mb-1">
-                                        <input class="form-check-input" type="checkbox" name="clinics[]" value="{{ $clinic->id }}" id="compare_clinic_{{ $clinic->id }}">
-                                        <label class="form-check-label fs-13 text-truncate d-block" for="compare_clinic_{{ $clinic->id }}" style="max-width: 180px;">
-                                            {{ $clinic->name }}
-                                        </label>
-                                    </div>
+                                    <a class="dropdown-item d-flex justify-content-between align-items-center px-2 py-1 rounded {{ $currentClinic->id == $clinic->id ? 'bg-light' : '' }}"
+                                        href="{{ route('system.switch-clinic', $clinic->id) }}">
+                                        <span class="text-truncate"
+                                            style="max-width: 150px;">{{ $clinic->name }}</span>
+                                        @if ($currentClinic->id == $clinic->id)
+                                            <i class="ti ti-check text-success"></i>
+                                        @else
+                                            <i class="ti ti-chevron-right fs-12"></i>
+                                        @endif
+                                    </a>
                                 @endforeach
                             </div>
-                            <button type="submit" class="btn btn-primary btn-sm w-100">
-                                <i class="ti ti-chart-bar me-1"></i> Generate Report
-                            </button>
-                        </form>
+                        </div>
+
+                        <!-- Multi-Select Comparison Section -->
+                        <div class="px-3 py-2 bg-light">
+                            <h6 class="mb-2 text-uppercase fs-11 text-muted">Compare & Reports</h6>
+                            <form action="{{ route('reports.compare') }}" method="GET">
+                                <div class="mb-2" style="max-height: 150px; overflow-y: auto;">
+                                    @foreach (\App\Models\Clinic::orderBy('name')->get() as $clinic)
+                                        <div class="form-check form-check-sm mb-1">
+                                            <input class="form-check-input" type="checkbox" name="clinics[]"
+                                                value="{{ $clinic->id }}" id="compare_clinic_{{ $clinic->id }}">
+                                            <label class="form-check-label fs-13 text-truncate d-block"
+                                                for="compare_clinic_{{ $clinic->id }}" style="max-width: 180px;">
+                                                {{ $clinic->name }}
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm w-100">
+                                    <i class="ti ti-chart-bar me-1"></i> Generate Report
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
                 @endif
             </div>
 
@@ -157,12 +160,16 @@
                     <li class="menu-title"><span>Clinic Management</span></li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('departments.*') || request()->routeIs('doctors.*') || request()->routeIs('staff.*') ? 'active subdrop' : '' }}">
+                        <a href="#"
+                            class="{{ request()->routeIs('departments.*') || request()->routeIs('doctors.*') || request()->routeIs('staff.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-settings"></i><span>Clinic Setup</span><span class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('departments.*') || request()->routeIs('doctors.*') || request()->routeIs('staff.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul
+                            style="{{ request()->routeIs('departments.*') || request()->routeIs('doctors.*') || request()->routeIs('staff.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="#">Clinic Profile</a></li>
-                            <li><a href="{{ route('departments.index') }}" class="{{ request()->routeIs('departments.*') ? 'active' : '' }}">Departments</a></li>
+                            <li><a href="{{ route('departments.index') }}"
+                                    class="{{ request()->routeIs('departments.*') ? 'active' : '' }}">Departments</a>
+                            </li>
                             <li class="submenu">
                                 <a href="#">Doctors <span class="menu-arrow"></span></a>
                                 <ul>
@@ -183,12 +190,17 @@
                     </li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('appointments.*') || request()->routeIs('patients.*') ? 'active subdrop' : '' }}">
+                        <a href="#"
+                            class="{{ request()->routeIs('appointments.*') || request()->routeIs('patients.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-user-check"></i><span>OPD</span><span class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('appointments.*') || request()->routeIs('patients.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('appointments.index') }}" class="{{ request()->routeIs('appointments.*') ? 'active' : '' }}">Appointments</a></li>
-                            <li><a href="{{ route('patients.index') }}" class="{{ request()->routeIs('patients.*') ? 'active' : '' }}">Patients</a></li>
+                        <ul
+                            style="{{ request()->routeIs('appointments.*') || request()->routeIs('patients.*') ? 'display: block;' : 'display: none;' }}">
+                            <li><a href="{{ route('appointments.index') }}"
+                                    class="{{ request()->routeIs('appointments.*') ? 'active' : '' }}">Appointments</a>
+                            </li>
+                            <li><a href="{{ route('patients.index') }}"
+                                    class="{{ request()->routeIs('patients.*') ? 'active' : '' }}">Patients</a></li>
                             <li><a href="#">Visits</a></li>
                         </ul>
                     </li>
@@ -201,7 +213,8 @@
                             <li><a href="#">Wards</a></li>
                             <li><a href="#">Rooms</a></li>
                             <li><a href="#">Beds</a></li>
-                            <li><a href="{{ route('ipd.index') }}" class="{{ request()->routeIs('ipd.*') ? 'active' : '' }}">Admissions</a></li>
+                            <li><a href="{{ route('ipd.index') }}"
+                                    class="{{ request()->routeIs('ipd.*') ? 'active' : '' }}">Admissions</a></li>
                             <li><a href="#">Bed Assignments</a></li>
                         </ul>
                     </li>
@@ -222,7 +235,8 @@
                         </a>
                         <ul style="{{ request()->routeIs('lab.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="#">Test Catalog</a></li>
-                            <li><a href="{{ route('lab.index') }}" class="{{ request()->routeIs('lab.*') ? 'active' : '' }}">Test Orders</a></li>
+                            <li><a href="{{ route('lab.index') }}"
+                                    class="{{ request()->routeIs('lab.*') ? 'active' : '' }}">Test Orders</a></li>
                             <li><a href="#">Results</a></li>
                         </ul>
                     </li>
@@ -243,7 +257,8 @@
                             <i class="ti ti-receipt"></i><span>Billing</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('billing.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('billing.index') }}" class="{{ request()->routeIs('billing.*') ? 'active' : '' }}">Invoices</a></li>
+                            <li><a href="{{ route('billing.index') }}"
+                                    class="{{ request()->routeIs('billing.*') ? 'active' : '' }}">Invoices</a></li>
                             <li><a href="#">Payments</a></li>
                         </ul>
                     </li>
@@ -275,7 +290,12 @@
                             <li><a href="{{ route('appointments.index') }}">Upcoming</a></li>
                         </ul>
                     </li>
-
+                    <li class="submenu">
+                        <a href="#"
+                            class="{{ request()->routeIs('doctor.schedule.*') ? 'active subdrop' : '' }}">
+                            <i class="ti ti-calendar"></i><span>My Schedule</span>
+                        </a>
+                    </li>
                     <li class="submenu">
                         <a href="#" class="{{ request()->routeIs('patients.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-users"></i><span>Patients</span><span class="menu-arrow"></span>
@@ -287,20 +307,26 @@
                     </li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('clinical.consultations.*') ? 'active subdrop' : '' }}">
-                            <i class="ti ti-stethoscope"></i><span>Consultations</span><span class="menu-arrow"></span>
+                        <a href="#"
+                            class="{{ request()->routeIs('clinical.consultations.*') ? 'active subdrop' : '' }}">
+                            <i class="ti ti-stethoscope"></i><span>Consultations</span><span
+                                class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('clinical.consultations.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul
+                            style="{{ request()->routeIs('clinical.consultations.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="#">New</a></li>
                             <li><a href="#">History</a></li>
                         </ul>
                     </li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('clinical.prescriptions.*') ? 'active subdrop' : '' }}">
-                            <i class="ti ti-prescription"></i><span>Prescriptions</span><span class="menu-arrow"></span>
+                        <a href="#"
+                            class="{{ request()->routeIs('clinical.prescriptions.*') ? 'active subdrop' : '' }}">
+                            <i class="ti ti-prescription"></i><span>Prescriptions</span><span
+                                class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('clinical.prescriptions.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul
+                            style="{{ request()->routeIs('clinical.prescriptions.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="#">Create</a></li>
                             <li><a href="{{ route('clinical.prescriptions.index') }}">History</a></li>
                         </ul>
@@ -333,7 +359,8 @@
 
                     <li class="submenu">
                         <a href="#" class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
-                            <i class="ti ti-calendar-plus"></i><span>Appointments</span><span class="menu-arrow"></span>
+                            <i class="ti ti-calendar-plus"></i><span>Appointments</span><span
+                                class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('appointments.create') }}">Book Appointment</a></li>
@@ -377,7 +404,8 @@
 
                     <li class="submenu">
                         <a href="#" class="{{ request()->routeIs('vitals.*') ? 'active subdrop' : '' }}">
-                            <i class="ti ti-heart-rate-monitor"></i><span>Vitals</span><span class="menu-arrow"></span>
+                            <i class="ti ti-heart-rate-monitor"></i><span>Vitals</span><span
+                                class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('vitals.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="#">Record</a></li>
@@ -419,30 +447,37 @@
                     <li class="menu-title"><span>Pharmacy</span></li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('pharmacy.prescriptions.*') ? 'active subdrop' : '' }}">
-                            <i class="ti ti-prescription"></i><span>Prescriptions</span><span class="menu-arrow"></span>
+                        <a href="#"
+                            class="{{ request()->routeIs('pharmacy.prescriptions.*') ? 'active subdrop' : '' }}">
+                            <i class="ti ti-prescription"></i><span>Prescriptions</span><span
+                                class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('pharmacy.prescriptions.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul
+                            style="{{ request()->routeIs('pharmacy.prescriptions.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="#">Pending</a></li>
                             <li><a href="#">Fulfilled</a></li>
                         </ul>
                     </li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('pharmacy.inventory.*') ? 'active subdrop' : '' }}">
+                        <a href="#"
+                            class="{{ request()->routeIs('pharmacy.inventory.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-box"></i><span>Inventory</span><span class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('pharmacy.inventory.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul
+                            style="{{ request()->routeIs('pharmacy.inventory.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('pharmacy.medicines.index') }}">Medicines</a></li>
                             <li><a href="{{ route('pharmacy.inventory.index') }}">Batches</a></li>
                         </ul>
                     </li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('pharmacy.sales.*') ? 'active subdrop' : '' }}">
+                        <a href="#"
+                            class="{{ request()->routeIs('pharmacy.sales.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-shopping-cart"></i><span>Sales</span><span class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('pharmacy.sales.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul
+                            style="{{ request()->routeIs('pharmacy.sales.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('pharmacy.create') }}">New Sale</a></li>
                             <li><a href="{{ route('pharmacy.index') }}">History</a></li>
                         </ul>

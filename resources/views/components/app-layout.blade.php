@@ -33,10 +33,13 @@
 
     <!-- Tabler Icon CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/plugins/tabler-icons/tabler-icons.min.css">
-
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="{{ asset('assets') }}/plugins/select2/css/select2.min.css">
     <!-- Simplebar CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/plugins/simplebar/simplebar.min.css">
-
+    <!-- Datatable CSS -->
+    <link rel="stylesheet" href="{{ asset('assets') }}/css/dataTables.bootstrap5.min.css">
+    @stack('styles')
     <!-- Main CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/css/style.css" id="app-style">
 
@@ -56,27 +59,32 @@
         </div>
     </main>
 
+    <!-- jQuery (MUST be first) -->
+    <script src="{{ asset('assets') }}/js/jquery-3.7.1.min.js"></script>
 
-    <!-- jQuery -->
-    <script src="{{ asset('assets') }}/js/jquery-3.7.1.min.js" type="text/javascript"></script>
-    <!-- Bootstrap Core JS -->
-    <script src="{{ asset('assets') }}/js/bootstrap.bundle.min.js" type="text/javascript"></script>
-    <!-- Simplebar JS -->
-    <script src="{{ asset('assets') }}/plugins/simplebar/simplebar.min.js" type="text/javascript"></script>
-    <!-- Chart JS -->
-    <script src="{{ asset('assets') }}/plugins/apexchart/apexcharts.min.js" type="text/javascript"></script>
-    <script src="{{ asset('assets') }}/plugins/apexchart/chart-data.js" type="text/javascript"></script>
-    <!-- Daterangepikcer JS -->
-    <script src="{{ asset('assets') }}/js/moment.min.js" type="text/javascript"></script>
-    <script src="{{ asset('assets') }}/plugins/daterangepicker/daterangepicker.js" type="text/javascript"></script>
-    <script src="{{ asset('assets') }}/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>
-    <!-- Datetimepicker JS -->
-    <script src="{{asset('assets')}}/js/moment.min.js" type="3a68d12e02a3c1f0a6cad4fd-text/javascript"></script>
-    <script src="{{asset('assets')}}/js/bootstrap-datetimepicker.min.js" type="3a68d12e02a3c1f0a6cad4fd-text/javascript"></script>
-    <!-- Main JS -->
-    <script src="{{ asset('assets') }}/js/script.js" type="text/javascript"></script>
+    <!-- Bootstrap JS -->
+    <script src="{{ asset('assets') }}/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Select2 JS (after jQuery!) -->
+    <script src="{{ asset('assets') }}/plugins/select2/js/select2.min.js"></script>
+
+    <!-- Other plugins -->
+    <script src="{{ asset('assets') }}/plugins/simplebar/simplebar.min.js"></script>
+    <script src="{{ asset('assets') }}/plugins/apexchart/apexcharts.min.js"></script>
+    <script src="{{ asset('assets') }}/plugins/apexchart/chart-data.js"></script>
+    <script src="{{ asset('assets') }}/js/moment.min.js"></script>
+    <script src="{{ asset('assets') }}/plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="{{ asset('assets') }}/js/bootstrap-datetimepicker.min.js"></script>
+    <!-- Datatable JS -->
+    <script src="{{ asset('assets') }}/js/jquery.dataTables.min.js"></script>
+    <script src="{{ asset('assets') }}/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Your custom scripts -->
+    @stack('scripts')
+    <script src="{{ asset('assets') }}/js/doctors.js"></script>
+    <script src="{{ asset('assets') }}/js/script.js"></script>
 
     <script src="{{ asset('assets') }}/js/rocket-loader.min.js" defer></script>
+
 </body>
 
 </html>
