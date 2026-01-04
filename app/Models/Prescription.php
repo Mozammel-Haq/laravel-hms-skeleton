@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Base\BaseTenantModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Prescription extends BaseTenantModel
+{
+    use SoftDeletes;
+    public function items() { return $this->hasMany(PrescriptionItem::class); }
+}
