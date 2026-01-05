@@ -1,4 +1,5 @@
 <x-app-layout>
+                    <div class="content pb-0">
     <x-slot name="header">
         <h2 class="h4">Clinic Details</h2>
     </x-slot>
@@ -70,5 +71,6 @@
         <div class="card-footer">
             <a href="{{ route('clinics.index') }}" class="btn btn-secondary">Back</a>
         </div>
+    </div>
     </div>
 </x-app-layout>

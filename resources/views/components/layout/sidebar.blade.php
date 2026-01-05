@@ -121,8 +121,8 @@
                             <i class="ti ti-building-hospital"></i><span>Clinics</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('clinics.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Create Clinic</a></li>
-                            <li><a href="#">Clinic List</a></li>
+                            <li><a href="{{ route('clinics.create') }}">Create Clinic</a></li>
+                            <li><a href="{{ route('clinics.index') }}">Clinic List</a></li>
                             <li><a href="#">Clinic Reports</a></li>
                         </ul>
                     </li>
@@ -136,12 +136,12 @@
                         </ul>
                     </li>
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('settings.*') ? 'active subdrop' : '' }}">
+                        <a href="#" class="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-settings"></i><span>System Settings</span><span class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('settings.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Roles</a></li>
-                            <li><a href="#">Permissions</a></li>
+                        <ul style="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'display: block;' : 'display: none;' }}">
+                            <li><a href="{{ route('admin.roles.index') }}" class="{{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">Roles</a></li>
+                            <li><a href="{{ route('admin.permissions.index') }}" class="{{ request()->routeIs('admin.permissions.*') ? 'active' : '' }}">Permissions</a></li>
                         </ul>
                     </li>
                     <li class="submenu">

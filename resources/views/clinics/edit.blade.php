@@ -1,4 +1,5 @@
 <x-app-layout>
+                    <div class="content pb-0">
     <x-slot name="header">
         <h2 class="h4">Edit Clinic</h2>
     </x-slot>
@@ -87,5 +88,6 @@
                 </div>
             </form>
         </div>
+    </div>
     </div>
 </x-app-layout>

@@ -11,10 +11,12 @@ use App\Http\Controllers\IpdController;
 use App\Http\Controllers\LabController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PharmacyController;
 use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StaffController;
 use App\Http\Middleware\EnsureClinicContext;
 use App\Models\Clinic;
@@ -152,6 +154,16 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Staff Management (Users & Roles)
     Route::resource('staff', StaffController::class)->middleware('can:view_staff');
+
+    // Roles & Permissions (Super Admin Only)
+    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('roles', RoleController::class);
+    Route::resource('permissions', PermissionController::class);
+    Route::put('permissions/role/{role}', [PermissionController::class, 'updateRolePermissions'])
+        ->name('permissions.updateRolePermissions');
+});
+
+
 
     // Departments
     Route::resource('departments', DepartmentController::class)->except(['create', 'edit', 'show']); // simplified

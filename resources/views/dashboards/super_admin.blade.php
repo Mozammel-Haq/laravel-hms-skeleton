@@ -42,7 +42,7 @@
                 <p class="fs-13 mb-0 text-muted">Cross-clinic overview and system analytics</p>
             </div>
             <div class="d-flex align-items-center flex-wrap gap-2">
-                <a href="create-clinic.html" class="btn btn-primary d-inline-flex align-items-center">
+                <a href="{{ route('clinics.create') }}" class="btn btn-primary d-inline-flex align-items-center">
                     <i class="ti ti-plus me-1"></i>Create Clinic
                 </a>
             </div>
@@ -411,7 +411,7 @@
     </div>
     @push('scripts')
     <script>
-        
+
 document.addEventListener("DOMContentLoaded", function () {
     const chartData = {
         monthly: {
