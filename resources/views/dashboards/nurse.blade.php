@@ -1,4 +1,5 @@
 <x-app-layout>
+                    <div class="content pb-0">
     <div class="page-header d-flex justify-content-between align-items-center">
         <div class="page-title">
             <h4>Nurse Dashboard</h4>
@@ -45,5 +46,6 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </x-app-layout>
