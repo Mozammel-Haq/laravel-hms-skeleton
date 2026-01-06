@@ -30,7 +30,7 @@ use App\Models\Clinic;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return response('Home', 200);
 });
 require __DIR__ . '/auth.php';
 
