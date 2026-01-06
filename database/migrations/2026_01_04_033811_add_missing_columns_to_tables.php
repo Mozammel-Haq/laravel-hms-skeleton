@@ -40,15 +40,10 @@ return new class extends Migration
             });
         }
 
-        // 4. Doctors: Add clinic_id, softDeletes
-        if (Schema::hasTable('doctors')) {
-             Schema::table('doctors', function (Blueprint $table) {
-                if (!Schema::hasColumn('doctors', 'clinic_id')) {
-                    $table->foreignId('clinic_id')->nullable()->constrained()->restrictOnDelete();
-                }
-                if (!Schema::hasColumn('doctors', 'deleted_at')) {
-                    $table->softDeletes();
-                }
+        // 4. Doctors: Add softDeletes only (clinic_id is managed via doctor_clinic pivot assignments)
+        if (Schema::hasTable('doctors') && !Schema::hasColumn('doctors', 'deleted_at')) {
+            Schema::table('doctors', function (Blueprint $table) {
+                $table->softDeletes();
             });
         }
     }
@@ -78,8 +73,6 @@ return new class extends Migration
         }
         if (Schema::hasTable('doctors')) {
             Schema::table('doctors', function (Blueprint $table) {
-                $table->dropForeign(['clinic_id']);
-                $table->dropColumn('clinic_id');
                 $table->dropSoftDeletes();
             });
         }

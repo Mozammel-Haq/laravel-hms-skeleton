@@ -9,6 +9,7 @@ use App\Models\Patient;
 use App\Services\AppointmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Support\TenantContext;
 
 class AppointmentController extends Controller
 {
@@ -40,8 +41,12 @@ class AppointmentController extends Controller
     {
         Gate::authorize('create', Appointment::class);
 
-        $doctors = Doctor::where('status', 'active')->get();
-        $patients = Patient::all(); // Should utilize search in production for large datasets
+        $doctors = Doctor::where('status', 'active')
+            ->whereHas('clinics', function ($q) {
+                $q->where('clinics.id', TenantContext::getClinicId());
+            })
+            ->get();
+        $patients = Patient::all(); // to do---apply search later
 
         return view('appointments.create', compact('doctors', 'patients'));
     }
@@ -93,7 +98,11 @@ class AppointmentController extends Controller
     public function edit(Appointment $appointment)
     {
         Gate::authorize('update', $appointment);
-        $doctors = Doctor::where('status', 'active')->get();
+        $doctors = Doctor::where('status', 'active')
+            ->whereHas('clinics', function ($q) {
+                $q->where('clinics.id', TenantContext::getClinicId());
+            })
+            ->get();
         return view('appointments.edit', compact('appointment', 'doctors'));
     }
 

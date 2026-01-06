@@ -1,57 +1,97 @@
 <x-app-layout>
-                    <div class="content pb-0">
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <div class="page-title">
-            <h4>Pharmacist Dashboard</h4>
-            <p>Pharmacy Operations</p>
+    <div class="container-fluid py-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar bg-secondary rounded-circle me-2"><i class="ti ti-prescription"></i></span>
+                            <div>
+                                <p class="mb-0 text-muted">Active Prescriptions</p>
+                                <h4 class="mb-0">{{ $cards['prescriptions_active'] }}</h4>
+                            </div>
+                        </div>
+                        <a href="{{ route('clinical.prescriptions.index') }}" class="btn btn-sm btn-secondary">View</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <span class="avatar bg-primary rounded-circle me-2"><i class="ti ti-shopping-cart"></i></span>
+                            <div>
+                                <p class="mb-0 text-muted">Sales Today</p>
+                                <h4 class="mb-0">{{ number_format($cards['sales_today'], 2) }}</h4>
+                            </div>
+                        </div>
+                        <a href="{{ route('pharmacy.index') }}" class="btn btn-sm btn-primary">POS</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <a href="{{ route('pharmacy.create') }}" class="btn btn-primary"><i class="ti ti-shopping-cart"></i> POS / New Sale</a>
-    </div>
 
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Today's Sales</h5>
-                    <h3>{{ \App\Models\PharmacySale::whereDate('sale_date', today())->count() }}</h3>
+        <div class="row g-3 mt-1">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Recent Prescriptions</h5>
+                        <a href="{{ route('clinical.prescriptions.index') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Issued</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($prescriptions as $p)
+                                        <tr>
+                                            <td>{{ $p->patient->name ?? 'Patient' }}</td>
+                                            <td>{{ $p->created_at?->format('d M, H:i') }}</td>
+                                            <td><span class="badge bg-secondary">{{ $p->status ?? 'active' }}</span></td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Recent Sales</h5>
+                        <a href="{{ route('pharmacy.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Patient</th>
+                                        <th>Date</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($sales as $s)
+                                        <tr>
+                                            <td>{{ $s->patient->name ?? 'Patient' }}</td>
+                                            <td>{{ $s->created_at?->format('d M, H:i') }}</td>
+                                            <td>{{ number_format($s->total_amount, 2) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h5>Low Stock Items</h5>
-                    <h3>0</h3> <!-- Need Inventory logic -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Recent Sales</h5>
-                </div>
-                <div class="card-body">
-                    <!-- Placeholder for Sales -->
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Sale ID</th>
-                                <th>Patient/Customer</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Dynamic content here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
     </div>
 </x-app-layout>

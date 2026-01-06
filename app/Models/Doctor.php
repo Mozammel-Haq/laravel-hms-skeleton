@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
-use App\Models\Base\BaseTenantModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\LogsActivity;
 
-class Doctor extends BaseTenantModel
+class Doctor extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, LogsActivity;
+
+    protected $guarded = ['id'];
+
     public function user()
     {
         return $this->belongsTo(User::class);

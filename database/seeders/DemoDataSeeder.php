@@ -113,16 +113,16 @@ class DemoDataSeeder extends Seeder
 
             // Create Related Models (e.g., Doctor)
             if ($userData['role'] === 'Doctor') {
-                Doctor::firstOrCreate(
+                $doctor = Doctor::firstOrCreate(
                     ['user_id' => $user->id],
                     [
-                        'clinic_id' => $clinic->id,
                         'primary_department_id' => $userData['department_id'],
                         'specialization' => $userData['specialization'],
                         'license_number' => 'MD-' . rand(10000, 99999),
                         'status' => 'active',
                     ]
                 );
+                $doctor->clinics()->syncWithoutDetaching([$clinic->id]);
             }
         }
     }

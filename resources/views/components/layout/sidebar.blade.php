@@ -37,7 +37,10 @@
             <div class="sidebar-top shadow-sm p-2 rounded-1 mb-3 dropend">
                 @php($currentClinic = \App\Models\Clinic::find(\App\Support\TenantContext::getClinicId()))
                 <a href="javascript:void(0);" class="drop-arrow-none"
-                    @if (auth()->check() && auth()->user()->hasRole('Super Admin')) data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-offset="0,22" aria-haspopup="false" aria-expanded="false" @endif>
+                    @if (auth()->check() &&
+                            (auth()->user()->hasRole('Super Admin') ||
+                                (auth()->user()->hasRole('Doctor') &&
+                                    optional(auth()->user()->doctor)->clinics()->count() > 1))) data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-offset="0,22" aria-haspopup="false" aria-expanded="false" @endif>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <span class="avatar rounded-circle flex-shrink-0 p-2"><img
@@ -51,7 +54,10 @@
                                 </p>
                             </div>
                         </div>
-                        @if (auth()->check() && auth()->user()->hasRole('Super Admin'))
+                        @if (auth()->check() &&
+                                (auth()->user()->hasRole('Super Admin') ||
+                                    (auth()->user()->hasRole('Doctor') &&
+                                        optional(auth()->user()->doctor)->clinics()->count() > 1)))
                             <i class="ti ti-arrows-transfer-up"></i>
                         @endif
                     </div>
@@ -101,6 +107,30 @@
                         </div>
                     </div>
                 @endif
+
+                @if (auth()->check() &&
+                        auth()->user()->hasRole('Doctor') &&
+                        optional(auth()->user()->doctor)->clinics()->count() > 1)
+                    <div class="dropdown-menu" style="min-width: 250px;">
+                        <div class="px-3 py-2 border-bottom">
+                            <h6 class="mb-2 text-uppercase fs-11 text-muted">Switch Active Clinic</h6>
+                            <div style="max-height: 150px; overflow-y: auto;">
+                                @foreach (auth()->user()->doctor->clinics()->orderBy('name')->get() as $clinic)
+                                    <a class="dropdown-item d-flex justify-content-between align-items-center px-2 py-1 rounded {{ $currentClinic->id == $clinic->id ? 'bg-light' : '' }}"
+                                        href="{{ route('doctor.switch-clinic', $clinic->id) }}">
+                                        <span class="text-truncate"
+                                            style="max-width: 150px;">{{ $clinic->name }}</span>
+                                        @if ($currentClinic->id == $clinic->id)
+                                            <i class="ti ti-check text-success"></i>
+                                        @else
+                                            <i class="ti ti-chevron-right fs-12"></i>
+                                        @endif
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <ul>
@@ -123,7 +153,7 @@
                         <ul style="{{ request()->routeIs('clinics.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('clinics.create') }}">Create Clinic</a></li>
                             <li><a href="{{ route('clinics.index') }}">Clinic List</a></li>
-                            <li><a href="#">Clinic Reports</a></li>
+                            <li><a href="{{ route('reports.index') }}">Clinic Reports</a></li>
                         </ul>
                     </li>
                     <li class="submenu">
@@ -131,17 +161,22 @@
                             <i class="ti ti-users"></i><span>Users</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('users.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Super Admins</a></li>
-                            <li><a href="#">Clinic Admin Accounts</a></li>
+                            <li><a href="{{ route('admin.users.super_admins') }}">Super Admins</a></li>
+                            <li><a href="{{ route('admin.users.clinic_admins') }}">Clinic Admin Accounts</a></li>
                         </ul>
                     </li>
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'active subdrop' : '' }}">
+                        <a href="#"
+                            class="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-settings"></i><span>System Settings</span><span class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('admin.roles.index') }}" class="{{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">Roles</a></li>
-                            <li><a href="{{ route('admin.permissions.index') }}" class="{{ request()->routeIs('admin.permissions.*') ? 'active' : '' }}">Permissions</a></li>
+                        <ul
+                            style="{{ request()->routeIs('admin.roles.*') || request()->routeIs('admin.permissions.*') ? 'display: block;' : 'display: none;' }}">
+                            <li><a href="{{ route('admin.roles.index') }}"
+                                    class="{{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">Roles</a></li>
+                            <li><a href="{{ route('admin.permissions.index') }}"
+                                    class="{{ request()->routeIs('admin.permissions.*') ? 'active' : '' }}">Permissions</a>
+                            </li>
                         </ul>
                     </li>
                     <li class="submenu">
@@ -149,8 +184,8 @@
                             <i class="ti ti-report"></i><span>Reports</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('reports.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Revenue (All Clinics)</a></li>
-                            <li><a href="#">Patient Volume</a></li>
+                            <li><a href="{{ route('reports.financial') }}">Revenue (All Clinics)</a></li>
+                            <li><a href="{{ route('reports.demographics') }}">Patient Volume</a></li>
                         </ul>
                     </li>
                 @endif
@@ -166,7 +201,7 @@
                         </a>
                         <ul
                             style="{{ request()->routeIs('departments.*') || request()->routeIs('doctors.*') || request()->routeIs('staff.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Clinic Profile</a></li>
+                            <li><a href="{{ route('clinics.profile') }}">Clinic Profile</a></li>
                             <li><a href="{{ route('departments.index') }}"
                                     class="{{ request()->routeIs('departments.*') ? 'active' : '' }}">Departments</a>
                             </li>
@@ -174,8 +209,8 @@
                                 <a href="#">Doctors <span class="menu-arrow"></span></a>
                                 <ul>
                                     <li><a href="{{ route('doctors.index') }}">Doctor Profiles</a></li>
-                                    <li><a href="#">Clinic Assignment</a></li>
-                                    <li><a href="#">Schedules</a></li>
+                                    <li><a href="{{ route('doctors.assignment') }}">Clinic Assignment</a></li>
+                                    <li><a href="{{ route('doctors.schedules') }}">Schedules</a></li>
                                 </ul>
                             </li>
                             <li class="submenu">
@@ -183,7 +218,7 @@
                                 <ul>
                                     <li><a href="{{ route('staff.create') }}">Create User</a></li>
                                     <li><a href="{{ route('staff.index') }}">Assign Roles</a></li>
-                                    <li><a href="#">Reset Passwords</a></li>
+                                    <li><a href="{{ route('staff.passwords') }}">Reset Passwords</a></li>
                                 </ul>
                             </li>
                         </ul>
@@ -201,7 +236,7 @@
                             </li>
                             <li><a href="{{ route('patients.index') }}"
                                     class="{{ request()->routeIs('patients.*') ? 'active' : '' }}">Patients</a></li>
-                            <li><a href="#">Visits</a></li>
+                            <li><a href="{{ route('visits.index') }}">Visits</a></li>
                         </ul>
                     </li>
 
@@ -210,12 +245,12 @@
                             <i class="ti ti-bed"></i><span>IPD</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('ipd.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Wards</a></li>
-                            <li><a href="#">Rooms</a></li>
-                            <li><a href="#">Beds</a></li>
+                            <li><a href="{{ route('ipd.wards.index') }}">Wards</a></li>
+                            <li><a href="{{ route('ipd.rooms.index') }}">Rooms</a></li>
+                            <li><a href="{{ route('ipd.beds.index') }}">Beds</a></li>
                             <li><a href="{{ route('ipd.index') }}"
                                     class="{{ request()->routeIs('ipd.*') ? 'active' : '' }}">Admissions</a></li>
-                            <li><a href="#">Bed Assignments</a></li>
+                            <li><a href="{{ route('ipd.bed_assignments.index') }}">Bed Assignments</a></li>
                         </ul>
                     </li>
 
@@ -224,7 +259,7 @@
                             <i class="ti ti-stethoscope"></i><span>Clinical</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('clinical.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Consultations</a></li>
+                            <li><a href="{{ route('clinical.consultations.index') }}">Consultations</a></li>
                             <li><a href="{{ route('clinical.prescriptions.index') }}">Prescriptions</a></li>
                         </ul>
                     </li>
@@ -234,10 +269,10 @@
                             <i class="ti ti-test-pipe"></i><span>Lab</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('lab.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Test Catalog</a></li>
+                            <li><a href="{{ route('lab.catalog.index') }}">Test Catalog</a></li>
                             <li><a href="{{ route('lab.index') }}"
                                     class="{{ request()->routeIs('lab.*') ? 'active' : '' }}">Test Orders</a></li>
-                            <li><a href="#">Results</a></li>
+                            <li><a href="{{ route('lab.results.index') }}">Results</a></li>
                         </ul>
                     </li>
 
@@ -259,7 +294,7 @@
                         <ul style="{{ request()->routeIs('billing.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('billing.index') }}"
                                     class="{{ request()->routeIs('billing.*') ? 'active' : '' }}">Invoices</a></li>
-                            <li><a href="#">Payments</a></li>
+                            <li><a href="{{ route('billing.payments.index') }}">Payments</a></li>
                         </ul>
                     </li>
 
@@ -269,12 +304,13 @@
                         </a>
                         <ul style="{{ request()->routeIs('reports.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('reports.financial') }}">Revenue</a></li>
-                            <li><a href="#">OPD/IPD Summary</a></li>
-                            <li><a href="#">Doctor Performance</a></li>
+                            <li><a href="{{ route('reports.summary') }}">OPD/IPD Summary</a></li>
+                            <li><a href="{{ route('reports.doctor_performance') }}">Doctor Performance</a></li>
                         </ul>
                     </li>
 
-                    <li><a href="#"><i class="ti ti-activity"></i><span>Activity Logs</span></a></li>
+                    <li><a href="{{ route('activity.index') }}"><i class="ti ti-activity"></i><span>Activity
+                                Logs</span></a></li>
                 @endif
 
                 <!-- 3. DOCTOR FLOW -->
@@ -291,7 +327,7 @@
                         </ul>
                     </li>
                     <li class="submenu">
-                        <a href="#"
+                        <a href="{{ route('doctor.schedule.index') }}"
                             class="{{ request()->routeIs('doctor.schedule.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-calendar"></i><span>My Schedule</span>
                         </a>
@@ -314,8 +350,8 @@
                         </a>
                         <ul
                             style="{{ request()->routeIs('clinical.consultations.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">New</a></li>
-                            <li><a href="#">History</a></li>
+                            <li><a href="{{ route('clinical.consultations.new') }}">New</a></li>
+                            <li><a href="{{ route('visits.index') }}">History</a></li>
                         </ul>
                     </li>
 
@@ -327,7 +363,7 @@
                         </a>
                         <ul
                             style="{{ request()->routeIs('clinical.prescriptions.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Create</a></li>
+                            <li><a href="{{ route('clinical.prescriptions.create') }}">Create</a></li>
                             <li><a href="{{ route('clinical.prescriptions.index') }}">History</a></li>
                         </ul>
                     </li>
@@ -348,7 +384,7 @@
                         </a>
                         <ul style="{{ request()->routeIs('ipd.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('ipd.index') }}">My Admissions</a></li>
-                            <li><a href="#">Rounds</a></li>
+                            <li><a href="{{ route('ipd.rounds.index') }}">Rounds</a></li>
                         </ul>
                     </li>
                 @endif
@@ -358,11 +394,13 @@
                     <li class="menu-title"><span>Front Desk</span></li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
+                        <a href="#"
+                            class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-calendar-plus"></i><span>Appointments</span><span
                                 class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul
+                            style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('appointments.create') }}">Book Appointment</a></li>
                             <li><a href="{{ route('appointments.index') }}">Today List</a></li>
                         </ul>
@@ -398,7 +436,7 @@
                         </a>
                         <ul style="{{ request()->routeIs('ipd.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('ipd.index') }}">Admitted Patients</a></li>
-                            <li><a href="#">Bed Status</a></li>
+                            <li><a href="{{ route('ipd.bed_status') }}">Bed Status</a></li>
                         </ul>
                     </li>
 
@@ -408,12 +446,13 @@
                                 class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('vitals.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Record</a></li>
-                            <li><a href="#">History</a></li>
+                            <li><a href="{{ route('vitals.record') }}">Record</a></li>
+                            <li><a href="{{ route('vitals.history') }}">History</a></li>
                         </ul>
                     </li>
 
-                    <li><a href="#"><i class="ti ti-notebook"></i><span>Nursing Notes</span></a></li>
+                    <li><a href="{{ route('nursing.notes.index') }}"><i class="ti ti-notebook"></i><span>Nursing
+                                Notes</span></a></li>
                 @endif
 
                 <!-- 6. LAB TECHNICIAN FLOW -->
@@ -432,12 +471,11 @@
                     </li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('results.*') ? 'active subdrop' : '' }}">
+                        <a href="#" class="{{ request()->routeIs('lab.results.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-report-medical"></i><span>Results</span><span class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('results.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Upload</a></li>
-                            <li><a href="#">Edit</a></li>
+                        <ul style="{{ request()->routeIs('lab.results.*') ? 'display: block;' : 'display: none;' }}">
+                            <li><a href="{{ route('lab.results.index') }}">Browse Results</a></li>
                         </ul>
                     </li>
                 @endif
@@ -454,8 +492,8 @@
                         </a>
                         <ul
                             style="{{ request()->routeIs('pharmacy.prescriptions.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Pending</a></li>
-                            <li><a href="#">Fulfilled</a></li>
+                            <li><a href="{{ route('pharmacy.prescriptions.index') }}">Pending</a></li>
+                            <li><a href="{{ route('pharmacy.prescriptions.index') }}">Fulfilled</a></li>
                         </ul>
                     </li>
 
@@ -503,8 +541,8 @@
                             <i class="ti ti-cash"></i><span>Payments</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('payments.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="#">Cash</a></li>
-                            <li><a href="#">Digital</a></li>
+                            <li><a href="{{ route('payments.cash') }}">Cash</a></li>
+                            <li><a href="{{ route('payments.digital') }}">Digital</a></li>
                         </ul>
                     </li>
 
@@ -514,7 +552,7 @@
                         </a>
                         <ul style="{{ request()->routeIs('reports.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('reports.financial') }}">Revenue</a></li>
-                            <li><a href="#">Tax</a></li>
+                            <li><a href="{{ route('reports.tax') }}">Tax</a></li>
                         </ul>
                     </li>
                 @endif
