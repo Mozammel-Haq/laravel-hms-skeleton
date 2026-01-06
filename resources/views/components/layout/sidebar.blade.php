@@ -39,8 +39,7 @@
                 <a href="javascript:void(0);" class="drop-arrow-none"
                     @if (auth()->check() &&
                             (auth()->user()->hasRole('Super Admin') ||
-                                (auth()->user()->hasRole('Doctor') &&
-                                    optional(auth()->user()->doctor)->clinics()->count() > 1))) data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-offset="0,22" aria-haspopup="false" aria-expanded="false" @endif>
+                                (auth()->user()->hasRole('Doctor') && auth()->user()->doctor?->clinics()?->count() > 1))) data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-offset="0,22" aria-haspopup="false" aria-expanded="false" @endif>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <span class="avatar rounded-circle flex-shrink-0 p-2"><img
@@ -56,8 +55,7 @@
                         </div>
                         @if (auth()->check() &&
                                 (auth()->user()->hasRole('Super Admin') ||
-                                    (auth()->user()->hasRole('Doctor') &&
-                                        optional(auth()->user()->doctor)->clinics()->count() > 1)))
+                                    (auth()->user()->hasRole('Doctor') && auth()->user()->doctor?->clinics()?->count() > 1)))
                             <i class="ti ti-arrows-transfer-up"></i>
                         @endif
                     </div>
@@ -108,9 +106,7 @@
                     </div>
                 @endif
 
-                @if (auth()->check() &&
-                        auth()->user()->hasRole('Doctor') &&
-                        optional(auth()->user()->doctor)->clinics()->count() > 1)
+                @if (auth()->check() && auth()->user()->hasRole('Doctor') && auth()->user()->doctor?->clinics()?->count() > 1)
                     <div class="dropdown-menu" style="min-width: 250px;">
                         <div class="px-3 py-2 border-bottom">
                             <h6 class="mb-2 text-uppercase fs-11 text-muted">Switch Active Clinic</h6>
@@ -315,7 +311,7 @@
 
                 <!-- 3. DOCTOR FLOW -->
                 @if (auth()->check() && auth()->user()->hasRole('Doctor'))
-                    <li class="menu-title"><span>Clinical Workspace</span></li>
+                    <li class="menu-title"><span>Clinical Workflow</span></li>
 
                     <li class="submenu">
                         <a href="#" class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">

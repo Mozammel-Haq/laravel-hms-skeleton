@@ -1,3 +1,46 @@
 <x-app-layout>
-    {{-- Prescriptions List --}}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="page-title mb-0">Prescriptions</h3>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Issued</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($prescriptions as $rx)
+                                <tr>
+                                    <td>{{ $rx->id }}</td>
+                                    <td>{{ optional($rx->consultation->patient)->full_name ?? optional($rx->consultation->patient)->name ?? 'Patient' }}</td>
+                                    <td>{{ optional($rx->consultation->doctor?->user)->name ?? 'Doctor' }}</td>
+                                    <td>{{ isset($rx->issued_date) ? \Illuminate\Support\Carbon::parse($rx->issued_date)->format('Y-m-d') : $rx->created_at->format('Y-m-d') }}</td>
+                                    <td><span class="badge bg-secondary">{{ $rx->status ?? 'active' }}</span></td>
+                                    <td class="text-end">
+                                        <a href="{{ route('clinical.prescriptions.show', $rx) }}" class="btn btn-sm btn-outline-primary">Open</a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No prescriptions</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    {{ $prescriptions->links() }}
+                </div>
+            </div>
+        </div>
+    </div>
 </x-app-layout>

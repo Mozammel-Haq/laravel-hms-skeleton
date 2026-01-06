@@ -1,5 +1,8 @@
 <x-app-layout>
     <div class="container-fluid py-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h3 class="page-title mb-0">Doctor Dashboard</h3>
+        </div>
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
@@ -22,7 +25,8 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center">
-                                <span class="avatar bg-secondary rounded-circle me-2"><i class="ti ti-prescription"></i></span>
+                                <span class="avatar bg-secondary rounded-circle me-2"><i
+                                        class="ti ti-prescription"></i></span>
                                 <div>
                                     <p class="mb-0 text-muted">Prescriptions This Month</p>
                                     <h4 class="mb-0">{{ $cards['prescriptions_month'] }}</h4>
@@ -74,9 +78,12 @@
                                         <tr>
                                             <td>{{ $a->patient->name ?? 'Patient' }}</td>
                                             <td>{{ $a->created_at?->format('d M, H:i') }}</td>
-                                            <td><span class="badge bg-light text-dark">{{ $a->status ?? 'pending' }}</span></td>
+                                            <td><span
+                                                    class="badge bg-light text-dark">{{ $a->status ?? 'pending' }}</span>
+                                            </td>
                                             <td class="text-end">
-                                                <a href="{{ route('appointments.show', $a) }}" class="btn btn-sm btn-primary">Open</a>
+                                                <a href="{{ route('appointments.show', $a) }}"
+                                                    class="btn btn-sm btn-primary">Open</a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -90,7 +97,8 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Recent Prescriptions</h5>
-                        <a href="{{ route('clinical.prescriptions.index') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                        <a href="{{ route('clinical.prescriptions.index') }}"
+                            class="btn btn-sm btn-outline-secondary">View All</a>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -108,9 +116,11 @@
                                         <tr>
                                             <td>{{ $p->patient->name ?? 'Patient' }}</td>
                                             <td>{{ $p->created_at?->format('d M, H:i') }}</td>
-                                            <td><span class="badge bg-secondary">{{ $p->status ?? 'active' }}</span></td>
+                                            <td><span class="badge bg-secondary">{{ $p->status ?? 'active' }}</span>
+                                            </td>
                                             <td class="text-end">
-                                                <a href="{{ route('clinical.prescriptions.show', $p) }}" class="btn btn-sm btn-secondary">Open</a>
+                                                <a href="{{ route('clinical.prescriptions.show', $p) }}"
+                                                    class="btn btn-sm btn-secondary">Open</a>
                                             </td>
                                         </tr>
                                     @endforeach
