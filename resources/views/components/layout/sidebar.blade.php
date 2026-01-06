@@ -35,27 +35,26 @@
         <div id="sidebar-menu" class="sidebar-menu">
             <!-- Clinic Info / Switcher -->
             <div class="sidebar-top shadow-sm p-2 rounded-1 mb-3 dropend">
-                @php($currentClinic = \App\Models\Clinic::find(\App\Support\TenantContext::getClinicId()))
                 <a href="javascript:void(0);" class="drop-arrow-none"
                     @if (auth()->check() &&
                             (auth()->user()->hasRole('Super Admin') ||
-                                (auth()->user()->hasRole('Doctor') && auth()->user()->doctor?->clinics()?->count() > 1))) data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-offset="0,22" aria-haspopup="false" aria-expanded="false" @endif>
+                                (auth()->user()->hasRole('Doctor') && isset($doctorClinics) && $doctorClinics->count() > 1))) data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-offset="0,22" aria-haspopup="false" aria-expanded="false" @endif>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <span class="avatar rounded-circle flex-shrink-0 p-2"><img
                                     src="{{ asset('assets') }}/img/icons/trustcare.svg" alt="img"></span>
                             <div class="ms-2">
                                 <h6 class="fs-14 fw-semibold mb-0">
-                                    {{ $currentClinic->name ?? (auth()->user()->clinic->name ?? 'Trustcare Clinic') }}
+                                    {{ optional($currentClinic)->name ?? (auth()->user()->clinic->name ?? 'Trustcare Clinic') }}
                                 </h6>
                                 <p class="fs-13 mb-0">
-                                    {{ $currentClinic->location ?? (auth()->user()->clinic->location ?? 'Location') }}
+                                    {{ optional($currentClinic)->location ?? (auth()->user()->clinic->location ?? 'Location') }}
                                 </p>
                             </div>
                         </div>
                         @if (auth()->check() &&
                                 (auth()->user()->hasRole('Super Admin') ||
-                                    (auth()->user()->hasRole('Doctor') && auth()->user()->doctor?->clinics()?->count() > 1)))
+                                    (auth()->user()->hasRole('Doctor') && isset($doctorClinics) && $doctorClinics->count() > 1)))
                             <i class="ti ti-arrows-transfer-up"></i>
                         @endif
                     </div>
@@ -67,7 +66,7 @@
                         <div class="px-3 py-2 border-bottom">
                             <h6 class="mb-2 text-uppercase fs-11 text-muted">Switch Active Clinic</h6>
                             <div style="max-height: 150px; overflow-y: auto;">
-                                @foreach (\App\Models\Clinic::orderBy('name')->get() as $clinic)
+                                @foreach ($allClinics as $clinic)
                                     <a class="dropdown-item d-flex justify-content-between align-items-center px-2 py-1 rounded {{ $currentClinic->id == $clinic->id ? 'bg-light' : '' }}"
                                         href="{{ route('system.switch-clinic', $clinic->id) }}">
                                         <span class="text-truncate"
@@ -87,7 +86,7 @@
                             <h6 class="mb-2 text-uppercase fs-11 text-muted">Compare & Reports</h6>
                             <form action="{{ route('reports.compare') }}" method="GET">
                                 <div class="mb-2" style="max-height: 150px; overflow-y: auto;">
-                                    @foreach (\App\Models\Clinic::orderBy('name')->get() as $clinic)
+                                    @foreach ($allClinics as $clinic)
                                         <div class="form-check form-check-sm mb-1">
                                             <input class="form-check-input" type="checkbox" name="clinics[]"
                                                 value="{{ $clinic->id }}" id="compare_clinic_{{ $clinic->id }}">
@@ -106,12 +105,12 @@
                     </div>
                 @endif
 
-                @if (auth()->check() && auth()->user()->hasRole('Doctor') && auth()->user()->doctor?->clinics()?->count() > 1)
+                @if (auth()->check() && auth()->user()->hasRole('Doctor') && isset($doctorClinics) && $doctorClinics->count() > 1)
                     <div class="dropdown-menu" style="min-width: 250px;">
                         <div class="px-3 py-2 border-bottom">
                             <h6 class="mb-2 text-uppercase fs-11 text-muted">Switch Active Clinic</h6>
                             <div style="max-height: 150px; overflow-y: auto;">
-                                @foreach (auth()->user()->doctor->clinics()->orderBy('name')->get() as $clinic)
+                                @foreach ($doctorClinics as $clinic)
                                     <a class="dropdown-item d-flex justify-content-between align-items-center px-2 py-1 rounded {{ $currentClinic->id == $clinic->id ? 'bg-light' : '' }}"
                                         href="{{ route('doctor.switch-clinic', $clinic->id) }}">
                                         <span class="text-truncate"
@@ -346,7 +345,7 @@
                         </a>
                         <ul
                             style="{{ request()->routeIs('clinical.consultations.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('clinical.consultations.new') }}">New</a></li>
+                            <li><a href="{{ route('appointments.create') }}">New</a></li>
                             <li><a href="{{ route('visits.index') }}">History</a></li>
                         </ul>
                     </li>
@@ -359,7 +358,7 @@
                         </a>
                         <ul
                             style="{{ request()->routeIs('clinical.prescriptions.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('clinical.prescriptions.create') }}">Create</a></li>
+                            <!-- Creation happens within a Consultation context -->
                             <li><a href="{{ route('clinical.prescriptions.index') }}">History</a></li>
                         </ul>
                     </li>

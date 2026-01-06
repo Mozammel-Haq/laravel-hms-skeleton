@@ -17,7 +17,8 @@ return new class extends Migration
             'prescriptions',
             'consultations',
             'visits',
-            'payments'
+            'payments',
+            'bed_assignments'
         ];
 
         foreach ($tables as $tableName) {

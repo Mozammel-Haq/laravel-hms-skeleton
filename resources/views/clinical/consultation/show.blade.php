@@ -27,6 +27,15 @@
                 <div class="card">
                     <div class="card-header bg-white fw-semibold">Details</div>
                     <div class="card-body">
+                        <div class="mb-3">
+                            @if(!$consultation->prescription)
+                                @can('create', App\Models\Prescription::class)
+                                    <a href="{{ route('clinical.prescriptions.create', $consultation->id) }}" class="btn btn-sm btn-primary">Create Prescription</a>
+                                @endcan
+                            @else
+                                <a href="{{ route('clinical.prescriptions.show', $consultation->prescription->id) }}" class="btn btn-sm btn-outline-primary">View Prescription</a>
+                            @endif
+                        </div>
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
                                 <div class="text-muted">Symptoms</div>
@@ -48,8 +57,9 @@
                                     <tr>
                                         <th>Medicine</th>
                                         <th>Dosage</th>
-                                        <th>Duration</th>
-                                        <th>Instruction</th>
+                                        <th>Frequency</th>
+                                        <th>Duration (days)</th>
+                                        <th>Instructions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -57,8 +67,9 @@
                                         <tr>
                                             <td>{{ optional($item->medicine)->name ?? 'Medicine' }}</td>
                                             <td>{{ $item->dosage ?? 'N/A' }}</td>
-                                            <td>{{ $item->duration ?? 'N/A' }}</td>
-                                            <td>{{ $item->instruction ?? 'N/A' }}</td>
+                                            <td>{{ $item->frequency ?? 'N/A' }}</td>
+                                            <td>{{ $item->duration_days ?? 'N/A' }}</td>
+                                            <td>{{ $item->instructions ?? 'N/A' }}</td>
                                         </tr>
                                     @empty
                                         <tr>

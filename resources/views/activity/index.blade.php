@@ -1,7 +1,4 @@
 <x-app-layout>
-    @php
-        $logs = \App\Models\ActivityLog::with('user')->latest()->take(100)->get();
-    @endphp
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Activity Logs</h3>
@@ -38,6 +35,9 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-3">
+                    {{ $logs->links() }}
                 </div>
             </div>
         </div>

@@ -192,6 +192,9 @@ class RolePermissionSeeder extends Seeder
             'manage_pharmacy_inventory',
             'process_pharmacy_sales',
             'view_prescriptions',
+            'view_billing',
+            'view_invoices',
+            'create_invoices',
         ])->pluck('id'));
 
         // Accountant

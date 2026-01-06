@@ -1,11 +1,4 @@
 <x-app-layout>
-    @php
-        $wards = \App\Models\Ward::with(['rooms.beds'])
-            ->orderBy('name')
-            ->get();
-        $bedsAvailable = \App\Models\Bed::where('status', 'available')->count();
-        $bedsOccupied = \App\Models\Bed::where('status', 'occupied')->count();
-    @endphp
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Bed Status</h3>

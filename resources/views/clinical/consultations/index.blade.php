@@ -1,10 +1,4 @@
 <x-app-layout>
-    @php
-        $consultations = \App\Models\Consultation::with(['patient', 'doctor'])
-            ->latest()
-            ->take(50)
-            ->get();
-    @endphp
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Consultations</h3>
@@ -42,6 +36,9 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-3">
+                    {{ $consultations->links() }}
                 </div>
             </div>
         </div>

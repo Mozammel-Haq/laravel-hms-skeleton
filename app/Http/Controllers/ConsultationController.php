@@ -14,23 +14,31 @@ use Illuminate\Support\Facades\Gate;
 
 class ConsultationController extends Controller
 {
+    public function index()
+    {
+        Gate::authorize('view_consultations');
+        $consultations = Consultation::with(['patient', 'doctor'])
+            ->latest()
+            ->paginate(50);
+        return view('clinical.consultations.index', compact('consultations'));
+    }
     /**
      * Start a consultation for an appointment.
      */
     public function create(Appointment $appointment)
     {
         Gate::authorize('create', Consultation::class);
-        
-        // Ensure appointment belongs to this doctor? Policy handles 'create' generally, 
+
+        // Ensure appointment belongs to this doctor? Policy handles 'create' generally,
         // but we should check if the user is the doctor or has right permissions.
-        
+
         if ($appointment->status === 'completed') {
             return redirect()->route('appointments.show', $appointment)
                 ->with('warning', 'This appointment is already completed.');
         }
 
         $patient = $appointment->patient;
-        $medicines = Medicine::where('status', 'active')->get(); // For prescription autocomplete
+        $medicines = Medicine::orderBy('name')->get();
 
         return view('clinical.consultation.create', compact('appointment', 'patient', 'medicines'));
     }
@@ -86,10 +94,8 @@ class ConsultationController extends Controller
                 $prescription = Prescription::create([
                     'clinic_id' => $appointment->clinic_id,
                     'consultation_id' => $consultation->id,
-                    'patient_id' => $appointment->patient_id,
-                    'doctor_id' => $appointment->doctor_id,
-                    'issued_date' => now(),
-                    'status' => 'active',
+                    'issued_at' => now(),
+                    'notes' => $request->notes,
                 ]);
 
                 foreach ($request->prescription_items as $item) {
@@ -97,8 +103,9 @@ class ConsultationController extends Controller
                         'prescription_id' => $prescription->id,
                         'medicine_id' => $item['medicine_id'],
                         'dosage' => $item['dosage'],
-                        'duration' => $item['duration'],
-                        'instruction' => $item['instruction'] ?? null,
+                        'frequency' => $item['frequency'] ?? ($item['dosage'] ?? ''),
+                        'duration_days' => isset($item['duration_days']) ? (int)$item['duration_days'] : 0,
+                        'instructions' => $item['instructions'] ?? null,
                     ]);
                 }
             }

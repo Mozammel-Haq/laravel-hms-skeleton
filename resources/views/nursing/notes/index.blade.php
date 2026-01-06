@@ -1,11 +1,4 @@
 <x-app-layout>
-    @php
-        $admissions = \App\Models\Admission::with(['patient'])
-            ->where('status', 'admitted')
-            ->latest()
-            ->take(20)
-            ->get();
-    @endphp
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Nursing Notes</h3>

@@ -1,7 +1,4 @@
 <x-app-layout>
-    @php
-        $patients = \App\Models\Patient::orderBy('first_name')->take(100)->get();
-    @endphp
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Record Vitals</h3>
