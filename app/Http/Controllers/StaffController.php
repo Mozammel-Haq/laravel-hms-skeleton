@@ -48,6 +48,13 @@ class StaffController extends Controller
         return redirect()->route('staff.index')->with('success', 'Staff member created successfully.');
     }
 
+    public function show(User $staff)
+    {
+        Gate::authorize('view', $staff);
+        $staff->load('roles');
+        return view('staff.show', compact('staff'));
+    }
+
     public function edit(User $user)
     {
         Gate::authorize('update', $user);

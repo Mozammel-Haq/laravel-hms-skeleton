@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Admission;
 use App\Models\Bed;
+use App\Models\Room;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Ward;
@@ -27,7 +28,25 @@ class IpdController extends Controller
             ->where('status', 'admitted')
             ->latest()
             ->paginate(20);
-        return view('ipd.index', compact('admissions'));
+        $admissionsCount = Admission::where('status', 'admitted')->count();
+        $bedsAvailable = \App\Models\Bed::withoutTenant()
+            ->join('rooms', 'beds.room_id', '=', 'rooms.id')
+            ->join('wards', 'rooms.ward_id', '=', 'wards.id')
+            ->where('wards.clinic_id', auth()->user()->clinic_id)
+            ->where('beds.status', 'available')
+            ->count();
+        $bedsOccupied = \App\Models\Bed::withoutTenant()
+            ->join('rooms', 'beds.room_id', '=', 'rooms.id')
+            ->join('wards', 'rooms.ward_id', '=', 'wards.id')
+            ->where('wards.clinic_id', auth()->user()->clinic_id)
+            ->where('beds.status', 'occupied')
+            ->count();
+        $totalWards = Ward::where('clinic_id', auth()->user()->clinic_id)->count();
+        $totalRooms = Room::withoutTenant()
+            ->join('wards', 'rooms.ward_id', '=', 'wards.id')
+            ->where('wards.clinic_id', auth()->user()->clinic_id)
+            ->count();
+        return view('ipd.index', compact('admissions', 'admissionsCount', 'bedsAvailable', 'bedsOccupied', 'totalWards', 'totalRooms'));
     }
 
     public function create()
@@ -79,7 +98,7 @@ class IpdController extends Controller
     public function storeBedAssignment(Request $request, Admission $admission)
     {
         Gate::authorize('update', $admission);
-        
+
         $request->validate([
             'bed_id' => 'required|exists:beds,id',
         ]);

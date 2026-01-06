@@ -11,7 +11,7 @@ class PaymentController extends Controller
     public function index()
     {
         Gate::authorize('view_billing');
-        $payments = Payment::with(['invoice', 'patient'])->latest()->paginate(50);
+        $payments = Payment::with(['invoice.patient'])->latest()->paginate(50);
         return view('billing.payments.index', compact('payments'));
     }
 

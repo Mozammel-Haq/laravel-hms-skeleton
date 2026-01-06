@@ -18,7 +18,7 @@ class AppointmentService
     public function getAvailableSlots(Doctor $doctor, string $date): array
     {
         $date = Carbon::parse($date);
-        $dayOfWeek = $date->dayOfWeek; // 0 (Sunday) to 6 (Saturday)
+        $dayOfWeek = $date->isoWeekday(); // 1 (Monday) to 7 (Sunday)
 
         // 1. Check for Exceptions (Day Off)
         // We need to use the relationship defined in Doctor model: schedules() and exceptions might be on DoctorSchedule?
@@ -30,7 +30,7 @@ class AppointmentService
         // Let's check DoctorScheduleException migration: doctor_id, clinic_id.
         // So Doctor should have hasMany(DoctorScheduleException::class).
         
-        $exception = $doctor->exceptions() // I need to add this relationship to Doctor model
+        $exception = $doctor->exceptions()
             ->where('exception_date', $date->format('Y-m-d'))
             ->first();
 

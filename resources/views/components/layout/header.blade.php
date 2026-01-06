@@ -73,7 +73,8 @@
                     <!-- Settings -->
                     <div class="header-item">
                         <div class="dropdown me-2">
-                            <a href="{{ route('profile.edit') }}" class="btn topbar-link"><i class="ti ti-settings-2"></i></a>
+                            <a href="{{ route('profile.edit') }}" class="btn topbar-link"><i
+                                    class="ti ti-settings-2"></i></a>
                         </div>
                     </div>
                     <!-- Settings -->
@@ -278,8 +279,9 @@
                                 <img src="{{ asset('assets') }}/img/users/user-01.jpg" class="rounded-circle"
                                     width="42" height="42" alt="">
                                 <div class="ms-2">
-                                    <p class="fw-medium text-dark mb-0">{{ auth()->user()->name }}</p>
-                                    <span class="d-block fs-13">{{ auth()->user()->roles->pluck('name')->join(', ') }}</span>
+                                    <p class="fw-medium text-dark mb-0">{{ optional(auth()->user())->name }}</p>
+                                    <span
+                                        class="d-block fs-13">{{ auth()->check() ? auth()->user()->roles->pluck('name')->implode(', ') : '' }}</span>
                                 </div>
                             </div>
 

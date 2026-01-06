@@ -17,7 +17,7 @@ class ConsultationController extends Controller
     public function index()
     {
         Gate::authorize('view_consultations');
-        $consultations = Consultation::with(['patient', 'doctor'])
+        $consultations = Consultation::with(['visit.appointment.patient', 'visit.appointment.doctor'])
             ->latest()
             ->paginate(50);
         return view('clinical.consultations.index', compact('consultations'));
@@ -51,51 +51,39 @@ class ConsultationController extends Controller
         Gate::authorize('create', Consultation::class);
 
         $request->validate([
-            'symptoms' => 'required|string',
+            'doctor_notes' => 'required|string',
             'diagnosis' => 'required|string',
-            'notes' => 'nullable|string',
-            // Vitals
-            'weight' => 'nullable|numeric',
-            'temperature' => 'nullable|numeric',
-            'bp_systolic' => 'nullable|integer',
-            'bp_diastolic' => 'nullable|integer',
-            // Prescription Items
+            'follow_up_required' => 'nullable|boolean',
+            'follow_up_date' => 'nullable|date',
             'prescription_items' => 'nullable|array',
             'prescription_items.*.medicine_id' => 'required_with:prescription_items|exists:medicines,id',
-            'prescription_items.*.dosage' => 'required_with:prescription_items|string', // e.g., "1-0-1"
-            'prescription_items.*.duration' => 'required_with:prescription_items|string', // e.g., "5 days"
-            'prescription_items.*.instruction' => 'nullable|string', // e.g., "After food"
+            'prescription_items.*.dosage' => 'required_with:prescription_items|string',
+            'prescription_items.*.frequency' => 'required_with:prescription_items|string',
+            'prescription_items.*.duration_days' => 'required_with:prescription_items|integer|min:1',
+            'prescription_items.*.instructions' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($request, $appointment) {
-            // 1. Create Visit
             $visit = Visit::create([
-                'clinic_id' => $appointment->clinic_id,
-                'patient_id' => $appointment->patient_id,
-                'doctor_id' => $appointment->doctor_id,
                 'appointment_id' => $appointment->id,
-                'visit_date' => now(),
-                'status' => 'completed',
+                'check_in_time' => now(),
+                'check_out_time' => now(),
+                'visit_status' => 'completed',
             ]);
 
-            // 2. Create Consultation
             $consultation = Consultation::create([
-                'clinic_id' => $appointment->clinic_id,
                 'visit_id' => $visit->id,
-                'doctor_id' => $appointment->doctor_id,
-                'patient_id' => $appointment->patient_id,
-                'symptoms' => $request->symptoms,
+                'doctor_notes' => $request->doctor_notes,
                 'diagnosis' => $request->diagnosis,
-                'notes' => $request->notes,
+                'follow_up_required' => (bool)($request->follow_up_required ?? false),
+                'follow_up_date' => $request->follow_up_date,
             ]);
 
-            // 3. Create Prescription (if items exist)
             if ($request->has('prescription_items') && count($request->prescription_items) > 0) {
                 $prescription = Prescription::create([
-                    'clinic_id' => $appointment->clinic_id,
                     'consultation_id' => $consultation->id,
                     'issued_at' => now(),
-                    'notes' => $request->notes,
+                    'notes' => null,
                 ]);
 
                 foreach ($request->prescription_items as $item) {
@@ -103,14 +91,13 @@ class ConsultationController extends Controller
                         'prescription_id' => $prescription->id,
                         'medicine_id' => $item['medicine_id'],
                         'dosage' => $item['dosage'],
-                        'frequency' => $item['frequency'] ?? ($item['dosage'] ?? ''),
-                        'duration_days' => isset($item['duration_days']) ? (int)$item['duration_days'] : 0,
+                        'frequency' => $item['frequency'],
+                        'duration_days' => (int)$item['duration_days'],
                         'instructions' => $item['instructions'] ?? null,
                     ]);
                 }
             }
 
-            // 4. Update Appointment Status
             $appointment->update(['status' => 'completed']);
         });
 
@@ -120,7 +107,7 @@ class ConsultationController extends Controller
     public function show(Consultation $consultation)
     {
         Gate::authorize('view', $consultation);
-        $consultation->load(['visit', 'prescription.items.medicine', 'doctor', 'patient']);
+        $consultation->load(['visit.appointment.patient', 'visit.appointment.doctor', 'prescription.items.medicine', 'visit']);
         return view('clinical.consultation.show', compact('consultation'));
     }
 }

@@ -28,8 +28,11 @@ class PharmacyController extends Controller
     public function create()
     {
         Gate::authorize('create', PharmacySale::class);
-        $patients = Patient::all();
-        $medicines = Medicine::where('stock_quantity', '>', 0)->get();
+        $patients = Patient::orderBy('name')->get();
+        $medicines = Medicine::whereHas('batches', function ($q) {
+            $q->where('clinic_id', auth()->user()->clinic_id)
+              ->where('quantity_in_stock', '>', 0);
+        })->orderBy('name')->get();
         return view('pharmacy.pos', compact('patients', 'medicines'));
     }
 
