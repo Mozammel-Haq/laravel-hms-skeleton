@@ -29,9 +29,7 @@ use App\Http\Middleware\EnsureClinicContext;
 use App\Models\Clinic;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return response('Home', 200);
-});
+Route::view('/', 'auth.login');
 require __DIR__ . '/auth.php';
 
 
@@ -77,7 +75,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::prefix('clinical')->name('clinical.')->group(function () {
         // Start consultation from an appointment
         Route::middleware('can:perform_consultation')->group(function () {
-            Route::get('consultations/create/{appointment}', [ConsultationController::class, 'create'])->name('consultations.create');
+            Route::get('consultations/create', [ConsultationController::class, 'create'])->name('consultations.create');
             Route::post('consultations/{appointment}', [ConsultationController::class, 'store'])->name('consultations.store');
         });
 
@@ -155,6 +153,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         // Discharge
         Route::get('/{admission}/discharge', [IpdController::class, 'discharge'])->whereNumber('admission')->name('discharge');
         Route::post('/{admission}/discharge', [IpdController::class, 'storeDischarge'])->whereNumber('admission')->name('store-discharge');
+        Route::get('/rounds', [IpdController::class, 'roundsIndex'])->name('rounds.index');
+        Route::get('/bed-status', [IpdController::class, 'bedStatus'])->name('bed_status');
     });
 
     // Laboratory
@@ -191,8 +191,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         ->middleware('can:viewAny,App\Models\Clinic');
 
     // Doctors Management
-    Route::view('/doctors/assignment', 'doctors.assignment')->name('doctors.assignment')->middleware('can:view_doctors');
-    Route::view('/doctors/schedules', 'doctors.schedules')->name('doctors.schedules')->middleware('can:view_doctors');
+    Route::get('/doctors/assignment', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'assignment'])->name('doctors.assignment')->middleware('can:view_doctors');
+    Route::get('/doctors/schedules', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'schedules'])->name('doctors.schedules')->middleware('can:view_doctors');
     Route::resource('doctors', DoctorController::class)->middleware('can:view_doctors');
     Route::get('doctors/{doctor}/schedule', [DoctorController::class, 'schedule'])->name('doctors.schedule')->middleware('can:manage_doctor_schedule');
     Route::put('doctors/{doctor}/schedule', [DoctorController::class, 'updateSchedule'])->name('doctors.schedule.update')->middleware('can:manage_doctor_schedule');
@@ -206,8 +206,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::resource('permissions', PermissionController::class);
         Route::put('permissions/role/{role}', [PermissionController::class, 'updateRolePermissions'])
             ->name('permissions.updateRolePermissions');
-        Route::view('users/super-admins', 'admin.users.super_admins')->name('users.super_admins');
-        Route::view('users/clinic-admins', 'admin.users.clinic_admins')->name('users.clinic_admins');
+        Route::get('users/super-admins', [\App\Http\Controllers\AdminUsersController::class, 'superAdmins'])->name('users.super_admins');
+        Route::get('users/clinic-admins', [\App\Http\Controllers\AdminUsersController::class, 'clinicAdmins'])->name('users.clinic_admins');
     });
 
 
@@ -224,24 +224,24 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::view('/clinic/profile', 'clinics.profile')->name('clinics.profile');
 
     // Staff extras
-    Route::view('/staff/passwords', 'staff.passwords')->name('staff.passwords')->middleware('can:view_staff');
+    Route::get('/staff/passwords', [StaffController::class, 'passwords'])->name('staff.passwords')->middleware('can:view_staff');
 
     // Billing payments index
     Route::prefix('billing')->name('billing.')->middleware('can:view_billing')->group(function () {
-        Route::view('/payments', 'billing.payments.index')->name('payments.index');
+        Route::get('/payments', [\App\Http\Controllers\PaymentController::class, 'index'])->name('payments.index');
     });
 
     // Activity logs
-    Route::view('/activity', 'activity.index')->name('activity.index');
+    Route::get('/activity', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activity.index');
 
     // Doctor schedule (current doctor)
     Route::view('/doctor/schedule', 'doctor.schedule.index')->name('doctor.schedule.index');
 
     // Clinical extras
     Route::prefix('clinical')->name('clinical.')->group(function () {
-        Route::view('consultations', 'clinical.consultations.index')->name('consultations.index')->middleware('can:view_consultations');
-        Route::view('consultations/new', 'clinical.consultations.new')->name('consultations.new')->middleware('can:perform_consultation');
-        Route::view('prescriptions/create', 'clinical.prescriptions.create')->name('prescriptions.create')->middleware('can:view_prescriptions');
+        Route::get('consultations', [ConsultationController::class, 'index'])->name('consultations.index')->middleware('can:view_consultations');
+        Route::get('prescriptions/create/{consultation}', [PrescriptionController::class, 'create'])->name('prescriptions.create')->middleware('can:create,App\Models\Prescription');
+        Route::post('prescriptions/{consultation}', [PrescriptionController::class, 'store'])->name('prescriptions.store')->middleware('can:create,App\Models\Prescription');
     });
 
     // IPD extras
@@ -252,18 +252,18 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Vitals
     Route::prefix('vitals')->name('vitals.')->group(function () {
-        Route::view('/record', 'vitals.record')->name('record');
-        Route::view('/history', 'vitals.history')->name('history');
+        Route::get('/record', [\App\Http\Controllers\Extras\VitalsController::class, 'record'])->name('record');
+        Route::get('/history', [\App\Http\Controllers\Extras\VitalsController::class, 'history'])->name('history');
     });
 
     // Nursing Notes
     Route::prefix('nursing')->name('nursing.')->group(function () {
-        Route::view('/notes', 'nursing.notes.index')->name('notes.index');
+        Route::get('/notes', [\App\Http\Controllers\NursingController::class, 'notesIndex'])->name('notes.index');
     });
 
     // Payments (Accountant)
     Route::prefix('payments')->name('payments.')->group(function () {
-        Route::view('/cash', 'payments.cash')->name('cash');
-        Route::view('/digital', 'payments.digital')->name('digital');
+        Route::get('/cash', [\App\Http\Controllers\PaymentController::class, 'cash'])->name('cash');
+        Route::get('/digital', [\App\Http\Controllers\PaymentController::class, 'digital'])->name('digital');
     });
 });

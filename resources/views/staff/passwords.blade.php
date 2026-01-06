@@ -1,9 +1,4 @@
 <x-app-layout>
-    @php
-        $staff = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', '!=', 'Super Admin'))
-            ->orderBy('name')
-            ->get();
-    @endphp
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Reset Passwords</h3>
@@ -39,6 +34,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-3">
+                    {{ $staff->links() }}
                 </div>
             </div>
         </div>

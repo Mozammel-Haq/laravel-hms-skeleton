@@ -77,4 +77,16 @@ class StaffController extends Controller
         $user->delete();
         return redirect()->route('staff.index')->with('success', 'Staff member deleted successfully.');
     }
+
+    public function passwords()
+    {
+        Gate::authorize('viewAny', User::class);
+        $staff = User::with('roles')
+            ->whereHas('roles', function ($q) {
+                $q->where('name', '!=', 'Super Admin');
+            })
+            ->orderBy('name')
+            ->paginate(20);
+        return view('staff.passwords', compact('staff'));
+    }
 }

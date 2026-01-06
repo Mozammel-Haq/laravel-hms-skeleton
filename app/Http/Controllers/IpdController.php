@@ -6,6 +6,7 @@ use App\Models\Admission;
 use App\Models\Bed;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Ward;
 use App\Services\IpdService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -110,5 +111,24 @@ class IpdController extends Controller
 
         return redirect()->route('ipd.index')
             ->with('success', 'Patient discharged successfully.');
+    }
+
+    public function roundsIndex()
+    {
+        Gate::authorize('viewAny', Admission::class);
+        $admissions = Admission::with(['patient', 'doctor'])
+            ->where('status', 'admitted')
+            ->latest()
+            ->paginate(20);
+        return view('ipd.rounds.index', compact('admissions'));
+    }
+
+    public function bedStatus()
+    {
+        Gate::authorize('viewAny', Admission::class);
+        $wards = Ward::with(['rooms.beds'])->orderBy('name')->get();
+        $bedsAvailable = Bed::where('status', 'available')->count();
+        $bedsOccupied = Bed::where('status', 'occupied')->count();
+        return view('ipd.bed_status', compact('wards', 'bedsAvailable', 'bedsOccupied'));
     }
 }

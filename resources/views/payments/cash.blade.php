@@ -1,7 +1,4 @@
 <x-app-layout>
-    @php
-        $invoices = \App\Models\Invoice::latest()->take(100)->get();
-    @endphp
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Cash Payments</h3>
@@ -16,7 +13,7 @@
                             <option value="">Select invoice</option>
                             @foreach ($invoices as $inv)
                                 <option value="{{ $inv->id }}">#{{ $inv->id }}
-                                    {{ number_format($inv->total ?? 0, 2) }}</option>
+                                    {{ number_format($inv->total_amount ?? 0, 2) }}</option>
                             @endforeach
                         </select>
                     </div>
