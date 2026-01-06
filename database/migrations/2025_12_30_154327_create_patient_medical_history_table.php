@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('diagnosed_date')->nullable();
             $table->string('status')->nullable();
             $table->text('notes')->nullable();
+            $table->timestamps();
         });
     }
 

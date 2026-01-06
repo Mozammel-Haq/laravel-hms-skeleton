@@ -28,6 +28,7 @@ return new class extends Migration
 
             $table->foreignId('recorded_by')->constrained('users')->restrictOnDelete();
             $table->timestamp('recorded_at');
+            $table->timestamps();
         });
     }
 

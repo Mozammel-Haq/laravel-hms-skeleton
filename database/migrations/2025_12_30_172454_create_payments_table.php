@@ -22,6 +22,8 @@ return new class extends Migration
 
             $table->timestamp('paid_at');
             $table->foreignId('received_by')->constrained('users')->restrictOnDelete();
+
+            $table->timestamps();
         });
     }
 

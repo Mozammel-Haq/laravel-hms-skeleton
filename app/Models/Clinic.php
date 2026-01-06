@@ -12,4 +12,6 @@ class Clinic extends Model
     public function patients() { return $this->hasMany(Patient::class); }
     public function appointments() { return $this->hasMany(Appointment::class); }
     public function wards() { return $this->hasMany(Ward::class); }
+    public function invoices() { return $this->hasMany(Invoice::class); }
+    public function doctors() { return $this->belongsToMany(Doctor::class, 'doctor_clinic'); }
 }

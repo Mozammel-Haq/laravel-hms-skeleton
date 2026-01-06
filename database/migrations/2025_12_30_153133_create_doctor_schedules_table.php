@@ -22,6 +22,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('slot_duration_minutes');
             $table->unsignedSmallInteger('max_patients')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->timestamps();
         });
     }
 

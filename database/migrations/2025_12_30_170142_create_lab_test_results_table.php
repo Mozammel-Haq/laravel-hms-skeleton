@@ -24,6 +24,7 @@ return new class extends Migration
 
             $table->foreignId('reported_by')->constrained('users')->restrictOnDelete();
             $table->timestamp('reported_at');
+            $table->timestamps();
         });
     }
 

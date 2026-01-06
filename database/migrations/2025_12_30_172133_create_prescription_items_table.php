@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('frequency');
             $table->integer('duration_days');
             $table->text('instructions')->nullable();
+            $table->timestamps();
         });
     }
 

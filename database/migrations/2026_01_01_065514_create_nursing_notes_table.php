@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('nursing_notes', function (Blueprint $table) {
-    $table->id();
+        Schema::create('nursing_notes', function (Blueprint $table) {
+            $table->id();
 
-    $table->foreignId('admission_id')->constrained()->restrictOnDelete();
-    $table->foreignId('nurse_id')->constrained('users')->restrictOnDelete();
+            $table->foreignId('admission_id')->constrained()->restrictOnDelete();
+            $table->foreignId('nurse_id')->constrained('users')->restrictOnDelete();
 
-    $table->text('notes');
-    $table->dateTime('recorded_at');
-});
-
+            $table->text('notes');
+            $table->dateTime('recorded_at');
+            $table->timestamps();
+        });
     }
 
     /**

@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('bed_assignments', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    $table->foreignId('admission_id')->constrained()->restrictOnDelete();
-    $table->foreignId('bed_id')->constrained()->restrictOnDelete();
+            $table->foreignId('admission_id')->constrained()->restrictOnDelete();
+            $table->foreignId('bed_id')->constrained()->restrictOnDelete();
 
-    $table->dateTime('assigned_at');
-    $table->dateTime('released_at')->nullable();
-});
-
+            $table->dateTime('assigned_at');
+            $table->dateTime('released_at')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**

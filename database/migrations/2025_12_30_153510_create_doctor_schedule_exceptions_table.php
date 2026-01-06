@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('exception_date');
             $table->boolean('is_available')->default(false);
             $table->string('reason')->nullable();
-            $table->timestamp('created_at');
+            $table->timestamps();
         });
     }
 

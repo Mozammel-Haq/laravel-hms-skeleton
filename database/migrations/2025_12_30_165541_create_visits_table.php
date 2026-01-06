@@ -20,6 +20,7 @@ return new class extends Migration
             $table->timestamp('check_out_time')->nullable();
 
             $table->enum('visit_status', ['waiting', 'in_progress', 'completed', 'cancelled']);
+            $table->timestamps();
         });
     }
 

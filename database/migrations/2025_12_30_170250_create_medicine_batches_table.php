@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('expiry_date');
             $table->integer('quantity_in_stock');
             $table->decimal('purchase_price', 10, 2);
+            $table->timestamps();
         });
     }
 

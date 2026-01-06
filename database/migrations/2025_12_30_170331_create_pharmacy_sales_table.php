@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->date('sale_date');
             $table->decimal('total_amount', 10, 2);
+            $table->timestamps();
         });
     }
 
