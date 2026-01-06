@@ -95,6 +95,14 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view_prescriptions', function ($user) {
             return $user->hasPermission('view_prescriptions');
         });
-
+        Gate::define('view_ipd', function ($user) {
+            return $user->hasPermission('view_ipd');
+        });
+        Gate::define('view_billing', function ($user) {
+            return $user->hasPermission('view_billing');
+        });
+        Gate::define('view_doctors', function ($user) {
+            return $user->hasPermission('view_doctors');
+        });
     }
 }

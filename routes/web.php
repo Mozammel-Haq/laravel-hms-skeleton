@@ -9,11 +9,18 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\IpdController;
 use App\Http\Controllers\LabController;
+use App\Http\Controllers\LabTestController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PharmacyController;
 use App\Http\Controllers\PrescriptionController;
+use App\Http\Controllers\WardController;
+use App\Http\Controllers\RoomController;
+use App\Http\Controllers\BedController;
+use App\Http\Controllers\VisitController;
+use App\Http\Controllers\BedAssignmentController;
+use App\Http\Controllers\LabResultsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
@@ -41,6 +48,18 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         session(['selected_clinic_id' => $clinic->id]);
         return redirect()->route('dashboard');
     })->name('system.switch-clinic');
+
+    Route::get('/doctor/switch-clinic/{clinic}', function (Clinic $clinic) {
+        $user = auth()->user();
+        if (!$user || !$user->hasRole('Doctor')) {
+            abort(403);
+        }
+        if (!$user->doctor || !$user->doctor->clinics()->whereKey($clinic->id)->exists()) {
+            abort(403);
+        }
+        session(['selected_clinic_id' => $clinic->id]);
+        return redirect()->route('dashboard');
+    })->name('doctor.switch-clinic');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -81,11 +100,11 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/', [BillingController::class, 'index'])->name('index');
         Route::get('/create', [BillingController::class, 'create'])->name('create');
         Route::post('/', [BillingController::class, 'store'])->name('store');
-        Route::get('/{invoice}', [BillingController::class, 'show'])->name('show');
+        Route::get('/{invoice}', [BillingController::class, 'show'])->whereNumber('invoice')->name('show');
 
         // Payments
-        Route::get('/{invoice}/payment', [BillingController::class, 'addPayment'])->name('payment.add');
-        Route::post('/{invoice}/payment', [BillingController::class, 'storePayment'])->name('payment.store');
+        Route::get('/{invoice}/payment', [BillingController::class, 'addPayment'])->whereNumber('invoice')->name('payment.add');
+        Route::post('/{invoice}/payment', [BillingController::class, 'storePayment'])->whereNumber('invoice')->name('payment.store');
     });
 
     // Pharmacy & Inventory
@@ -110,15 +129,32 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/', [IpdController::class, 'index'])->name('index');
         Route::get('/admit', [IpdController::class, 'create'])->name('create');
         Route::post('/admit', [IpdController::class, 'store'])->name('store');
-        Route::get('/{admission}', [IpdController::class, 'show'])->name('show');
+        Route::get('/wards', [WardController::class, 'index'])->name('wards.index');
+        Route::get('/wards/create', [WardController::class, 'create'])->name('wards.create');
+        Route::post('/wards', [WardController::class, 'store'])->name('wards.store');
+        Route::get('/wards/{ward}/edit', [WardController::class, 'edit'])->name('wards.edit');
+        Route::put('/wards/{ward}', [WardController::class, 'update'])->name('wards.update');
+        Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
+        Route::get('/rooms/create', [RoomController::class, 'create'])->name('rooms.create');
+        Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');
+        Route::get('/rooms/{room}/edit', [RoomController::class, 'edit'])->name('rooms.edit');
+        Route::put('/rooms/{room}', [RoomController::class, 'update'])->name('rooms.update');
+        Route::get('/beds', [BedController::class, 'index'])->name('beds.index');
+        Route::get('/beds/create', [BedController::class, 'create'])->name('beds.create');
+        Route::post('/beds', [BedController::class, 'store'])->name('beds.store');
+        Route::get('/beds/{bed}/edit', [BedController::class, 'edit'])->name('beds.edit');
+        Route::put('/beds/{bed}', [BedController::class, 'update'])->name('beds.update');
+        Route::get('/{admission}', [IpdController::class, 'show'])->whereNumber('admission')->name('show');
 
         // Bed Management
-        Route::get('/{admission}/assign-bed', [IpdController::class, 'assignBed'])->name('assign-bed');
-        Route::post('/{admission}/assign-bed', [IpdController::class, 'storeBedAssignment'])->name('store-bed');
+        Route::get('/{admission}/assign-bed', [IpdController::class, 'assignBed'])->whereNumber('admission')->name('assign-bed');
+        Route::post('/{admission}/assign-bed', [IpdController::class, 'storeBedAssignment'])->whereNumber('admission')->name('store-bed');
+        Route::get('/bed-assignments', [BedAssignmentController::class, 'index'])->name('bed_assignments.index');
+        Route::get('/bed-assignments/{bedAssignment}', [BedAssignmentController::class, 'show'])->name('bed_assignments.show');
 
         // Discharge
-        Route::get('/{admission}/discharge', [IpdController::class, 'discharge'])->name('discharge');
-        Route::post('/{admission}/discharge', [IpdController::class, 'storeDischarge'])->name('store-discharge');
+        Route::get('/{admission}/discharge', [IpdController::class, 'discharge'])->whereNumber('admission')->name('discharge');
+        Route::post('/{admission}/discharge', [IpdController::class, 'storeDischarge'])->whereNumber('admission')->name('store-discharge');
     });
 
     // Laboratory
@@ -127,8 +163,12 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/order', [LabController::class, 'create'])->name('create');
         Route::post('/order', [LabController::class, 'store'])->name('store');
         Route::get('/order/{order}', [LabController::class, 'show'])->name('show');
+        Route::get('/catalog', [LabTestController::class, 'index'])->name('catalog.index');
+        Route::get('/catalog/create', [LabTestController::class, 'create'])->name('catalog.create');
+        Route::post('/catalog', [LabTestController::class, 'store'])->name('catalog.store');
 
         // Results
+        Route::get('/results', [LabResultsController::class, 'index'])->name('results.index');
         Route::get('/order/{order}/result', [LabController::class, 'addResult'])->name('result.add');
         Route::post('/order/{order}/result', [LabController::class, 'storeResult'])->name('result.store');
     });
@@ -139,6 +179,9 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/compare', [ReportController::class, 'compare'])->name('compare');
         Route::get('/financial', [ReportController::class, 'financial'])->name('financial');
         Route::get('/demographics', [ReportController::class, 'patientDemographics'])->name('demographics');
+        Route::get('/summary', [ReportController::class, 'summary'])->name('summary');
+        Route::get('/doctor-performance', [ReportController::class, 'doctorPerformance'])->name('doctor_performance');
+        Route::get('/tax', [ReportController::class, 'tax'])->name('tax');
     });
 
     // --- Admin & Settings ---
@@ -148,6 +191,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         ->middleware('can:viewAny,App\Models\Clinic');
 
     // Doctors Management
+    Route::view('/doctors/assignment', 'doctors.assignment')->name('doctors.assignment')->middleware('can:view_doctors');
+    Route::view('/doctors/schedules', 'doctors.schedules')->name('doctors.schedules')->middleware('can:view_doctors');
     Route::resource('doctors', DoctorController::class)->middleware('can:view_doctors');
     Route::get('doctors/{doctor}/schedule', [DoctorController::class, 'schedule'])->name('doctors.schedule')->middleware('can:manage_doctor_schedule');
     Route::put('doctors/{doctor}/schedule', [DoctorController::class, 'updateSchedule'])->name('doctors.schedule.update')->middleware('can:manage_doctor_schedule');
@@ -157,14 +202,68 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Roles & Permissions (Super Admin Only)
     Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('roles', RoleController::class);
-    Route::resource('permissions', PermissionController::class);
-    Route::put('permissions/role/{role}', [PermissionController::class, 'updateRolePermissions'])
-        ->name('permissions.updateRolePermissions');
-});
+        Route::resource('roles', RoleController::class);
+        Route::resource('permissions', PermissionController::class);
+        Route::put('permissions/role/{role}', [PermissionController::class, 'updateRolePermissions'])
+            ->name('permissions.updateRolePermissions');
+        Route::view('users/super-admins', 'admin.users.super_admins')->name('users.super_admins');
+        Route::view('users/clinic-admins', 'admin.users.clinic_admins')->name('users.clinic_admins');
+    });
 
 
 
     // Departments
     Route::resource('departments', DepartmentController::class)->except(['create', 'edit', 'show']); // simplified
+    Route::resource('visits', VisitController::class)->only(['index', 'show']);
+
+    Route::prefix('pharmacy')->name('pharmacy.')->middleware('can:view_pharmacy')->group(function () {
+        Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
+    });
+
+    // Clinic Profile
+    Route::view('/clinic/profile', 'clinics.profile')->name('clinics.profile');
+
+    // Staff extras
+    Route::view('/staff/passwords', 'staff.passwords')->name('staff.passwords')->middleware('can:view_staff');
+
+    // Billing payments index
+    Route::prefix('billing')->name('billing.')->middleware('can:view_billing')->group(function () {
+        Route::view('/payments', 'billing.payments.index')->name('payments.index');
+    });
+
+    // Activity logs
+    Route::view('/activity', 'activity.index')->name('activity.index');
+
+    // Doctor schedule (current doctor)
+    Route::view('/doctor/schedule', 'doctor.schedule.index')->name('doctor.schedule.index');
+
+    // Clinical extras
+    Route::prefix('clinical')->name('clinical.')->group(function () {
+        Route::view('consultations', 'clinical.consultations.index')->name('consultations.index')->middleware('can:view_consultations');
+        Route::view('consultations/new', 'clinical.consultations.new')->name('consultations.new')->middleware('can:perform_consultation');
+        Route::view('prescriptions/create', 'clinical.prescriptions.create')->name('prescriptions.create')->middleware('can:view_prescriptions');
+    });
+
+    // IPD extras
+    Route::prefix('ipd')->name('ipd.')->middleware('can:view_ipd')->group(function () {
+        Route::view('/rounds', 'ipd.rounds.index')->name('rounds.index');
+        Route::view('/bed-status', 'ipd.bed_status')->name('bed_status');
+    });
+
+    // Vitals
+    Route::prefix('vitals')->name('vitals.')->group(function () {
+        Route::view('/record', 'vitals.record')->name('record');
+        Route::view('/history', 'vitals.history')->name('history');
+    });
+
+    // Nursing Notes
+    Route::prefix('nursing')->name('nursing.')->group(function () {
+        Route::view('/notes', 'nursing.notes.index')->name('notes.index');
+    });
+
+    // Payments (Accountant)
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::view('/cash', 'payments.cash')->name('cash');
+        Route::view('/digital', 'payments.digital')->name('digital');
+    });
 });

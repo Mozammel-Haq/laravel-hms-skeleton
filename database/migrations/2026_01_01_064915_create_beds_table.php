@@ -12,18 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('beds', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    $table->foreignId('room_id')->constrained()->restrictOnDelete();
+            $table->foreignId('room_id')->constrained()->restrictOnDelete();
+            $table->foreignId('clinic_id')->constrained()->restrictOnDelete();
+            $table->string('bed_number');
+            $table->enum('status', ['available', 'occupied', 'maintenance'])->default('available');
 
-    $table->string('bed_number');
-    $table->enum('status', ['available', 'occupied', 'maintenance'])->default('available');
+            $table->timestamps();
 
-    $table->timestamps();
-
-    $table->unique(['room_id', 'bed_number']);
-});
-
+            $table->unique(['room_id', 'bed_number']);
+        });
     }
 
     /**

@@ -16,7 +16,12 @@ class DoctorController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Doctor::class);
-        $doctors = Doctor::with(['user', 'department'])->latest()->paginate(15);
+        $doctors = Doctor::with(['user', 'department'])
+            ->whereHas('clinics', function ($q) {
+                $q->where('clinics.id', auth()->user()->clinic_id);
+            })
+            ->latest()
+            ->paginate(15);
         return view('doctors.index', compact('doctors'));
     }
 
@@ -46,19 +51,21 @@ class DoctorController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'clinic_id' => auth()->user()->clinic_id,
+                'email_verified_at' => now(),
                 'status' => 'active',
             ]);
 
             $user->assignRole('Doctor');
 
-            Doctor::create([
+            $doctor = Doctor::create([
                 'user_id' => $user->id,
-                'clinic_id' => auth()->user()->clinic_id,
                 'primary_department_id' => $request->primary_department_id,
                 'specialization' => $request->specialization,
                 'license_number' => $request->license_number,
                 'status' => 'active',
             ]);
+
+            $doctor->clinics()->syncWithoutDetaching([auth()->user()->clinic_id]);
         });
 
         return redirect()->route('doctors.index')->with('success', 'Doctor created successfully.');
@@ -128,7 +135,7 @@ class DoctorController extends Controller
             $doctor->schedules()->delete();
 
             foreach ($request->schedules as $schedule) {
-                $doctor->schedules()->create($schedule + ['clinic_id' => $doctor->clinic_id]);
+                $doctor->schedules()->create($schedule + ['clinic_id' => auth()->user()->clinic_id]);
             }
         });
 

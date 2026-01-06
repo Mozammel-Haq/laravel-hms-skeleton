@@ -20,7 +20,14 @@ class EnsureClinicContext
 
         $user = Auth::user();
         $selectedClinicId = Session::get('selected_clinic_id');
-        $clinicId = $user->hasRole('Super Admin') && $selectedClinicId ? $selectedClinicId : $user->clinic_id;
+        $clinicId = $user->clinic_id;
+        if ($selectedClinicId) {
+            if ($user->hasRole('Super Admin')) {
+                $clinicId = $selectedClinicId;
+            } elseif ($user->hasRole('Doctor') && $user->doctor && $user->doctor->clinics()->whereKey($selectedClinicId)->exists()) {
+                $clinicId = $selectedClinicId;
+            }
+        }
 
         if (!$clinicId) {
             abort(403, 'Clinic context missing');

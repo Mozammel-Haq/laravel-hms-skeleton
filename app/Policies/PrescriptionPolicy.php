@@ -7,6 +7,11 @@ use App\Models\Prescription;
 
 class PrescriptionPolicy extends BaseTenantPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->hasPermission('view_prescriptions');
+    }
+
     public function view(User $user, Prescription $prescription): bool
     {
         return $this->sameClinic($user, $prescription);
