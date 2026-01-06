@@ -9,4 +9,5 @@ class Prescription extends BaseTenantModel
 {
     use SoftDeletes;
     public function items() { return $this->hasMany(PrescriptionItem::class); }
+    public function consultation() { return $this->belongsTo(Consultation::class); }
 }

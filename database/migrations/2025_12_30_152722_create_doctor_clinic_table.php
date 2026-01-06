@@ -19,6 +19,7 @@ return new class extends Migration
             $table->boolean('display_on_booking')->default(true);
             $table->date('joining_date')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->timestamps();
         });
     }
 

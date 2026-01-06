@@ -18,6 +18,7 @@ return new class extends Migration
 
             $table->timestamp('issued_at');
             $table->text('notes')->nullable();
+            $table->timestamps();
         });
     }
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->year('year')->nullable();
             $table->text('description')->nullable();
+            $table->timestamps();
         });
     }
 

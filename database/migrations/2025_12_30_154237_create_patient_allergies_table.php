@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('allergy_name');
             $table->string('severity')->nullable();
             $table->text('notes')->nullable();
+            $table->timestamps();
         });
     }
 

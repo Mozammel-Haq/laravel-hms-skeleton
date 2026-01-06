@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inpatient_rounds', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    $table->foreignId('admission_id')->constrained()->restrictOnDelete();
-    $table->foreignId('doctor_id')->constrained()->restrictOnDelete();
+            $table->foreignId('admission_id')->constrained()->restrictOnDelete();
+            $table->foreignId('doctor_id')->constrained()->restrictOnDelete();
 
-    $table->text('notes')->nullable();
-    $table->date('round_date');
-});
-
+            $table->text('notes')->nullable();
+            $table->date('round_date');
+            $table->timestamps();
+        });
     }
 
     /**

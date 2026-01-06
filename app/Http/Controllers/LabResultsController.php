@@ -9,7 +9,7 @@ class LabResultsController extends Controller
     public function index()
     {
         $results = LabTestResult::with(['order.patient', 'order.test'])
-            ->latest('recorded_at')
+            ->latest('reported_at')
             ->paginate(20);
         return view('lab.results.index', compact('results'));
     }

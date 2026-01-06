@@ -12,17 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('inpatient_services', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    $table->foreignId('admission_id')->constrained()->restrictOnDelete();
+            $table->foreignId('admission_id')->constrained()->restrictOnDelete();
 
-    $table->string('service_name');
-    $table->date('service_date');
-    $table->integer('quantity');
-    $table->decimal('unit_price', 10, 2);
-    $table->decimal('total_price', 10, 2);
-});
-
+            $table->string('service_name');
+            $table->date('service_date');
+            $table->integer('quantity');
+            $table->decimal('unit_price', 10, 2);
+            $table->decimal('total_price', 10, 2);
+            $table->timestamps();
+        });
     }
 
     /**

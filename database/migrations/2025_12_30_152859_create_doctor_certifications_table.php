@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('issued_by')->nullable();
             $table->date('issued_date')->nullable();
             $table->date('expiry_date')->nullable();
+            $table->timestamps();
         });
     }
 

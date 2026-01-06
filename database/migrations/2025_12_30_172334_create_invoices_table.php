@@ -26,7 +26,7 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2);
 
             $table->enum('status', ['unpaid', 'partial', 'paid', 'cancelled'])->default('unpaid');
-            $table->timestamp('created_at');
+            $table->timestamps();
         });
     }
 

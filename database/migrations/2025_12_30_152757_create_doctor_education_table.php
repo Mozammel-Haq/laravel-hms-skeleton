@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->year('start_year')->nullable();
             $table->year('end_year')->nullable();
+            $table->timestamps();
         });
     }
 
