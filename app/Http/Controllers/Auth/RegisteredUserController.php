@@ -37,16 +37,33 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Ensure clinic_id is set (mirror UserFactory logic or use default)
+        // In a real app, registration might select a clinic or create one.
+        // For this skeleton, we assign to the first clinic or create one.
+        $clinicId = \App\Models\Clinic::query()->value('id') ?? \App\Models\Clinic::create([
+            'name' => 'Default Clinic',
+            'code' => 'DEF-001',
+            'address_line_1' => '123 Default St',
+            'city' => 'Default City',
+            'country' => 'Default Country',
+            'timezone' => 'UTC',
+            'currency' => 'USD',
+        ])->id;
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'clinic_id' => $clinicId,
         ]);
 
         event(new Registered($user));
         Mail::to($request->email)->send(new WelComeMail($user));
-        // Mail::to($request->email)->queue(new WelComeMail($user));
-        Auth::login($user);
+
+        // Use attempt to ensure session is correctly established with all guards/scopes
+        Auth::attempt($request->only('email', 'password'));
+        $request->session()->regenerate();
+
         return redirect(route('dashboard', absolute: false));
     }
 }

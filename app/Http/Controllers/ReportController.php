@@ -81,8 +81,8 @@ class ReportController extends Controller
         $admissionsToday = \App\Models\Admission::whereDate('created_at', now()->toDateString())->count();
         $invoicesTotal = \App\Models\Invoice::count();
         $paymentsTotal = \App\Models\Payment::sum('amount');
-        $admissions = \App\Models\Admission::with(['patient','doctor'])->latest()->take(10)->get();
-        return view('reports.summary', compact('patientsTotal','admissionsToday','invoicesTotal','paymentsTotal','admissions'));
+        $admissions = \App\Models\Admission::with(['patient', 'doctor'])->latest()->take(10)->get();
+        return view('reports.summary', compact('patientsTotal', 'admissionsToday', 'invoicesTotal', 'paymentsTotal', 'admissions'));
     }
 
     public function doctorPerformance()
@@ -90,10 +90,12 @@ class ReportController extends Controller
         Gate::authorize('view_reports');
         $topDoctors = \App\Models\Doctor::with('user')
             ->get()
-            ->map(function($d){
-                $consults = \App\Models\Consultation::where('doctor_id', $d->id)->count();
-                $admissions = \App\Models\Admission::where('doctor_id', $d->id)->count();
-                return ['doctor'=>$d, 'consults'=>$consults, 'admissions'=>$admissions, 'score'=>$consults + ($admissions*2)];
+            ->map(function ($d) {
+                $consults = \App\Models\Consultation::whereHas('visit.appointment', function ($q) use ($d) {
+                    $q->where('doctor_id', $d->id);
+                })->count();
+                $admissions = \App\Models\Admission::where('admitting_doctor_id', $d->id)->count();
+                return ['doctor' => $d, 'consults' => $consults, 'admissions' => $admissions, 'score' => $consults + ($admissions * 2)];
             })
             ->sortByDesc('score')
             ->take(10);
@@ -103,7 +105,7 @@ class ReportController extends Controller
     public function tax()
     {
         Gate::authorize('view_financial_reports');
-        $invoices = \App\Models\Invoice::latest()->take(50)->get()->map(function($inv){
+        $invoices = \App\Models\Invoice::latest()->take(50)->get()->map(function ($inv) {
             $subtotal = $inv->total ?? 0;
             $vat = $subtotal * 0.10;
             $total = $subtotal + $vat;

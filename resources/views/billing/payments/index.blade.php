@@ -14,19 +14,17 @@
                                 <th>Patient</th>
                                 <th>Amount</th>
                                 <th>Method</th>
-                                <th>Status</th>
-                                <th>Date</th>
+                                <th>Paid At</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($payments as $payment)
                                 <tr>
                                     <td>#{{ optional($payment->invoice)->id }}</td>
-                                    <td>{{ optional($payment->patient)->full_name ?? 'Patient' }}</td>
+                                    <td>{{ optional(optional($payment->invoice)->patient)->name ?? 'Patient' }}</td>
                                     <td>{{ number_format($payment->amount, 2) }}</td>
-                                    <td>{{ $payment->method ?? '—' }}</td>
-                                    <td><span class="badge bg-success">{{ $payment->status ?? 'completed' }}</span></td>
-                                    <td>{{ $payment->created_at->format('Y-m-d H:i') }}</td>
+                                    <td>{{ $payment->payment_method }}</td>
+                                    <td>{{ optional($payment->paid_at)->format('Y-m-d H:i') }}</td>
                                 </tr>
                             @empty
                                 <tr>

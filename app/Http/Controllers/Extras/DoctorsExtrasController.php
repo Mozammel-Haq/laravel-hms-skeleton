@@ -11,7 +11,7 @@ class DoctorsExtrasController extends Controller
     public function assignment()
     {
         $clinics = Clinic::orderBy('name')->get();
-        $doctors = Doctor::with(['user', 'clinics', 'primaryDepartment'])->orderByDesc('created_at')->get();
+        $doctors = Doctor::with(['user', 'clinics', 'department'])->orderByDesc('created_at')->get();
         return view('doctors.assignment', compact('clinics', 'doctors'));
     }
 

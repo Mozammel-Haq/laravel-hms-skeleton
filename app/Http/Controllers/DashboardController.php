@@ -100,7 +100,7 @@ class DashboardController extends Controller
         if ($user->hasRole('Pharmacist')) {
             $cards = [
                 'prescriptions_active' => Prescription::count(),
-                'sales_today' => PharmacySale::whereDate('created_at', now()->toDateString())->sum('total_amount'),
+                'sales_today' => PharmacySale::whereDate('sale_date', now()->toDateString())->sum('total_amount'),
             ];
             $prescriptions = Prescription::with(['consultation.patient'])
                 ->orderBy('issued_at', 'desc')

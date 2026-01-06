@@ -9,7 +9,7 @@ class VitalsController extends Controller
 {
     public function record()
     {
-        $patients = Patient::orderBy('first_name')->take(100)->get();
+        $patients = Patient::orderBy('name')->take(100)->get();
         return view('vitals.record', compact('patients'));
     }
 

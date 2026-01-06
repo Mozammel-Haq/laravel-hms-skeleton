@@ -38,7 +38,7 @@
         <!-- Page Header -->
         <div class="d-flex align-items-sm-center justify-content-between flex-wrap gap-2 mb-4">
             <div>
-                <h4 class="fw-bold mb-0">System Dashboard</h4>
+                <h4 class="fw-bold mb-0">Super Admin Dashboard</h4>
                 <p class="fs-13 mb-0 text-muted">Cross-clinic overview and system analytics</p>
             </div>
             <div class="d-flex align-items-center flex-wrap gap-2">
@@ -173,7 +173,7 @@
             <div class="col-xl-8">
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h5 class="fw-bold mb-0">System Activity Statistics</h5>
+                        <h5 class="fw-bold mb-0">Global Reports</h5>
 
                         <div class="dropdown">
                             <a href="javascript:void(0);"

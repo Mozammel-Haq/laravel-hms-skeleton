@@ -28,25 +28,69 @@ class MedicineController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'generic_name' => 'nullable|string|max:255',
-            'sku' => 'required|string|unique:medicines,sku',
+            'manufacturer' => 'nullable|string|max:255',
+            'strength' => 'nullable|string|max:255',
+            'dosage_form' => 'nullable|string|max:255',
             'price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
-            'expiry_date' => 'nullable|date',
+            'status' => 'required|in:active,inactive',
         ]);
 
-        Medicine::create($request->all()); // Global model or Tenant? MD says Global for Catalog?
-        // Wait, MD said "Global Models... Medicine (catalog)".
-        // If it's a global catalog, does it have stock?
-        // Usually stock is per clinic.
-        // Let's check the migration or assumption.
-        // If Medicine is global, stock should be in a pivot or separate table 'ClinicMedicine'.
-        // MD says: "PharmacySale", "PharmacySaleItem" are Tenant-Bound. "Medicine (catalog)" is Global.
-        // But `PharmacyService` deducted `stock_quantity` from `Medicine` model directly.
-        // This implies Medicine is either tenant-bound OR the Service was simplifying.
-        // Let's check Medicine model.
+        Medicine::create($request->only([
+            'name',
+            'generic_name',
+            'manufacturer',
+            'strength',
+            'dosage_form',
+            'price',
+            'status',
+        ]));
 
         return redirect()->route('pharmacy.medicines.index')->with('success', 'Medicine added successfully.');
     }
 
-    // ... update/destroy similar
+    public function show(Medicine $medicine)
+    {
+        Gate::authorize('view', $medicine);
+        return view('pharmacy.inventory.create', compact('medicine'));
+    }
+
+    public function edit(Medicine $medicine)
+    {
+        Gate::authorize('update', $medicine);
+        return view('pharmacy.inventory.create', compact('medicine'));
+    }
+
+    public function update(Request $request, Medicine $medicine)
+    {
+        Gate::authorize('update', $medicine);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'generic_name' => 'nullable|string|max:255',
+            'manufacturer' => 'nullable|string|max:255',
+            'strength' => 'nullable|string|max:255',
+            'dosage_form' => 'nullable|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $medicine->update($request->only([
+            'name',
+            'generic_name',
+            'manufacturer',
+            'strength',
+            'dosage_form',
+            'price',
+            'status',
+        ]));
+
+        return redirect()->route('pharmacy.medicines.index')->with('success', 'Medicine updated successfully.');
+    }
+
+    public function destroy(Medicine $medicine)
+    {
+        Gate::authorize('delete', $medicine);
+        $medicine->delete();
+        return redirect()->route('pharmacy.medicines.index')->with('success', 'Medicine deleted successfully.');
+    }
 }

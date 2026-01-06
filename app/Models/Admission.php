@@ -14,7 +14,7 @@ class Admission extends BaseTenantModel
     }
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class);
+        return $this->belongsTo(Doctor::class, 'admitting_doctor_id');
     }
     public function bedAssignments()
     {

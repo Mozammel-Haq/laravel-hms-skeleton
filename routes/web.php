@@ -235,7 +235,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::get('/activity', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activity.index');
 
     // Doctor schedule (current doctor)
-    Route::view('/doctor/schedule', 'doctor.schedule.index')->name('doctor.schedule.index');
+    Route::get('/doctor/schedule', [\App\Http\Controllers\Extras\DoctorSelfScheduleController::class, 'index'])->name('doctor.schedule.index');
 
     // Clinical extras
     Route::prefix('clinical')->name('clinical.')->group(function () {
@@ -246,8 +246,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // IPD extras
     Route::prefix('ipd')->name('ipd.')->middleware('can:view_ipd')->group(function () {
-        Route::view('/rounds', 'ipd.rounds.index')->name('rounds.index');
-        Route::view('/bed-status', 'ipd.bed_status')->name('bed_status');
+        // Removed duplicate view routes that caused undefined variable errors
     });
 
     // Vitals
