@@ -27,6 +27,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StaffController;
 use App\Http\Middleware\EnsureClinicContext;
 use App\Models\Clinic;
+use GuzzleHttp\Promise\Create;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'auth.login');
@@ -85,7 +86,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
         // Prescriptions
         Route::resource('prescriptions', PrescriptionController::class)
-            ->only(['index', 'show'])
+            ->only(['index', 'show','create'])
             ->middleware('can:view_prescriptions');
 
         Route::get('prescriptions/{prescription}/print', [PrescriptionController::class, 'print'])

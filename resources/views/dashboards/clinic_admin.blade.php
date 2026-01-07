@@ -1,8 +1,17 @@
 <x-app-layout>
 
-    @php
-        print_r($stats);
-    @endphp
+    {{-- @php
+        dd(['stats' => $stats,
+                'appointmentStats' => $appointmentStats,
+                'popularDoctors' => $popularDoctors,
+                'calendarAppointments' => $calendarAppointments,
+                'topDepartments' => $topDepartments,
+                'doctorAvailability' => $doctorAvailability,
+                'incomeByDepartment' => $incomeByDepartment,
+                'latestAppointments' => $latestAppointments,
+                'topPatients' => $topPatients,
+                'recentTransactions' => $recentTransactions,]);
+    @endphp --}}
 
 
 

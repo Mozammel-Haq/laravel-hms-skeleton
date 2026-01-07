@@ -31,82 +31,77 @@ class DashboardController extends Controller
             $clinicId = $clinic->id;
             $stats = [
                 'doctors' => [
-                    'total' => Doctor::withoutGlobalScope('clinic')
-                        ->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
-                        ->where('dc.clinic_id', $clinicId)->count(),
-                    'last_7_days' => Doctor::withoutGlobalScope('clinic')
-                        ->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
-                        ->where('dc.clinic_id', $clinicId)
+
+
+                    'total' => $clinic->doctors()->where('clinic_id', $clinicId)->count(),
+
+                    'last_7_days' => $clinic->doctors()->where('clinic_id', $clinicId)
                         ->whereBetween((new Doctor())->getTable() . '.created_at', [now()->subDays(7), now()])->count(),
-                    'last_30_days' => Doctor::withoutGlobalScope('clinic')
-                        ->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
-                        ->where('dc.clinic_id', $clinicId)
+                    'last_30_days' => $clinic->doctors()->where('clinic_id', $clinicId)
                         ->whereBetween((new Doctor())->getTable() . '.created_at', [now()->subDays(30), now()])->count(),
-                    'last_year' => Doctor::withoutGlobalScope('clinic')
-                        ->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
-                        ->where('dc.clinic_id', $clinicId)
+                    'last_year' => $clinic->doctors()->where('clinic_id', $clinicId)
                         ->whereBetween((new Doctor())->getTable() . '.created_at', [now()->subYear(), now()])->count(),
                 ],
                 'patients' => [
-                    'total' => Patient::where('clinic_id', $clinicId)->count(),
-                    'last_7_days' => Patient::where('clinic_id', $clinicId)
-                        ->whereBetween('created_at', [now()->subDays(7), now()])->count(),
+                    'total' => $clinic->patients()->where('clinic_id', $clinicId)->count(),
+                    'last_7_days' => $clinic->patients()->where('clinic_id', $clinicId)
+                        ->whereBetween((new Patient())->getTable() . '.created_at', [now()->subDays(7), now()])->count(),
                 ],
                 'appointments' => [
-                    'total' => Appointment::where('clinic_id', $clinicId)->count(),
-                    'last_7_days' => Appointment::where('clinic_id', $clinicId)
-                        ->whereBetween('created_at', [now()->subDays(7), now()])->count(),
-                    'last_30_days' => Appointment::where('clinic_id', $clinicId)
-                        ->whereBetween('created_at', [now()->subDays(30), now()])->count(),
-                    'last_year' => Appointment::where('clinic_id', $clinicId)
-                        ->whereBetween('created_at', [now()->subYear(), now()])->count(),
-                    'active_last_7_days' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'active')
-                        ->whereBetween('created_at', [now()->subDays(7), now()])->count(),
-                    'completed_last_7_days' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'completed')
-                        ->whereBetween('created_at', [now()->subDays(7), now()])->count(),
-                    'cancelled_last_7_days' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'cancelled')
-                        ->whereBetween('created_at', [now()->subDays(7), now()])->count(),
-                    'pending_last_7_days' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'pending')
-                        ->whereBetween('created_at', [now()->subDays(7), now()])->count(),
-                    'active_last_30_days' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'active')
-                        ->whereBetween('created_at', [now()->subDays(30), now()])->count(),
-                    'completed_last_30_days' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'completed')
-                        ->whereBetween('created_at', [now()->subDays(30), now()])->count(),
-                    'cancelled_last_30_days' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'cancelled')
-                        ->whereBetween('created_at', [now()->subDays(30), now()])->count(),
-                    'pending_last_30_days' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'pending')
-                        ->whereBetween('created_at', [now()->subDays(30), now()])->count(),
-                    'active_last_year' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'active')
-                        ->whereBetween('created_at', [now()->subYear(), now()])->count(),
-                    'completed_last_year' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'completed')
-                        ->whereBetween('created_at', [now()->subYear(), now()])->count(),
-                    'cancelled_last_year' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'cancelled')
-                        ->whereBetween('created_at', [now()->subYear(), now()])->count(),
-                    'pending_last_year' => Appointment::where('clinic_id', $clinicId)
-                        ->where('status', 'pending')
-                        ->whereBetween('created_at', [now()->subYear(), now()])->count(),
+                    'total' => $clinic->appointments()->where('clinic_id', $clinicId)->count(),
+                    'last_7_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(7), now()])->count(),
+                    'last_30_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(30), now()])->count(),
+                    'last_year' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subYear(), now()])->count(),
+                    'active_last_7_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'active')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(7), now()])->count(),
+                    'completed_last_7_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'completed')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(7), now()])->count(),
+                    'cancelled_last_7_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'cancelled')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(7), now()])->count(),
+                    'pending_last_7_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'pending')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(7), now()])->count(),
+                    'active_last_30_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'active')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(30), now()])->count(),
+                    'completed_last_30_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'completed')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(30), now()])->count(),
+                    'cancelled_last_30_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'cancelled')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(30), now()])->count(),
+                    'pending_last_30_days' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'pending')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subDays(30), now()])->count(),
+                    'active_last_year' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'active')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subYear(), now()])->count(),
+                    'completed_last_year' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'completed')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subYear(), now()])->count(),
+                    'cancelled_last_year' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'cancelled')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subYear(), now()])->count(),
+                    'pending_last_year' => $clinic->appointments()->where('clinic_id', $clinicId)
+                        ->where((new Appointment())->getTable() . '.status', 'pending')
+                        ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subYear(), now()])->count(),
                 ],
                 'revenue' => [
-                    'last_7_days' => Invoice::where('clinic_id', $clinicId)
-                        ->whereBetween('created_at', [now()->subDays(7), now()])->sum('total_amount'),
+                    'last_7_days' => $clinic->invoices()->where('clinic_id', $clinicId)
+                        ->whereBetween((new Invoice())->getTable() . '.created_at', [now()->subDays(7), now()])->sum('total_amount'),
                 ],
             ];
-            $appointmentStats = Appointment::where('clinic_id', $clinicId)
+            $appointmentStats = $clinic->appointments()->where('clinic_id', $clinicId)
                 ->selectRaw('status, COUNT(*) as total')
                 ->groupBy('status')
                 ->pluck('total', 'status');
-            $popularDoctors = Doctor::withoutGlobalScope('clinic')->select((new Doctor())->getTable() . '.*')
+            $popularDoctors = $clinic->doctors()->select((new Doctor())->getTable() . '.*')
                 ->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
                 ->where('dc.clinic_id', $clinicId)
                 ->withCount(['appointments' => function ($q) use ($clinicId) {
@@ -115,13 +110,13 @@ class DashboardController extends Controller
                 ->orderByDesc('appointments_count')
                 ->take(5)
                 ->get();
-            $calendarAppointments = Appointment::where('clinic_id', $clinicId)
-                ->whereMonth('appointment_date', now()->month)
-                ->whereYear('appointment_date', now()->year)
+            $calendarAppointments = $clinic->appointments()->where('clinic_id', $clinicId)
+                ->whereMonth((new Appointment())->getTable() . '.appointment_date', now()->month)
+                ->whereYear((new Appointment())->getTable() . '.appointment_date', now()->year)
                 ->select('id', 'appointment_date', DB::raw('start_time as appointment_time'), DB::raw('appointment_type as type'))
                 ->get();
             $prefix = DB::getTablePrefix();
-            $topDepartments = Appointment::where((new Appointment())->getTable() . '.clinic_id', $clinicId)
+            $topDepartments = $clinic->appointments()->where((new Appointment())->getTable() . '.clinic_id', $clinicId)
                 ->join('doctors', 'appointments.doctor_id', '=', 'doctors.id')
                 ->join('departments', 'doctors.primary_department_id', '=', 'departments.id')
                 ->selectRaw($prefix . 'departments.name as name, COUNT(' . $prefix . 'appointments.id) as total')
@@ -130,29 +125,29 @@ class DashboardController extends Controller
                 ->take(3)
                 ->get();
             $doctorAvailability = [
-                'active' => Doctor::withoutGlobalScope('clinic')->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
+                'active' => $clinic->doctors()->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
                     ->where('dc.clinic_id', $clinicId)->where((new Doctor())->getTable() . '.status', 'active')->count(),
-                'inactive' => Doctor::withoutGlobalScope('clinic')->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
+                'inactive' => $clinic->doctors()->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
                     ->where('dc.clinic_id', $clinicId)->where((new Doctor())->getTable() . '.status', 'inactive')->count(),
             ];
-            $incomeByDepartment = Invoice::where((new Invoice())->getTable() . '.clinic_id', $clinicId)
+            $incomeByDepartment = $clinic->invoices()->where((new Invoice())->getTable() . '.clinic_id', $clinicId)
                 ->join('appointments', 'invoices.appointment_id', '=', 'appointments.id')
                 ->join('departments', 'appointments.department_id', '=', 'departments.id')
                 ->selectRaw($prefix . 'departments.name as department, COUNT(' . $prefix . (new Invoice())->getTable() . '.id) as total_invoices, SUM(' . $prefix . (new Invoice())->getTable() . '.total_amount) as revenue')
                 ->groupBy(DB::raw($prefix . 'departments.name'))
                 ->get();
-            $latestAppointments = Appointment::where('clinic_id', $clinicId)
+            $latestAppointments = $clinic->appointments()->where('clinic_id', $clinicId)
                 ->with(['doctor', 'patient'])
                 ->latest()
                 ->take(10)
                 ->get();
-            $topPatients = Patient::where('clinic_id', $clinicId)
+            $topPatients = $clinic->patients()->where('clinic_id', $clinicId)
                 ->withCount('appointments')
                 ->withSum('invoices', 'total_amount')
                 ->orderByDesc('invoices_sum_total_amount')
                 ->take(5)
                 ->get();
-            $recentTransactions = Invoice::where('clinic_id', $clinicId)
+            $recentTransactions = $clinic->invoices()->where('clinic_id', $clinicId)
                 ->latest()
                 ->take(5)
                 ->get();
