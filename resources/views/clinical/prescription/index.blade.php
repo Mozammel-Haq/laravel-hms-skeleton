@@ -21,9 +21,9 @@
                             @forelse ($prescriptions as $rx)
                                 <tr>
                                     <td>{{ $rx->id }}</td>
-                                    <td>{{ optional($rx->consultation->patient)->full_name ?? optional($rx->consultation->patient)->name ?? 'Patient' }}</td>
-                                    <td>{{ optional($rx->consultation->doctor?->user)->name ?? 'Doctor' }}</td>
-                                    <td>{{ isset($rx->issued_date) ? \Illuminate\Support\Carbon::parse($rx->issued_date)->format('Y-m-d') : $rx->created_at->format('Y-m-d') }}</td>
+                                    <td>{{ optional($rx->consultation?->patient)->full_name ?? optional($rx->consultation?->patient)->name ?? 'Patient' }}</td>
+                                    <td>{{ optional($rx->consultation?->doctor?->user)->name ?? 'Doctor' }}</td>
+                                    <td>{{ isset($rx->issued_at) ? \Illuminate\Support\Carbon::parse($rx->issued_at)->format('Y-m-d') : $rx->created_at->format('Y-m-d') }}</td>
                                     <td><span class="badge bg-secondary">{{ $rx->status ?? 'active' }}</span></td>
                                     <td class="text-end">
                                         <a href="{{ route('clinical.prescriptions.show', $rx) }}" class="btn btn-sm btn-outline-primary">Open</a>
