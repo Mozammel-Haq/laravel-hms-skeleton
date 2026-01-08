@@ -215,7 +215,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Departments
     Route::resource('departments', DepartmentController::class)->except(['create', 'edit', 'show']); // simplified
-    Route::resource('visits', VisitController::class)->only(['index', 'show']);
+    Route::resource('visits', VisitController::class)->only(['index', 'show', 'create', 'store']);
 
     Route::prefix('pharmacy')->name('pharmacy.')->middleware('can:view_pharmacy')->group(function () {
         Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');

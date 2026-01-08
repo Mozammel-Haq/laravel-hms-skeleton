@@ -64,15 +64,27 @@ class ConsultationController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $appointment) {
-            $visit = Visit::create([
-                'appointment_id' => $appointment->id,
-                'check_in_time' => now(),
-                'check_out_time' => now(),
-                'visit_status' => 'completed',
-            ]);
+            $visit = Visit::where('appointment_id', $appointment->id)->latest()->first();
+            if (!$visit) {
+                $visit = Visit::create([
+                    'appointment_id' => $appointment->id,
+                    'check_in_time' => now(),
+                    'visit_status' => 'in_progress',
+                ]);
+            }
 
-            $consultation = Consultation::create([
-                'visit_id' => $visit->id,
+            $consultation = $visit->consultation;
+            if (!$consultation) {
+                $consultation = Consultation::create([
+                    'visit_id' => $visit->id,
+                    'doctor_id' => $appointment->doctor_id,
+                    'patient_id' => $appointment->patient_id,
+                ]);
+                $visit->consultation_id = $consultation->id;
+                $visit->save();
+            }
+
+            $consultation->update([
                 'doctor_notes' => $request->doctor_notes,
                 'diagnosis' => $request->diagnosis,
                 'follow_up_required' => (bool)($request->follow_up_required ?? false),
@@ -80,11 +92,14 @@ class ConsultationController extends Controller
             ]);
 
             if ($request->has('prescription_items') && count($request->prescription_items) > 0) {
-                $prescription = Prescription::create([
-                    'consultation_id' => $consultation->id,
-                    'issued_at' => now(),
-                    'notes' => null,
-                ]);
+                $prescription = $consultation->prescription;
+                if (!$prescription) {
+                    $prescription = Prescription::create([
+                        'consultation_id' => $consultation->id,
+                        'issued_at' => now(),
+                        'notes' => null,
+                    ]);
+                }
 
                 foreach ($request->prescription_items as $item) {
                     PrescriptionItem::create([
@@ -99,6 +114,10 @@ class ConsultationController extends Controller
             }
 
             $appointment->update(['status' => 'completed']);
+            $visit->update([
+                'check_out_time' => now(),
+                'visit_status' => 'completed',
+            ]);
         });
 
         return redirect()->route('appointments.index')->with('success', 'Consultation completed successfully.');

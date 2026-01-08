@@ -19,9 +19,8 @@
 
             <div class="card">
                 <div class="card-body">
-                    <form method="POST" action="{{ route('clinical.prescriptions.store', $consultation->id) }}">
+                    <form id="prescription-form" method="POST" action="{{ route('clinical.prescriptions.store', $consultation->id) }}">
                         @csrf
-
                         <!-- Header (EXACT) -->
                         <div class="d-flex align-items-center justify-content-between border-1 border-bottom pb-3 mb-3">
                             <div class="invoice-logo">
@@ -38,36 +37,37 @@
                                     <img src="{{ asset('assets/img/icons/trust-care.svg') }}" alt="clinic-logo" class="img-fluid">
                                 </div>
                                 <div>
-                                    <h6 class="text-dark fw-semibold mb-1">{{ $consultation->clinic->name ?? 'Clinic Name' }}</h6>
-                                    <p class="mb-1">Dr. {{ auth()->user()->name }}</p>
-                                    <p class="mb-0">MD Cardiologist. MBBS, MS</p>
+                                    <h6 class="text-dark fw-semibold mb-1">{{ optional(auth()->user()->clinic)->name ?? 'Clinic' }}</h6>
+                                    <p class="mb-1">Dr. {{ optional($consultation->visit->appointment->doctor->user)->name ?? auth()->user()->name }}</p>
+                                    <p class="mb-0">{{ optional($consultation->visit->appointment->doctor->department)->name ?? 'Department' }}</p>
                                 </div>
                             </div>
 
                             <div class="text-lg-end">
-                                <p class="text-dark mb-1">Department : <span class="text-body">Cardiology OP</span></p>
+                                <p class="text-dark mb-1">Department : <span class="text-body">{{ optional($consultation->visit->appointment->doctor->department)->name ?? 'N/A' }}</span></p>
                                 <p class="text-dark mb-1">Prescribed on : <span class="text-body">{{ now()->format('d M Y') }}</span></p>
                                 <p class="text-dark mb-0">Consultation : <span class="text-body">#{{ $consultation->id }}</span></p>
                             </div>
                         </div>
 
-<div class="mb-4">
-    <h6 class="mb-2 fs-14 fw-medium"> Patient Details </h6>
-    <div class="px-3 py-2 bg-light rounded d-flex align-items-center justify-content-between">
-        <select name="patient_id" class="form-select m-0" style="max-width: 200px;">
-            <option value="">Select Patient</option>
-            <option value="1">M. Reyan Verol</option>
-            <option value="2">A. John Smith</option>
-            <option value="3">L. Emma Watson</option>
-            <option value="4">K. Sophia Lee</option>
-        </select>
-        <div class="d-flex align-items-center gap-3">
-            <p class="mb-0 text-dark">28Y / Male</p>
-            <p class="mb-0 text-dark"><span class="text-body">Blood</span> : O+ve</p>
-            <p class="mb-0 text-dark">Patient ID <span class="text-body">PT0025</span></p>
+                        <div class="mb-4">
+                            <h6 class="mb-2 fs-14 fw-medium"> Patient Details </h6>
+                            <div class="px-3 py-2 bg-light rounded d-flex align-items-center justify-content-between">
+                                <div class="fw-semibold">
+                                    {{ optional($consultation->visit->appointment->patient)->name ?? 'Patient' }}
+                                </div>
+
+                                <div class="d-flex align-items-center gap-3">
+            <p class="mb-0 text-dark me-2"><span class="text-body">Age</span> : {{ optional($consultation->visit->appointment->patient)->age ?? 'Null' }} Years</p>
+            <p class="mb-0 text-dark"><span class="text-body">Blood</span> : {{ optional($consultation->visit->appointment->patient)->blood_group ?? 'Null' }}</p>
+
+                            </div>
+                                <div class="d-flex align-items-center gap-3">
+
+            <p class="mb-0 text-dark">Patient ID : <span class="text-body">#P-00{{ optional($consultation->visit->appointment->patient)->id }}</span></p>
         </div>
-    </div>
-</div>
+                            </div>
+                        </div>
 
 
                         <!-- Patient Complaints (Smaller Input) -->
@@ -133,16 +133,24 @@
                         <!-- Follow-up + Notes (Wider Textarea) -->
                         <div class="row pb-3 mb-3 border-1 border-bottom">
                             <div class="col-lg-4">
-                                <h6 class="mb-2 mt-2 fs-16 fw-bold"> Follow Up </h6>
+                                <h6 class="mb-2 fs-16 fw-bold"> Follow Up </h6>
                                 <div class="form-check">
                                     <input class="form-check-input"
                                            type="checkbox"
                                            name="is_followup"
-                                           value="1"
-                                           required>
+                                           value="1">
                                     <label class="form-check-label">
                                         Follow-up required
                                     </label>
+
+
+                                </div>
+                                  {{-- Add a follow-up Date picker using input type date--}}
+                                     <input type="date" id="followup_date" name="followup_date" class="form-control">
+                                {{-- Add a Diagnosis Field --}}
+                                <div class="mt-2">
+                                    <label for="diagnosis" class="form-label fs-16 fw-bold">Diagnosis</label>
+                                    <input type="text" id="diagnosis" name="diagnosis" class="form-control">
                                 </div>
                             </div>
 
@@ -163,7 +171,7 @@
 
                             <div>
                                 <img src="{{ asset('assets/img/icons/signature-img.svg') }}" class="img-fluid">
-                                <h6 class="fs-14 fw-semibold"> Dr. {{ auth()->user()->name }} </h6>
+                                <h6 class="fs-14 fw-semibold"> Dr. {{ optional($consultation->visit->appointment->doctor->user)->name ?? auth()->user()->name }} </h6>
                                 <p class="fs-13 fw-normal"> Authorized Physician </p>
                             </div>
                         </div>
@@ -221,8 +229,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     <input type="text" name="items[${rowIndex}][instructions]" class="form-control" placeholder="After food">
                 </td>
                 <td class="text-center">
-                    <button type="button" class="btn btn-sm btn-outline-danger remove-row">
-                        <i class="ti ti-trash fs-24"></i>
+                    <button type="button" class="btn btn-xs btn-outline-danger remove-row">
+                        <i class="ti ti-trash fs-16"></i>
                     </button>
                 </td>
             `;
@@ -246,6 +254,27 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 </script>
+<script>
+document.addEventListener('click', function (e) {
+    if (e.target.closest('.add-complaint')) {
+        const wrapper = document.getElementById('complaint-wrapper');
+        const div = document.createElement('div');
+        div.className = 'd-flex gap-2 mb-2';
+        div.innerHTML = `
+            <input type="text" name="complaints[]" class="form-control">
+            <button type="button" class="btn btn-xs btn-danger remove-complaint">
+                <i class="ti ti-trash"></i>
+            </button>
+        `;
+        wrapper.appendChild(div);
+    }
+
+    if (e.target.closest('.remove-complaint')) {
+        e.target.closest('.d-flex').remove();
+    }
+});
+</script>
+
 
 @endpush
 
