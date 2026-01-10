@@ -30,7 +30,7 @@ class PharmacyController extends Controller
         Gate::authorize('create', PharmacySale::class);
         $patients = Patient::orderBy('name')->get();
         $medicines = Medicine::whereHas('batches', function ($q) {
-            $q->where('clinic_id', auth()->user()->clinic_id)
+            $q->where('clinic_id', \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id)
               ->where('quantity_in_stock', '>', 0);
         })->orderBy('name')->get();
         return view('pharmacy.pos', compact('patients', 'medicines'));

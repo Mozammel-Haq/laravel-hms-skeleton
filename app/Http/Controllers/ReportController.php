@@ -88,8 +88,16 @@ class ReportController extends Controller
     public function doctorPerformance()
     {
         Gate::authorize('view_reports');
-        $topDoctors = \App\Models\Doctor::with('user')
-            ->get()
+        
+        $query = \App\Models\Doctor::with('user');
+        
+        if (\App\Support\TenantContext::hasClinic()) {
+            $query->whereHas('clinics', function($q) {
+                $q->where('clinics.id', \App\Support\TenantContext::getClinicId());
+            });
+        }
+        
+        $topDoctors = $query->get()
             ->map(function ($d) {
                 $consults = \App\Models\Consultation::whereHas('visit.appointment', function ($q) use ($d) {
                     $q->where('doctor_id', $d->id);

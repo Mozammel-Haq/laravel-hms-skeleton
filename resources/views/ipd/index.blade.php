@@ -56,7 +56,7 @@
                                 <tr>
                                     <td>{{ optional($admission->patient)->full_name ?? 'Patient' }}</td>
                                     <td>{{ optional($admission->doctor)->user->name ?? 'Doctor' }}</td>
-                                    <td>{{ $admission->created_at->format('Y-m-d H:i') }}</td>
+                                    <td>{{ $admission->created_at }}</td>
                                     <td><span class="badge bg-success">{{ $admission->status }}</span></td>
                                     <td>
                                         <a href="{{ route('ipd.show', $admission->id) }}"

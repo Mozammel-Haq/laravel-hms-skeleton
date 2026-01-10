@@ -6,9 +6,28 @@ use App\Models\Base\BaseTenantModel;
 
 class Consultation extends BaseTenantModel
 {
-    public function visit() { return $this->belongsTo(Visit::class); }
-    public function prescription() { return $this->hasOne(Prescription::class); }
-    
+    protected $fillable = [
+        'visit_id',
+        'doctor_id',
+        'patient_id',
+        'complaint',
+        'status',
+        'notes',
+        'diagnosis',
+        'doctor_notes',
+        'follow_up_required',
+        'follow_up_date',
+    ];
+
+    public function visit()
+    {
+        return $this->belongsTo(Visit::class);
+    }
+    public function prescription()
+    {
+        return $this->hasOne(Prescription::class);
+    }
+
     public function doctor()
     {
         return $this->belongsTo(Doctor::class);

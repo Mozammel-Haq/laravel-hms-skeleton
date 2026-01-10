@@ -16,12 +16,16 @@ class DoctorController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Doctor::class);
-        $doctors = Doctor::with(['user', 'department'])
-            ->whereHas('clinics', function ($q) {
-                $q->where('clinics.id', auth()->user()->clinic_id);
-            })
-            ->latest()
-            ->paginate(15);
+
+        $query = Doctor::with(['user', 'department']);
+
+        if (\App\Support\TenantContext::hasClinic()) {
+            $query->whereHas('clinics', function ($q) {
+                $q->where('clinics.id', \App\Support\TenantContext::getClinicId());
+            });
+        }
+
+        $doctors = $query->latest()->paginate(15);
         return view('doctors.index', compact('doctors'));
     }
 
@@ -50,7 +54,7 @@ class DoctorController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'clinic_id' => auth()->user()->clinic_id,
+                'clinic_id' => \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id,
                 'email_verified_at' => now(),
                 'status' => 'active',
             ]);
@@ -65,7 +69,10 @@ class DoctorController extends Controller
                 'status' => 'active',
             ]);
 
-            $doctor->clinics()->syncWithoutDetaching([auth()->user()->clinic_id]);
+            $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id;
+            if ($clinicId) {
+                $doctor->clinics()->syncWithoutDetaching([$clinicId]);
+            }
         });
 
         return redirect()->route('doctors.index')->with('success', 'Doctor created successfully.');

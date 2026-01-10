@@ -13,42 +13,46 @@ class EnsureClinicContext
 {
 
     public function handle(Request $request, Closure $next)
-{
-    if (!Auth::check()) {
-        return redirect()->route('login');
-    }
-
-    $user = Auth::user();
-
-    /**
-     * ✅ Super Admin = SYSTEM CONTEXT
-     * No tenant should be set automatically.
-     */
-    if ($user->hasRole('Super Admin') && Session::has('selected_clinic_id')) {
-    TenantContext::setClinicId(Session::get('selected_clinic_id'));
-    return $next($request);
-}
-
-    $selectedClinicId = Session::get('selected_clinic_id');
-    $clinicId = $user->clinic_id;
-
-    if ($selectedClinicId) {
-        if (
-            $user->hasRole('Doctor')
-            && $user->doctor
-            && $user->doctor->clinics()->whereKey($selectedClinicId)->exists()
-        ) {
-            $clinicId = $selectedClinicId;
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
         }
+
+        $user = Auth::user();
+
+        /**
+         * ✅ Super Admin = SYSTEM CONTEXT
+         * No tenant should be set automatically unless selected.
+         */
+        if ($user->hasRole('Super Admin')) {
+            if (Session::has('selected_clinic_id')) {
+                TenantContext::setClinicId(Session::get('selected_clinic_id'));
+            } else {
+                TenantContext::setClinicId(null);
+            }
+            // If not selected, we proceed without setting tenant (Global Scope).
+            return $next($request);
+        }
+
+        $selectedClinicId = Session::get('selected_clinic_id');
+        $clinicId = $user->clinic_id;
+
+        if ($selectedClinicId) {
+            if (
+                $user->hasRole('Doctor')
+                && $user->doctor
+                && $user->doctor->clinics()->whereKey($selectedClinicId)->exists()
+            ) {
+                $clinicId = $selectedClinicId;
+            }
+        }
+
+        if (!$clinicId) {
+            abort(403, 'Clinic context missing');
+        }
+
+        TenantContext::setClinicId($clinicId);
+
+        return $next($request);
     }
-
-    if (!$clinicId) {
-        abort(403, 'Clinic context missing');
-    }
-
-    TenantContext::setClinicId($clinicId);
-
-    return $next($request);
-}
-
 }

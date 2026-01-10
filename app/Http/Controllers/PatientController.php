@@ -38,7 +38,7 @@ class PatientController extends Controller
         Gate::authorize('create', Patient::class);
 
         $patient = Patient::create($request->validated() + [
-            'clinic_id' => auth()->user()->clinic_id,
+            'clinic_id' => \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id,
         ]);
 
         return redirect()->route('patients.show', $patient)

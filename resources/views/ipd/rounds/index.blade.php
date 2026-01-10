@@ -22,7 +22,7 @@
                                 <tr>
                                     <td>{{ optional($admission->patient)->full_name ?? 'Patient' }}</td>
                                     <td>{{ optional($admission->doctor)->user->name ?? 'Doctor' }}</td>
-                                    <td>{{ $admission->created_at->format('Y-m-d H:i') }}</td>
+                                    <td>{{ $admission->created_at }}</td>
                                     <td>
                                         <input type="text" class="form-control" placeholder="Round note">
                                     </td>

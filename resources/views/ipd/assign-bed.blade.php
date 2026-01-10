@@ -14,8 +14,9 @@
                                 <label class="form-label">Available Bed</label>
                                 <select class="form-select" name="bed_id" required>
                                     <option value="">Select a bed</option>
-                                    @foreach($beds as $bed)
-                                        <option value="{{ $bed->id }}">Bed {{ $bed->id }} ({{ $bed->status }})</option>
+                                    @foreach ($beds as $bed)
+                                        <option value="{{ $bed->id }}">Bed {{ $bed->id }}
+                                            ({{ $bed->status }})</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -41,7 +42,7 @@
                         </div>
                         <div class="mb-2">
                             <div class="text-muted">Admitted On</div>
-                            <div>{{ $admission->created_at->format('Y-m-d H:i') }}</div>
+                            <div>{{ $admission->created_at }}</div>
                         </div>
                         <div>
                             <div class="text-muted">Status</div>

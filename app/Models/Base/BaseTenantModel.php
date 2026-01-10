@@ -11,7 +11,7 @@ abstract class BaseTenantModel extends Model
 {
     use BelongsToClinic, LogsActivity;
     protected $guarded = ['id', 'clinic_id'];
-    public $timestamps = false;
+    
     public static function withoutTenant()
     {
         return static::withoutGlobalScope('clinic');
