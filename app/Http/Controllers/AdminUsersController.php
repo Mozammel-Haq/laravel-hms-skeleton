@@ -53,7 +53,7 @@ class AdminUsersController extends Controller
         }
 
         // Clinic Admin creation requires clinics list
-        $clinics = Clinic::withoutTenant()->orderBy('name')->get();
+        $clinics = Clinic::orderBy('name')->get();
         return view('admin.users.clinic_admins.create', compact('clinics'));
     }
 
@@ -63,7 +63,7 @@ class AdminUsersController extends Controller
     public function store(Request $request)
     {
         Gate::authorize('manage_roles');
-        $mainSuperAdmin = Auth::user()->hasRole('Super Admin');
+        $mainSuperAdmin = Auth::user();
         $isSuperAdmin = $request->routeIs('admin.super-admin-users.*');
 
         $data = $request->validate([
@@ -105,7 +105,7 @@ class AdminUsersController extends Controller
             return view('admin.users.super_admins.edit', compact('user'));
         }
 
-        $clinics = Clinic::withoutTenant()->orderBy('name')->get();
+        $clinics = Clinic::orderBy('name')->get();
         return view('admin.users.clinic_admins.edit', compact('user', 'clinics'));
     }
 
@@ -135,7 +135,7 @@ class AdminUsersController extends Controller
         if (!$isSuperAdmin) {
             $user->clinic_id = $data['clinic_id'];
         }
-         $user->clinic_id = $user->clinic_id ?? 1;
+        $user->clinic_id = $user->clinic_id ?? 1;
 
         // Optional password update
         if (!empty($data['password'])) {
