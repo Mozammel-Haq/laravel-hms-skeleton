@@ -2,35 +2,56 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\BelongsToClinic;
+use App\Models\Base\BaseTenantModel;
+use App\Models\Clinic;
+use App\Models\Doctor;
+use App\Models\Role;
+use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
-class User extends Authenticatable
+class User extends BaseTenantModel implements AuthenticatableContract
 {
-    use HasFactory, BelongsToClinic, Notifiable;
+    use HasFactory, Notifiable, AuthenticatableTrait;
 
+    /**
+     * Fillable attributes
+     */
     protected $fillable = [
         'clinic_id',
         'name',
         'email',
         'password',
+        'phone',
+        'status',
+        'is_two_factor_enabled',
+        'last_login_at',
+        'email_verified_at',
     ];
 
+    /**
+     * Hidden attributes
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    /**
+     * Attribute casts
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'last_login_at'    => 'datetime',
+        'password'         => 'hashed',
+        'is_two_factor_enabled' => 'boolean',
+    ];
 
+    /**
+     * Relationships
+     */
     public function clinic()
     {
         return $this->belongsTo(Clinic::class);
@@ -41,6 +62,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_role');
     }
 
+    public function doctor()
+    {
+        return $this->hasOne(Doctor::class);
+    }
+
+    /**
+     * Role / Permission helpers
+     */
     public function hasRole($role)
     {
         if (is_string($role)) {
@@ -62,8 +91,15 @@ class User extends Authenticatable
         $this->roles()->syncWithoutDetaching($role);
     }
 
-    public function doctor()
+    /**
+     * Set password attribute automatically hashed
+     */
+    public function setPasswordAttribute($value)
     {
-        return $this->hasOne(Doctor::class);
+        if ($value) {
+            $this->attributes['password'] = Hash::needsRehash($value)
+                ? Hash::make($value)
+                : $value;
+        }
     }
 }

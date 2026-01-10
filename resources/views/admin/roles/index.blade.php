@@ -37,7 +37,7 @@
                     <td>{{ $role->created_at->format('d M Y') }}</td>
                     <td>{{ $role->description ?? '-' }}</td>
                     <td>
-                        <a href="{{ route('admin.permissions.edit', $role->id) }}"
+                        <a href="{{ route('admin.permissions.index',['role' => $role->id]) }}"
                            class="btn btn-white border text-dark btn-sm">
                             <i class="ti ti-shield-half me-1"></i> Permissions
                         </a>

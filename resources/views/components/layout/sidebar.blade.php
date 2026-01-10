@@ -156,8 +156,8 @@
                             <i class="ti ti-users"></i><span>Users</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('users.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('admin.users.super_admins') }}">Super Admins</a></li>
-                            <li><a href="{{ route('admin.users.clinic_admins') }}">Clinic Admin Accounts</a></li>
+                            <li><a href="{{ route('admin.super-admin-users.index') }}">Super Admins</a></li>
+                            <li><a href="{{ route('admin.clinic-admin-users.index') }}">Clinic Admin Accounts</a></li>
                         </ul>
                     </li>
                     <li class="submenu">

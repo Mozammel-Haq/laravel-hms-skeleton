@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Base\BaseTenantModel;
 
-class Clinic extends Model
+class Clinic extends BaseTenantModel
 {
     protected $guarded = ['id'];
+
     public function departments() { return $this->hasMany(Department::class); }
     public function users() { return $this->hasMany(User::class); }
     public function patients() { return $this->hasMany(Patient::class); }
