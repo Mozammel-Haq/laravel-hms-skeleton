@@ -1,57 +1,197 @@
 <x-app-layout>
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Prescription #{{ $prescription->id }}</h3>
-            <a href="{{ route('clinical.prescriptions.print', $prescription) }}" class="btn btn-outline-primary">Print</a>
-        </div>
-        <div class="row g-3">
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="fw-semibold mb-2">Patient</div>
-                        <div>{{ optional($prescription->consultation->patient)->full_name ?? optional($prescription->consultation->patient)->name ?? 'Patient' }}</div>
-                        <div class="fw-semibold mt-3 mb-2">Doctor</div>
-                        <div>{{ optional($prescription->consultation->doctor?->user)->name ?? 'Doctor' }}</div>
-                        <div class="fw-semibold mt-3 mb-2">Issued</div>
-                        <div>{{ isset($prescription->issued_date) ? \Illuminate\Support\Carbon::parse($prescription->issued_date)->format('Y-m-d') : $prescription->created_at->format('Y-m-d') }}</div>
-                        <div class="fw-semibold mt-3 mb-2">Status</div>
-                        <span class="badge bg-secondary">{{ $prescription->status ?? 'active' }}</span>
-                    </div>
+    <div class="content">
+
+        <!-- start row -->
+        <div class="row m-auto justify-content-center">
+            <div class="col-lg-10">
+
+                <!-- Page Header -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold mb-0 d-flex align-items-center">
+                        <a href="{{ route('clinical.consultations.show', data_get($prescription, 'consultation_id')) }}">
+                            <i class="ti ti-chevron-left me-1 fs-14"></i> Prescription
+                        </a>
+                    </h6>
+
+                    <button onclick="window.print()" class="btn btn-sm btn-outline-primary d-print-none">
+                        <i class="ti ti-printer me-1"></i> Print
+                    </button>
                 </div>
-            </div>
-            <div class="col-lg-8">
+
                 <div class="card">
-                    <div class="card-header bg-white fw-semibold">Items</div>
                     <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Medicine</th>
-                                        <th>Dosage</th>
-                                        <th>Duration</th>
-                                        <th>Instruction</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($prescription->items as $item)
-                                        <tr>
-                                            <td>{{ optional($item->medicine)->name ?? 'Medicine' }}</td>
-                                            <td>{{ $item->dosage ?? 'N/A' }}</td>
-                                            <td>{{ $item->duration ?? 'N/A' }}</td>
-                                            <td>{{ $item->instruction ?? '—' }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center text-muted">No items</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+
+                        <!-- Invoice Header -->
+                        <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+                            <div class="invoice-logo">
+                                <img src="{{ asset('assets/img/logo.svg') }}" class="logo-white" alt="logo">
+                                <img src="{{ asset('assets/img/logo-white.svg') }}" class="logo-dark" alt="logo">
+                            </div>
+                            <span class="badge bg-success">Issued Prescription</span>
                         </div>
+
+                        <!-- Clinic & Doctor -->
+                        <div
+                            class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3 flex-wrap gap-3">
+                            <div class="d-flex gap-3">
+                                <div class="avatar avatar-xxl rounded bg-light border p-2">
+                                    <img src="{{ asset('assets/img/icons/trust-care.svg') }}" class="img-fluid">
+                                </div>
+
+                                <div>
+                                    <h6 class="fw-semibold mb-1">
+                                        {{ data_get($prescription, 'clinic.name', 'Clinic') }}
+                                    </h6>
+
+                                    <p class="mb-1">
+                                        Dr. {{ data_get($prescription, 'doctor.user.name', 'Doctor') }}
+                                    </p>
+
+                                    <p class="mb-0">
+                                        {{ data_get($prescription, 'doctor.department.name', 'Department') }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="text-lg-end">
+                                <p class="mb-1">
+                                    Prescribed on :
+                                    <span class="text-body">
+                                        {{ optional($prescription->issued_at)->format('d M Y') ?? 'N/A' }}
+                                    </span>
+                                </p>
+
+                                <p class="mb-0">
+                                    Consultation :
+                                    <span class="text-body">
+                                        #{{ data_get($prescription, 'consultation_id', 'N/A') }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Patient Details -->
+                        <div class="mb-4">
+                            <h6 class="fs-14 fw-medium mb-2">Patient Details</h6>
+
+                            <div class="px-3 py-2 bg-light rounded d-flex justify-content-between flex-wrap gap-2">
+                                <div class="fw-semibold">
+                                    {{ data_get($prescription, 'consultation.patient.name', 'Patient') }}
+                                </div>
+
+                                <div class="d-flex gap-3">
+                                    <p class="mb-0">
+                                        Age :
+                                        {{ data_get($prescription, 'consultation.patient.age', 'N/A') }} yrs
+                                    </p>
+                                    <p class="mb-0">
+                                        Blood :
+                                        {{ data_get($prescription, 'consultation.patient.blood_group', 'N/A') }}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p class="mb-0">
+                                        Patient ID :
+                                        #P-00{{ data_get($prescription, 'consultation.patient.id', 'N/A') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Complaints -->
+                        <div class="mb-4">
+                            <h6 class="fs-16 fw-bold mb-3">Patient Complaints</h6>
+
+                            <ul class="ps-3">
+                                @forelse($prescription->complaints as $complaint)
+                                    <li>{{ $complaint->name }}</li>
+                                @empty
+                                    <li class="text-muted">No complaints recorded</li>
+                                @endforelse
+                            </ul>
+                        </div>
+
+                        <!-- Medicines -->
+                        <div class="mb-4">
+                            <h6 class="fs-16 fw-bold mb-3">Prescribed Medicines</h6>
+
+                            <div class="table-responsive border bg-white">
+                                <table class="table table-nowrap">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Medicine</th>
+                                            <th>Dosage</th>
+                                            <th>Frequency</th>
+                                            <th>Duration</th>
+                                            <th>Instructions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($prescription->items as $index => $item)
+                                            <tr>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ data_get($item, 'medicine.name', '-') }}</td>
+                                                <td>{{ $item->dosage }}</td>
+                                                <td>{{ $item->frequency }}</td>
+                                                <td>{{ $item->duration_days }} days</td>
+                                                <td>{{ $item->instructions ?? '-' }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center text-muted">
+                                                    No medicines prescribed
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Follow-up & Notes -->
+                        <div class="row border-bottom pb-3 mb-3">
+                            <div class="col-lg-4">
+                                <h6 class="fs-16 fw-bold mb-2">Follow Up</h6>
+                                <p>
+                                    {{ data_get($prescription, 'consultation.follow_up_required') ? 'Required' : 'Not Required' }}
+                                </p>
+
+                                <p>
+                                    <strong>Diagnosis:</strong>
+                                    {{ data_get($prescription, 'consultation.diagnosis', 'N/A') }}
+                                </p>
+                            </div>
+
+                            <div class="col-lg-8">
+                                <h6 class="fs-16 fw-bold mb-2">Notes / Advice</h6>
+                                <p>{{ $prescription->notes ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Signature -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fs-14 fw-semibold">Terms and Conditions</h6>
+                                <p class="mb-0">Medicines must be taken exactly as prescribed.</p>
+                            </div>
+
+                            <div class="text-end">
+                                <img src="{{ asset('assets/img/icons/signature-img.svg') }}" class="img-fluid mb-1">
+                                <h6 class="fs-14 fw-semibold mb-0">
+                                    Dr. {{ data_get($prescription, 'consultation.doctor.user.name', 'Doctor') }}
+                                </h6>
+                                <p class="fs-13 mb-0">Authorized Physician</p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
+
             </div>
         </div>
+        <!-- end row -->
+
     </div>
 </x-app-layout>

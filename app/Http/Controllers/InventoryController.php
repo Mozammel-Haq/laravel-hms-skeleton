@@ -40,7 +40,7 @@ class InventoryController extends Controller
             'purchase_price' => 'required|numeric|min:0',
         ]);
 
-        MedicineBatch::create($request->all() + ['clinic_id' => auth()->user()->clinic_id]);
+        MedicineBatch::create($request->all() + ['clinic_id' => \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id]);
 
         return redirect()->route('pharmacy.inventory.index')->with('success', 'Batch added to inventory.');
     }

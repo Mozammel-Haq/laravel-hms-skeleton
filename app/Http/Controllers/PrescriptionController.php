@@ -25,9 +25,20 @@ class PrescriptionController extends Controller
     public function show(Prescription $prescription)
     {
         Gate::authorize('view', $prescription);
-        $prescription->load(['items.medicine', 'consultation.patient', 'consultation.doctor', 'consultation']);
+
+        $prescription->load([
+            'clinic',
+            'items.medicine',
+            'complaints',
+            'consultation.patient',
+            'consultation.doctor.user',
+            'consultation.doctor.department',
+        ]);
+
+
         return view('clinical.prescription.show', compact('prescription'));
     }
+
 
     public function create(Consultation $consultation)
     {
@@ -46,13 +57,14 @@ class PrescriptionController extends Controller
 
     public function store(Request $request, Consultation $consultation)
     {
+        // dd($consultation, $request->all());
         Gate::authorize('create', Prescription::class);
         if (!auth()->user()->hasRole('Doctor')) {
             abort(403);
         }
         $request->validate([
             'notes' => 'nullable|string',
-            'diagnosis'=>'nullable|string',
+            'diagnosis' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.medicine_id' => 'required|exists:medicines,id',
             'items.*.dosage' => 'required|string',
@@ -99,18 +111,18 @@ class PrescriptionController extends Controller
                 'follow_up_required' => (bool)($request->is_followup ?? false),
                 'diagnosis' => $request->diagnosis ?? null,
                 'doctor_notes' => $request->notes ?? null,
-                'followup_date'=>$request->followup_date ?? null,
+                'follow_up_date' => $request->followup_date ?? null,
             ]);
+
+            // Mark appointment as completed
+            if ($consultation->visit && $consultation->visit->appointment) {
+                $consultation->visit->appointment->update(['status' => 'completed']);
+                $consultation->visit->update(['visit_status' => 'completed']);
+                $consultation->update(['status' => 'completed']);
+            }
         });
 
         return redirect()->route('clinical.prescriptions.show', $prescription)
             ->with('success', 'Prescription created successfully.');
-    }
-
-    public function print(Prescription $prescription)
-    {
-        Gate::authorize('view', $prescription);
-        $prescription->load(['items.medicine', 'consultation.patient', 'consultation.doctor']);
-        return view('clinical.prescription.print', compact('prescription'));
     }
 }

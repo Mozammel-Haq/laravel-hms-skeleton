@@ -73,8 +73,10 @@ class AppointmentController extends Controller
         // Assuming the UI used getAvailableSlots to populate the time.
 
         $appointment = Appointment::create($request->validated() + [
-            'clinic_id' => auth()->user()->clinic_id,
+            'clinic_id' => \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id,
             'status' => 'pending',
+            'department_id' => $doctor->primary_department_id,
+            'created_by' => auth()->id(),
             // End time calculation should ideally happen here or be passed
             'end_time' => \Carbon\Carbon::parse($request->start_time)->addMinutes(15)->format('H:i'),
         ]);

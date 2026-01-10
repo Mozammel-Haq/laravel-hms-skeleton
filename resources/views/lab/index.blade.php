@@ -22,12 +22,17 @@
                             @forelse ($orders as $order)
                                 <tr>
                                     <td>{{ $order->id }}</td>
-                                    <td>{{ optional($order->patient)->full_name ?? optional($order->patient)->name ?? 'Patient' }}</td>
+                                    <td>{{ optional($order->patient)->full_name ?? (optional($order->patient)->name ?? 'Patient') }}
+                                    </td>
                                     <td>{{ optional($order->test)->name ?? 'Test' }}</td>
-                                    <td><span class="badge bg-{{ $order->status === 'completed' ? 'success' : 'warning' }}">{{ ucfirst($order->status) }}</span></td>
-                                    <td>{{ isset($order->ordered_at) ? \Illuminate\Support\Carbon::parse($order->ordered_at)->format('Y-m-d H:i') : $order->created_at->format('Y-m-d H:i') }}</td>
+                                    <td><span
+                                            class="badge bg-{{ $order->status === 'completed' ? 'success' : 'warning' }}">{{ ucfirst($order->status) }}</span>
+                                    </td>
+                                    <td>{{ isset($order->ordered_at) ? \Illuminate\Support\Carbon::parse($order->ordered_at) : $order->created_at }}
+                                    </td>
                                     <td class="text-end">
-                                        <a href="{{ route('lab.show', $order) }}" class="btn btn-sm btn-outline-primary">Open</a>
+                                        <a href="{{ route('lab.show', $order) }}"
+                                            class="btn btn-sm btn-outline-primary">Open</a>
                                     </td>
                                 </tr>
                             @empty

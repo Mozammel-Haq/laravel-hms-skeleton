@@ -201,7 +201,7 @@ class DashboardController extends Controller
                 'beds_available' => \App\Models\Bed::withoutTenant()
                     ->join('rooms', 'beds.room_id', '=', 'rooms.id')
                     ->join('wards', 'rooms.ward_id', '=', 'wards.id')
-                    ->where('wards.clinic_id', auth()->user()->clinic_id)
+                    ->where('wards.clinic_id', \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id)
                     ->where('beds.status', 'available')
                     ->count(),
             ];

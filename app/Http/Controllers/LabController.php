@@ -37,7 +37,7 @@ class LabController extends Controller
         ]);
 
         $order = LabTestOrder::create($request->all() + [
-            'clinic_id' => auth()->user()->clinic_id,
+            'clinic_id' => \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id,
             'status' => 'pending',
             'ordered_at' => now(),
         ]);

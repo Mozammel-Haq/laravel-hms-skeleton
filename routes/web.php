@@ -27,6 +27,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\SystemController;
 use App\Http\Middleware\EnsureClinicContext;
 use App\Models\Clinic;
 use GuzzleHttp\Promise\Create;
@@ -41,26 +42,10 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     //=====Switch Clinic=======
-    Route::get('/system/switch-clinic/{clinic}', function (Clinic $clinic) {
-        $user = auth()->user();
-        if (!$user || !$user->hasRole('Super Admin')) {
-            abort(403);
-        }
-        session(['selected_clinic_id' => $clinic->id]);
-        return redirect()->route('dashboard');
-    })->name('system.switch-clinic');
+    Route::get('/system/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('system.switch-clinic');
+    Route::get('/system/clear-clinic', [SystemController::class, 'clearClinicContext'])->name('system.clear-clinic');
 
-    Route::get('/doctor/switch-clinic/{clinic}', function (Clinic $clinic) {
-        $user = auth()->user();
-        if (!$user || !$user->hasRole('Doctor')) {
-            abort(403);
-        }
-        if (!$user->doctor || !$user->doctor->clinics()->whereKey($clinic->id)->exists()) {
-            abort(403);
-        }
-        session(['selected_clinic_id' => $clinic->id]);
-        return redirect()->route('dashboard');
-    })->name('doctor.switch-clinic');
+    Route::get('/doctor/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('doctor.switch-clinic');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -88,12 +73,9 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
         // Prescriptions
         Route::resource('prescriptions', PrescriptionController::class)
-            ->only(['index', 'show','create'])
+            ->only(['index', 'show', 'create'])
             ->middleware('can:view_prescriptions');
 
-        Route::get('prescriptions/{prescription}/print', [PrescriptionController::class, 'print'])
-            ->name('prescriptions.print')
-            ->middleware('can:view_prescriptions');
     });
 
     // Billing & Finance
@@ -204,27 +186,26 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::resource('staff', StaffController::class)->middleware('can:view_staff');
 
     // Roles & Permissions (Super Admin Only)
-   Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
 
-    Route::resource('roles', RoleController::class);
-    Route::resource('permissions', PermissionController::class);
+        Route::resource('roles', RoleController::class);
+        Route::resource('permissions', PermissionController::class);
 
-    Route::put(
-        'permissions/role/{role}',
-        [PermissionController::class, 'updateRolePermissions']
-    )->name('permissions.updateRolePermissions');
+        Route::put(
+            'permissions/role/{role}',
+            [PermissionController::class, 'updateRolePermissions']
+        )->name('permissions.updateRolePermissions');
 
-    Route::resource(
-        'super-admin-users',
-        AdminUsersController::class
-    )->parameters(['super-admin-users' => 'user']);
+        Route::resource(
+            'super-admin-users',
+            AdminUsersController::class
+        )->parameters(['super-admin-users' => 'user']);
 
-    Route::resource(
-        'clinic-admin-users',
-        AdminUsersController::class
-    )->parameters(['clinic-admin-users' => 'user']);
-
-});
+        Route::resource(
+            'clinic-admin-users',
+            AdminUsersController::class
+        )->parameters(['clinic-admin-users' => 'user']);
+    });
 
 
 
