@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminUsersController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\ConsultationController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\BedController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\BedAssignmentController;
+use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\LabResultsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -188,8 +190,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     // --- Admin & Settings ---
 
     // System Clinics (Super Admin only via policy)
-    Route::resource('clinics', \App\Http\Controllers\ClinicController::class)
-        ->middleware('can:viewAny,App\Models\Clinic');
+    Route::resource('clinics', ClinicController::class)
+        ->middleware('can:viewAny,can:create,can:update,can:delete');
 
     // Doctors Management
     Route::get('/doctors/assignment', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'assignment'])->name('doctors.assignment')->middleware('can:view_doctors');
@@ -202,14 +204,27 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::resource('staff', StaffController::class)->middleware('can:view_staff');
 
     // Roles & Permissions (Super Admin Only)
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('roles', RoleController::class);
-        Route::resource('permissions', PermissionController::class);
-        Route::put('permissions/role/{role}', [PermissionController::class, 'updateRolePermissions'])
-            ->name('permissions.updateRolePermissions');
-        Route::get('users/super-admins', [\App\Http\Controllers\AdminUsersController::class, 'superAdmins'])->name('users.super_admins');
-        Route::get('users/clinic-admins', [\App\Http\Controllers\AdminUsersController::class, 'clinicAdmins'])->name('users.clinic_admins');
-    });
+   Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::resource('roles', RoleController::class);
+    Route::resource('permissions', PermissionController::class);
+
+    Route::put(
+        'permissions/role/{role}',
+        [PermissionController::class, 'updateRolePermissions']
+    )->name('permissions.updateRolePermissions');
+
+    Route::resource(
+        'super-admin-users',
+        AdminUsersController::class
+    )->parameters(['super-admin-users' => 'user']);
+
+    Route::resource(
+        'clinic-admin-users',
+        AdminUsersController::class
+    )->parameters(['clinic-admin-users' => 'user']);
+
+});
 
 
 

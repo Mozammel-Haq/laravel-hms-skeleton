@@ -15,51 +15,30 @@ public function index(Request $request)
         abort(403, 'Unauthorized action.');
     }
 
-    // Get all roles
     $roles = Role::orderBy('name')->get();
-
-    // Determine selected role via query string (?role=1)
     $selectedRoleId = $request->query('role');
     $role = $selectedRoleId ? Role::findOrFail($selectedRoleId) : $roles->first();
 
-    // Get all permissions grouped by module
-    $permissions = Permission::all()->groupBy('module');
+    // Fetch all permissions
+    $permissionsRaw = Permission::all();
 
-    // Permissions currently assigned to the selected role
-    $rolePermissions = $role->permissions->pluck('name')->toArray();
+    // Prepare module-wise grouping
+    $permissions = [];
+    foreach ($permissionsRaw as $perm) {
+        // split name into action + entity/table
+        $parts = explode('_', $perm->name, 2);
+        if (count($parts) < 2) continue;
+        [$action, $entity] = $parts;
+
+        $permissions[$entity][$action] = $perm;
+    }
+
+    // Permissions already assigned to this role
+    $rolePermissions = $role->permissions->pluck('id')->toArray();
 
     return view('admin.permissions.index', compact('roles', 'role', 'permissions', 'rolePermissions'));
 }
 
-
-
-
-
-    public function create()
-    {
-        if (!auth()->user()->hasRole('Super Admin')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        return view('admin.permissions.create');
-    }
-
-    public function store(Request $request)
-    {
-        if (!auth()->user()->hasRole('Super Admin')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $request->validate([
-            'name' => 'required|string|max:255|unique:permissions,name',
-        ]);
-
-        Permission::create([
-            'name' => $request->name,
-        ]);
-
-        return redirect()->route('admin.permissions.index')->with('success', 'Permission created successfully.');
-    }
 
     public function edit(Permission $permission)
     {
@@ -85,17 +64,6 @@ public function index(Request $request)
         ]);
 
         return redirect()->route('admin.permissions.index')->with('success', 'Permission updated successfully.');
-    }
-
-    public function destroy(Permission $permission)
-    {
-        if (!auth()->user()->hasRole('Super Admin')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $permission->delete();
-
-        return redirect()->route('admin.permissions.index')->with('success', 'Permission deleted successfully.');
     }
     public function updateRolePermissions(Request $request, Role $role)
 {

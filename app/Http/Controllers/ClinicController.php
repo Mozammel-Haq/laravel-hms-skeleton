@@ -41,8 +41,8 @@ class ClinicController extends Controller
             'logo_path' => 'nullable|string|max:255',
             'timezone' => 'required|string|max:64',
             'currency' => 'required|string|max:10',
-            'opening_time' => 'nullable|date_format:H:i',
-            'closing_time' => 'nullable|date_format:H:i',
+            'opening_time' => 'nullable|date_format:H:i:s',
+            'closing_time' => 'nullable|date_format:H:i:s',
             'status' => 'required|in:active,inactive,suspended',
         ]);
 
@@ -66,7 +66,7 @@ class ClinicController extends Controller
     public function update(Request $request, Clinic $clinic)
     {
         Gate::authorize('update', $clinic);
-
+        // dd($clinic);
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:clinics,code,' . $clinic->id,
@@ -83,11 +83,11 @@ class ClinicController extends Controller
             'logo_path' => 'nullable|string|max:255',
             'timezone' => 'required|string|max:64',
             'currency' => 'required|string|max:10',
-            'opening_time' => 'nullable|date_format:H:i',
-            'closing_time' => 'nullable|date_format:H:i',
+            'opening_time' => 'nullable|date_format:H:i:s',
+            'closing_time' => 'nullable|date_format:H:i:s',
             'status' => 'required|in:active,inactive,suspended',
         ]);
-
+        // dd($data);
         $clinic->update($data);
 
         return redirect()->route('clinics.show', $clinic)->with('success', 'Clinic updated successfully.');
