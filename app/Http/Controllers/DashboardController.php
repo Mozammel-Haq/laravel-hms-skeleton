@@ -21,8 +21,8 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        // dd($user);
         $clinic = $user->clinic;
-
         if ($user->hasRole('Super Admin')) {
             return view('dashboards.super_admin');
         }
