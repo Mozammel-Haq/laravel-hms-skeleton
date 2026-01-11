@@ -1,3 +1,55 @@
 <x-app-layout>
-    <h1>Pharmacy Sales</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="page-title mb-0">Pharmacy Sales</h3>
+        <a href="{{ route('pharmacy.create') }}" class="btn btn-primary">
+            <i class="ti ti-shopping-cart-plus me-1"></i> New Sale (POS)
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sale ID</th>
+                        <th>Date</th>
+                        <th>Patient</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($sales as $sale)
+                        <tr>
+                            <td>#{{ $sale->id }}</td>
+                            <td>{{ $sale->created_at->format('d M Y, h:i A') }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ $sale->patient->name }}</div>
+                                <div class="small text-muted">{{ $sale->patient->patient_code }}</div>
+                            </td>
+                            <td>{{ number_format($sale->total_amount, 2) }}</td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td>
+                                <a href="{{ route('pharmacy.show', $sale) }}" class="btn btn-sm btn-outline-primary">
+                                    View Details
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                No sales found. <a href="{{ route('pharmacy.create') }}">Create a new sale</a>.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if($sales->hasPages())
+            <div class="card-footer bg-transparent">
+                {{ $sales->links() }}
+            </div>
+        @endif
+    </div>
 </x-app-layout>

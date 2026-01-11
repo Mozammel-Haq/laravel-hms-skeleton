@@ -1,108 +1,174 @@
 <x-app-layout>
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Patient Profile</h3>
-            <a href="{{ route('patients.index') }}" class="btn btn-outline-secondary">Back</a>
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div class="page-title">
+            <h4>Patient Profile</h4>
+            <p class="text-muted">View patient details and history</p>
         </div>
-        <div class="row g-3">
-            <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="avatar avatar-xl rounded-circle me-3">
-                                <img src="{{ asset('assets') }}/img/users/user-01.jpg" alt="img" class="rounded-circle">
-                            </span>
-                            <div>
-                                <div class="h5 mb-0">{{ $patient->full_name ?? $patient->name ?? 'Patient' }}</div>
-                                <div class="text-muted">#{{ $patient->id }}</div>
-                            </div>
+        <div class="action-btn">
+            <a href="{{ route('patients.index') }}" class="btn btn-light me-2">
+                <i class="ti ti-arrow-left me-1"></i> Back
+            </a>
+            @can('update', $patient)
+            <a href="{{ route('patients.edit', $patient) }}" class="btn btn-primary">
+                <i class="ti ti-edit me-1"></i> Edit Profile
+            </a>
+            @endcan
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Patient Info Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="avatar avatar-xl mb-3 mx-auto">
+                        <span class="avatar-title rounded-circle bg-primary text-white fs-1">
+                            {{ substr($patient->name, 0, 1) }}
+                        </span>
+                    </div>
+                    <h5 class="card-title mb-1">{{ $patient->name }}</h5>
+                    <p class="text-muted mb-3">{{ $patient->patient_code }}</p>
+                    
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        <a href="tel:{{ $patient->phone }}" class="btn btn-sm btn-light">
+                            <i class="ti ti-phone me-1"></i> Call
+                        </a>
+                        @if($patient->email)
+                        <a href="mailto:{{ $patient->email }}" class="btn btn-sm btn-light">
+                            <i class="ti ti-mail me-1"></i> Email
+                        </a>
+                        @endif
+                    </div>
+
+                    <div class="text-start">
+                        <h6 class="text-muted text-uppercase fs-xs fw-bold mb-3">Details</h6>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Gender</span>
+                            <span class="text-capitalize">{{ $patient->gender }}</span>
                         </div>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <div class="text-muted">Gender</div>
-                                <div class="fw-semibold">{{ $patient->gender ?? 'N/A' }}</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-muted">DOB</div>
-                                <div class="fw-semibold">{{ isset($patient->dob) ? \Illuminate\Support\Carbon::parse($patient->dob)->format('Y-m-d') : 'N/A' }}</div>
-                            </div>
-                            <div class="col-12">
-                                <div class="text-muted">Contact</div>
-                                <div class="fw-semibold">{{ $patient->phone ?? 'N/A' }}</div>
-                            </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Age</span>
+                            <span>{{ \Carbon\Carbon::parse($patient->date_of_birth)->age }} Years</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Birth Date</span>
+                            <span>{{ $patient->date_of_birth->format('M d, Y') }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Blood Group</span>
+                            <span class="text-danger fw-bold">{{ $patient->blood_group ?? 'N/A' }}</span>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small d-block mb-1">Address</label>
+                            <div>{{ $patient->address }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="text-muted small d-block mb-1">Emergency Contact</label>
+                            <div class="fw-bold">{{ $patient->emergency_contact_name ?? 'N/A' }}</div>
+                            <div class="small">{{ $patient->emergency_contact_phone ?? '' }}</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header bg-white">
-                        <ul class="nav nav-tabs card-header-tabs">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-bs-toggle="tab" href="#tab-appointments">Appointments</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-bs-toggle="tab" href="#tab-admissions">Admissions</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="card-body">
-                        <div class="tab-content">
-                            <div class="tab-pane fade show active" id="tab-appointments">
-                                <div class="table-responsive">
-                                    <table class="table table-hover align-middle">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Doctor</th>
-                                                <th>Status</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($patient->appointments as $a)
-                                                <tr>
-                                                    <td>{{ $a->appointment_date ?? $a->created_at->format('Y-m-d H:i') }}</td>
-                                                    <td>{{ optional($a->doctor?->user)->name ?? 'Doctor' }}</td>
-                                                    <td><span class="badge bg-secondary">{{ $a->status ?? 'scheduled' }}</span></td>
-                                                    <td class="text-end"><a href="{{ route('appointments.show', $a) }}" class="btn btn-sm btn-outline-primary">Open</a></td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="4" class="text-center text-muted">No appointments</td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
+        </div>
+
+        <!-- Details Tabs -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#appointments" role="tab">Appointments</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#admissions" role="tab">Admissions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#medical" role="tab">Medical History</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <!-- Appointments Tab -->
+                        <div class="tab-pane active" id="appointments" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Doctor</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($patient->appointments as $appointment)
+                                        <tr>
+                                            <td>{{ $appointment->appointment_date->format('M d, Y') }}</td>
+                                            <td>{{ $appointment->doctor->user->name }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $appointment->status === 'confirmed' ? 'success' : ($appointment->status === 'cancelled' ? 'danger' : 'warning') }}-subtle text-{{ $appointment->status === 'confirmed' ? 'success' : ($appointment->status === 'cancelled' ? 'danger' : 'warning') }}">
+                                                    {{ ucfirst($appointment->status) }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('appointments.show', $appointment) }}" class="btn btn-sm btn-light btn-icon">
+                                                    <i class="ti ti-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-4">No appointments found.</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="tab-pane fade" id="tab-admissions">
-                                <div class="table-responsive">
-                                    <table class="table table-hover align-middle">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Admitted</th>
-                                                <th>Doctor</th>
-                                                <th>Status</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($patient->admissions as $adm)
-                                                <tr>
-                                                    <td>{{ $adm->created_at->format('Y-m-d H:i') }}</td>
-                                                    <td>{{ optional($adm->doctor?->user)->name ?? 'Doctor' }}</td>
-                                                    <td><span class="badge bg-success">{{ $adm->status ?? 'admitted' }}</span></td>
-                                                    <td class="text-end"><a href="{{ route('ipd.show', $adm) }}" class="btn btn-sm btn-outline-primary">Open</a></td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="4" class="text-center text-muted">No admissions</td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
+                        </div>
+
+                        <!-- Admissions Tab -->
+                        <div class="tab-pane" id="admissions" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Admission Date</th>
+                                            <th>Discharge Date</th>
+                                            <th>Doctor</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($patient->admissions ?? [] as $admission)
+                                        <tr>
+                                            <td>{{ $admission->admission_date->format('M d, Y') }}</td>
+                                            <td>{{ $admission->discharge_date ? $admission->discharge_date->format('M d, Y') : '-' }}</td>
+                                            <td>{{ $admission->doctor->user->name }}</td>
+                                            <td>
+                                                <span class="badge bg-secondary-subtle text-secondary">{{ ucfirst($admission->status) }}</span>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-4">No admissions found.</td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Medical History Tab -->
+                        <div class="tab-pane" id="medical" role="tabpanel">
+                            <div class="alert alert-info">
+                                <i class="ti ti-info-circle me-2"></i> Medical history module integration pending.
                             </div>
                         </div>
                     </div>

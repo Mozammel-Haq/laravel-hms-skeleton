@@ -77,6 +77,15 @@
                             <x-input-error :messages="$errors->get('reason_for_visit')" class="mt-2" />
                         </div>
 
+                        <!-- Fee Display -->
+                        <div class="mb-4" id="fee-container" style="display: none;">
+                            <x-input-label value="Estimated Consultation Fee" />
+                            <div class="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-md">
+                                <span class="text-xl font-bold text-gray-800" id="fee-display">-</span>
+                                <span class="text-sm text-gray-500 ml-2" id="visit-type-display"></span>
+                            </div>
+                        </div>
+
                         <div class="flex items-center justify-end mt-4">
                             <x-primary-button class="ml-4">
                                 {{ __('Book Appointment') }}
@@ -87,4 +96,74 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const doctorSelect = document.getElementById('doctor_id');
+            const patientSelect = document.getElementById('patient_id');
+            const feeContainer = document.getElementById('fee-container');
+            const feeDisplay = document.getElementById('fee-display');
+            const visitTypeDisplay = document.getElementById('visit-type-display');
+            
+            // Handle case where patient_id is a hidden input (Patient Portal)
+            const patientHiddenInput = document.querySelector('input[name="patient_id"][type="hidden"]');
+            
+            function updateFee() {
+                const doctorId = doctorSelect ? doctorSelect.value : null;
+                let patientId = null;
+                
+                if (patientSelect) {
+                    patientId = patientSelect.value;
+                } else if (patientHiddenInput) {
+                    patientId = patientHiddenInput.value;
+                }
+                
+                if (doctorId && patientId) {
+                    // Use the correct route structure
+                    fetch(`/api/doctors/${doctorId}/fee?patient_id=${patientId}`)
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.json();
+                        })
+                        .then(data => {
+                            feeContainer.style.display = 'block';
+                            // Format currency (assuming system uses default currency symbol, e.g. $)
+                            const formattedFee = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(data.fee);
+                            feeDisplay.textContent = formattedFee;
+                            
+                            const typeText = data.visit_type === 'follow_up' 
+                                ? '(Follow-up Visit)' 
+                                : '(New Consultation)';
+                            visitTypeDisplay.textContent = typeText;
+                            
+                            // Visual cue for follow-up discount
+                            if (data.visit_type === 'follow_up') {
+                                visitTypeDisplay.classList.add('text-green-600');
+                                visitTypeDisplay.classList.remove('text-gray-500');
+                            } else {
+                                visitTypeDisplay.classList.add('text-gray-500');
+                                visitTypeDisplay.classList.remove('text-green-600');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching fee:', error);
+                            feeContainer.style.display = 'none';
+                        });
+                } else {
+                    feeContainer.style.display = 'none';
+                }
+            }
+            
+            if (doctorSelect) {
+                doctorSelect.addEventListener('change', updateFee);
+            }
+            
+            if (patientSelect) {
+                patientSelect.addEventListener('change', updateFee);
+            }
+            
+            // Run on load in case values are pre-filled (e.g. back button or validation error)
+            updateFee();
+        });
+    </script>
 </x-app-layout>

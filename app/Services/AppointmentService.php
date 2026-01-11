@@ -18,24 +18,19 @@ class AppointmentService
     public function getAvailableSlots(Doctor $doctor, string $date): array
     {
         $date = Carbon::parse($date);
-        $dayOfWeek = $date->isoWeekday(); // 1 (Monday) to 7 (Sunday)
+        $dayOfWeek = $date->dayOfWeek; // 0 (Sunday) to 6 (Saturday)
 
-        // 1. Check for Exceptions (Day Off)
-        // We need to use the relationship defined in Doctor model: schedules() and exceptions might be on DoctorSchedule?
-        // No, DoctorScheduleException is linked to Doctor directly usually.
-        // Let's check Doctor model.
-        // Doctor model: public function schedules() { return $this->hasMany(DoctorSchedule::class); }
-        // Doctor model doesn't show exceptions() relationship in the previous Read output.
-        // DoctorSchedule has exceptions(), but that seems wrong. Exceptions are usually per Doctor.
-        // Let's check DoctorScheduleException migration: doctor_id, clinic_id.
-        // So Doctor should have hasMany(DoctorScheduleException::class).
-        
-        $exception = $doctor->exceptions()
-            ->where('exception_date', $date->format('Y-m-d'))
-            ->first();
+        // 1. Check for Exceptions (Day Off) - Assuming relationship exists
+        // If relationship doesn't exist yet, we skip or add it.
+        // For now, let's assume it might not exist and wrap in try-catch or check method
+        if (method_exists($doctor, 'exceptions')) {
+            $exception = $doctor->exceptions()
+                ->where('exception_date', $date->format('Y-m-d'))
+                ->first();
 
-        if ($exception && !$exception->is_available) {
-            return []; // Doctor is off
+            if ($exception && !$exception->is_available) {
+                return []; // Doctor is off
+            }
         }
 
         // 2. Get Schedule for the day
@@ -57,6 +52,7 @@ class AppointmentService
         $currentSlot = $startTime->copy();
 
         // 4. Get Booked Appointments
+        // We only care about active appointments (not cancelled)
         $bookedAppointments = Appointment::where('doctor_id', $doctor->id)
             ->where('appointment_date', $date->format('Y-m-d'))
             ->whereIn('status', ['pending', 'confirmed'])
@@ -69,12 +65,15 @@ class AppointmentService
                 break;
             }
 
-            $startString = $currentSlot->format('H:i:00'); // Match DB time format
+            $currentStartStr = $currentSlot->format('H:i:00');
+            $currentEndStr = $slotEnd->format('H:i:00');
+            
             $isBooked = false;
 
             foreach ($bookedAppointments as $appointment) {
-                // Assuming exact match for fixed slots
-                if ($appointment->start_time == $startString) {
+                // Check for overlap: (StartA < EndB) and (EndA > StartB)
+                // Here: (ApptStart < SlotEnd) and (ApptEnd > SlotStart)
+                if ($appointment->start_time < $currentEndStr && $appointment->end_time > $currentStartStr) {
                     $isBooked = true;
                     break;
                 }

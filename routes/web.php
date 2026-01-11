@@ -58,20 +58,25 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     // Appointments
     Route::resource('appointments', AppointmentController::class)->middleware('can:view_appointments');
     Route::get('api/doctors/{doctor}/slots', [AppointmentController::class, 'getSlots'])->name('api.doctors.slots');
+    Route::get('api/doctors/{doctor}/fee', [AppointmentController::class, 'getConsultationFee'])->name('api.doctors.fee');
 
     // Clinical (Consultations & Prescriptions)
     Route::prefix('clinical')->name('clinical.')->group(function () {
-        // Start consultation from an appointment
-        Route::middleware('can:perform_consultation')->group(function () {
-            Route::get('consultations/create', [ConsultationController::class, 'create'])->name('consultations.create');
-            Route::post('consultations/{appointment}', [ConsultationController::class, 'store'])->name('consultations.store');
-        });
+        Route::get('consultations', [ConsultationController::class, 'index'])->name('consultations.index')->middleware('can:view_consultations');
 
-        Route::get('consultations/{consultation}', [ConsultationController::class, 'show'])
-            ->name('consultations.show')
-            ->middleware('can:view_consultations');
+        // Start consultation from an appointment
+        // Route::middleware('can:perform_consultation')->group(function () {
+        //     Route::get('consultations/create', [ConsultationController::class, 'create'])->name('consultations.create');
+        //     Route::post('consultations/{appointment}', [ConsultationController::class, 'store'])->name('consultations.store');
+        // });
+        // Route::get('consultations/{consultation}', [ConsultationController::class, 'show'])
+        //     ->name('consultations.show')
+        //     ->middleware('can:view_consultations');
 
         // Prescriptions
+        Route::get('prescriptions/create/{consultation}', [PrescriptionController::class, 'create'])->name('prescriptions.create')->middleware('can:create,App\Models\Prescription');
+        Route::post('prescriptions/{consultation}', [PrescriptionController::class, 'store'])->name('prescriptions.store')->middleware('can:create,App\Models\Prescription');
+
         Route::resource('prescriptions', PrescriptionController::class)
             ->only(['index', 'show', 'create'])
             ->middleware('can:view_prescriptions');
@@ -88,6 +93,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         // Payments
         Route::get('/{invoice}/payment', [BillingController::class, 'addPayment'])->whereNumber('invoice')->name('payment.add');
         Route::post('/{invoice}/payment', [BillingController::class, 'storePayment'])->whereNumber('invoice')->name('payment.store');
+
+        Route::get('/payments', [\App\Http\Controllers\PaymentController::class, 'index'])->name('payments.index');
     });
 
     // Pharmacy & Inventory
@@ -105,6 +112,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
         // Medicine Catalog
         Route::resource('medicines', MedicineController::class);
+        Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
     });
 
     // IPD (Inpatient Department)
@@ -213,38 +221,17 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::resource('departments', DepartmentController::class)->except(['create', 'edit', 'show']); // simplified
     Route::resource('visits', VisitController::class)->only(['index', 'show', 'create', 'store']);
 
-    Route::prefix('pharmacy')->name('pharmacy.')->middleware('can:view_pharmacy')->group(function () {
-        Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
-    });
-
     // Clinic Profile
     Route::view('/clinic/profile', 'clinics.profile')->name('clinics.profile');
 
     // Staff extras
     Route::get('/staff/passwords', [StaffController::class, 'passwords'])->name('staff.passwords')->middleware('can:view_staff');
 
-    // Billing payments index
-    Route::prefix('billing')->name('billing.')->middleware('can:view_billing')->group(function () {
-        Route::get('/payments', [\App\Http\Controllers\PaymentController::class, 'index'])->name('payments.index');
-    });
-
     // Activity logs
     Route::get('/activity', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activity.index');
 
     // Doctor schedule (current doctor)
     Route::get('/doctor/schedule', [\App\Http\Controllers\Extras\DoctorSelfScheduleController::class, 'index'])->name('doctor.schedule.index');
-
-    // Clinical extras
-    Route::prefix('clinical')->name('clinical.')->group(function () {
-        Route::get('consultations', [ConsultationController::class, 'index'])->name('consultations.index')->middleware('can:view_consultations');
-        Route::get('prescriptions/create/{consultation}', [PrescriptionController::class, 'create'])->name('prescriptions.create')->middleware('can:create,App\Models\Prescription');
-        Route::post('prescriptions/{consultation}', [PrescriptionController::class, 'store'])->name('prescriptions.store')->middleware('can:create,App\Models\Prescription');
-    });
-
-    // IPD extras
-    Route::prefix('ipd')->name('ipd.')->middleware('can:view_ipd')->group(function () {
-        // Removed duplicate view routes that caused undefined variable errors
-    });
 
     // Vitals
     Route::prefix('vitals')->name('vitals.')->group(function () {

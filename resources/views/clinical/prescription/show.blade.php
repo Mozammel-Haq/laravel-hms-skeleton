@@ -8,7 +8,7 @@
                 <!-- Page Header -->
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <h6 class="fw-bold mb-0 d-flex align-items-center">
-                        <a href="{{ route('clinical.consultations.show', data_get($prescription, 'consultation_id')) }}">
+                        <a href="{{ route('clinical.prescriptions.index') }}">
                             <i class="ti ti-chevron-left me-1 fs-14"></i> Prescription
                         </a>
                     </h6>

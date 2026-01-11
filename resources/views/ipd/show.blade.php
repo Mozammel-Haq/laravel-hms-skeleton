@@ -1,5 +1,191 @@
 <x-app-layout>
-    {{-- Admission Details --}}
-    {{-- Current Bed Info --}}
-    {{-- Nursing Notes (Future) --}}
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="mb-1">Admission Details</h4>
+                <p class="text-muted mb-0">Patient admission record and status</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">
+                    <i class="ti ti-arrow-left me-1"></i> Back to IPD
+                </a>
+                @if($admission->status === 'admitted')
+                    <a href="{{ route('ipd.assign-bed', $admission) }}" class="btn btn-success">
+                        <i class="ti ti-bed me-1"></i> Assign/Transfer Bed
+                    </a>
+                    <a href="{{ route('ipd.discharge', $admission) }}" class="btn btn-danger">
+                        <i class="ti ti-door-exit me-1"></i> Discharge
+                    </a>
+                @endif
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Patient & Admission Info -->
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Patient Information</h5>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar avatar-lg me-3">
+                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
+                                    {{ substr($admission->patient->name, 0, 1) }}
+                                </span>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ $admission->patient->name }}</h6>
+                                <div class="text-muted small">{{ $admission->patient->patient_code }}</div>
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Gender</span>
+                                <span class="fw-semibold">{{ ucfirst($admission->patient->gender) }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Phone</span>
+                                <span class="fw-semibold">{{ $admission->patient->phone }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Blood Group</span>
+                                <span class="fw-semibold">{{ $admission->patient->blood_group ?? 'N/A' }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Admission Info</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Status</span>
+                                <span class="badge bg-{{ $admission->status === 'admitted' ? 'success' : 'secondary' }}">
+                                    {{ ucfirst($admission->status) }}
+                                </span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Admission Date</span>
+                                <span class="fw-semibold">{{ $admission->created_at->format('d M Y, h:i A') }}</span>
+                            </li>
+                            @if($admission->discharge_date)
+                                <li class="list-group-item d-flex justify-content-between px-0">
+                                    <span class="text-muted">Discharge Date</span>
+                                    <span class="fw-semibold">{{ $admission->discharge_date->format('d M Y, h:i A') }}</span>
+                                </li>
+                            @endif
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span class="text-muted">Attending Doctor</span>
+                                <span class="fw-semibold">Dr. {{ $admission->doctor->user->name }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-8">
+                <!-- Current Bed Status -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Bed Assignment</h5>
+                    </div>
+                    <div class="card-body">
+                        @php
+                            $currentAssignment = $admission->bedAssignments->whereNull('discharged_at')->last();
+                        @endphp
+
+                        @if($currentAssignment)
+                            <div class="alert alert-success d-flex align-items-center mb-0">
+                                <i class="ti ti-bed fs-2 me-3"></i>
+                                <div>
+                                    <h5 class="alert-heading mb-1">Assigned to Bed: {{ $currentAssignment->bed->bed_number }}</h5>
+                                    <p class="mb-0">
+                                        Room: {{ $currentAssignment->bed->room->room_number }} ({{ $currentAssignment->bed->room->room_type }})<br>
+                                        Ward: {{ $currentAssignment->bed->room->ward->name }}
+                                    </p>
+                                </div>
+                            </div>
+                        @else
+                            @if($admission->status === 'admitted')
+                                <div class="alert alert-warning d-flex align-items-center mb-0">
+                                    <i class="ti ti-alert-circle fs-2 me-3"></i>
+                                    <div>
+                                        <h5 class="alert-heading mb-1">No Bed Assigned</h5>
+                                        <p class="mb-0">This patient is currently admitted but not assigned to a bed.
+                                            <a href="{{ route('ipd.assign-bed', $admission) }}" class="alert-link">Assign a bed now</a>.
+                                        </p>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="alert alert-secondary mb-0">
+                                    Patient discharged.
+                                </div>
+                            @endif
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Admission Notes</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ $admission->notes ?? 'No notes provided.' }}</p>
+                    </div>
+                </div>
+
+                <!-- Bed History -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Bed History</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Bed / Room / Ward</th>
+                                        <th>Assigned At</th>
+                                        <th>Discharged At</th>
+                                        <th>Duration</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($admission->bedAssignments->sortByDesc('assigned_at') as $assignment)
+                                        <tr>
+                                            <td>
+                                                <div class="fw-semibold">Bed {{ $assignment->bed->bed_number }}</div>
+                                                <div class="small text-muted">{{ $assignment->bed->room->room_number }} - {{ $assignment->bed->room->ward->name }}</div>
+                                            </td>
+                                            <td>{{ $assignment->assigned_at->format('d M Y, H:i') }}</td>
+                                            <td>
+                                                @if($assignment->discharged_at)
+                                                    {{ $assignment->discharged_at->format('d M Y, H:i') }}
+                                                @else
+                                                    <span class="badge bg-success-subtle text-success">Current</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($assignment->discharged_at)
+                                                    {{ $assignment->assigned_at->diffForHumans($assignment->discharged_at, true) }}
+                                                @else
+                                                    {{ $assignment->assigned_at->diffForHumans(null, true) }}
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">No bed assignments recorded.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </x-app-layout>
