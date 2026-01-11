@@ -9,7 +9,7 @@
                 <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3">
                     <div class="flex-grow-1">
                         <h6 class="fw-bold mb-0 d-flex align-items-center">
-                            <a href="{{ route('clinical.consultations.show', $consultation->id) }}">
+                            <a href="{{ route('clinical.prescriptions.index') }}">
                                 <i class="ti ti-chevron-left me-1 fs-14"></i>Prescription
                             </a>
                         </h6>
