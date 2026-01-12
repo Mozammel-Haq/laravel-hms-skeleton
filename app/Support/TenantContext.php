@@ -17,18 +17,10 @@ class TenantContext
     }
 
     public static function hasClinic(): bool
-{
-    // No clinic resolved at all
-    if (is_null(self::$clinicId)) {
-        return false;
+    {
+        // Tenant scoping applies whenever a clinic id is explicitly set
+        // including Super Admin when switching to a specific clinic context
+        return !is_null(self::$clinicId);
     }
-
-    // Super Admin must NEVER be tenant-scoped
-    if (auth()->check() && auth()->user()->hasRole('Super Admin')) {
-        return false;
-    }
-
-    return true;
-}
 
 }
