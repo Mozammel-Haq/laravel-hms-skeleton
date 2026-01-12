@@ -43,9 +43,10 @@ class PrescriptionController extends Controller
     public function create(Consultation $consultation)
     {
         Gate::authorize('create', Prescription::class);
-        if (!auth()->user()->hasRole('Doctor')) {
-            abort(403);
+        if ($consultation->status === 'completed') {
+            return redirect()->back()->with('error', 'Consultation is already completed.');
         }
+
         $consultation->load([
             'visit.appointment.patient',
             'visit.appointment.doctor.user',
@@ -57,14 +58,17 @@ class PrescriptionController extends Controller
 
     public function store(Request $request, Consultation $consultation)
     {
-        // dd($consultation, $request->all());
         Gate::authorize('create', Prescription::class);
+        if ($consultation->status === 'completed') {
+            return redirect()->back()->with('error', 'Consultation is already completed.');
+        }
+
         if (!auth()->user()->hasRole('Doctor')) {
             abort(403);
         }
-        $request->validate([
+
+        $validated = $request->validate([
             'notes' => 'nullable|string',
-            'diagnosis' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.medicine_id' => 'required|exists:medicines,id',
             'items.*.dosage' => 'required|string',
@@ -75,17 +79,18 @@ class PrescriptionController extends Controller
             'complaints.*' => 'nullable|string',
         ]);
 
-        $prescription = null;
-        DB::transaction(function () use ($request, $consultation, &$prescription) {
+        DB::transaction(function () use ($consultation, $validated, &$prescription) {
+
             $consultation->loadMissing('visit.appointment');
+            // dd($consultation);
             $prescription = Prescription::create([
                 'clinic_id' => $consultation->clinic_id,
                 'consultation_id' => $consultation->id,
                 'issued_at' => now(),
-                'notes' => $request->notes,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
-            foreach ($request->items as $item) {
+            foreach ($validated['items'] as $item) {
                 PrescriptionItem::create([
                     'prescription_id' => $prescription->id,
                     'medicine_id' => $item['medicine_id'],
@@ -96,33 +101,25 @@ class PrescriptionController extends Controller
                 ]);
             }
 
-            if (is_array($request->complaints)) {
-                foreach ($request->complaints as $c) {
-                    $name = trim((string)$c);
+            if (!empty($validated['complaints'])) {
+                foreach ($validated['complaints'] as $c) {
+                    $name = trim($c);
                     if ($name === '') continue;
+
                     $complaint = PatientComplaint::firstOrCreate(['name' => $name]);
                     $prescription->complaints()->syncWithoutDetaching([$complaint->id]);
                 }
             }
 
-            $consultation->update([
-                'patient_id' => optional($consultation->visit->appointment)->patient_id,
-                'doctor_id' => optional($consultation->visit->appointment)->doctor_id,
-                'follow_up_required' => (bool)($request->is_followup ?? false),
-                'diagnosis' => $request->diagnosis ?? null,
-                'doctor_notes' => $request->notes ?? null,
-                'follow_up_date' => $request->followup_date ?? null,
-            ]);
-
-            // Mark appointment as completed
-            if ($consultation->visit && $consultation->visit->appointment) {
-                $consultation->visit->appointment->update(['status' => 'completed']);
-                $consultation->visit->update(['visit_status' => 'completed']);
-                $consultation->update(['status' => 'completed']);
-            }
+            $consultation->update(['status' => 'completed']);
+            $consultation->visit->appointment->update(['status' => 'completed']);
         });
 
-        return redirect()->route('clinical.prescriptions.show', $prescription)
+        // 🔑 NOW refresh
+        $consultation->refresh()->load('prescription');
+
+        return redirect()
+            ->route('clinical.prescriptions.show', $consultation->prescription)
             ->with('success', 'Prescription created successfully.');
     }
 }

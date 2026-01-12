@@ -77,7 +77,7 @@
                                     @foreach ($appointments as $a)
                                         <tr>
                                             <td>{{ $a->patient->name ?? 'Patient' }}</td>
-                                            <td>{{ $a->created_at?->format('d M, H:i') }}</td>
+                                            <td>{{ $a->created_at }}</td>
                                             <td><span
                                                     class="badge bg-light text-dark">{{ $a->status ?? 'pending' }}</span>
                                             </td>
@@ -115,7 +115,7 @@
                                     @foreach ($prescriptions as $p)
                                         <tr>
                                             <td>{{ $p->patient->name ?? 'Patient' }}</td>
-                                            <td>{{ $p->created_at?->format('d M, H:i') }}</td>
+                                            <td>{{ $p->created_at }}</td>
                                             <td><span class="badge bg-secondary">{{ $p->status ?? 'active' }}</span>
                                             </td>
                                             <td class="text-end">

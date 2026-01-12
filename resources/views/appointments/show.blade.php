@@ -9,9 +9,9 @@
                 <i class="ti ti-arrow-left me-1"></i> Back
             </a>
             @can('update', $appointment)
-            <a href="{{ route('appointments.edit', $appointment) }}" class="btn btn-primary">
-                <i class="ti ti-edit me-1"></i> Edit
-            </a>
+                <a href="{{ route('appointments.edit', $appointment) }}" class="btn btn-primary">
+                    <i class="ti ti-edit me-1"></i> Edit
+                </a>
             @endcan
         </div>
     </div>
@@ -27,7 +27,7 @@
                         <div class="col-md-6">
                             <label class="text-muted mb-1">Date & Time</label>
                             <div class="fw-bold fs-5">
-                                {{ $appointment->appointment_date->format('l, F j, Y') }}
+                                {{ $appointment->appointment_date }}
                             </div>
                             <div class="text-primary">
                                 {{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }} -
@@ -40,13 +40,16 @@
                                 @switch($appointment->status)
                                     @case('confirmed')
                                         <span class="badge bg-success-subtle text-success fs-6">Confirmed</span>
-                                        @break
+                                    @break
+
                                     @case('cancelled')
                                         <span class="badge bg-danger-subtle text-danger fs-6">Cancelled</span>
-                                        @break
+                                    @break
+
                                     @case('completed')
                                         <span class="badge bg-primary-subtle text-primary fs-6">Completed</span>
-                                        @break
+                                    @break
+
                                     @default
                                         <span class="badge bg-warning-subtle text-warning fs-6">Pending</span>
                                 @endswitch
@@ -70,10 +73,12 @@
                                     </div>
                                 </div>
                                 <div class="mb-2">
-                                    <i class="ti ti-phone me-2 text-muted"></i> {{ $appointment->patient->phone ?? 'N/A' }}
+                                    <i class="ti ti-phone me-2 text-muted"></i>
+                                    {{ $appointment->patient->phone ?? 'N/A' }}
                                 </div>
                                 <div>
-                                    <i class="ti ti-mail me-2 text-muted"></i> {{ $appointment->patient->email ?? 'N/A' }}
+                                    <i class="ti ti-mail me-2 text-muted"></i>
+                                    {{ $appointment->patient->email ?? 'N/A' }}
                                 </div>
                             </div>
                         </div>
@@ -92,7 +97,8 @@
                                     </div>
                                 </div>
                                 <div class="mb-2">
-                                    <i class="ti ti-building-hospital me-2 text-muted"></i> {{ $appointment->doctor->primaryDepartment->name ?? 'N/A' }}
+                                    <i class="ti ti-building-hospital me-2 text-muted"></i>
+                                    {{ $appointment->doctor->primaryDepartment->name ?? 'N/A' }}
                                 </div>
                             </div>
                         </div>
@@ -110,7 +116,7 @@
                     <div>
                         <label class="fw-bold mb-2">Appointment Type</label>
                         <div>
-                            @if($appointment->appointment_type === 'online')
+                            @if ($appointment->appointment_type === 'online')
                                 <span class="badge bg-info">Online Consultation</span>
                             @else
                                 <span class="badge bg-secondary">In-Person Visit</span>
@@ -128,10 +134,10 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        @if($appointment->status === 'pending')
-                            <form action="{{ route('appointments.update', $appointment) }}" method="POST">
+                        @if ($appointment->status === 'pending')
+                            <form action="{{ route('appointments.status.update', $appointment) }}" method="POST">
                                 @csrf
-                                @method('PUT')
+                                @method('PATCH')
                                 <input type="hidden" name="status" value="confirmed">
                                 <button class="btn btn-success w-100 mb-2">
                                     <i class="ti ti-check me-2"></i> Confirm Appointment
@@ -139,19 +145,21 @@
                             </form>
                         @endif
 
-                        @if($appointment->status !== 'cancelled' && $appointment->status !== 'completed')
-                            <form action="{{ route('appointments.update', $appointment) }}" method="POST">
+                        @if ($appointment->status !== 'cancelled' && $appointment->status !== 'completed')
+                            <form action="{{ route('appointments.status.update', $appointment) }}" method="POST">
                                 @csrf
-                                @method('PUT')
+                                @method('PATCH')
                                 <input type="hidden" name="status" value="cancelled">
-                                <button class="btn btn-danger w-100" onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                <button class="btn btn-danger w-100"
+                                    onclick="return confirm('Are you sure you want to cancel this appointment?')">
                                     <i class="ti ti-x me-2"></i> Cancel Appointment
                                 </button>
                             </form>
                         @endif
 
-                        @if($appointment->status === 'confirmed')
-                            <a href="{{ route('clinical.consultations.create', ['appointment_id' => $appointment->id]) }}" class="btn btn-primary w-100 mt-2">
+                        @if ($appointment->status === 'confirmed')
+                            <a href="{{ route('clinical.consultations.create', $appointment->id) }}"
+                                class="btn btn-primary w-100 mt-2">
                                 <i class="ti ti-stethoscope me-2"></i> Start Consultation
                             </a>
                         @endif

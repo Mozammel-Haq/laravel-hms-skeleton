@@ -66,17 +66,6 @@
                         <div class="px-3 py-2 border-bottom">
                             <h6 class="mb-2 text-uppercase fs-11 text-muted">Switch Active Clinic</h6>
                             <div style="max-height: 150px; overflow-y: auto;">
-                                <!-- Global View Option -->
-                                <a class="dropdown-item d-flex justify-content-between align-items-center px-2 py-1 rounded {{ !$currentClinic ? 'bg-light' : '' }}"
-                                   href="{{ route('system.clear-clinic') }}">
-                                    <span class="text-truncate" style="max-width: 150px;">Global View (All)</span>
-                                    @if (!$currentClinic)
-                                        <i class="ti ti-check text-success"></i>
-                                    @else
-                                        <i class="ti ti-chevron-right fs-12"></i>
-                                    @endif
-                                </a>
-
                                 @foreach ($allClinics as $clinic)
                                     <a class="dropdown-item d-flex justify-content-between align-items-center px-2 py-1 rounded {{ $currentClinic->id == $clinic->id ? 'bg-light' : '' }}"
                                         href="{{ route('system.switch-clinic', $clinic->id) }}">
@@ -217,6 +206,8 @@
                                     <li><a href="{{ route('doctors.index') }}">Doctor Profiles</a></li>
                                     <li><a href="{{ route('doctors.assignment') }}">Clinic Assignment</a></li>
                                     <li><a href="{{ route('doctors.schedules') }}">Schedules</a></li>
+                                    <li><a href="{{ route('admin.schedule.exceptions.index') }}">Schedule
+                                            Exceptions</a></li>
                                 </ul>
                             </li>
                             <li class="submenu">

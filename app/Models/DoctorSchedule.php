@@ -6,6 +6,18 @@ use App\Models\Base\BaseTenantModel;
 
 class DoctorSchedule extends BaseTenantModel
 {
-     public function doctor() { return $this->belongsTo(Doctor::class); }
+    protected $fillable = [
+        'doctor_id',
+        'clinic_id',
+        'department_id',
+        'day_of_week',
+        'start_time',
+        'end_time',
+        'slot_duration_minutes',
+        'max_patients',
+        'status',
+    ];
+
+    public function doctor() { return $this->belongsTo(Doctor::class); }
     public function exceptions() { return $this->hasMany(DoctorScheduleException::class); }
 }

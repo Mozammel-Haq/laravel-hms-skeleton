@@ -14,7 +14,7 @@ class ConsultationPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->clinic_id);
+        return !empty($user->clinic_id) && $user->hasRole('Doctor');
     }
 
     public function update(User $user, Consultation $consultation): bool

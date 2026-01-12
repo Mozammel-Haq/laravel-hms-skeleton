@@ -24,17 +24,27 @@
                                         <div class="text-muted">{{ $doctor->specialization }}</div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-success me-1">Mon</span>
-                                        <span class="badge bg-success me-1">Tue</span>
-                                        <span class="badge bg-success me-1">Wed</span>
-                                        <span class="badge bg-success me-1">Thu</span>
-                                        <span class="badge bg-success me-1">Fri</span>
-                                        <span class="badge bg-secondary me-1">Sat</span>
-                                        <span class="badge bg-secondary me-1">Sun</span>
+                                        @php
+                                            $days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                                            $activeDays = $doctor->schedules->pluck('day_of_week')->toArray();
+                                        @endphp
+                                        @foreach($days as $index => $day)
+                                            <span class="badge {{ in_array($index, $activeDays) ? 'bg-success' : 'bg-secondary bg-opacity-25 text-dark' }} me-1">{{ $day }}</span>
+                                        @endforeach
                                     </td>
-                                    <td>09:00–12:00, 14:00–17:00</td>
                                     <td>
-                                        <a href="{{ route('doctors.schedule', $doctor->user_id) }}"
+                                        @if($doctor->schedules->isNotEmpty())
+                                            {{ \Carbon\Carbon::parse($doctor->schedules->first()->start_time)->format('H:i') }} - 
+                                            {{ \Carbon\Carbon::parse($doctor->schedules->first()->end_time)->format('H:i') }}
+                                            @if($doctor->schedules->count() > 1)
+                                                <small class="text-muted">(+{{ $doctor->schedules->count() - 1 }} more)</small>
+                                            @endif
+                                        @else
+                                            <span class="text-muted">Not Set</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('doctors.schedule', $doctor) }}"
                                             class="btn btn-sm btn-outline-primary">Edit Schedule</a>
                                     </td>
                                 </tr>

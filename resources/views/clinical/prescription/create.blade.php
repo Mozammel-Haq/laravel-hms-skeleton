@@ -30,7 +30,7 @@
 
                     <div class="card-body">
                         <form id="prescription-form" method="POST"
-                            action="{{ route('clinical.prescriptions.store', $consultation->id) }}">
+                            action="{{ route('clinical.prescriptions.store', ['consultation' => $consultation]) }}">
                             @csrf
                             <!-- Header (EXACT) -->
                             <div
@@ -94,7 +94,7 @@
                                     <div class="d-flex align-items-center gap-3">
 
                                         <p class="mb-0 text-dark">Patient ID : <span
-                                                class="text-body">#P-00{{ optional($consultation->visit->appointment->patient)->id }}</span>
+                                                class="text-body">P-00{{ optional($consultation->visit->appointment->patient)->id }}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -164,34 +164,6 @@
                                 </div>
                             </div>
 
-                            <!-- Follow-up + Notes (Wider Textarea) -->
-                            <div class="row pb-3 mb-3 border-1 border-bottom">
-                                <div class="col-lg-4">
-                                    <h6 class="mb-2 fs-16 fw-bold"> Follow Up </h6>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="is_followup"
-                                            value="1">
-                                        <label class="form-check-label">
-                                            Follow-up required
-                                        </label>
-
-
-                                    </div>
-                                    {{-- Add a follow-up Date picker using input type date --}}
-                                    <input type="date" id="followup_date" name="followup_date"
-                                        class="form-control">
-                                    {{-- Add a Diagnosis Field --}}
-                                    <div class="mt-2">
-                                        <label for="diagnosis" class="form-label fs-16 fw-bold">Diagnosis</label>
-                                        <input type="text" id="diagnosis" name="diagnosis" class="form-control">
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-8">
-                                    <h6 class="mb-2 fs-16 fw-bold"> Notes / Advice </h6>
-                                    <textarea name="notes" class="form-control w-100" rows="4"></textarea>
-                                </div>
-                            </div>
 
                             <!-- Terms + Signature (EXACT) -->
                             <div
