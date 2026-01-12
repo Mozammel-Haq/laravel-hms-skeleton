@@ -22,15 +22,10 @@ class EnsureClinicContext
 
         /**
          * ✅ Super Admin = SYSTEM CONTEXT
-         * No tenant should be set automatically unless selected.
+         * No tenant should be set automatically.
          */
-        if ($user->hasRole('Super Admin')) {
-            if (Session::has('selected_clinic_id')) {
-                TenantContext::setClinicId(Session::get('selected_clinic_id'));
-            } else {
-                TenantContext::setClinicId(null);
-            }
-            // If not selected, we proceed without setting tenant (Global Scope).
+        if ($user->hasRole('Super Admin') && Session::has('selected_clinic_id')) {
+            TenantContext::setClinicId(Session::get('selected_clinic_id'));
             return $next($request);
         }
 

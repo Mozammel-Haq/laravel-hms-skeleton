@@ -17,7 +17,7 @@ class DoctorsExtrasController extends Controller
 
     public function schedules()
     {
-        $doctors = Doctor::with('user')->orderBy('user_id')->get();
+        $doctors = Doctor::with(['user', 'schedules'])->orderBy('user_id')->get();
         return view('doctors.schedules', compact('doctors'));
     }
 }

@@ -18,9 +18,8 @@ class StoreAppointmentRequest extends FormRequest
             'doctor_id' => ['required', 'exists:doctors,id'],
             'appointment_date' => ['required', 'date', 'after_or_equal:today'],
             'start_time' => ['required', 'date_format:H:i'],
-            'appointment_type' => ['required', 'in:online,in_person'],
-            'reason_for_visit' => ['nullable', 'string', 'max:1000'],
-            'booking_source' => ['required', 'in:reception,patient_portal'],
+            'type' => ['required', 'in:consultation,follow_up,emergency'],
+            'reason' => ['nullable', 'string', 'max:1000'],
         ];
     }
 }

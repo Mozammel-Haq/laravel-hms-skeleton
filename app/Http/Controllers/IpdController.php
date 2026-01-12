@@ -29,25 +29,22 @@ class IpdController extends Controller
             ->latest()
             ->paginate(20);
         $admissionsCount = Admission::where('status', 'admitted')->count();
-        
-        $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id;
-
         $bedsAvailable = \App\Models\Bed::withoutTenant()
             ->join('rooms', 'beds.room_id', '=', 'rooms.id')
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
-            ->where('wards.clinic_id', $clinicId)
+            ->where('wards.clinic_id', auth()->user()->clinic_id)
             ->where('beds.status', 'available')
             ->count();
         $bedsOccupied = \App\Models\Bed::withoutTenant()
             ->join('rooms', 'beds.room_id', '=', 'rooms.id')
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
-            ->where('wards.clinic_id', $clinicId)
+            ->where('wards.clinic_id', auth()->user()->clinic_id)
             ->where('beds.status', 'occupied')
             ->count();
-        $totalWards = Ward::where('clinic_id', $clinicId)->count();
+        $totalWards = Ward::where('clinic_id', auth()->user()->clinic_id)->count();
         $totalRooms = Room::withoutTenant()
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
-            ->where('wards.clinic_id', $clinicId)
+            ->where('wards.clinic_id', auth()->user()->clinic_id)
             ->count();
         return view('ipd.index', compact('admissions', 'admissionsCount', 'bedsAvailable', 'bedsOccupied', 'totalWards', 'totalRooms'));
     }

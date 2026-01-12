@@ -28,12 +28,23 @@
                     <div class="card-header bg-white fw-semibold">Details</div>
                     <div class="card-body">
                         <div class="mb-3">
-                            @if(!$consultation->prescription)
+                            @if($consultation->prescriptions->isEmpty())
                                 @can('create', App\Models\Prescription::class)
-                                    <a href="{{ route('clinical.prescriptions.create', $consultation->id) }}" class="btn btn-sm btn-primary">Create Prescription</a>
+                                    @if($consultation->status !== 'completed')
+                                        <a href="{{ route('clinical.prescriptions.create', $consultation->id) }}" class="btn btn-sm btn-primary">Create Prescription</a>
+                                    @endif
                                 @endcan
                             @else
-                                <a href="{{ route('clinical.prescriptions.show', $consultation->prescription->id) }}" class="btn btn-sm btn-outline-primary">View Prescription</a>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    @foreach($consultation->prescriptions as $p)
+                                        <a href="{{ route('clinical.prescriptions.show', $p->id) }}" class="btn btn-sm btn-outline-primary">View Prescription #{{ $p->id }}</a>
+                                    @endforeach
+                                    @can('create', App\Models\Prescription::class)
+                                        @if($consultation->status !== 'completed')
+                                            <a href="{{ route('clinical.prescriptions.create.withConsultation', $consultation->id) }}" class="btn btn-sm btn-primary">Add Prescription</a>
+                                        @endif
+                                    @endcan
+                                </div>
                             @endif
                         </div>
                         <div class="row g-3 mb-3">
@@ -51,34 +62,45 @@
                             </div>
                         </div>
                         <div class="fw-semibold mb-2">Prescription Items</div>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Medicine</th>
-                                        <th>Dosage</th>
-                                        <th>Frequency</th>
-                                        <th>Duration (days)</th>
-                                        <th>Instructions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse (optional($consultation->prescription)->items ?? [] as $item)
-                                        <tr>
-                                            <td>{{ optional($item->medicine)->name ?? 'Medicine' }}</td>
-                                            <td>{{ $item->dosage ?? 'N/A' }}</td>
-                                            <td>{{ $item->frequency ?? 'N/A' }}</td>
-                                            <td>{{ $item->duration_days ?? 'N/A' }}</td>
-                                            <td>{{ $item->instructions ?? 'N/A' }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center text-muted">No items</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+                        
+                        @forelse($consultation->prescriptions as $prescription)
+                            <div class="card mb-3 border">
+                                <div class="card-header bg-light py-2 px-3">
+                                    <span class="fw-medium">Prescription #{{ $prescription->id }}</span>
+                                    <span class="text-muted small ms-2">({{ $prescription->issued_at ? $prescription->issued_at : 'N/A' }})</span>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Medicine</th>
+                                                <th>Dosage</th>
+                                                <th>Frequency</th>
+                                                <th>Duration (days)</th>
+                                                <th>Instructions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($prescription->items as $item)
+                                                <tr>
+                                                    <td>{{ optional($item->medicine)->name ?? 'Medicine' }}</td>
+                                                    <td>{{ $item->dosage ?? 'N/A' }}</td>
+                                                    <td>{{ $item->frequency ?? 'N/A' }}</td>
+                                                    <td>{{ $item->duration_days ?? 'N/A' }}</td>
+                                                    <td>{{ $item->instructions ?? 'N/A' }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted">No items</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="alert alert-light text-center">No prescriptions found</div>
+                        @endforelse
                     </div>
                 </div>
             </div>

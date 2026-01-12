@@ -27,7 +27,6 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StaffController;
-use App\Http\Controllers\SystemController;
 use App\Http\Middleware\EnsureClinicContext;
 use App\Models\Clinic;
 use GuzzleHttp\Promise\Create;
@@ -45,7 +44,17 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::get('/system/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('system.switch-clinic');
     Route::get('/system/clear-clinic', [SystemController::class, 'clearClinicContext'])->name('system.clear-clinic');
 
-    Route::get('/doctor/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('doctor.switch-clinic');
+    Route::get('/doctor/switch-clinic/{clinic}', function (Clinic $clinic) {
+        $user = auth()->user();
+        if (!$user || !$user->hasRole('Doctor')) {
+            abort(403);
+        }
+        if (!$user->doctor || !$user->doctor->clinics()->whereKey($clinic->id)->exists()) {
+            abort(403);
+        }
+        session(['selected_clinic_id' => $clinic->id]);
+        return redirect()->route('dashboard');
+    })->name('doctor.switch-clinic');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -57,33 +66,61 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Appointments
     Route::resource('appointments', AppointmentController::class)->middleware('can:view_appointments');
+    Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status.update');
     Route::get('api/doctors/{doctor}/slots', [AppointmentController::class, 'getSlots'])->name('api.doctors.slots');
-    Route::get('api/doctors/{doctor}/fee', [AppointmentController::class, 'getConsultationFee'])->name('api.doctors.fee');
+
+    // Appointment Booking (New Interface)
+    Route::prefix('booking/appointments')->name('appointments.booking.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AppointmentBookingController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\AppointmentBookingController::class, 'store'])->name('store');
+        Route::get('/{doctor}', [\App\Http\Controllers\AppointmentBookingController::class, 'show'])->name('show');
+        Route::get('/{doctor}/slots', [\App\Http\Controllers\AppointmentBookingController::class, 'getSlots'])->name('slots');
+        Route::get('/{doctor}/fee', [\App\Http\Controllers\AppointmentBookingController::class, 'getFee'])->name('fee');
+    });
 
     // Clinical (Consultations & Prescriptions)
     Route::prefix('clinical')->name('clinical.')->group(function () {
         Route::get('consultations', [ConsultationController::class, 'index'])->name('consultations.index')->middleware('can:view_consultations');
-
         // Start consultation from an appointment
-        // Route::middleware('can:perform_consultation')->group(function () {
-        //     Route::get('consultations/create', [ConsultationController::class, 'create'])->name('consultations.create');
-        //     Route::post('consultations/{appointment}', [ConsultationController::class, 'store'])->name('consultations.store');
-        // });
-        // Route::get('consultations/{consultation}', [ConsultationController::class, 'show'])
-        //     ->name('consultations.show')
-        //     ->middleware('can:view_consultations');
+
+        Route::middleware('can:create,App\Models\Consultation')->group(function () {
+            Route::get('consultations/{appointment}/create', [ConsultationController::class, 'create'])->name('consultations.create');
+            Route::post('consultations/{appointment}', [ConsultationController::class, 'store'])->name('consultations.store');
+        });
+
+        Route::get('consultations/{consultation}', [ConsultationController::class, 'show'])
+            ->name('consultations.show')
+            ->middleware('can:view_consultations');
 
         // Prescriptions
-        Route::get('prescriptions/create/{consultation}', [PrescriptionController::class, 'create'])->name('prescriptions.create')->middleware('can:create,App\Models\Prescription');
-        Route::post('prescriptions/{consultation}', [PrescriptionController::class, 'store'])->name('prescriptions.store')->middleware('can:create,App\Models\Prescription');
-
-        Route::resource('prescriptions', PrescriptionController::class)
-            ->only(['index', 'show', 'create'])
+        Route::get(
+            'prescriptions/create/{consultation}',
+            [PrescriptionController::class, 'create']
+        )->name('prescriptions.create.withConsultation')
             ->middleware('can:view_prescriptions');
 
+            Route::post(
+    'prescriptions/{consultation}',
+    [PrescriptionController::class, 'store']
+)->name('prescriptions.store')
+ ->middleware('can:create,App\Models\Prescription');
+
+
+        Route::resource('prescriptions', PrescriptionController::class)->only(['index', 'show'])
+            ->middleware('can:view_prescriptions');
+
+
+        Route::get('prescriptions/{prescription}/print', [PrescriptionController::class, 'print'])
+            ->name('prescriptions.print')
+            ->middleware('can:view_prescriptions');
     });
 
-    // Billing & Finance
+    // Doctor Schedule Exceptions
+    Route::prefix('doctor/schedule')->name('doctor.schedule.')->group(function () {
+        Route::resource('exceptions', \App\Http\Controllers\DoctorScheduleExceptionController::class)->only(['index', 'create', 'store', 'destroy']);
+    });
+
+    // Doctors ManagementBilling & Finance
     Route::prefix('billing')->name('billing.')->middleware('can:view_billing')->group(function () {
         Route::get('/', [BillingController::class, 'index'])->name('index');
         Route::get('/create', [BillingController::class, 'create'])->name('create');
@@ -93,8 +130,6 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         // Payments
         Route::get('/{invoice}/payment', [BillingController::class, 'addPayment'])->whereNumber('invoice')->name('payment.add');
         Route::post('/{invoice}/payment', [BillingController::class, 'storePayment'])->whereNumber('invoice')->name('payment.store');
-
-        Route::get('/payments', [\App\Http\Controllers\PaymentController::class, 'index'])->name('payments.index');
     });
 
     // Pharmacy & Inventory
@@ -112,7 +147,6 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
         // Medicine Catalog
         Route::resource('medicines', MedicineController::class);
-        Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
     });
 
     // IPD (Inpatient Department)
@@ -186,6 +220,11 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     // Doctors Management
     Route::get('/doctors/assignment', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'assignment'])->name('doctors.assignment')->middleware('can:view_doctors');
     Route::get('/doctors/schedules', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'schedules'])->name('doctors.schedules')->middleware('can:view_doctors');
+
+    // Admin Schedule Exceptions
+    Route::get('/doctors/schedule/exceptions', [\App\Http\Controllers\AdminScheduleExceptionController::class, 'index'])->name('admin.schedule.exceptions.index')->middleware('can:view_doctors');
+    Route::patch('/doctors/schedule/exceptions/{exception}', [\App\Http\Controllers\AdminScheduleExceptionController::class, 'update'])->name('admin.schedule.exceptions.update')->middleware('can:manage_doctor_schedule');
+
     Route::resource('doctors', DoctorController::class)->middleware('can:view_doctors');
     Route::get('doctors/{doctor}/schedule', [DoctorController::class, 'schedule'])->name('doctors.schedule')->middleware('can:manage_doctor_schedule');
     Route::put('doctors/{doctor}/schedule', [DoctorController::class, 'updateSchedule'])->name('doctors.schedule.update')->middleware('can:manage_doctor_schedule');
@@ -221,17 +260,33 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::resource('departments', DepartmentController::class)->except(['create', 'edit', 'show']); // simplified
     Route::resource('visits', VisitController::class)->only(['index', 'show', 'create', 'store']);
 
+    Route::prefix('pharmacy')->name('pharmacy.')->middleware('can:view_pharmacy')->group(function () {
+        Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
+    });
+
     // Clinic Profile
     Route::view('/clinic/profile', 'clinics.profile')->name('clinics.profile');
 
     // Staff extras
     Route::get('/staff/passwords', [StaffController::class, 'passwords'])->name('staff.passwords')->middleware('can:view_staff');
 
+    // Billing payments index
+    Route::prefix('billing')->name('billing.')->middleware('can:view_billing')->group(function () {
+        Route::get('/payments', [\App\Http\Controllers\PaymentController::class, 'index'])->name('payments.index');
+    });
+
     // Activity logs
     Route::get('/activity', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activity.index');
 
     // Doctor schedule (current doctor)
     Route::get('/doctor/schedule', [\App\Http\Controllers\Extras\DoctorSelfScheduleController::class, 'index'])->name('doctor.schedule.index');
+
+    // Clinical extras
+
+    // IPD extras
+    Route::prefix('ipd')->name('ipd.')->middleware('can:view_ipd')->group(function () {
+        // Removed duplicate view routes that caused undefined variable errors
+    });
 
     // Vitals
     Route::prefix('vitals')->name('vitals.')->group(function () {

@@ -12,7 +12,7 @@ class RoomController extends Controller
     {
         $rooms = Room::withoutTenant()
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
-            ->where('wards.clinic_id', \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id)
+            ->where('wards.clinic_id', auth()->user()->clinic_id)
             ->orderBy('rooms.room_number')
             ->select('rooms.*')
             ->paginate(20);

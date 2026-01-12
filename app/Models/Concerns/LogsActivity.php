@@ -32,7 +32,7 @@ trait LogsActivity
         try {
             ActivityLog::create([
                 'user_id' => Auth::id(),
-                'clinic_id' => $model->clinic_id ?? Auth::user()->clinic_id ?? null,
+                'clinic_id' => $model->clinic_id ?? optional(Auth::user())->clinic_id ?? null,
                 'action' => $action,
                 'entity_type' => get_class($model),
                 'entity_id' => $model->id,

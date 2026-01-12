@@ -24,7 +24,7 @@ class DepartmentController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        Department::create($request->all() + ['clinic_id' => \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id]);
+        Department::create($request->all() + ['clinic_id' => auth()->user()->clinic_id]);
 
         return back()->with('success', 'Department created successfully.');
     }

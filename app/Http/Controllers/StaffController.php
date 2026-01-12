@@ -39,7 +39,7 @@ class StaffController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'clinic_id' => \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id,
+            'clinic_id' => auth()->user()->clinic_id,
         ]);
 
         $role = Role::find($request->role_id);

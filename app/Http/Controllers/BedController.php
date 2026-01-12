@@ -13,7 +13,7 @@ class BedController extends Controller
         $beds = Bed::withoutTenant()
             ->join('rooms', 'beds.room_id', '=', 'rooms.id')
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
-            ->where('wards.clinic_id', \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id)
+            ->where('wards.clinic_id', auth()->user()->clinic_id)
             ->orderBy('beds.bed_number')
             ->select('beds.*')
             ->paginate(20);
@@ -24,7 +24,7 @@ class BedController extends Controller
     {
         $rooms = Room::withoutTenant()
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
-            ->where('wards.clinic_id', \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id)
+            ->where('wards.clinic_id', auth()->user()->clinic_id)
             ->select('rooms.*')
             ->orderBy('rooms.room_number')
             ->get();
@@ -38,7 +38,7 @@ class BedController extends Controller
             'bed_number' => 'required|string|max:255',
             'status' => 'required|in:available,occupied,maintenance',
         ]);
-        Bed::create($request->only('room_id', 'bed_number', 'status') + ['clinic_id' => \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id]);
+        Bed::create($request->only('room_id', 'bed_number', 'status') + ['clinic_id' => auth()->user()->clinic_id]);
         return redirect()->route('ipd.beds.index')->with('success', 'Bed created');
     }
 

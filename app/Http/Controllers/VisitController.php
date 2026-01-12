@@ -44,8 +44,6 @@ class VisitController extends Controller
         $appointment = Appointment::findOrFail($data['appointment_id']);
 
         $visit = DB::transaction(function () use ($appointment) {
-            $appointment->update(['status' => 'confirmed']);
-
             $visit = Visit::where('appointment_id', $appointment->id)->latest()->first();
             if (!$visit) {
                 $visit = Visit::create([
