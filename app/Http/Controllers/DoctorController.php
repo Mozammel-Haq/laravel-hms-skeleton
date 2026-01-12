@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class DoctorController extends Controller
 {
@@ -114,14 +115,14 @@ class DoctorController extends Controller
     public function schedule(Doctor $doctor)
     {
         Gate::authorize('update', $doctor); // Assuming managing schedule requires update permission
-        
+
         // Only fetch schedules for the current clinic context
         $schedules = $doctor->schedules()
             ->where('clinic_id', auth()->user()->clinic_id)
             ->orderBy('day_of_week')
             ->orderBy('start_time')
             ->get();
-            
+
         return view('doctors.schedule', compact('doctor', 'schedules'));
     }
 
@@ -129,28 +130,63 @@ class DoctorController extends Controller
     {
         Gate::authorize('update', $doctor);
 
+        Log::info('Schedule update initiated', [
+            'doctor_id' => $doctor->id,
+            'clinic_id' => auth()->user()->clinic_id,
+            'user_id' => auth()->id()
+        ]);
+
         $request->validate([
-            'schedules' => 'required|array',
-            'schedules.*.day_of_week' => 'required|integer|between:0,6',
+            'schedules' => 'nullable|array',
+            'schedules.*.type' => 'required|in:weekly,date',
+            'schedules.*.day_of_week' => 'nullable|required_if:schedules.*.type,weekly|integer|between:0,6',
+            'schedules.*.schedule_date' => 'nullable|required_if:schedules.*.type,date|date',
             'schedules.*.start_time' => 'required|date_format:H:i',
             'schedules.*.end_time' => 'required|date_format:H:i|after:schedules.*.start_time',
             'schedules.*.slot_duration_minutes' => 'required|integer|min:5',
         ]);
 
-        DB::transaction(function () use ($request, $doctor) {
-            // Only delete schedules for the current clinic
-            $doctor->schedules()
-                ->where('clinic_id', auth()->user()->clinic_id)
-                ->delete();
+        try {
+            DB::transaction(function () use ($request, $doctor) {
+                // Only delete schedules for the current clinic
+                $deleted = $doctor->schedules()
+                    ->where('clinic_id', auth()->user()->clinic_id)
+                    ->delete();
 
-            foreach ($request->schedules as $schedule) {
-                $doctor->schedules()->create($schedule + [
-                    'clinic_id' => auth()->user()->clinic_id,
-                    'department_id' => $doctor->primary_department_id
-                ]);
-            }
-        });
+                Log::info('Existing schedules cleared', ['count' => $deleted]);
 
-        return back()->with('success', 'Schedule updated successfully.');
+                if ($request->schedules) {
+                    foreach ($request->schedules as $schedule) {
+                        $data = [
+                            'clinic_id' => auth()->user()->clinic_id,
+                            'department_id' => $doctor->primary_department_id,
+                            'start_time' => $schedule['start_time'],
+                            'end_time' => $schedule['end_time'],
+                            'slot_duration_minutes' => $schedule['slot_duration_minutes'],
+                        ];
+
+                        if ($schedule['type'] === 'weekly') {
+                            $data['day_of_week'] = $schedule['day_of_week'];
+                        } else {
+                            $data['schedule_date'] = $schedule['schedule_date'];
+                        }
+
+                        $doctor->schedules()->create($data);
+                    }
+                    Log::info('New schedules created', ['count' => count($request->schedules)]);
+                }
+            });
+
+            Log::info('Schedule update completed successfully', ['doctor_id' => $doctor->id]);
+            return back()->with('success', 'Schedule updated successfully.');
+
+        } catch (\Exception $e) {
+            Log::error('Schedule update failed', [
+                'doctor_id' => $doctor->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->with('error', 'Failed to update schedule. Please try again.');
+        }
     }
 }

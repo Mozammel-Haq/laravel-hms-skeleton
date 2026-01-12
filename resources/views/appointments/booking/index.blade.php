@@ -88,7 +88,7 @@
                                         </div>
                                         <h4 class="doctor-name text-center">
                                             <a href="{{ route('appointments.booking.show', $doctor) }}">Dr.
-                                                {{ $doctor->user->name }}</a>
+                                                {{ $doctor->user->name ?? 'Unknown' }}</a>
                                         </h4>
                                         <div class="doc-prof text-center">{{ $doctor->department->name ?? 'General' }}
                                         </div>

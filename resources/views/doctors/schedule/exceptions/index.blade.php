@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0">My Schedule Exceptions</h4>
@@ -16,7 +14,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Date Range</th>
                                 <th>Clinic</th>
                                 <th>Type</th>
                                 <th>Time</th>
@@ -28,7 +26,12 @@
                         <tbody>
                             @foreach($exceptions as $exception)
                                 <tr>
-                                    <td>{{ \Carbon\Carbon::parse($exception->exception_date)->format('M d, Y') }}</td>
+                                    <td>
+                                        {{ \Carbon\Carbon::parse($exception->start_date)->format('M d, Y') }}
+                                        @if($exception->start_date != $exception->end_date)
+                                            - {{ \Carbon\Carbon::parse($exception->end_date)->format('M d, Y') }}
+                                        @endif
+                                    </td>
                                     <td>{{ $exception->clinic->name ?? 'N/A' }}</td>
                                     <td>
                                         @if($exception->is_available)
@@ -83,4 +86,4 @@
         </div>
     </div>
 </div>
-@endsection
+</x-app-layout>

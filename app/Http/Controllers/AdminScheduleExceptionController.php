@@ -16,7 +16,7 @@ class AdminScheduleExceptionController extends Controller
 
         $exceptions = DoctorScheduleException::with(['doctor.user', 'clinic'])
             ->where('status', 'pending')
-            ->orderBy('exception_date', 'asc')
+            ->orderBy('start_date', 'asc')
             ->paginate(20);
 
         return view('admin.schedule.exceptions.index', compact('exceptions'));

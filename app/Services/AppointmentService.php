@@ -24,9 +24,13 @@ class AppointmentService
         $endTime = null;
         $slotDuration = 15; // Default
 
+        $dateStr = $date->format('Y-m-d');
+
         // 1. Check for Exceptions (Day Off or Time Change)
+        // Range-based check: start_date <= date <= end_date
         $exceptionQuery = $doctor->exceptions()
-            ->where('exception_date', $date->format('Y-m-d'))
+            ->whereDate('start_date', '<=', $dateStr)
+            ->whereDate('end_date', '>=', $dateStr)
             ->where('status', 'approved');
 
         if ($clinic_id) {
@@ -41,16 +45,17 @@ class AppointmentService
             }
             // Use exception times if available
             if ($exception->start_time && $exception->end_time) {
-                $startTime = Carbon::parse($date->format('Y-m-d') . ' ' . $exception->start_time);
-                $endTime = Carbon::parse($date->format('Y-m-d') . ' ' . $exception->end_time);
-                // We need slot duration, assume standard from regular schedule or default
-                // For now, let's fetch regular schedule to get slot duration
+                $startTime = Carbon::parse($dateStr . ' ' . $exception->start_time);
+                $endTime = Carbon::parse($dateStr . ' ' . $exception->end_time);
             }
         }
 
-        // 2. Get Schedule for the day if no full override
+        // 2. Get Schedule for the day
+        // Priority: Specific Date > Weekly Pattern
+        
+        // A. Check for specific date schedule
         $scheduleQuery = $doctor->schedules()
-            ->where('day_of_week', $dayOfWeek)
+            ->where('schedule_date', $dateStr)
             ->where('status', 'active');
 
         if ($clinic_id) {
@@ -58,6 +63,20 @@ class AppointmentService
         }
 
         $schedule = $scheduleQuery->first();
+
+        // B. If no specific date schedule, check weekly pattern
+        if (!$schedule) {
+            $weeklyQuery = $doctor->schedules()
+                ->where('day_of_week', $dayOfWeek)
+                ->where('status', 'active')
+                ->whereNull('schedule_date'); // Ensure we don't pick up malformed records
+
+            if ($clinic_id) {
+                $weeklyQuery->where('clinic_id', $clinic_id);
+            }
+            
+            $schedule = $weeklyQuery->first();
+        }
 
         if (!$schedule && !$startTime) {
             return []; // No regular schedule and no exception override
@@ -67,8 +86,8 @@ class AppointmentService
             $slotDuration = $schedule->slot_duration_minutes;
             // If start/end not set by exception, use schedule
             if (!$startTime) {
-                $startTime = Carbon::parse($date->format('Y-m-d') . ' ' . $schedule->start_time);
-                $endTime = Carbon::parse($date->format('Y-m-d') . ' ' . $schedule->end_time);
+                $startTime = Carbon::parse($dateStr . ' ' . $schedule->start_time);
+                $endTime = Carbon::parse($dateStr . ' ' . $schedule->end_time);
             }
         } else {
             // Exception exists but no regular schedule (e.g., working on a weekend)

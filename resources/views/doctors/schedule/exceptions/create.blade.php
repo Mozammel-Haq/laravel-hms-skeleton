@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -15,20 +13,30 @@
                     <form action="{{ route('doctor.schedule.exceptions.store') }}" method="POST">
                         @csrf
 
-                        <div class="mb-3">
-                            <label for="exception_date" class="form-label">Date</label>
-                            <input type="date" class="form-control @error('exception_date') is-invalid @enderror" 
-                                id="exception_date" name="exception_date" value="{{ old('exception_date') }}" required min="{{ date('Y-m-d') }}">
-                            @error('exception_date')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" class="form-control @error('start_date') is-invalid @enderror"
+                                    id="start_date" name="start_date" value="{{ old('start_date') }}" required min="{{ date('Y-m-d') }}">
+                                @error('start_date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="date" class="form-control @error('end_date') is-invalid @enderror"
+                                    id="end_date" name="end_date" value="{{ old('end_date') }}" required min="{{ date('Y-m-d') }}">
+                                @error('end_date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Exception Type</label>
                             <div class="d-flex gap-3">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="is_available" id="type_off" value="0" 
+                                    <input class="form-check-input" type="radio" name="is_available" id="type_off" value="0"
                                         {{ old('is_available', '0') == '0' ? 'checked' : '' }}>
                                     <label class="form-check-label" for="type_off">
                                         Day Off (Unavailable)
@@ -47,7 +55,7 @@
                         <div id="time_fields" class="row mb-3" style="display: none;">
                             <div class="col-md-6">
                                 <label for="start_time" class="form-label">Start Time</label>
-                                <input type="time" class="form-control @error('start_time') is-invalid @enderror" 
+                                <input type="time" class="form-control @error('start_time') is-invalid @enderror"
                                     id="start_time" name="start_time" value="{{ old('start_time') }}">
                                 @error('start_time')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -55,7 +63,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="end_time" class="form-label">End Time</label>
-                                <input type="time" class="form-control @error('end_time') is-invalid @enderror" 
+                                <input type="time" class="form-control @error('end_time') is-invalid @enderror"
                                     id="end_time" name="end_time" value="{{ old('end_time') }}">
                                 @error('end_time')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -65,7 +73,7 @@
 
                         <div class="mb-3">
                             <label for="reason" class="form-label">Reason</label>
-                            <textarea class="form-control @error('reason') is-invalid @enderror" 
+                            <textarea class="form-control @error('reason') is-invalid @enderror"
                                 id="reason" name="reason" rows="3" required>{{ old('reason') }}</textarea>
                             @error('reason')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -85,6 +93,16 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const startDate = document.getElementById('start_date');
+        const endDate = document.getElementById('end_date');
+
+        startDate.addEventListener('change', function() {
+            if (!endDate.value) {
+                endDate.value = this.value;
+            }
+            endDate.min = this.value;
+        });
+
         const typeOff = document.getElementById('type_off');
         const typeAvailable = document.getElementById('type_available');
         const timeFields = document.getElementById('time_fields');
@@ -113,4 +131,4 @@
     });
 </script>
 @endpush
-@endsection
+</x-app-layout>
