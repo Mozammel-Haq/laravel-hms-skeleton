@@ -42,4 +42,8 @@ class Consultation extends BaseTenantModel
     {
         return $this->belongsTo(Patient::class);
     }
+    public function invoiceItem()
+    {
+        return $this->hasOne(InvoiceItem::class, 'reference_id')->where('item_type', $this->getTable());
+    }
 }

@@ -42,7 +42,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     //=====Switch Clinic=======
-     Route::get('/system/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('system.switch-clinic');
+    Route::get('/system/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('system.switch-clinic');
     Route::get('/system/clear-clinic', [SystemController::class, 'clearClinicContext'])->name('system.clear-clinic');
 
     Route::get('/doctor/switch-clinic/{clinic}', function (Clinic $clinic) {
@@ -121,17 +121,45 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::resource('exceptions', \App\Http\Controllers\DoctorScheduleExceptionController::class)->only(['index', 'create', 'store', 'destroy']);
     });
 
-    // Doctors ManagementBilling & Finance
-    Route::prefix('billing')->name('billing.')->middleware('can:view_billing')->group(function () {
-        Route::get('/', [BillingController::class, 'index'])->name('index');
-        Route::get('/create', [BillingController::class, 'create'])->name('create');
-        Route::post('/', [BillingController::class, 'store'])->name('store');
-        Route::get('/{invoice}', [BillingController::class, 'show'])->whereNumber('invoice')->name('show');
+    Route::prefix('billing')->name('billing.')->group(function () {
 
-        // Payments
-        Route::get('/{invoice}/payment', [BillingController::class, 'addPayment'])->whereNumber('invoice')->name('payment.add');
-        Route::post('/{invoice}/payment', [BillingController::class, 'storePayment'])->whereNumber('invoice')->name('payment.store');
+        // List all invoices
+        Route::get('/', [BillingController::class, 'index'])
+            ->name('index')
+            ->middleware('can:view_billing');
+
+        // Create invoice
+        Route::get('/create', [BillingController::class, 'create'])
+            ->name('create')
+            ->middleware('can:create_billing');
+
+        // Store invoice
+        Route::post('/store', [BillingController::class, 'store'])
+            ->name('store')
+            ->middleware('can:create_billing');
+
+        // Show single invoice
+        Route::get('/{invoice}', [BillingController::class, 'show'])
+            ->whereNumber('invoice')
+            ->name('show')
+            ->middleware('can:view_billing');
+
+        // Payment routes
+        Route::get('/{invoice}/payment', [BillingController::class, 'addPayment'])
+            ->whereNumber('invoice')
+            ->name('payment.add')
+            ->middleware('can:create_billing');
+
+        Route::post('/{invoice}/payment', [BillingController::class, 'storePayment'])
+            ->whereNumber('invoice')
+            ->name('payment.store')
+            ->middleware('can:create_billing');
+
+        // AJAX route to fetch patient pending items (consultations, lab tests, medicines)
+        Route::get('/patient-items/{patient}', [BillingController::class, 'getPatientItems'])
+            ->name('patient-items');
     });
+
 
     // Pharmacy & Inventory
     Route::prefix('pharmacy')->name('pharmacy.')->middleware('can:view_pharmacy')->group(function () {

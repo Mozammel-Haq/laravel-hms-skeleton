@@ -80,7 +80,8 @@
                                     <tr>
                                         <td>
                                             <div class="fw-semibold">{{ $appointment->patient->name }}</div>
-                                            <div class="small text-muted">{{ $appointment->patient->patient_code }}</div>
+                                            <div class="small text-muted">{{ $appointment->patient->patient_code }}
+                                            </div>
                                         </td>
                                         <td>{{ $appointment->doctor->user->name }}</td>
                                         <td>
@@ -88,7 +89,8 @@
                                             <div class="small text-muted">{{ $appointment->start_time }}</div>
                                         </td>
                                         <td>
-                                            <span class="badge bg-{{ $appointment->status === 'completed' ? 'success' : ($appointment->status === 'cancelled' ? 'danger' : 'warning') }}">
+                                            <span
+                                                class="badge bg-{{ $appointment->status === 'completed' ? 'success' : ($appointment->status === 'cancelled' ? 'danger' : 'warning') }}">
                                                 {{ ucfirst($appointment->status) }}
                                             </span>
                                         </td>
@@ -122,18 +124,20 @@
                         <hr>
                         <h6 class="mb-3">Popular Doctors</h6>
                         <ul class="list-group list-group-flush">
-                            @foreach($popularDoctors as $doctor)
+                            @foreach ($popularDoctors as $doctor)
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                     <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-sm me-2 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px">
-                                            {{ substr($doctor->user->name, 0, 1) }}
+                                        <div class="avatar avatar-sm me-2 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center"
+                                            style="width:32px;height:32px">
+                                            {{ substr($doctor->user?->name, 0, 1) }}
                                         </div>
                                         <div>
-                                            <div class="fw-semibold">{{ $doctor->user->name }}</div>
+                                            <div class="fw-semibold">{{ $doctor->user?->name }}</div>
                                             <div class="small text-muted">{{ $doctor->specialization }}</div>
                                         </div>
                                     </div>
-                                    <span class="badge bg-light text-dark">{{ $doctor->appointments_count }} appts</span>
+                                    <span class="badge bg-light text-dark">{{ $doctor->appointments_count }}
+                                        appts</span>
                                 </li>
                             @endforeach
                         </ul>
@@ -150,14 +154,16 @@
                         <h5 class="mb-0">Top Departments</h5>
                     </div>
                     <div class="card-body">
-                        @foreach($topDepartments as $dept)
+                        @foreach ($topDepartments as $dept)
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between mb-1">
                                     <span class="fw-semibold">{{ $dept->name }}</span>
                                     <span>{{ $dept->total }} appointments</span>
                                 </div>
                                 <div class="progress" style="height: 6px;">
-                                    <div class="progress-bar" role="progressbar" style="width: {{ $dept->total > 0 ? ($dept->total / $topDepartments->max('total') * 100) : 0 }}%"></div>
+                                    <div class="progress-bar" role="progressbar"
+                                        style="width: {{ $dept->total > 0 ? ($dept->total / $topDepartments->max('total')) * 100 : 0 }}%">
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
@@ -189,7 +195,8 @@
                                         <td>{{ $invoice->patient->name }}</td>
                                         <td>{{ number_format($invoice->total_amount, 2) }}</td>
                                         <td>
-                                            <span class="badge bg-{{ $invoice->status === 'paid' ? 'success' : 'warning' }}">
+                                            <span
+                                                class="badge bg-{{ $invoice->status === 'paid' ? 'success' : 'warning' }}">
                                                 {{ ucfirst($invoice->status) }}
                                             </span>
                                         </td>
