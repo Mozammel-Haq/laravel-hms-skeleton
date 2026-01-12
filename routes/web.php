@@ -27,6 +27,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\SystemController;
 use App\Http\Middleware\EnsureClinicContext;
 use App\Models\Clinic;
 use GuzzleHttp\Promise\Create;
@@ -41,7 +42,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     //=====Switch Clinic=======
-    Route::get('/system/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('system.switch-clinic');
+     Route::get('/system/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('system.switch-clinic');
     Route::get('/system/clear-clinic', [SystemController::class, 'clearClinicContext'])->name('system.clear-clinic');
 
     Route::get('/doctor/switch-clinic/{clinic}', function (Clinic $clinic) {
@@ -99,11 +100,11 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         )->name('prescriptions.create.withConsultation')
             ->middleware('can:view_prescriptions');
 
-            Route::post(
-    'prescriptions/{consultation}',
-    [PrescriptionController::class, 'store']
-)->name('prescriptions.store')
- ->middleware('can:create,App\Models\Prescription');
+        Route::post(
+            'prescriptions/{consultation}',
+            [PrescriptionController::class, 'store']
+        )->name('prescriptions.store')
+            ->middleware('can:create,App\Models\Prescription');
 
 
         Route::resource('prescriptions', PrescriptionController::class)->only(['index', 'show'])
@@ -219,6 +220,9 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Doctors Management
     Route::get('/doctors/assignment', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'assignment'])->name('doctors.assignment')->middleware('can:view_doctors');
+    Route::post('/doctors/assignment/{doctor}', [\App\Http\Controllers\Extras\DoctorAssignmentController::class, 'update'])
+        ->name('doctors.assignment.update')
+        ->middleware('can:view_doctors');
     Route::get('/doctors/schedules/events', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'getCalendarEvents'])->name('doctors.schedules.events')->middleware('can:view_doctors');
     Route::get('/doctors/schedules', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'schedules'])->name('doctors.schedules')->middleware('can:view_doctors');
 

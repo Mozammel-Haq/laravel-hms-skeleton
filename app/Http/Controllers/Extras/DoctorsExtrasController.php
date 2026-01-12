@@ -12,10 +12,14 @@ class DoctorsExtrasController extends Controller
 {
     public function assignment()
     {
+        // Permission requirement: Only Super Admin can access assignment view
+        if (!auth()->user() || !auth()->user()->hasRole('Super Admin')) {
+            abort(403);
+        }
         $clinics = Clinic::orderBy('name')->get();
         $clinicId = auth()->user()->clinic_id;
-        // $doctors = Doctor::with(['user', 'clinics', 'department'])->orderByDesc('created_at')->get();
-                $doctors= Clinic::with(['doctors', "doctors.user", "doctors.schedules"])->find($clinicId);
+        $doctors = Doctor::with(['user', 'clinics', 'department'])->orderByDesc('created_at')->get();
+        // $doctors = Clinic::with(['doctors', "doctors.user", "doctors.schedules"])->find($clinicId);
         return view('doctors.assignment', compact('clinics', 'doctors'));
     }
 
@@ -24,7 +28,7 @@ class DoctorsExtrasController extends Controller
         $clinicId = auth()->user()->clinic_id;
         // $doctors = Doctor::with(['user', 'schedules'])->orderBy('user_id')->where('clinic_id','=',$clinicId)->get();
 
-        $doctors= Clinic::with(['doctors', "doctors.user", "doctors.schedules"])->find($clinicId);
+        $doctors = Clinic::with(['doctors', "doctors.user", "doctors.schedules"])->find($clinicId);
         // return $doctors;
         return view('doctors.schedules', compact('doctors'));
     }
@@ -109,7 +113,7 @@ class DoctorsExtrasController extends Controller
                 }
 
                 if ($weeklySchedule) {
-                     $availableDoctors[] = [
+                    $availableDoctors[] = [
                         'id' => $doctor->id,
                         'name' => $doctor->user->name ?? 'Unknown Doctor',
                         'specialization' => $doctor->specialization,

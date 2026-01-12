@@ -28,10 +28,7 @@
 
                     <div class="col-md-4">
                         <label class="form-label">Search Doctor</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="searchDoctor"
+                        <input type="text" class="form-control" id="searchDoctor"
                             placeholder="Doctor name or specialization">
                     </div>
 
@@ -63,7 +60,7 @@
                         </thead>
 
                         <tbody id="doctorTable">
-                            @forelse ($doctors->doctors as $doctor)
+                            @forelse ($doctors as $doctor)
                                 <tr data-clinics="{{ $doctor->clinics->pluck('id')->implode(',') }}">
                                     <td>
                                         <div class="d-flex align-items-center">
@@ -94,39 +91,34 @@
                                     </td>
 
                                     <td class="text-end">
-                                        <button
-                                            class="btn btn-sm btn-outline-secondary me-1"
-                                            data-bs-toggle="modal"
+                                        <button class="btn btn-sm btn-outline-secondary me-1" data-bs-toggle="modal"
                                             data-bs-target="#assignClinicModal-{{ $doctor->id }}">
                                             Assign Clinics
                                         </button>
 
-                                        <a href="{{ route('doctors.schedule', $doctor->user_id) }}"
-                                           class="btn btn-sm btn-outline-success">
+                                        <a href="{{ route('doctors.schedule', $doctor->id) }}"
+                                            class="btn btn-sm btn-outline-success">
                                             Schedule
                                         </a>
                                     </td>
                                 </tr>
 
                                 {{-- Assignment Modal --}}
-                                <div class="modal fade"
-                                     id="assignClinicModal-{{ $doctor->id }}"
-                                     tabindex="-1"
-                                     aria-hidden="true">
+                                <div class="modal fade" id="assignClinicModal-{{ $doctor->id }}" tabindex="-1"
+                                    aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
 
                                             <form method="POST"
-                                                  action="{{ route('doctors.assignment', $doctor->id) }}">
+                                                action="{{ route('doctors.assignment.update', $doctor->id) }}">
                                                 @csrf
 
                                                 <div class="modal-header">
                                                     <h5 class="modal-title">
                                                         Assign Clinics – {{ $doctor->user?->name }}
                                                     </h5>
-                                                    <button type="button"
-                                                            class="btn-close"
-                                                            data-bs-dismiss="modal"></button>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
                                                 </div>
 
                                                 <div class="modal-body">
@@ -136,15 +128,12 @@
 
                                                     @foreach ($clinics as $clinic)
                                                         <div class="form-check mb-2">
-                                                            <input
-                                                                class="form-check-input"
-                                                                type="checkbox"
-                                                                name="clinic_ids[]"
-                                                                value="{{ $clinic->id }}"
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="clinic_ids[]" value="{{ $clinic->id }}"
                                                                 id="doctor{{ $doctor->id }}clinic{{ $clinic->id }}"
                                                                 {{ $doctor->clinics->contains($clinic->id) ? 'checked' : '' }}>
                                                             <label class="form-check-label"
-                                                                   for="doctor{{ $doctor->id }}clinic{{ $clinic->id }}">
+                                                                for="doctor{{ $doctor->id }}clinic{{ $clinic->id }}">
                                                                 {{ $clinic->name }}
                                                             </label>
                                                         </div>
@@ -152,13 +141,11 @@
                                                 </div>
 
                                                 <div class="modal-footer">
-                                                    <button type="button"
-                                                            class="btn btn-light"
-                                                            data-bs-dismiss="modal">
+                                                    <button type="button" class="btn btn-light"
+                                                        data-bs-dismiss="modal">
                                                         Cancel
                                                     </button>
-                                                    <button type="submit"
-                                                            class="btn btn-primary">
+                                                    <button type="submit" class="btn btn-primary">
                                                         Save Assignments
                                                     </button>
                                                 </div>

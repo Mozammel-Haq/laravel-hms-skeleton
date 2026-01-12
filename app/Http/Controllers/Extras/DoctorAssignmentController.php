@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Extras;
 
+use App\Http\Controllers\Controller;
 use App\Models\Clinic;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
@@ -33,16 +34,21 @@ class DoctorAssignmentController extends Controller
 
     public function update(Request $request, Doctor $doctor)
     {
+        // Permission requirement: Only Super Admins can assign clinics to doctors
+        if (!auth()->user() || !auth()->user()->hasRole('Super Admin')) {
+            abort(403, 'Only Super Admin can manage doctor clinic assignments.');
+        }
+
         Gate::authorize('update', $doctor);
 
-        $request->validate([
-            'clinics' => 'nullable|array',
-            'clinics.*' => 'exists:clinics,id',
+        $validated = $request->validate([
+            'clinic_ids' => 'nullable|array',
+            'clinic_ids.*' => 'exists:clinics,id',
         ]);
 
-        $doctor->clinics()->sync($request->clinics ?? []);
+        $doctor->clinics()->sync($validated['clinic_ids'] ?? []);
 
-        return redirect()->route('doctor-assignments.index')
+        return redirect()->route('doctors.assignment')
             ->with('success', 'Doctor clinic assignments updated successfully.');
     }
 
