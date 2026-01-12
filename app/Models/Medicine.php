@@ -13,4 +13,8 @@ class Medicine extends Model
     {
         return $this->hasMany(MedicineBatch::class);
     }
+    public function invoiceItem()
+    {
+        return $this->hasOne(InvoiceItem::class, 'reference_id')->where('item_type', $this->getTable());
+    }
 }

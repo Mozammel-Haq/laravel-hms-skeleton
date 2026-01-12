@@ -1,106 +1,145 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Patient') }}
-        </h2>
-    </x-slot>
+    <div class="container py-4">
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('patients.update', $patient) }}">
-                        @csrf
-                        @method('PUT')
+        <!-- Page Header -->
+        <div class="mb-4">
+            <h4 class="fw-semibold">Edit Patient</h4>
+        </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Name -->
-                            <div class="col-span-2">
-                                <x-input-label for="name" :value="__('Full Name')" />
-                                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $patient->name)" required autofocus />
-                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                            </div>
+        <div class="card shadow-sm">
+            <div class="card-body">
 
-                            <!-- Date of Birth -->
-                            <div>
-                                <x-input-label for="date_of_birth" :value="__('Date of Birth')" />
-                                <x-text-input id="date_of_birth" class="block mt-1 w-full" type="date" name="date_of_birth" :value="old('date_of_birth', $patient->date_of_birth ? $patient->date_of_birth->format('Y-m-d') : '')" required />
-                                <x-input-error :messages="$errors->get('date_of_birth')" class="mt-2" />
-                            </div>
+                <form method="POST" action="{{ route('patients.update', $patient) }}">
+                    @csrf
+                    @method('PUT')
 
-                            <!-- Gender -->
-                            <div>
-                                <x-input-label for="gender" :value="__('Gender')" />
-                                <select id="gender" name="gender" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="">Select Gender</option>
-                                    <option value="male" {{ old('gender', $patient->gender) == 'male' ? 'selected' : '' }}>Male</option>
-                                    <option value="female" {{ old('gender', $patient->gender) == 'female' ? 'selected' : '' }}>Female</option>
-                                    <option value="other" {{ old('gender', $patient->gender) == 'other' ? 'selected' : '' }}>Other</option>
-                                </select>
-                                <x-input-error :messages="$errors->get('gender')" class="mt-2" />
-                            </div>
+                    <div class="row g-3">
 
-                            <!-- Phone -->
-                            <div>
-                                <x-input-label for="phone" :value="__('Phone Number')" />
-                                <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone', $patient->phone)" required />
-                                <x-input-error :messages="$errors->get('phone')" class="mt-2" />
-                            </div>
-
-                            <!-- Email -->
-                            <div>
-                                <x-input-label for="email" :value="__('Email (Optional)')" />
-                                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $patient->email)" />
-                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                            </div>
-
-                            <!-- Blood Group -->
-                            <div>
-                                <x-input-label for="blood_group" :value="__('Blood Group (Optional)')" />
-                                <select id="blood_group" name="blood_group" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="">Select Blood Group</option>
-                                    <option value="A+" {{ old('blood_group', $patient->blood_group) == 'A+' ? 'selected' : '' }}>A+</option>
-                                    <option value="A-" {{ old('blood_group', $patient->blood_group) == 'A-' ? 'selected' : '' }}>A-</option>
-                                    <option value="B+" {{ old('blood_group', $patient->blood_group) == 'B+' ? 'selected' : '' }}>B+</option>
-                                    <option value="B-" {{ old('blood_group', $patient->blood_group) == 'B-' ? 'selected' : '' }}>B-</option>
-                                    <option value="AB+" {{ old('blood_group', $patient->blood_group) == 'AB+' ? 'selected' : '' }}>AB+</option>
-                                    <option value="AB-" {{ old('blood_group', $patient->blood_group) == 'AB-' ? 'selected' : '' }}>AB-</option>
-                                    <option value="O+" {{ old('blood_group', $patient->blood_group) == 'O+' ? 'selected' : '' }}>O+</option>
-                                    <option value="O-" {{ old('blood_group', $patient->blood_group) == 'O-' ? 'selected' : '' }}>O-</option>
-                                </select>
-                                <x-input-error :messages="$errors->get('blood_group')" class="mt-2" />
-                            </div>
-
-                            <!-- Address -->
-                            <div class="col-span-2">
-                                <x-input-label for="address" :value="__('Address')" />
-                                <textarea id="address" name="address" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" rows="3" required>{{ old('address', $patient->address) }}</textarea>
-                                <x-input-error :messages="$errors->get('address')" class="mt-2" />
-                            </div>
-
-                            <!-- Emergency Contact Name -->
-                            <div>
-                                <x-input-label for="emergency_contact_name" :value="__('Emergency Contact Name')" />
-                                <x-text-input id="emergency_contact_name" class="block mt-1 w-full" type="text" name="emergency_contact_name" :value="old('emergency_contact_name', $patient->emergency_contact_name)" />
-                                <x-input-error :messages="$errors->get('emergency_contact_name')" class="mt-2" />
-                            </div>
-
-                            <!-- Emergency Contact Phone -->
-                            <div>
-                                <x-input-label for="emergency_contact_phone" :value="__('Emergency Contact Phone')" />
-                                <x-text-input id="emergency_contact_phone" class="block mt-1 w-full" type="text" name="emergency_contact_phone" :value="old('emergency_contact_phone', $patient->emergency_contact_phone)" />
-                                <x-input-error :messages="$errors->get('emergency_contact_phone')" class="mt-2" />
-                            </div>
+                        <!-- Full Name -->
+                        <div class="col-12">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                id="name" name="name" value="{{ old('name', $patient->name) }}" required>
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
-                        <div class="flex items-center justify-end mt-4">
-                            <a href="{{ route('patients.index') }}" class="text-gray-600 hover:text-gray-900 mr-4">Cancel</a>
-                            <x-primary-button>
-                                {{ __('Update Patient') }}
-                            </x-primary-button>
+                        <!-- Date of Birth -->
+                        <div class="col-md-6">
+                            <label for="date_of_birth" class="form-label">Date of Birth</label>
+                            <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
+                                id="date_of_birth" name="date_of_birth"
+                                value="{{ old('date_of_birth', $patient->date_of_birth) }}" required>
+                            @error('date_of_birth')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
-                    </form>
-                </div>
+
+                        <!-- Gender -->
+                        <div class="col-md-6">
+                            <label for="gender" class="form-label">Gender</label>
+                            <select id="gender" name="gender"
+                                class="form-select @error('gender') is-invalid @enderror">
+                                <option value="">Select Gender</option>
+                                <option value="male"
+                                    {{ old('gender', $patient->gender) === 'male' ? 'selected' : '' }}>Male</option>
+                                <option value="female"
+                                    {{ old('gender', $patient->gender) === 'female' ? 'selected' : '' }}>Female</option>
+                                <option value="other"
+                                    {{ old('gender', $patient->gender) === 'other' ? 'selected' : '' }}>Other</option>
+                            </select>
+                            @error('gender')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                id="phone" name="phone" value="{{ old('phone', $patient->phone) }}" required>
+                            @error('phone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email (Optional)</label>
+                            <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                id="email" name="email" value="{{ old('email', $patient->email) }}">
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Blood Group -->
+                        <div class="col-md-6">
+                            <label for="blood_group" class="form-label">Blood Group (Optional)</label>
+                            <select id="blood_group" name="blood_group"
+                                class="form-select @error('blood_group') is-invalid @enderror">
+                                <option value="">Select Blood Group</option>
+                                @foreach (['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] as $group)
+                                    <option value="{{ $group }}"
+                                        {{ old('blood_group', $patient->blood_group) === $group ? 'selected' : '' }}>
+                                        {{ $group }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('blood_group')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Address -->
+                        <div class="col-12">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea id="address" name="address" rows="3" class="form-control @error('address') is-invalid @enderror"
+                                required>{{ old('address', $patient->address) }}</textarea>
+                            @error('address')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Emergency Contact Name -->
+                        <div class="col-md-6">
+                            <label for="emergency_contact_name" class="form-label">Emergency Contact Name</label>
+                            <input type="text"
+                                class="form-control @error('emergency_contact_name') is-invalid @enderror"
+                                id="emergency_contact_name" name="emergency_contact_name"
+                                value="{{ old('emergency_contact_name', $patient->emergency_contact_name) }}">
+                            @error('emergency_contact_name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Emergency Contact Phone -->
+                        <div class="col-md-6">
+                            <label for="emergency_contact_phone" class="form-label">Emergency Contact Phone</label>
+                            <input type="text"
+                                class="form-control @error('emergency_contact_phone') is-invalid @enderror"
+                                id="emergency_contact_phone" name="emergency_contact_phone"
+                                value="{{ old('emergency_contact_phone', $patient->emergency_contact_phone) }}">
+                            @error('emergency_contact_phone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{{ route('patients.index') }}" class="btn btn-light me-2">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Update Patient
+                        </button>
+                    </div>
+
+                </form>
+
             </div>
         </div>
     </div>

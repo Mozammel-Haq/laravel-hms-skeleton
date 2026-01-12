@@ -9,6 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Patient extends BaseTenantModel
 {
     use SoftDeletes;
+    protected static function booted()
+    {
+        static::created(function ($patient) {
+            $patient->update([
+                'patient_code' => 'P-' . str_pad($patient->id, 4, '0', STR_PAD_LEFT),
+            ]);
+        });
+    }
     public function clinic()
     {
         return $this->belongsTo(Clinic::class);
@@ -36,5 +44,9 @@ class Patient extends BaseTenantModel
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
+    }
+    public function admissions()
+    {
+        return $this->hasMany(Admission::class);
     }
 }

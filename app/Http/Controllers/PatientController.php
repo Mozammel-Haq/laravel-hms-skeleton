@@ -38,10 +38,12 @@ class PatientController extends Controller
         Gate::authorize('create', Patient::class);
 
         $patient = Patient::create($request->validated() + [
-            'clinic_id' => auth()->user()->clinic_id,
+            'clinic_id'    => auth()->user()->clinic_id,
+            'patient_code' => 'TEST',
         ]);
 
-        return redirect()->route('patients.show', $patient)
+        return redirect()
+            ->route('patients.show', $patient)
             ->with('success', 'Patient registered successfully.');
     }
 

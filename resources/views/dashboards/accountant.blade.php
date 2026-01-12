@@ -33,7 +33,8 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
-                            <span class="avatar bg-info rounded-circle me-2"><i class="ti ti-currency-dollar"></i></span>
+                            <span class="avatar bg-info rounded-circle me-2"><i
+                                    class="ti ti-currency-dollar"></i></span>
                             <div>
                                 <p class="mb-0 text-muted">Revenue This Month</p>
                                 <h4 class="mb-0">{{ number_format($cards['revenue_month'], 2) }}</h4>
@@ -68,9 +69,10 @@
                                     <td>{{ $inv->invoice_number ?? $inv->id }}</td>
                                     <td>{{ number_format($inv->total_amount, 2) }}</td>
                                     <td><span class="badge bg-light text-dark">{{ $inv->status }}</span></td>
-                                    <td>{{ $inv->created_at?->format('d M') }}</td>
+                                    <td>{{ $inv->created_at }}</td>
                                     <td class="text-end">
-                                        <a href="{{ route('billing.show', $inv) }}" class="btn btn-sm btn-primary">Open</a>
+                                        <a href="{{ route('billing.show', $inv) }}"
+                                            class="btn btn-sm btn-primary">Open</a>
                                     </td>
                                 </tr>
                             @endforeach
