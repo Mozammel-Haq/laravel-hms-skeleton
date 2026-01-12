@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DoctorScheduleException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DoctorScheduleExceptionController extends Controller
 {
@@ -21,7 +22,7 @@ class DoctorScheduleExceptionController extends Controller
 
         $exceptions = $user->doctor->exceptions()
             ->with('clinic')
-            ->orderBy('exception_date', 'desc')
+            ->orderBy('start_date', 'desc')
             ->paginate(10);
 
         return view('doctors.schedule.exceptions.index', compact('exceptions'));
@@ -51,7 +52,8 @@ class DoctorScheduleExceptionController extends Controller
         }
 
         $request->validate([
-            'exception_date' => 'required|date|after_or_equal:today',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'is_available' => 'boolean',
             'start_time' => 'nullable|required_if:is_available,1|date_format:H:i',
             'end_time' => 'nullable|required_if:is_available,1|date_format:H:i|after:start_time',
@@ -60,15 +62,47 @@ class DoctorScheduleExceptionController extends Controller
 
         $doctor = $user->doctor;
 
-        $doctor->exceptions()->create([
+        Log::info('Schedule exception requested', [
+            'doctor_id' => $doctor->id,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'reason' => $request->reason
+        ]);
+
+        // Check for overlapping exceptions
+        $exists = $doctor->exceptions()
+            ->where('clinic_id', $user->clinic_id)
+            ->where(function ($query) use ($request) {
+                $query->whereBetween('start_date', [$request->start_date, $request->end_date])
+                      ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                      ->orWhere(function ($q) use ($request) {
+                          $q->where('start_date', '<=', $request->start_date)
+                            ->where('end_date', '>=', $request->end_date);
+                      });
+            })
+            ->exists();
+
+        if ($exists) {
+            Log::warning('Duplicate exception prevented', [
+                'doctor_id' => $doctor->id,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date
+            ]);
+            return back()->withErrors(['start_date' => 'An exception already exists for this date range.'])->withInput();
+        }
+
+        $exception = $doctor->exceptions()->create([
             'clinic_id' => $user->clinic_id, // Current clinic context
-            'exception_date' => $request->exception_date,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
             'is_available' => $request->has('is_available') ? $request->is_available : false,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'reason' => $request->reason,
             'status' => 'pending', // Requires admin approval
         ]);
+
+        Log::info('Schedule exception created successfully', ['exception_id' => $exception->id]);
 
         return redirect()->route('doctor.schedule.exceptions.index')
             ->with('success', 'Schedule exception requested successfully. Waiting for approval.');
@@ -87,6 +121,8 @@ class DoctorScheduleExceptionController extends Controller
         if ($exception->status !== 'pending') {
             return back()->with('error', 'Cannot delete processed exceptions.');
         }
+
+        Log::info('Schedule exception cancelled', ['exception_id' => $exception->id, 'doctor_id' => $user->doctor->id]);
 
         $exception->delete();
 

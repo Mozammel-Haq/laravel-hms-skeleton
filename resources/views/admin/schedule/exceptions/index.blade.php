@@ -14,7 +14,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Doctor</th>
-                                <th>Date</th>
+                                <th>Date Range</th>
                                 <th>Type</th>
                                 <th>Details</th>
                                 <th>Reason</th>
@@ -38,8 +38,18 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="fw-bold">{{ $exception->exception_date }}</div>
-                                        <div class="text-muted small">{{ \Carbon\Carbon::parse($exception->exception_date)->format('l') }}</div>
+                                        <div class="fw-bold">
+                                            {{ \Carbon\Carbon::parse($exception->start_date)->format('M d, Y') }}
+                                            @if($exception->start_date != $exception->end_date)
+                                                - {{ \Carbon\Carbon::parse($exception->end_date)->format('M d, Y') }}
+                                            @endif
+                                        </div>
+                                        <div class="text-muted small">
+                                            {{ \Carbon\Carbon::parse($exception->start_date)->format('l') }}
+                                            @if($exception->start_date != $exception->end_date)
+                                                - {{ \Carbon\Carbon::parse($exception->end_date)->format('l') }}
+                                            @endif
+                                        </div>
                                     </td>
                                     <td>
                                         @if($exception->is_available)

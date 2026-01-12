@@ -219,6 +219,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Doctors Management
     Route::get('/doctors/assignment', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'assignment'])->name('doctors.assignment')->middleware('can:view_doctors');
+    Route::get('/doctors/schedules/events', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'getCalendarEvents'])->name('doctors.schedules.events')->middleware('can:view_doctors');
     Route::get('/doctors/schedules', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'schedules'])->name('doctors.schedules')->middleware('can:view_doctors');
 
     // Admin Schedule Exceptions

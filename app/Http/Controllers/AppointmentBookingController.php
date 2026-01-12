@@ -88,55 +88,70 @@ class AppointmentBookingController extends Controller
      * Store appointment.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'doctor_id' => 'required|exists:doctors,id',
-            'patient_id' => 'required|exists:patients,id',
-            'clinic_id' => 'required|exists:clinics,id',
-            'appointment_date' => 'required|date|after_or_equal:today',
-            'start_time' => 'required',
-            'end_time' => 'required',
-        ]);
+{
+    // 1. Validate input (strict but realistic)
+    $validated = $request->validate([
+        'doctor_id'        => 'required|exists:doctors,id',
+        'patient_id'       => 'required|exists:patients,id',
+        'clinic_id'        => 'required|exists:clinics,id',
+        'appointment_date' => 'required|date|after_or_equal:today',
+        'start_time'       => 'required|date_format:H:i',
+        'end_time'         => 'required|date_format:H:i|after:start_time',
+    ]);
 
-        // Double check availability
-        // In a real app, use a lock or transaction with check
-        $appointmentDate = Carbon::createFromFormat(
-            'd-m-Y',
-            $request->appointment_date
-        )->format('Y-m-d');
-        $exists = Appointment::where('doctor_id', $request->doctor_id)
+    // 2. Normalize appointment date (single source of truth)
+    $appointmentDate = Carbon::parse($validated['appointment_date'])->toDateString();
+
+    // 3. Wrap booking in a DB transaction (real-world requirement)
+    return DB::transaction(function () use ($validated, $appointmentDate) {
+
+        // 4. Lock doctor row to prevent race conditions
+        $doctor = Doctor::where('id', $validated['doctor_id'])
+            ->lockForUpdate()
+            ->firstOrFail();
+
+        // 5. Correct overlap detection (half-open interval logic)
+        $slotTaken = Appointment::where('doctor_id', $doctor->id)
             ->where('appointment_date', $appointmentDate)
-            ->where(function ($q) use ($request) {
-                $q->whereBetween('start_time', [$request->start_time, $request->end_time])
-                    ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
-            })
             ->whereIn('status', ['pending', 'confirmed'])
+            ->where(function ($q) use ($validated) {
+                $q->where('start_time', '<', $validated['end_time'])
+                  ->where('end_time',   '>', $validated['start_time']);
+            })
             ->exists();
 
-        if ($exists) {
-            return back()->withErrors(['start_time' => 'This slot is no longer available.']);
+        if ($slotTaken) {
+            return back()->withErrors([
+                'start_time' => 'This slot is no longer available. Please choose another time.',
+            ]);
         }
 
-        // Calculate Fee
-        $doctor = Doctor::find($request->doctor_id);
-        $feeInfo = $this->appointmentService->calculateFee($doctor, $request->patient_id);
+        // 6. Calculate consultation fee (business logic stays in service)
+        $feeInfo = $this->appointmentService
+            ->calculateFee($doctor, $validated['patient_id']);
 
-        $appointment = Appointment::create([
-            'clinic_id' => $request->clinic_id,
-            'doctor_id' => $request->doctor_id,
-            'patient_id' => $request->patient_id,
-            'department_id' => $doctor->primary_department_id,
+        // 7. Create appointment
+        Appointment::create([
+            'clinic_id'        => $validated['clinic_id'],
+            'doctor_id'        => $doctor->id,
+            'patient_id'       => $validated['patient_id'],
+            'department_id'    => $doctor->primary_department_id,
             'appointment_date' => $appointmentDate,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'appointment_type' => 'in_person', // Default
-            'booking_source' => 'reception',
-            'status' => 'pending',
-            'created_by' => auth()->id(),
-            'fee' => $feeInfo['fee'],
-            'visit_type' => $feeInfo['type'],
+            'start_time'       => $validated['start_time'],
+            'end_time'         => $validated['end_time'],
+            'appointment_type' => 'in_person',
+            'booking_source'   => 'reception',
+            'status'           => 'pending',
+            'created_by'       => auth()->id(),
+            'fee'              => $feeInfo['fee'],
+            'visit_type'       => $feeInfo['type'],
         ]);
 
-        return redirect()->route('appointments.index')->with('success', 'Appointment booked successfully.');
-    }
+        // 8. Success redirect
+        return redirect()
+            ->route('appointments.index')
+            ->with('success', 'Appointment booked successfully.');
+    });
+}
+
 }

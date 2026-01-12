@@ -93,7 +93,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Calculated Fee</label>
-                                        <input type="text" class="form-control" id="fee_display" readonly
+                                        <input type="text" class="form-control" id="fee_display"
                                             value="Select Patient first">
                                         <small id="fee_note" class="text-muted"></small>
                                     </div>
@@ -157,6 +157,7 @@
                             patient_id: patientId
                         },
                         success: function(response) {
+                            console.log(response)
                             $('#fee_display').val(response.fee + ' BDT');
                             if (response.is_discounted) {
                                 $('#fee_note').text('Returning patient discount applied (' +
@@ -165,6 +166,7 @@
                                 $('#fee_note').text('Standard consultation fee (' + response.type +
                                     ').');
                             }
+
                         },
                         error: function() {
                             $('#fee_display').val('Error calculating fee');

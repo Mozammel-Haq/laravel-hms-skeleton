@@ -11,6 +11,7 @@ class DoctorSchedule extends BaseTenantModel
         'clinic_id',
         'department_id',
         'day_of_week',
+        'schedule_date',
         'start_time',
         'end_time',
         'slot_duration_minutes',
