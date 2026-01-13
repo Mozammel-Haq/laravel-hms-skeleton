@@ -6,7 +6,7 @@
         </div>
         <div class="card">
             <div class="card-body">
-                <form method="post" action="{{ route('lab.result.store', $order) }}">
+                <form method="post" action="{{ route('lab.result.store', $order) }}" enctype="multipart/form-data">
                     @csrf
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -16,6 +16,10 @@
                         <div class="col-md-6">
                             <label class="form-label">Notes</label>
                             <input type="text" name="notes" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Upload Report (PDF, max 5MB)</label>
+                            <input type="file" name="report_pdf" accept="application/pdf" class="form-control">
                         </div>
                         <div class="col-md-12">
                             <button type="submit" class="btn btn-primary">Save</button>

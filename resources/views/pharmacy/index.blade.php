@@ -23,7 +23,7 @@
                     @forelse($sales as $sale)
                         <tr>
                             <td>#{{ $sale->id }}</td>
-                            <td>{{ $sale->created_at->format('d M Y, h:i A') }}</td>
+                            <td>{{ $sale->created_at }}</td>
                             <td>
                                 <div class="fw-semibold">{{ $sale->patient->name }}</div>
                                 <div class="small text-muted">{{ $sale->patient->patient_code }}</div>
@@ -46,7 +46,7 @@
                 </tbody>
             </table>
         </div>
-        @if($sales->hasPages())
+        @if ($sales->hasPages())
             <div class="card-footer bg-transparent">
                 {{ $sales->links() }}
             </div>

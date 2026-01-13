@@ -65,7 +65,13 @@ class LabController extends Controller
         $request->validate([
             'result_value' => 'required|string',
             'notes' => 'nullable|string',
+            'report_pdf' => 'nullable|file|mimes:pdf|max:5120',
         ]);
+
+        $pdfPath = null;
+        if ($request->hasFile('report_pdf')) {
+            $pdfPath = $request->file('report_pdf')->store('lab_results', 'public');
+        }
 
         LabTestResult::create([
             'clinic_id' => $order->clinic_id,
@@ -74,6 +80,7 @@ class LabController extends Controller
             'notes' => $request->notes,
             'recorded_at' => now(),
             'recorded_by' => auth()->id(),
+            'pdf_path' => $pdfPath,
         ]);
 
         $order->update(['status' => 'completed']);

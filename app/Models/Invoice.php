@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends BaseTenantModel
 {
-    use SoftDeletes;
+    use SoftDeletes, LogsActivity;
     public function items() { return $this->hasMany(InvoiceItem::class); }
     public function payments() { return $this->hasMany(Payment::class); }
     public function patient() { return $this->belongsTo(Patient::class); }

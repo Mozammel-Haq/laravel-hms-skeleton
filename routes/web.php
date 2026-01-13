@@ -131,12 +131,12 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         // Create invoice
         Route::get('/create', [BillingController::class, 'create'])
             ->name('create')
-            ->middleware('can:create_billing');
+            ->middleware('can:create_invoices');
 
         // Store invoice
         Route::post('/store', [BillingController::class, 'store'])
             ->name('store')
-            ->middleware('can:create_billing');
+            ->middleware('can:create_invoices');
 
         // Show single invoice
         Route::get('/{invoice}', [BillingController::class, 'show'])
@@ -148,12 +148,12 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/{invoice}/payment', [BillingController::class, 'addPayment'])
             ->whereNumber('invoice')
             ->name('payment.add')
-            ->middleware('can:create_billing');
+            ->middleware('can:process_payments');
 
         Route::post('/{invoice}/payment', [BillingController::class, 'storePayment'])
             ->whereNumber('invoice')
             ->name('payment.store')
-            ->middleware('can:create_billing');
+            ->middleware('can:process_payments');
 
         // AJAX route to fetch patient pending items (consultations, lab tests, medicines)
         Route::get('/patient-items/{patient}', [BillingController::class, 'getPatientItems'])
@@ -175,6 +175,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
 
         // Medicine Catalog
+        Route::get('/medicines/search', [MedicineController::class, 'search'])->name('medicines.search');
         Route::resource('medicines', MedicineController::class);
     });
 

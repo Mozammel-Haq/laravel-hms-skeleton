@@ -93,4 +93,58 @@ class MedicineController extends Controller
         $medicine->delete();
         return redirect()->route('pharmacy.medicines.index')->with('success', 'Medicine deleted successfully.');
     }
+
+    public function search(Request $request)
+    {
+        Gate::authorize('viewAny', Medicine::class);
+        $term = trim((string) $request->get('term', ''));
+        $clinicId = optional(auth()->user())->clinic_id;
+
+        $query = Medicine::query()
+            ->select('medicines.*')
+            ->join('medicine_batches as mb', 'mb.medicine_id', '=', 'medicines.id')
+            ->where('mb.clinic_id', $clinicId)
+            ->where('mb.quantity_in_stock', '>', 0)
+            ->where('medicines.status', 'active')
+            ->groupBy(
+                'medicines.id',
+                'medicines.name',
+                'medicines.generic_name',
+                'medicines.manufacturer',
+                'medicines.strength',
+                'medicines.dosage_form',
+                'medicines.price',
+                'medicines.status',
+                'medicines.created_at',
+                'medicines.updated_at'
+            )
+            ->selectRaw('SUM(mb.quantity_in_stock) as stock');
+
+        if ($term !== '') {
+            $query->where(function ($q) use ($term) {
+                $q->where('medicines.name', 'like', '%' . $term . '%')
+                    ->orWhere('medicines.generic_name', 'like', '%' . $term . '%')
+                    ->orWhere('medicines.manufacturer', 'like', '%' . $term . '%');
+            });
+        }
+
+        $items = $query->orderBy('medicines.name')->limit(20)->get()->map(function ($m) {
+            $label = $m->name;
+            if (!empty($m->strength)) {
+                $label .= ' (' . $m->strength . ')';
+            }
+            $label .= ' — Stock: ' . (int) $m->stock;
+            return [
+                'id' => $m->id,
+                'text' => $label,
+                'price' => $m->price,
+                'stock' => (int) $m->stock,
+            ];
+        });
+
+        return response()->json([
+            'results' => $items,
+            'pagination' => ['more' => false],
+        ]);
+    }
 }
