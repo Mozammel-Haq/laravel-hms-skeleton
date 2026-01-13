@@ -29,7 +29,7 @@ class BillingController extends Controller
     {
         Gate::authorize('create', Invoice::class);
 
-        $patients = Patient::orderBy('full_name')->get();
+        $patients = Patient::orderBy('name')->get();
         return view('billing.create', compact('patients'));
     }
 
@@ -53,6 +53,25 @@ class BillingController extends Controller
 
             $subtotal = 0;
             foreach ($request->items as $item) {
+                $modelClass = match ($item['item_type']) {
+                    'Consultation' => Consultation::class,
+                    'LabTest'      => LabTest::class,
+                    'Medicine'     => Medicine::class,
+                    default        => null,
+                };
+                if (!$modelClass) {
+                    abort(422);
+                }
+                $ref = $modelClass::where('id', $item['reference_id'])->first();
+                if (!$ref) {
+                    abort(422);
+                }
+                if (isset($ref->patient_id) && (int)$ref->patient_id !== (int)$request->patient_id) {
+                    abort(422);
+                }
+                if (isset($ref->invoice_id) && !empty($ref->invoice_id)) {
+                    abort(422);
+                }
                 $subtotal += $item['quantity'] * $item['unit_price'];
             }
 

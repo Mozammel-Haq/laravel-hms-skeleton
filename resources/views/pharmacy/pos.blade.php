@@ -75,21 +75,38 @@
     </div>
 
     <script>
-        const medicines = @json($medicines);
+        function initMedicineSelect2(selectEl) {
+            const $el = $(selectEl);
+            $el.select2({
+                width: '100%',
+                placeholder: 'Search medicine',
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('pharmacy.medicines.search') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            term: params.term || ''
+                        };
+                    },
+                    processResults: function (data) {
+                        return data;
+                    },
+                    cache: true
+                },
+                minimumInputLength: 1
+            });
+        }
 
         function addItem() {
             const index = document.querySelectorAll('#items-container tr').length;
             const tr = document.createElement('tr');
 
-            let options = '<option value="">Select Medicine</option>';
-            medicines.forEach(med => {
-                options += `<option value="${med.id}">${med.name} (${med.strength}) - Stock: ${med.quantity_in_stock}</option>`;
-            });
-
             tr.innerHTML = `
                 <td>
-                    <select name="items[${index}][medicine_id]" class="form-select form-select-sm" required>
-                        ${options}
+                    <select name="items[${index}][medicine_id]" class="form-select form-select-sm medicine-select" required>
+                        <option value="">Search medicine</option>
                     </select>
                 </td>
                 <td>
@@ -103,9 +120,9 @@
             `;
 
             document.getElementById('items-container').appendChild(tr);
+            initMedicineSelect2(tr.querySelector('.medicine-select'));
         }
 
-        // Add first item by default
         document.addEventListener('DOMContentLoaded', function() {
             if (document.querySelectorAll('#items-container tr').length === 0) {
                 addItem();

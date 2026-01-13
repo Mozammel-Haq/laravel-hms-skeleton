@@ -3,7 +3,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="page-title mb-1">Sale Details</h3>
-                <div class="text-muted">Sale #{{ $sale->id }} &bull; {{ $sale->created_at->format('d M Y, h:i A') }}</div>
+                <div class="text-muted">Sale #{{ $sale->id }} &bull; {{ $sale->created_at }}</div>
             </div>
             <a href="{{ route('pharmacy.index') }}" class="btn btn-outline-secondary">
                 <i class="ti ti-arrow-left me-1"></i> Back to List
@@ -27,7 +27,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($sale->items as $item)
+                                @foreach ($sale->items as $item)
                                     <tr>
                                         <td>
                                             <div class="fw-semibold">{{ $item->medicine->name ?? 'Unknown' }}</div>
@@ -55,7 +55,8 @@
                     <div class="card-body">
                         <h5 class="card-title text-primary mb-3">Customer Info</h5>
                         <div class="d-flex align-items-center mb-3">
-                            <div class="avatar avatar-md me-3 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
+                            <div
+                                class="avatar avatar-md me-3 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
                                 {{ substr($sale->patient->name, 0, 1) }}
                             </div>
                             <div>
