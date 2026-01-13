@@ -19,7 +19,7 @@
                         <tbody>
                             @foreach ($topDoctors as $row)
                                 <tr>
-                                    <td>{{ $row['doctor']->user->name }}</td>
+                                    <td>{{ $row['doctor']->user?->name }}</td>
                                     <td>{{ $row['consults'] }}</td>
                                     <td>{{ $row['admissions'] }}</td>
                                     <td><span class="badge bg-primary">{{ $row['score'] }}</span></td>

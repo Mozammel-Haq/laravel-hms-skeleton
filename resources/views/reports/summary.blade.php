@@ -55,7 +55,7 @@
                             @foreach ($admissions as $admission)
                                 <tr>
                                     <td>{{ optional($admission->patient)->full_name ?? 'Patient' }}</td>
-                                    <td>{{ optional($admission->doctor)->user->name ?? 'Doctor' }}</td>
+                                    <td>{{ optional($admission->doctor)->user?->name ?? 'Doctor' }}</td>
                                     <td>{{ $admission->created_at }}</td>
                                     <td><span class="badge bg-success">{{ $admission->status }}</span></td>
                                 </tr>

@@ -98,7 +98,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
             'prescriptions/create/{consultation}',
             [PrescriptionController::class, 'create']
         )->name('prescriptions.create.withConsultation')
-            ->middleware('can:view_prescriptions');
+            ->middleware('can:create,App\Models\Prescription');
 
         Route::post(
             'prescriptions/{consultation}',

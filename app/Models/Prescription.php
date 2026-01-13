@@ -14,7 +14,7 @@ class Prescription extends BaseTenantModel
     }
     public function consultation()
     {
-        return $this->belongsTo(Consultation::class);
+        return $this->belongsTo(Consultation::class,"consultation_id");
     }
     public function complaints()
     {
@@ -23,5 +23,9 @@ class Prescription extends BaseTenantModel
     public function clinic()
     {
         return $this->belongsTo(Clinic::class);
+    }
+    public function doctors()
+    {
+        return $this->hasManyThrough(Doctor::class, Consultation::class, 'doctor_id', 'consultation_id');
     }
 }

@@ -83,8 +83,8 @@ class ClinicController extends Controller
             'logo_path' => 'nullable|string|max:255',
             'timezone' => 'required|string|max:64',
             'currency' => 'required|string|max:10',
-            'opening_time' => 'nullable|date_format:H:i',
-            'closing_time' => 'nullable|date_format:H:i',
+            'opening_time' => 'nullable|date_format:H:i:s',
+            'closing_time' => 'nullable|date_format:H:i:s',
             'status' => 'required|in:active,inactive,suspended',
         ]);
         // dd($data);

@@ -36,4 +36,12 @@ class Doctor extends Model
     {
         return $this->hasMany(Appointment::class);
     }
+    public function consultations()
+    {
+        return $this->hasMany(Consultation::class);
+    }
+    public function prescriptions()
+    {
+        return $this->hasManyThrough(Prescription::class, Consultation::class, 'doctor_id', 'consultation_id');
+    }
 }
