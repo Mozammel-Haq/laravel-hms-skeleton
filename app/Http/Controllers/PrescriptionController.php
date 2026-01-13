@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Prescription;
 use App\Models\Consultation;
+use App\Models\Doctor;
 use App\Models\Medicine;
 use App\Models\PrescriptionItem;
 use App\Models\PatientComplaint;
@@ -16,9 +17,19 @@ class PrescriptionController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Prescription::class);
-        $prescriptions = Prescription::with(['consultation.patient', 'consultation.doctor'])
-            ->orderBy('issued_at', 'desc')
-            ->paginate(20);
+        $doctor = Doctor::where('user_id', auth()->user()->id)->first();
+        if($doctor){
+
+            $prescriptions = Consultation::with(['prescriptions'])
+            ->where('doctor_id', $doctor->id)
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+        }else{
+            $prescriptions = Consultation::with(['prescriptions'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+        }
+
         return view('clinical.prescription.index', compact('prescriptions'));
     }
 

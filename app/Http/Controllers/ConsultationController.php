@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Consultation;
+use App\Models\Doctor;
 use App\Models\Prescription;
 use App\Models\PrescriptionItem;
 use App\Models\Visit;
@@ -17,9 +18,21 @@ class ConsultationController extends Controller
     public function index()
     {
         Gate::authorize('view_consultations');
-        $consultations = Consultation::with(['visit.appointment.patient', 'visit.appointment.doctor'])
+        $doctor = Doctor::where('user_id', auth()->user()->id)->first();
+        if($doctor){
+            $consultations = Consultation::with(['patient', 'doctor'])->where('doctor_id', $doctor->id)
+            ->whereHas('visit.appointment', function ($q) use ($doctor) {
+            $q->where('doctor_id', $doctor->id);})
             ->latest()
-            ->paginate(50);
+            ->paginate(perPage: 50);
+        }else{
+            $consultations = Consultation::with(['patient', 'doctor'])
+            ->latest()
+            ->paginate(perPage: 50);
+        }
+
+
+        // dd($consultations);
         return view('clinical.consultations.index', compact('consultations'));
     }
     /**
@@ -28,7 +41,11 @@ class ConsultationController extends Controller
     public function create(Appointment $appointment)
     {
         Gate::authorize('create', Consultation::class);
-
+        $doctorId = Doctor::where('user_id', auth()->user()->id)->first()->id;
+        if($appointment->doctor_id !== $doctorId){
+            return redirect()->route('appointments.index')
+                ->with('warning', 'You are not authorized to start a consultation for this appointment.');
+        }
         if ($appointment->status !== 'confirmed') {
             return redirect()->route('appointments.index')
                 ->with('warning', 'Consultation can only start for confirmed appointments.');
@@ -45,7 +62,11 @@ class ConsultationController extends Controller
     public function store(Request $request, Appointment $appointment)
     {
         Gate::authorize('create', Consultation::class);
-
+         $doctorId = Doctor::where('user_id', auth()->user()->id)->first()->id;
+         if($appointment->doctor_id !== $doctorId){
+            return redirect()->route('appointments.index')
+                ->with('warning', 'You are not authorized to start a consultation for this appointment.');
+        }
         $data = $request->validate([
             'diagnosis' => 'required|string|max:255',
             'doctor_notes' => 'required|string',
