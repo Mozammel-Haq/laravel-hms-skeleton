@@ -11,8 +11,22 @@ class DepartmentController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Department::class);
-        $departments = Department::all();
+        $query = Department::query();
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        }
+
+        $departments = $query->get();
         return view('departments.index', compact('departments'));
+    }
+
+    public function restore($id)
+    {
+        $department = Department::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $department);
+        $department->restore();
+        return back()->with('success', 'Department restored successfully.');
     }
 
     public function store(Request $request)

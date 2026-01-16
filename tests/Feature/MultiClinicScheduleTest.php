@@ -29,6 +29,7 @@ class MultiClinicScheduleTest extends TestCase
     {
         parent::setUp();
         Model::unguard();
+        \App\Support\TenantContext::setClinicId(null);
 
         // Create Clinics
         $this->clinicA = Clinic::create(['name' => 'Clinic A', 'code' => 'CA', 'address_line_1' => 'Addr A', 'city' => 'City', 'country' => 'C', 'currency' => 'USD', 'timezone' => 'UTC']);
@@ -137,7 +138,8 @@ class MultiClinicScheduleTest extends TestCase
         DoctorScheduleException::create([
             'doctor_id' => $this->doctor->id,
             'clinic_id' => $this->clinicA->id,
-            'exception_date' => $date,
+            'start_date' => $date,
+            'end_date' => $date,
             'is_available' => false,
             'reason' => 'Vacation A',
             'status' => 'approved'

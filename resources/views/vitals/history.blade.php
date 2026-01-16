@@ -19,11 +19,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td colspan="6">No vitals recorded.</td>
-                            </tr>
+                            @forelse($vitals as $vital)
+                                <tr>
+                                    <td>{{ $vital->patient?->name ?? 'Patient' }}</td>
+                                    <td>{{ $vital->temperature }}</td>
+                                    <td>{{ $vital->heart_rate }}</td>
+                                    <td>{{ $vital->blood_pressure }}</td>
+                                    <td>{{ $vital->respiratory_rate }}</td>
+                                    <td>{{ optional($vital->recorded_at)->format('d M Y H:i') }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No vitals recorded.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-3">
+                    {{ $vitals->links() }}
                 </div>
             </div>
         </div>

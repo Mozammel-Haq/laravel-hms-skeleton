@@ -7,7 +7,9 @@ use App\Models\Base\BaseTenantModel;
 class BedAssignment extends BaseTenantModel
 {
     protected $guarded = ['id'];
-    
+    protected $casts = [
+        'assigned_at' => 'datetime',
+    ];
     public function bed()
     {
         return $this->belongsTo(Bed::class);

@@ -24,4 +24,12 @@ class Admission extends BaseTenantModel
     {
         return $this->hasMany(InpatientService::class);
     }
+    public function rounds()
+    {
+        return $this->hasMany(InpatientRound::class);
+    }
+    public function vitals()
+    {
+        return $this->hasMany(PatientVital::class);
+    }
 }

@@ -33,7 +33,9 @@
                                     </tbody>
                                 </table>
                             </div>
-                            @error('items') <div class="text-danger mt-2">{{ $message }}</div> @enderror
+                            @error('items')
+                                <div class="text-danger mt-2">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -47,20 +49,31 @@
                                 <label class="form-label">Patient <span class="text-danger">*</span></label>
                                 <select name="patient_id" class="form-select" required>
                                     <option value="">Select Patient</option>
-                                    @foreach($patients as $patient)
-                                        <option value="{{ $patient->id }}" {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
+                                    @foreach ($patients as $patient)
+                                        <option value="{{ $patient->id }}"
+                                            {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
                                             {{ $patient->name }} ({{ $patient->patient_code }})
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('patient_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                @error('patient_id')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Prescription ID <span class="text-danger">*</span></label>
-                                <input type="number" name="prescription_id" class="form-control" value="{{ old('prescription_id') }}" placeholder="Enter Prescription ID" required>
-                                <div class="form-text">Required for record keeping.</div>
-                                @error('prescription_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Payment Reference</label>
+                                <input type="text" name="payment_reference" class="form-control"
+                                    value="{{ old('payment_reference') }}" placeholder="Receipt/Txn ID (optional)">
+                                @error('payment_reference')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <hr>
@@ -85,12 +98,12 @@
                     url: '{{ route('pharmacy.medicines.search') }}',
                     dataType: 'json',
                     delay: 250,
-                    data: function (params) {
+                    data: function(params) {
                         return {
                             term: params.term || ''
                         };
                     },
-                    processResults: function (data) {
+                    processResults: function(data) {
                         return data;
                     },
                     cache: true

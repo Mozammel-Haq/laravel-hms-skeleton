@@ -176,7 +176,7 @@
                     </li>
                     <li class="submenu">
                         <a href="#" class="{{ request()->routeIs('reports.*') ? 'active subdrop' : '' }}">
-                            <i class="ti ti-report"></i><span>Reports</span><span class="menu-arrow"></span>
+                            <i class="ti ti-report"></i><span>Global Reports</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('reports.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('reports.financial') }}">Revenue (All Clinics)</a></li>
@@ -371,7 +371,7 @@
                         </a>
                         <ul style="{{ request()->routeIs('lab.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('lab.create') }}">Order Tests</a></li>
-                            <li><a href="{{ route('lab.index') }}">View Results</a></li>
+                            <li><a href="{{ route('lab.results.index') }}">View Results</a></li>
                         </ul>
                     </li>
 
@@ -392,13 +392,13 @@
 
                     <li class="submenu">
                         <a href="#"
-                            class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
+                            class="{{ request()->routeIs('appointments.*') || request()->routeIs('appointments.booking.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-calendar-plus"></i><span>Appointments</span><span
                                 class="menu-arrow"></span>
                         </a>
                         <ul
-                            style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('appointments.create') }}">Book Appointment</a></li>
+                            style="{{ request()->routeIs('appointments.*') || request()->routeIs('appointments.booking.*') ? 'display: block;' : 'display: none;' }}">
+                            <li><a href="{{ route('appointments.booking.index') }}">Smart Booking</a></li>
                             <li><a href="{{ route('appointments.index') }}">Today List</a></li>
                         </ul>
                     </li>
@@ -413,14 +413,21 @@
                         </ul>
                     </li>
 
-                    <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('billing.*') ? 'active subdrop' : '' }}">
-                            <i class="ti ti-receipt"></i><span>Billing</span><span class="menu-arrow"></span>
-                        </a>
-                        <ul style="{{ request()->routeIs('billing.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('billing.create') }}">Generate Invoice</a></li>
-                        </ul>
-                    </li>
+                    @if (auth()->user()->hasPermission('view_billing') || auth()->user()->hasPermission('create_invoices'))
+                        <li class="submenu">
+                            <a href="#" class="{{ request()->routeIs('billing.*') ? 'active subdrop' : '' }}">
+                                <i class="ti ti-receipt"></i><span>Billing</span><span class="menu-arrow"></span>
+                            </a>
+                            <ul style="{{ request()->routeIs('billing.*') ? 'display: block;' : 'display: none;' }}">
+                                @if (auth()->user()->hasPermission('view_billing'))
+                                    <li><a href="{{ route('billing.index') }}">Invoices</a></li>
+                                @endif
+                                @if (auth()->user()->hasPermission('create_invoices'))
+                                    <li><a href="{{ route('billing.create') }}">Generate Invoice</a></li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
                 @endif
 
                 <!-- 5. NURSE FLOW -->
@@ -508,11 +515,11 @@
 
                     <li class="submenu">
                         <a href="#"
-                            class="{{ request()->routeIs('pharmacy.sales.*') ? 'active subdrop' : '' }}">
+                            class="{{ request()->routeIs('pharmacy.index') || request()->routeIs('pharmacy.create') ? 'active subdrop' : '' }}">
                             <i class="ti ti-shopping-cart"></i><span>Sales</span><span class="menu-arrow"></span>
                         </a>
                         <ul
-                            style="{{ request()->routeIs('pharmacy.sales.*') ? 'display: block;' : 'display: none;' }}">
+                            style="{{ request()->routeIs('pharmacy.index') || request()->routeIs('pharmacy.create') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('pharmacy.create') }}">New Sale</a></li>
                             <li><a href="{{ route('pharmacy.index') }}">History</a></li>
                         </ul>

@@ -7,6 +7,7 @@ use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Services\AppointmentService;
+use App\Support\TenantContext;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,21 +27,39 @@ class AppointmentBookingController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Doctor::with(['user', 'department', 'clinics']);
+        $query = Doctor::with(['user', 'department', 'clinics'])
+            ->where('status', 'active');
 
-        if ($request->has('clinic_id')) {
-            $query->whereHas('clinics', function ($q) use ($request) {
-                $q->where('clinics.id', $request->clinic_id);
+        if (TenantContext::hasClinic()) {
+            $currentClinicId = TenantContext::getClinicId();
+            $query->whereHas('clinics', function ($q) use ($currentClinicId) {
+                $q->where('clinics.id', $currentClinicId);
             });
         }
 
-        if ($request->has('department_id')) {
-            $query->where('primary_department_id', $request->department_id);
+        if ($request->filled('clinic_id')) {
+            $selectedClinicId = $request->input('clinic_id');
+            $query->whereHas('clinics', function ($q) use ($selectedClinicId) {
+                $q->where('clinics.id', $selectedClinicId);
+            });
+        }
+
+        if ($request->filled('department_id')) {
+            $query->where('primary_department_id', $request->input('department_id'));
         }
 
         $doctors = $query->paginate(12);
-        $clinics = Clinic::all();
-        $departments = \App\Models\Department::all();
+
+        if (TenantContext::hasClinic()) {
+            $currentClinicId = TenantContext::getClinicId();
+            $clinics = Clinic::whereKey($currentClinicId)->get();
+            $departments = \App\Models\Department::where('clinic_id', $currentClinicId)
+                ->orderBy('name')
+                ->get();
+        } else {
+            $clinics = Clinic::orderBy('name')->get();
+            $departments = \App\Models\Department::orderBy('name')->get();
+        }
 
         return view('appointments.booking.index', compact('doctors', 'clinics', 'departments'));
     }
@@ -88,70 +107,64 @@ class AppointmentBookingController extends Controller
      * Store appointment.
      */
     public function store(Request $request)
-{
-    // 1. Validate input (strict but realistic)
-    $validated = $request->validate([
-        'doctor_id'        => 'required|exists:doctors,id',
-        'patient_id'       => 'required|exists:patients,id',
-        'clinic_id'        => 'required|exists:clinics,id',
-        'appointment_date' => 'required|date|after_or_equal:today',
-        'start_time'       => 'required|date_format:H:i',
-        'end_time'         => 'required|date_format:H:i|after:start_time',
-    ]);
-
-    // 2. Normalize appointment date (single source of truth)
-    $appointmentDate = Carbon::parse($validated['appointment_date'])->toDateString();
-
-    // 3. Wrap booking in a DB transaction (real-world requirement)
-    return DB::transaction(function () use ($validated, $appointmentDate) {
-
-        // 4. Lock doctor row to prevent race conditions
-        $doctor = Doctor::where('id', $validated['doctor_id'])
-            ->lockForUpdate()
-            ->firstOrFail();
-
-        // 5. Correct overlap detection (half-open interval logic)
-        $slotTaken = Appointment::where('doctor_id', $doctor->id)
-            ->where('appointment_date', $appointmentDate)
-            ->whereIn('status', ['pending', 'confirmed'])
-            ->where(function ($q) use ($validated) {
-                $q->where('start_time', '<', $validated['end_time'])
-                  ->where('end_time',   '>', $validated['start_time']);
-            })
-            ->exists();
-
-        if ($slotTaken) {
-            return back()->withErrors([
-                'start_time' => 'This slot is no longer available. Please choose another time.',
-            ]);
-        }
-
-        // 6. Calculate consultation fee (business logic stays in service)
-        $feeInfo = $this->appointmentService
-            ->calculateFee($doctor, $validated['patient_id']);
-
-        // 7. Create appointment
-        Appointment::create([
-            'clinic_id'        => $validated['clinic_id'],
-            'doctor_id'        => $doctor->id,
-            'patient_id'       => $validated['patient_id'],
-            'department_id'    => $doctor->primary_department_id,
-            'appointment_date' => $appointmentDate,
-            'start_time'       => $validated['start_time'],
-            'end_time'         => $validated['end_time'],
-            'appointment_type' => 'in_person',
-            'booking_source'   => 'reception',
-            'status'           => 'pending',
-            'created_by'       => auth()->id(),
-            'fee'              => $feeInfo['fee'],
-            'visit_type'       => $feeInfo['type'],
+    {
+        $validated = $request->validate([
+            'doctor_id'        => 'required|exists:doctors,id',
+            'patient_id'       => 'required|exists:patients,id',
+            'clinic_id'        => 'required|exists:clinics,id',
+            'appointment_date' => 'required|date|after_or_equal:today',
+            'start_time'       => 'required|date_format:H:i',
+            'end_time'         => 'required|date_format:H:i|after:start_time',
         ]);
 
-        // 8. Success redirect
-        return redirect()
-            ->route('appointments.index')
-            ->with('success', 'Appointment booked successfully.');
-    });
-}
+        $appointmentDate = Carbon::parse($validated['appointment_date'])->toDateString();
 
+        return DB::transaction(function () use ($validated, $appointmentDate) {
+            $doctor = Doctor::where('id', $validated['doctor_id'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $slotTaken = Appointment::where('doctor_id', $doctor->id)
+                ->where('appointment_date', $appointmentDate)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->where(function ($q) use ($validated) {
+                    $q->where('start_time', '<', $validated['end_time'])
+                        ->where('end_time', '>', $validated['start_time']);
+                })
+                ->exists();
+
+            if ($slotTaken) {
+                return back()->withErrors([
+                    'start_time' => 'This slot is no longer available. Please choose another time.',
+                ]);
+            }
+
+            $feeInfo = $this->appointmentService
+                ->calculateFee($doctor, $validated['patient_id']);
+
+            $clinicId = TenantContext::hasClinic()
+                ? TenantContext::getClinicId()
+                : $validated['clinic_id'];
+
+            Appointment::create([
+                'clinic_id'        => $clinicId,
+                'doctor_id'        => $doctor->id,
+                'patient_id'       => $validated['patient_id'],
+                'department_id'    => $doctor->primary_department_id,
+                'appointment_date' => $appointmentDate,
+                'start_time'       => $validated['start_time'],
+                'end_time'         => $validated['end_time'],
+                'appointment_type' => 'in_person',
+                'booking_source'   => 'reception',
+                'status'           => 'pending',
+                'created_by'       => auth()->id(),
+                'fee'              => $feeInfo['fee'],
+                'visit_type'       => $feeInfo['type'],
+            ]);
+
+            return redirect()
+                ->route('appointments.index')
+                ->with('success', 'Appointment booked successfully.');
+        });
+    }
 }

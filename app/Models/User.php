@@ -7,14 +7,20 @@ use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Role;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 
-class User extends BaseTenantModel implements AuthenticatableContract
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class User extends BaseTenantModel implements AuthenticatableContract, MustVerifyEmailContract, CanResetPasswordContract
 {
-    use HasFactory, Notifiable, AuthenticatableTrait;
+    use HasFactory, Notifiable, AuthenticatableTrait, MustVerifyEmailTrait, CanResetPasswordTrait, SoftDeletes;
 
     /**
      * Fillable attributes

@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\LogsActivity;
+use App\Models\DoctorAward;
+use App\Models\DoctorCertification;
+use App\Models\DoctorEducation;
 
 class Doctor extends Model
 {
@@ -43,5 +46,17 @@ class Doctor extends Model
     public function prescriptions()
     {
         return $this->hasManyThrough(Prescription::class, Consultation::class, 'doctor_id', 'consultation_id');
+    }
+    public function educations()
+    {
+        return $this->hasMany(DoctorEducation::class)->orderByDesc('end_year')->orderByDesc('start_year');
+    }
+    public function awards()
+    {
+        return $this->hasMany(DoctorAward::class)->orderByDesc('year');
+    }
+    public function certifications()
+    {
+        return $this->hasMany(DoctorCertification::class)->orderByDesc('issued_date');
     }
 }

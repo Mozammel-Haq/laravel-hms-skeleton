@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Consultation extends BaseTenantModel
 {
+    use SoftDeletes;
     public $timestamps = true;
 
     protected $fillable = [

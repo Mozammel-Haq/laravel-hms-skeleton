@@ -3,7 +3,8 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="page-title mb-0">Manage Schedule</h3>
-                <div class="text-muted">Dr. {{ $doctor->user->name }} ({{ $doctor->specialization }})</div>
+                <div class="text-muted">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}
+                    ({{ $doctor->specialization }})</div>
             </div>
             <a href="{{ route('doctors.index') }}" class="btn btn-outline-secondary">
                 <i class="ti ti-arrow-left me-1"></i> Back to Doctors
@@ -14,14 +15,26 @@
             <div class="col-lg-10">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body p-4">
+                        @if ($errors->any())
+                            <div class="alert alert-danger mb-4">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <div class="alert alert-info d-flex align-items-center mb-4">
                             <i class="ti ti-info-circle fs-4 me-2"></i>
                             <div>
-                                Define the weekly working hours for this doctor. Appointment slots will be generated based on these settings.
+                                Define the weekly working hours for this doctor. Appointment slots will be generated
+                                based on these settings.
                             </div>
                         </div>
 
-                        <form action="{{ route('doctors.schedule.update', $doctor) }}" method="POST" id="schedule-form">
+                        <form action="{{ route('doctors.schedule.update', $doctor) }}" method="POST"
+                            id="schedule-form">
                             @csrf
                             @method('PUT')
 
@@ -44,38 +57,75 @@
                                             @endphp
                                             <tr>
                                                 <td>
-                                                    <select name="schedules[{{ $index }}][type]" class="form-select schedule-type" onchange="toggleType(this)">
-                                                        <option value="weekly" {{ $type == 'weekly' ? 'selected' : '' }}>Weekly</option>
-                                                        <option value="date" {{ $type == 'date' ? 'selected' : '' }}>Specific Date</option>
+                                                    <select name="schedules[{{ $index }}][type]"
+                                                        class="form-select schedule-type" onchange="toggleType(this)">
+                                                        <option value="weekly"
+                                                            {{ $type == 'weekly' ? 'selected' : '' }}>Weekly</option>
+                                                        <option value="date" {{ $type == 'date' ? 'selected' : '' }}>
+                                                            Specific Date</option>
                                                     </select>
                                                 </td>
                                                 <td>
-                                                    <div class="weekly-field" style="display: {{ $type == 'weekly' ? 'block' : 'none' }}">
-                                                        <select name="schedules[{{ $index }}][day_of_week]" class="form-select" {{ $type == 'weekly' ? 'required' : '' }}>
-                                                            <option value="0" {{ $schedule->day_of_week == 0 ? 'selected' : '' }}>Sunday</option>
-                                                            <option value="1" {{ $schedule->day_of_week == 1 ? 'selected' : '' }}>Monday</option>
-                                                            <option value="2" {{ $schedule->day_of_week == 2 ? 'selected' : '' }}>Tuesday</option>
-                                                            <option value="3" {{ $schedule->day_of_week == 3 ? 'selected' : '' }}>Wednesday</option>
-                                                            <option value="4" {{ $schedule->day_of_week == 4 ? 'selected' : '' }}>Thursday</option>
-                                                            <option value="5" {{ $schedule->day_of_week == 5 ? 'selected' : '' }}>Friday</option>
-                                                            <option value="6" {{ $schedule->day_of_week == 6 ? 'selected' : '' }}>Saturday</option>
+                                                    <div class="weekly-field"
+                                                        style="display: {{ $type == 'weekly' ? 'block' : 'none' }}">
+                                                        <select name="schedules[{{ $index }}][day_of_week]"
+                                                            class="form-select"
+                                                            {{ $type == 'weekly' ? 'required' : '' }}>
+                                                            <option value="0"
+                                                                {{ $schedule->day_of_week == 0 ? 'selected' : '' }}>
+                                                                Sunday</option>
+                                                            <option value="1"
+                                                                {{ $schedule->day_of_week == 1 ? 'selected' : '' }}>
+                                                                Monday</option>
+                                                            <option value="2"
+                                                                {{ $schedule->day_of_week == 2 ? 'selected' : '' }}>
+                                                                Tuesday</option>
+                                                            <option value="3"
+                                                                {{ $schedule->day_of_week == 3 ? 'selected' : '' }}>
+                                                                Wednesday</option>
+                                                            <option value="4"
+                                                                {{ $schedule->day_of_week == 4 ? 'selected' : '' }}>
+                                                                Thursday</option>
+                                                            <option value="5"
+                                                                {{ $schedule->day_of_week == 5 ? 'selected' : '' }}>
+                                                                Friday</option>
+                                                            <option value="6"
+                                                                {{ $schedule->day_of_week == 6 ? 'selected' : '' }}>
+                                                                Saturday</option>
                                                         </select>
                                                     </div>
-                                                    <div class="date-field" style="display: {{ $type == 'date' ? 'block' : 'none' }}">
-                                                        <input type="date" name="schedules[{{ $index }}][schedule_date]" class="form-control" value="{{ $schedule->schedule_date }}" {{ $type == 'date' ? 'required' : '' }}>
+                                                    <div class="date-field"
+                                                        style="display: {{ $type == 'date' ? 'block' : 'none' }}">
+                                                        <input type="date"
+                                                            name="schedules[{{ $index }}][schedule_date]"
+                                                            class="form-control" value="{{ $schedule->schedule_date }}"
+                                                            {{ $type == 'date' ? 'required' : '' }}>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <input type="time" name="schedules[{{ $index }}][start_time]" class="form-control" value="{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}" required>
+                                                    <input type="time"
+                                                        name="schedules[{{ $index }}][start_time]"
+                                                        class="form-control"
+                                                        value="{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}"
+                                                        required>
                                                 </td>
                                                 <td>
-                                                    <input type="time" name="schedules[{{ $index }}][end_time]" class="form-control" value="{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}" required>
+                                                    <input type="time"
+                                                        name="schedules[{{ $index }}][end_time]"
+                                                        class="form-control"
+                                                        value="{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}"
+                                                        required>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="schedules[{{ $index }}][slot_duration_minutes]" class="form-control" value="{{ $schedule->slot_duration_minutes }}" min="5" step="5" required>
+                                                    <input type="number"
+                                                        name="schedules[{{ $index }}][slot_duration_minutes]"
+                                                        class="form-control"
+                                                        value="{{ $schedule->slot_duration_minutes }}" min="5"
+                                                        step="5" required>
                                                 </td>
                                                 <td class="text-center">
-                                                    <button type="button" class="btn btn-outline-danger btn-sm remove-row">
+                                                    <button type="button"
+                                                        class="btn btn-outline-danger btn-sm remove-row">
                                                         <i class="ti ti-trash"></i>
                                                     </button>
                                                 </td>
@@ -123,7 +173,8 @@
             });
 
             function addSlotRow() {
-                const index = container.children.length; // Simple index logic, might need timestamp for unique keys if deleting
+                const index = container.children
+                .length; // Simple index logic, might need timestamp for unique keys if deleting
                 // Better to use a counter that only increments to avoid index collisions if we delete rows
                 const uniqueIndex = Date.now();
 

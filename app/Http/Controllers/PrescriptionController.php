@@ -17,20 +17,39 @@ class PrescriptionController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Prescription::class);
-        $doctor = Doctor::where('user_id', auth()->user()->id)->first();
-        if($doctor){
+        
+        $query = Prescription::with(['consultation.patient', 'consultation.doctor.user']);
 
-            $prescriptions = Consultation::with(['prescriptions'])
-            ->where('doctor_id', $doctor->id)
-                ->orderBy('created_at', 'desc')
-                ->paginate(20);
-        }else{
-            $prescriptions = Consultation::with(['prescriptions'])
-                ->orderBy('created_at', 'desc')
-                ->paginate(20);
+        // Filter by doctor if the user is a doctor
+        $doctor = Doctor::where('user_id', auth()->user()->id)->first();
+        if ($doctor) {
+            $query->whereHas('consultation', function($q) use ($doctor) {
+                $q->where('doctor_id', $doctor->id);
+            });
         }
 
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        }
+
+        $prescriptions = $query->latest('issued_at')->paginate(20);
+
         return view('clinical.prescription.index', compact('prescriptions'));
+    }
+
+    public function destroy(Prescription $prescription)
+    {
+        Gate::authorize('delete', $prescription);
+        $prescription->delete();
+        return redirect()->route('clinical.prescriptions.index')->with('success', 'Prescription deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $prescription = Prescription::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $prescription);
+        $prescription->restore();
+        return redirect()->route('clinical.prescriptions.index')->with('success', 'Prescription restored successfully.');
     }
 
     public function show(Prescription $prescription)

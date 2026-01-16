@@ -158,6 +158,7 @@ class AdminUsersController extends Controller
     {
         Gate::authorize('manage_roles');
 
+        $user->update(['status' => 'inactive']);
         $user->delete();
 
         return redirect()->back()->with('success', 'User deleted successfully.');

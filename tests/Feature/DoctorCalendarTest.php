@@ -20,6 +20,7 @@ class DoctorCalendarTest extends TestCase
     {
         parent::setUp();
         \Illuminate\Database\Eloquent\Model::unguard();
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
     }
 
     public function test_can_fetch_calendar_events()
@@ -36,13 +37,15 @@ class DoctorCalendarTest extends TestCase
             'phone' => '1234567890',
             'email' => 'clinic@test.com'
         ]);
-        $user = User::factory()->create();
+        $user = User::factory()->create(['clinic_id' => $clinic->id]);
+        $user->assignRole('Clinic Admin');
         $department = Department::create(['name' => 'General Medicine', 'clinic_id' => $clinic->id]);
         $doctor = Doctor::create([
             'user_id' => $user->id,
             'specialization' => 'General',
             'primary_department_id' => $department->id
         ]);
+        $doctor->clinics()->attach($clinic->id);
 
         // 2. Weekly Schedule (Mondays)
         DoctorSchedule::create([

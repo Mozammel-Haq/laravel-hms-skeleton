@@ -9,7 +9,7 @@
                 <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">
                     <i class="ti ti-arrow-left me-1"></i> Back to IPD
                 </a>
-                @if($admission->status === 'admitted')
+                @if ($admission->status === 'admitted')
                     <a href="{{ route('ipd.assign-bed', $admission) }}" class="btn btn-success">
                         <i class="ti ti-bed me-1"></i> Assign/Transfer Bed
                     </a>
@@ -60,23 +60,25 @@
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between px-0">
                                 <span class="text-muted">Status</span>
-                                <span class="badge bg-{{ $admission->status === 'admitted' ? 'success' : 'secondary' }}">
+                                <span
+                                    class="badge bg-{{ $admission->status === 'admitted' ? 'success' : 'secondary' }}">
                                     {{ ucfirst($admission->status) }}
                                 </span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between px-0">
                                 <span class="text-muted">Admission Date</span>
-                                <span class="fw-semibold">{{ $admission->created_at->format('d M Y, h:i A') }}</span>
+                                <span class="fw-semibold">{{ $admission->admission_date }}</span>
                             </li>
-                            @if($admission->discharge_date)
+                            @if ($admission->discharge_date)
                                 <li class="list-group-item d-flex justify-content-between px-0">
                                     <span class="text-muted">Discharge Date</span>
-                                    <span class="fw-semibold">{{ $admission->discharge_date->format('d M Y, h:i A') }}</span>
+                                    <span class="fw-semibold">{{ $admission->discharge_date }}</span>
                                 </li>
                             @endif
                             <li class="list-group-item d-flex justify-content-between px-0">
                                 <span class="text-muted">Attending Doctor</span>
-                                <span class="fw-semibold">Dr. {{ $admission->doctor->user->name }}</span>
+                                <span class="fw-semibold">Dr.
+                                    {{ $admission->doctor?->user?->name ?? 'Deleted Doctor' }}</span>
                             </li>
                         </ul>
                     </div>
@@ -92,28 +94,31 @@
                     </div>
                     <div class="card-body">
                         @php
-                            $currentAssignment = $admission->bedAssignments->whereNull('discharged_at')->last();
+                            $currentAssignment = $admission->bedAssignments->whereNull('released_at')->last();
                         @endphp
 
-                        @if($currentAssignment)
+                        @if ($currentAssignment)
                             <div class="alert alert-success d-flex align-items-center mb-0">
                                 <i class="ti ti-bed fs-2 me-3"></i>
                                 <div>
-                                    <h5 class="alert-heading mb-1">Assigned to Bed: {{ $currentAssignment->bed->bed_number }}</h5>
+                                    <h5 class="alert-heading mb-1">Assigned to Bed:
+                                        {{ $currentAssignment->bed->bed_number }}</h5>
                                     <p class="mb-0">
-                                        Room: {{ $currentAssignment->bed->room->room_number }} ({{ $currentAssignment->bed->room->room_type }})<br>
+                                        Room: {{ $currentAssignment->bed->room->room_number }}
+                                        ({{ $currentAssignment->bed->room->room_type }})<br>
                                         Ward: {{ $currentAssignment->bed->room->ward->name }}
                                     </p>
                                 </div>
                             </div>
                         @else
-                            @if($admission->status === 'admitted')
+                            @if ($admission->status === 'admitted')
                                 <div class="alert alert-warning d-flex align-items-center mb-0">
                                     <i class="ti ti-alert-circle fs-2 me-3"></i>
                                     <div>
                                         <h5 class="alert-heading mb-1">No Bed Assigned</h5>
                                         <p class="mb-0">This patient is currently admitted but not assigned to a bed.
-                                            <a href="{{ route('ipd.assign-bed', $admission) }}" class="alert-link">Assign a bed now</a>.
+                                            <a href="{{ route('ipd.assign-bed', $admission) }}"
+                                                class="alert-link">Assign a bed now</a>.
                                         </p>
                                     </div>
                                 </div>
@@ -132,7 +137,7 @@
                         <h5 class="card-title mb-0">Admission Notes</h5>
                     </div>
                     <div class="card-body">
-                        <p class="card-text">{{ $admission->notes ?? 'No notes provided.' }}</p>
+                        <p class="card-text">{{ $admission->admission_reason ?? 'No notes provided.' }}</p>
                     </div>
                 </div>
 
@@ -148,7 +153,7 @@
                                     <tr>
                                         <th>Bed / Room / Ward</th>
                                         <th>Assigned At</th>
-                                        <th>Discharged At</th>
+                                        <th>Released At</th>
                                         <th>Duration</th>
                                     </tr>
                                 </thead>
@@ -157,19 +162,20 @@
                                         <tr>
                                             <td>
                                                 <div class="fw-semibold">Bed {{ $assignment->bed->bed_number }}</div>
-                                                <div class="small text-muted">{{ $assignment->bed->room->room_number }} - {{ $assignment->bed->room->ward->name }}</div>
+                                                <div class="small text-muted">{{ $assignment->bed->room->room_number }}
+                                                    - {{ $assignment->bed->room->ward->name }}</div>
                                             </td>
-                                            <td>{{ $assignment->assigned_at->format('d M Y, H:i') }}</td>
+                                            <td>{{ $assignment->assigned_at }}</td>
                                             <td>
-                                                @if($assignment->discharged_at)
-                                                    {{ $assignment->discharged_at->format('d M Y, H:i') }}
+                                                @if ($assignment->released_at)
+                                                    {{ $assignment->released_at }}
                                                 @else
                                                     <span class="badge bg-success-subtle text-success">Current</span>
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($assignment->discharged_at)
-                                                    {{ $assignment->assigned_at->diffForHumans($assignment->discharged_at, true) }}
+                                                @if ($assignment->released_at)
+                                                    {{ $assignment->assigned_at->diffForHumans($assignment->released_at, true) }}
                                                 @else
                                                     {{ $assignment->assigned_at->diffForHumans(null, true) }}
                                                 @endif
@@ -177,7 +183,92 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="4" class="text-center text-muted">No bed assignments recorded.</td>
+                                            <td colspan="4" class="text-center text-muted">No bed assignments
+                                                recorded.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doctor Rounds -->
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Doctor Rounds</h5>
+                        @if ($admission->status === 'admitted')
+                            <a href="{{ route('ipd.rounds.create', $admission->id) }}"
+                                class="btn btn-sm btn-outline-primary">
+                                <i class="ti ti-plus me-1"></i> Add Round
+                            </a>
+                        @endif
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Doctor</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($admission->rounds as $round)
+                                        <tr>
+                                            <td>{{ $round->round_date }}</td>
+                                            <td>{{ $round->doctor?->user?->name ?? 'Unknown' }}</td>
+                                            <td>{{ $round->notes }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">No rounds recorded.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vitals -->
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Vitals</h5>
+                        @if ($admission->status === 'admitted')
+                            <a href="{{ route('vitals.record', ['admission_id' => $admission->id]) }}" <i
+                                class="ti ti-heart-rate-monitor me-1"></i> Record Vitals
+                            </a>
+                        @endif
+                        @endif
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Temperature</th>
+                                        <th>Pulse</th>
+                                        <th>BP</th>
+                                        <th>Resp Rate</th>
+                                        <th>Recorded By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($admission->vitals as $vital)
+                                        <tr>
+                                            <td>{{ $vital->recorded_at?->format('d M Y H:i') }}</td>
+                                            <td>{{ $vital->temperature }}</td>
+                                            <td>{{ $vital->heart_rate }}</td>
+                                            <td>{{ $vital->blood_pressure }}</td>
+                                            <td>{{ $vital->respiratory_rate }}</td>
+                                            <td>{{ $vital->recorder?->name ?? 'Staff' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">No vitals recorded.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>

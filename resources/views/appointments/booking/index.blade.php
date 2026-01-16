@@ -72,7 +72,7 @@
                                             <a href="{{ route('appointments.booking.show', $doctor) }}"
                                                 class="avatar-xxl">
                                                 <img class="avatar-img"
-                                                    src="{{ $doctor->user->profile_photo_url ?? asset('assets/img/profiles/avatar-01.jpg') }}"
+                                                    src="{{ $doctor->user?->profile_photo_url ?? asset('assets/img/profiles/avatar-01.jpg') }}"
                                                     alt="User Image">
                                             </a>
                                         </div>
@@ -88,7 +88,7 @@
                                         </div>
                                         <h4 class="doctor-name text-center">
                                             <a href="{{ route('appointments.booking.show', $doctor) }}">Dr.
-                                                {{ $doctor->user->name ?? 'Unknown' }}</a>
+                                                {{ $doctor->user?->name ?? 'Deleted Doctor' }}</a>
                                         </h4>
                                         <div class="doc-prof text-center">{{ $doctor->department->name ?? 'General' }}
                                         </div>

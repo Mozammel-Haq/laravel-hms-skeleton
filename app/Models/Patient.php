@@ -49,4 +49,8 @@ class Patient extends BaseTenantModel
     {
         return $this->hasMany(Admission::class);
     }
+    public function vitals()
+    {
+        return $this->hasMany(PatientVital::class);
+    }
 }

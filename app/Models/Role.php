@@ -17,4 +17,13 @@ class Role extends Model
     {
         return $this->belongsToMany(User::class, 'user_role');
     }
+
+    public function givePermissionTo($permission)
+    {
+        if (is_string($permission)) {
+            $permission = Permission::where('name', $permission)->firstOrFail();
+        }
+
+        $this->permissions()->syncWithoutDetaching($permission);
+    }
 }

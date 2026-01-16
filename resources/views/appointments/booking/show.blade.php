@@ -15,11 +15,11 @@
                     <div class="doctor-img text-center">
                         <a href="#" class="avatar-xxl">
                             <img class="avatar-img"
-                                src="{{ $doctor->user->profile_photo_url ?? asset('assets/img/profiles/avatar-01.jpg') }}"
+                                src="{{ $doctor->user?->profile_photo_url ?? asset('assets/img/profiles/avatar-01.jpg') }}"
                                 alt="User Image">
                         </a>
                     </div>
-                    <h4 class="doctor-name text-center">Dr. {{ $doctor->user->name }}</h4>
+                    <h4 class="doctor-name text-center">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}</h4>
                     <div class="doc-prof text-center">{{ $doctor->department->name ?? 'General' }}</div>
                     <div class="user-country text-center">
                         <i class="fa fa-map-marker"></i>

@@ -11,8 +11,31 @@ class PaymentController extends Controller
     public function index()
     {
         Gate::authorize('view_billing');
-        $payments = Payment::with(['invoice.patient'])->latest()->paginate(50);
+        $query = Payment::with(['invoice.patient']);
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } else {
+            $query->latest();
+        }
+
+        $payments = $query->paginate(50);
         return view('billing.payments.index', compact('payments'));
+    }
+
+    public function destroy(Payment $payment)
+    {
+        Gate::authorize('delete', $payment);
+        $payment->delete();
+        return redirect()->back()->with('success', 'Payment deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $payment = Payment::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $payment);
+        $payment->restore();
+        return redirect()->back()->with('success', 'Payment restored successfully.');
     }
 
     public function cash()

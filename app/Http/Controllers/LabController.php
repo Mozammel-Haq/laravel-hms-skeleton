@@ -6,6 +6,8 @@ use App\Models\LabTest;
 use App\Models\LabTestOrder;
 use App\Models\LabTestResult;
 use App\Models\Patient;
+use App\Models\Visit;
+use App\Services\BillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -14,7 +16,15 @@ class LabController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', LabTestOrder::class);
-        $orders = LabTestOrder::with(['patient', 'test'])->latest()->paginate(20);
+        $query = LabTestOrder::with(['patient', 'test']);
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } else {
+            $query->latest();
+        }
+
+        $orders = $query->paginate(20);
         return view('lab.index', compact('orders'));
     }
 
@@ -41,6 +51,28 @@ class LabController extends Controller
             'status' => 'pending',
             'ordered_at' => now(),
         ]);
+
+        // Create Lab invoice under the visit (if exists) using test price
+        $test = LabTest::find($request->lab_test_id);
+        $visit = Visit::where('appointment_id', $order->appointment_id)->latest()->first();
+        $items = [[
+            'item_type' => 'lab',
+            'reference_id' => $test?->id,
+            'description' => $test?->name ?? 'Lab Test',
+            'quantity' => 1,
+            'unit_price' => (float)($test?->price ?? 0),
+        ]];
+        app(BillingService::class)->createInvoice(
+            $order->patient,
+            $items,
+            $order->appointment_id,
+            discount: 0,
+            tax: 0,
+            visitId: optional($visit)->id,
+            invoiceType: 'lab',
+            createdBy: auth()->id(),
+            finalize: true
+        );
 
         return redirect()->route('lab.show', $order)->with('success', 'Lab test ordered successfully.');
     }
@@ -86,5 +118,20 @@ class LabController extends Controller
         $order->update(['status' => 'completed']);
 
         return redirect()->route('lab.show', $order)->with('success', 'Result recorded successfully.');
+    }
+
+    public function destroy(LabTestOrder $order)
+    {
+        Gate::authorize('delete', $order);
+        $order->delete();
+        return redirect()->route('lab.index')->with('success', 'Lab test order deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $order = LabTestOrder::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $order);
+        $order->restore();
+        return redirect()->route('lab.index')->with('success', 'Lab test order restored successfully.');
     }
 }

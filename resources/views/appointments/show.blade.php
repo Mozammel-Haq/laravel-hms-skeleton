@@ -42,6 +42,10 @@
                                         <span class="badge bg-success-subtle text-success fs-6">Confirmed</span>
                                     @break
 
+                                    @case('arrived')
+                                        <span class="badge bg-info-subtle text-info fs-6">Arrived</span>
+                                    @break
+
                                     @case('cancelled')
                                         <span class="badge bg-danger-subtle text-danger fs-6">Cancelled</span>
                                     @break
@@ -88,17 +92,19 @@
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="avatar me-3">
                                         <span class="avatar-title rounded-circle bg-info text-white">
-                                            {{ substr($appointment->doctor->user->name, 0, 1) }}
+                                            {{ substr($appointment->doctor?->user?->name ?? 'D', 0, 1) }}
                                         </span>
                                     </div>
                                     <div>
-                                        <div class="fw-bold">{{ $appointment->doctor->user->name }}</div>
-                                        <div class="text-muted small">{{ $appointment->doctor->specialization }}</div>
+                                        <div class="fw-bold">
+                                            {{ $appointment->doctor?->user?->name ?? 'Deleted Doctor' }}</div>
+                                        <div class="text-muted small">
+                                            {{ $appointment->doctor?->specialization ?? 'N/A' }}</div>
                                     </div>
                                 </div>
                                 <div class="mb-2">
                                     <i class="ti ti-building-hospital me-2 text-muted"></i>
-                                    {{ $appointment->doctor->primaryDepartment->name ?? 'N/A' }}
+                                    {{ $appointment->doctor?->department?->name ?? 'N/A' }}
                                 </div>
                             </div>
                         </div>
@@ -138,11 +144,28 @@
                             <form action="{{ route('appointments.status.update', $appointment) }}" method="POST">
                                 @csrf
                                 @method('PATCH')
-                                <input type="hidden" name="status" value="confirmed">
-                                <button class="btn btn-success w-100 mb-2">
-                                    <i class="ti ti-check me-2"></i> Confirm Appointment
+                                <input type="hidden" name="status" value="arrived">
+                                <button class="btn btn-info w-100 mb-2">
+                                    <i class="ti ti-walk me-2"></i> Mark Arrived
                                 </button>
                             </form>
+                        @endif
+
+                        @if ($appointment->status === 'arrived' && !$appointment->visit)
+                            <form action="{{ route('visits.store') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">
+                                <button class="btn btn-warning w-100 mb-2">
+                                    <i class="ti ti-file-invoice me-2"></i> Start Visit &amp; Generate Bill
+                                </button>
+                            </form>
+                        @endif
+
+                        @if ($appointment->visit)
+                            <a href="{{ route('vitals.record', ['visit_id' => $appointment->visit->id, 'appointment_id' => $appointment->id]) }}"
+                                class="btn btn-outline-success w-100 mb-2">
+                                <i class="ti ti-heart-rate-monitor me-2"></i> Record Vitals
+                            </a>
                         @endif
 
                         @if ($appointment->status !== 'cancelled' && $appointment->status !== 'completed')

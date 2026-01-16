@@ -24,7 +24,7 @@
                                     <td>{{ number_format($row['subtotal'], 2) }}</td>
                                     <td>{{ number_format($row['vat'], 2) }}</td>
                                     <td>{{ number_format($row['total'], 2) }}</td>
-                                    <td>{{ $row['invoice']->created_at->format('Y-m-d') }}</td>
+                                    <td>{{ $row['invoice']->created_at }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

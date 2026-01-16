@@ -83,7 +83,7 @@
                                             <div class="small text-muted">{{ $appointment->patient->patient_code }}
                                             </div>
                                         </td>
-                                        <td>{{ $appointment->doctor->user->name }}</td>
+                                        <td>{{ $appointment->doctor?->user?->name ?? 'Deleted Doctor' }}</td>
                                         <td>
                                             <div>{{ $appointment->appointment_date }}</div>
                                             <div class="small text-muted">{{ $appointment->start_time }}</div>
@@ -129,10 +129,11 @@
                                     <div class="d-flex align-items-center">
                                         <div class="avatar avatar-sm me-2 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center"
                                             style="width:32px;height:32px">
-                                            {{ substr($doctor->user?->name, 0, 1) }}
+                                            {{ substr($doctor->user?->name ?? '?', 0, 1) }}
                                         </div>
                                         <div>
-                                            <div class="fw-semibold">{{ $doctor->user?->name }}</div>
+                                            <div class="fw-semibold">{{ $doctor->user?->name ?? 'Deleted Doctor' }}
+                                            </div>
                                             <div class="small text-muted">{{ $doctor->specialization }}</div>
                                         </div>
                                     </div>

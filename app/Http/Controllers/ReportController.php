@@ -26,14 +26,23 @@ class ReportController extends Controller
         $startDate = $request->get('start_date', now()->startOfMonth());
         $endDate = $request->get('end_date', now()->endOfMonth());
 
-        $revenue = Invoice::whereBetween('created_at', [$startDate, $endDate])
-            ->sum('total_amount');
+        $query = Invoice::whereBetween('created_at', [$startDate, $endDate]);
+        $revenue = (clone $query)->sum('total_amount');
 
-        $paid = Invoice::whereBetween('created_at', [$startDate, $endDate])
-            ->where('status', 'paid')
-            ->sum('total_amount');
+        $paid = (clone $query)->where('status', 'paid')->sum('total_amount');
 
-        return view('reports.financial', compact('revenue', 'paid', 'startDate', 'endDate'));
+        $byType = (clone $query)
+            ->selectRaw('invoice_type, SUM(total_amount) as total')
+            ->groupBy('invoice_type')
+            ->pluck('total', 'invoice_type');
+
+        $daily = Invoice::selectRaw('DATE(created_at) as day, SUM(total_amount) as total')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get();
+
+        return view('reports.financial', compact('revenue', 'paid', 'startDate', 'endDate', 'byType', 'daily'));
     }
 
     public function compare(Request $request)
@@ -82,7 +91,15 @@ class ReportController extends Controller
         $invoicesTotal = \App\Models\Invoice::count();
         $paymentsTotal = \App\Models\Payment::sum('amount');
         $admissions = \App\Models\Admission::with(['patient', 'doctor'])->latest()->take(10)->get();
-        return view('reports.summary', compact('patientsTotal', 'admissionsToday', 'invoicesTotal', 'paymentsTotal', 'admissions'));
+        $visitTotals = \App\Models\Visit::with('appointment.patient')
+            ->latest()
+            ->take(20)
+            ->get()
+            ->map(function ($v) {
+                $sum = \App\Models\Invoice::where('visit_id', $v->id)->sum('total_amount');
+                return ['visit' => $v, 'total' => $sum];
+            });
+        return view('reports.summary', compact('patientsTotal', 'admissionsToday', 'invoicesTotal', 'paymentsTotal', 'admissions', 'visitTotals'));
     }
 
     public function doctorPerformance()

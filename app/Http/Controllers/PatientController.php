@@ -17,8 +17,25 @@ class PatientController extends Controller
     {
         Gate::authorize('viewAny', Patient::class);
 
-        $patients = Patient::latest()->paginate(10);
+        $query = Patient::query();
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        }
+
+        $patients = $query->latest()->paginate(10);
         return view('patients.index', compact('patients'));
+    }
+
+    public function restore($id)
+    {
+        $patient = Patient::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $patient);
+
+        $patient->restore();
+        $patient->update(['status' => 'active']);
+
+        return redirect()->route('patients.index')->with('success', 'Patient restored successfully.');
     }
 
     /**
@@ -87,6 +104,7 @@ class PatientController extends Controller
     {
         Gate::authorize('delete', $patient);
 
+        $patient->update(['status' => 'inactive']); // Ensure status is inactive
         $patient->delete();
 
         return redirect()->route('patients.index')

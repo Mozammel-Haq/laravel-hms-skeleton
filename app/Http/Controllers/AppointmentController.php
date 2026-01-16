@@ -27,11 +27,30 @@ class AppointmentController extends Controller
     {
         Gate::authorize('viewAny', Appointment::class);
 
-        $appointments = Appointment::with(['patient', 'doctor.user'])
-            ->latest('appointment_date')
-            ->paginate(15);
+        $query = Appointment::with(['patient', 'doctor.user']);
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } else {
+            $query->latest('appointment_date');
+        }
+
+        $appointments = $query->paginate(15);
 
         return view('appointments.index', compact('appointments'));
+    }
+
+    public function restore($id)
+    {
+        $appointment = Appointment::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $appointment);
+        
+        $appointment->restore();
+        // Optionally revert status if we changed it, or keep as is.
+        // If we want to revert to pending or keep it as it was (which might be confusing if it was 'cancelled' then deleted).
+        // Let's assume we just restore it.
+        
+        return redirect()->route('appointments.index')->with('success', 'Appointment restored successfully.');
     }
 
     /**

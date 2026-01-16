@@ -13,8 +13,25 @@ class StaffController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', User::class);
-        $users = User::with('roles')->paginate(20);
+        $query = User::with('roles');
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } else {
+            $query->latest();
+        }
+
+        $users = $query->paginate(20);
         return view('staff.index', compact('users'));
+    }
+
+    public function restore($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $user); // Use delete permission for restore
+        $user->restore();
+        $user->update(['status' => 'active']); // Restore status as well if needed
+        return redirect()->route('staff.index')->with('success', 'Staff member restored successfully.');
     }
 
     public function create()
@@ -72,7 +89,7 @@ class StaffController extends Controller
         ]);
 
         $user->update(['name' => $request->name]);
-        
+
         $user->roles()->sync([$request->role_id]);
 
         return redirect()->route('staff.index')->with('success', 'Staff member updated successfully.');
@@ -81,6 +98,7 @@ class StaffController extends Controller
     public function destroy(User $user)
     {
         Gate::authorize('delete', $user);
+        $user->update(['status' => 'inactive']);
         $user->delete();
         return redirect()->route('staff.index')->with('success', 'Staff member deleted successfully.');
     }
