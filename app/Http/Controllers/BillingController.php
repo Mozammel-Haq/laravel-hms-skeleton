@@ -10,6 +10,7 @@ use App\Models\Medicine;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoicePayment;
+use App\Models\Appointment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -20,8 +21,38 @@ class BillingController extends Controller
     {
         Gate::authorize('viewAny', Invoice::class);
 
-        $invoices = Invoice::with('patient')->latest()->paginate(20);
+        $query = Invoice::with('patient');
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } else {
+            $query->latest();
+        }
+
+        $invoices = $query->paginate(20);
         return view('billing.index', compact('invoices'));
+    }
+
+    public function destroy(Invoice $invoice)
+    {
+        Gate::authorize('delete', $invoice);
+        $invoice->delete();
+        return redirect()->route('billing.index')->with('success', 'Invoice deleted successfully.');
+    }
+
+    public function show(Invoice $invoice)
+    {
+        Gate::authorize('view', $invoice);
+        $invoice->load(['patient', 'items', 'payments']);
+        return view('billing.show', compact('invoice'));
+    }
+
+    public function restore($id)
+    {
+        $invoice = Invoice::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $invoice);
+        $invoice->restore();
+        return redirect()->route('billing.index')->with('success', 'Invoice restored successfully.');
     }
 
     // Show create invoice form
@@ -153,30 +184,45 @@ class BillingController extends Controller
     {
         Gate::authorize('create', Invoice::class);
 
+        $invoiceTotal = $invoice->total_amount ?? $invoice->total ?? 0;
+        $alreadyPaid = $invoice->payments()->sum('amount');
+        $remaining = max($invoiceTotal - $alreadyPaid, 0);
+
         $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . $invoice->total_remaining,
+            'amount' => 'required|numeric|min:0.01|max:' . $remaining,
             'payment_method' => 'required|string|in:cash,card,bank_transfer',
-            'note' => 'nullable|string|max:255',
         ]);
 
         DB::transaction(function () use ($request, $invoice) {
-            // Create payment record
-            $payment = $invoice->payments()->create([
+            $invoice->payments()->create([
                 'amount' => $request->amount,
                 'payment_method' => $request->payment_method,
-                'note' => $request->note,
+                'paid_at' => now(),
+                'received_by' => auth()->id(),
             ]);
 
-            // Update invoice status
             $invoice->refresh();
-            if ($invoice->total_remaining <= 0) {
+
+            $invoiceTotal = $invoice->total_amount ?? $invoice->total ?? 0;
+            $totalPaid = $invoice->payments()->sum('amount');
+            $remaining = max($invoiceTotal - $totalPaid, 0);
+
+            if ($remaining <= 0) {
                 $invoice->status = 'paid';
-            } elseif ($invoice->total_remaining < $invoice->total) {
+            } elseif ($remaining < $invoiceTotal) {
                 $invoice->status = 'partial';
             } else {
                 $invoice->status = 'unpaid';
             }
+
             $invoice->save();
+
+            if ($invoice->status === 'paid' && $invoice->invoice_type === 'consultation' && $invoice->appointment_id) {
+                $appointment = Appointment::find($invoice->appointment_id);
+                if ($appointment && in_array($appointment->status, ['pending', 'arrived'], true)) {
+                    $appointment->update(['status' => 'confirmed']);
+                }
+            }
         });
 
         return redirect()->route('billing.show', $invoice)->with('success', 'Payment recorded successfully.');

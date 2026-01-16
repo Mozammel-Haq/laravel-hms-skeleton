@@ -98,7 +98,7 @@
 
                                     <tr>
                                         <td>
-                                            <div class="fw-semibold">{{ $doctor->user?->name }}</div>
+                                            <div class="fw-semibold">{{ $doctor->user?->name ?? 'Deleted Doctor' }}</div>
                                             <div class="text-muted small">{{ $doctor->specialization }}</div>
                                         </td>
                                         <td>

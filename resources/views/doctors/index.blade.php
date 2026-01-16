@@ -1,9 +1,15 @@
 <x-app-layout>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="page-title mb-0">Doctors</h3>
-        <a href="{{ route('doctors.create') }}" class="btn btn-primary">
-            <i class="ti ti-plus me-1"></i> Add New Doctor
-        </a>
+        <div class="d-flex gap-2">
+            <div class="btn-group">
+                <a href="{{ route('doctors.index') }}" class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                <a href="{{ route('doctors.index', ['status' => 'trashed']) }}" class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+            </div>
+            <a href="{{ route('doctors.create') }}" class="btn btn-primary">
+                <i class="ti ti-plus me-1"></i> Add New Doctor
+            </a>
+        </div>
     </div>
 
     <div class="card border-0 shadow-sm">
@@ -45,17 +51,28 @@
                                         Actions
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" href="{{ route('doctors.show', $doctor) }}">View Details</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('doctors.edit', $doctor) }}">Edit Info</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('doctors.schedule', $doctor) }}">Manage Schedule</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <form action="{{ route('doctors.destroy', $doctor) }}" method="POST" onsubmit="return confirm('Are you sure?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="dropdown-item text-danger">Delete</button>
-                                            </form>
-                                        </li>
+                                        @if($doctor->trashed())
+                                            <li>
+                                                <form action="{{ route('doctors.restore', $doctor->id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item text-success">
+                                                        <i class="ti ti-refresh me-1"></i> Restore
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @else
+                                            <li><a class="dropdown-item" href="{{ route('doctors.show', $doctor) }}">View Details</a></li>
+                                            <li><a class="dropdown-item" href="{{ route('doctors.edit', $doctor) }}">Edit Info</a></li>
+                                            <li><a class="dropdown-item" href="{{ route('doctors.schedule', $doctor) }}">Manage Schedule</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <form action="{{ route('doctors.destroy', $doctor) }}" method="POST" onsubmit="return confirm('Are you sure?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                                </form>
+                                            </li>
+                                        @endif
                                     </ul>
                                 </div>
                             </td>

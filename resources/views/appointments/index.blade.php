@@ -5,7 +5,13 @@
             <p class="text-muted">Manage patient appointments</p>
         </div>
         @can('create', \App\Models\Appointment::class)
-            <div class="action-btn">
+            <div class="action-btn d-flex gap-2">
+                <div class="btn-group">
+                    <a href="{{ route('appointments.index') }}"
+                        class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                    <a href="{{ route('appointments.index', ['status' => 'trashed']) }}"
+                        class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+                </div>
                 <a href="{{ route('appointments.booking.index') }}" class="btn btn-primary">
                     <i class="ti ti-plus me-1"></i> Book Appointment
                 </a>
@@ -50,8 +56,9 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div>{{ $appointment->doctor->user->name }}</div>
-                                    <div class="text-muted small">{{ $appointment->doctor->specialization }}</div>
+                                    <div>{{ $appointment->doctor?->user?->name ?? 'Deleted Doctor' }}</div>
+                                    <div class="text-muted small">{{ $appointment->doctor?->specialization ?? 'N/A' }}
+                                    </div>
                                 </td>
                                 <td>
                                     @if ($appointment->appointment_type === 'online')
@@ -88,44 +95,84 @@
                                             <i class="ti ti-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu">
-                                            @can('view', $appointment)
+                                            @if ($appointment->trashed())
                                                 <li>
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('appointments.show', $appointment) }}">
-                                                        <i class="ti ti-eye me-2"></i>View
-                                                    </a>
+                                                    <form
+                                                        action="{{ route('appointments.restore', $appointment->id) }}"
+                                                        method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item text-success"
+                                                            onclick="return confirm('Are you sure you want to restore this appointment?')">
+                                                            <i class="ti ti-rotate-clockwise me-2"></i>Restore
+                                                        </button>
+                                                    </form>
                                                 </li>
-                                            @endcan
-                                            @can('update', $appointment)
-                                                @if ($appointment->status == 'pending' || $appointment->status == 'confirmed')
+                                            @else
+                                                @can('view', $appointment)
                                                     <li>
-                                                        <form
-                                                            action="{{ route('appointments.status.update', $appointment) }}"
-                                                            method="POST">
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('appointments.show', $appointment) }}">
+                                                            <i class="ti ti-eye me-2"></i>View
+                                                        </a>
+                                                    </li>
+                                                @endcan
+                                                @can('update', $appointment)
+                                                    @if ($appointment->status == 'pending')
+                                                        <li>
+                                                            <form
+                                                                action="{{ route('appointments.status.update', $appointment) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <input type="hidden" name="status" value="arrived">
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="ti ti-walk me-2"></i>Mark Arrived
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endif
+                                                    @if ($appointment->status == 'arrived')
+                                                        <li>
+                                                            <form action="{{ route('visits.store') }}" method="POST">
+                                                                @csrf
+                                                                <input type="hidden" name="appointment_id"
+                                                                    value="{{ $appointment->id }}">
+                                                                <button type="submit" class="dropdown-item">
+                                                                    <i class="ti ti-file-invoice me-2"></i>Start Visit &
+                                                                    Generate Bill
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endif
+                                                    @if ($appointment->status == 'confirmed')
+                                                        <li>
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('clinical.consultations.create', $appointment) }}">
+                                                                <i class="ti ti-stethoscope me-2"></i>Start Consultation
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('appointments.edit', $appointment) }}">
+                                                            <i class="ti ti-edit me-2"></i>Edit
+                                                        </a>
+                                                    </li>
+                                                @endcan
+                                                @can('delete', $appointment)
+                                                    <li>
+                                                        <form action="{{ route('appointments.destroy', $appointment) }}"
+                                                            method="POST" class="d-inline">
                                                             @csrf
-                                                            @method('PATCH')
-                                                            <input type="hidden" name="status" value="arrived">
-                                                            <button type="submit" class="dropdown-item">
-                                                                <i class="ti ti-check me-2"></i>Mark Arrived
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item text-danger"
+                                                                onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                                                <i class="ti ti-trash me-2"></i>Cancel
                                                             </button>
                                                         </form>
                                                     </li>
-                                                @endif
-                                                @if ($appointment->status == 'arrived')
-                                                    <li>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('clinical.consultations.create', $appointment) }}">
-                                                            <i class="ti ti-stethoscope me-2"></i>Start Consultation
-                                                        </a>
-                                                    </li>
-                                                @endif
-                                                <li>
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('appointments.edit', $appointment) }}">
-                                                        <i class="ti ti-edit me-2"></i>Edit
-                                                    </a>
-                                                </li>
-                                            @endcan
+                                                @endcan
+                                            @endif
                                         </ul>
                                     </div>
                                 </td>

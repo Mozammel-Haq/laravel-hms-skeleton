@@ -25,7 +25,7 @@
                         <div class="mb-4">
                             <x-input-label :value="__('Doctor')" />
                             <div class="p-2 bg-gray-100 rounded mt-1">
-                                {{ $appointment->doctor->user->name }} - {{ $appointment->doctor->specialization }}
+                                {{ $appointment->doctor?->user?->name ?? 'Deleted Doctor' }} - {{ $appointment->doctor?->specialization ?? '' }}
                             </div>
                         </div>
 

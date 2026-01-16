@@ -24,10 +24,15 @@ class IpdController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Admission::class);
-        $admissions = Admission::with(['patient', 'doctor', 'bedAssignments.bed'])
-            ->where('status', 'admitted')
-            ->latest()
-            ->paginate(20);
+        $query = Admission::with(['patient', 'doctor', 'bedAssignments.bed']);
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } else {
+            $query->where('status', 'admitted')->latest();
+        }
+
+        $admissions = $query->paginate(20);
         $admissionsCount = Admission::where('status', 'admitted')->count();
         $bedsAvailable = \App\Models\Bed::withoutTenant()
             ->join('rooms', 'beds.room_id', '=', 'rooms.id')
@@ -49,6 +54,21 @@ class IpdController extends Controller
         return view('ipd.index', compact('admissions', 'admissionsCount', 'bedsAvailable', 'bedsOccupied', 'totalWards', 'totalRooms'));
     }
 
+    public function destroy(Admission $admission)
+    {
+        Gate::authorize('delete', $admission);
+        $admission->delete();
+        return redirect()->route('ipd.index')->with('success', 'Admission record deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $admission = Admission::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $admission);
+        $admission->restore();
+        return redirect()->route('ipd.index')->with('success', 'Admission record restored successfully.');
+    }
+
     public function create()
     {
         Gate::authorize('create', Admission::class);
@@ -65,7 +85,9 @@ class IpdController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'doctor_id' => 'required|exists:doctors,id',
             'admission_date' => 'required|date',
-            'notes' => 'nullable|string',
+            'admission_reason' => 'required|string',
+            'admission_fee' => 'nullable|numeric|min:0',
+            'deposit_amount' => 'nullable|numeric|min:0',
         ]);
 
         $patient = Patient::findOrFail($request->patient_id);
@@ -74,8 +96,45 @@ class IpdController extends Controller
             $patient,
             $request->doctor_id,
             $request->admission_date,
-            $request->notes
+            $request->admission_reason
         );
+
+        // Admission fee invoice (optional)
+        $fee = (float)($request->admission_fee ?? 0);
+        if ($fee > 0) {
+            $items = [[
+                'item_type' => 'service',
+                'reference_id' => null,
+                'description' => 'IPD Admission Fee',
+                'quantity' => 1,
+                'unit_price' => $fee,
+            ]];
+            app(\App\Services\BillingService::class)->createInvoice(
+                $patient,
+                $items,
+                appointmentId: null,
+                discount: 0,
+                tax: 0,
+                visitId: null,
+                invoiceType: 'ipd_admission_fee',
+                createdBy: auth()->id(),
+                finalize: true
+            );
+        }
+
+        // Record deposit (optional)
+        $deposit = (float)($request->deposit_amount ?? 0);
+        if ($deposit > 0) {
+            \App\Models\AdmissionDeposit::create([
+                'clinic_id' => $admission->clinic_id,
+                'admission_id' => $admission->id,
+                'amount' => $deposit,
+                'payment_method' => 'cash',
+                'transaction_reference' => 'DEP-' . \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(8)),
+                'received_at' => now(),
+                'received_by' => auth()->id(),
+            ]);
+        }
 
         return redirect()->route('ipd.show', $admission)
             ->with('success', 'Patient admitted successfully.');
@@ -84,7 +143,7 @@ class IpdController extends Controller
     public function show(Admission $admission)
     {
         Gate::authorize('view', $admission);
-        $admission->load(['patient', 'bedAssignments.bed']);
+        $admission->load(['patient', 'bedAssignments.bed', 'rounds.doctor', 'vitals']);
         return view('ipd.show', compact('admission'));
     }
 
@@ -123,7 +182,7 @@ class IpdController extends Controller
         Gate::authorize('update', $admission);
 
         $request->validate([
-            'discharge_date' => 'required|date|after_or_equal:admission_date',
+            'discharge_date' => ['required', 'date', 'after_or_equal:' . $admission->admission_date],
         ]);
 
         $this->ipdService->dischargePatient($admission, $request->discharge_date);
@@ -149,5 +208,38 @@ class IpdController extends Controller
         $bedsAvailable = Bed::where('status', 'available')->count();
         $bedsOccupied = Bed::where('status', 'occupied')->count();
         return view('ipd.bed_status', compact('wards', 'bedsAvailable', 'bedsOccupied'));
+    }
+
+    public function createRound(Admission $admission)
+    {
+        Gate::authorize('update', $admission);
+        return view('ipd.rounds.create', compact('admission'));
+    }
+
+    public function storeRound(Request $request, Admission $admission)
+    {
+        Gate::authorize('update', $admission);
+        $request->validate([
+            'notes' => 'required|string',
+            'round_date' => 'required|date',
+        ]);
+
+        $doctorId = null;
+        $doctor = Doctor::where('user_id', auth()->id())->first();
+        if ($doctor) {
+            $doctorId = $doctor->id;
+        } else {
+            $doctorId = $admission->doctor_id; // corrected from admitting_doctor_id based on previous reads which showed doctor_id in store method
+        }
+
+        \App\Models\InpatientRound::create([
+            'clinic_id' => $admission->clinic_id,
+            'admission_id' => $admission->id,
+            'doctor_id' => $doctorId,
+            'notes' => $request->notes,
+            'round_date' => $request->round_date,
+        ]);
+
+        return redirect()->route('ipd.show', $admission)->with('success', 'Round note added.');
     }
 }

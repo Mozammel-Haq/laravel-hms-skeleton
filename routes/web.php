@@ -64,9 +64,11 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Patients
     Route::resource('patients', PatientController::class)->middleware('can:view_patients');
+    Route::post('patients/{id}/restore', [PatientController::class, 'restore'])->name('patients.restore')->middleware('can:delete_patients');
 
     // Appointments
     Route::resource('appointments', AppointmentController::class)->middleware('can:view_appointments');
+    Route::post('appointments/{id}/restore', [AppointmentController::class, 'restore'])->name('appointments.restore')->middleware('can:delete_appointments');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status.update');
     Route::get('api/doctors/{doctor}/slots', [AppointmentController::class, 'getSlots'])->name('api.doctors.slots');
 
@@ -93,6 +95,14 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
             ->name('consultations.show')
             ->middleware('can:view_consultations');
 
+        Route::delete('consultations/{consultation}', [ConsultationController::class, 'destroy'])
+            ->name('consultations.destroy')
+            ->middleware('can:view_consultations'); // Using view permission as base, specific check in controller
+
+        Route::post('consultations/{id}/restore', [ConsultationController::class, 'restore'])
+            ->name('consultations.restore')
+            ->middleware('can:view_consultations');
+
         // Prescriptions
         Route::get(
             'prescriptions/create/{consultation}',
@@ -107,8 +117,9 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
             ->middleware('can:create,App\Models\Prescription');
 
 
-        Route::resource('prescriptions', PrescriptionController::class)->only(['index', 'show'])
+        Route::resource('prescriptions', PrescriptionController::class)->only(['index', 'show', 'destroy'])
             ->middleware('can:view_prescriptions');
+        Route::post('prescriptions/{id}/restore', [PrescriptionController::class, 'restore'])->name('prescriptions.restore')->middleware('can:create,App\Models\Prescription');
 
 
         Route::get('prescriptions/{prescription}/print', [PrescriptionController::class, 'print'])
@@ -144,6 +155,15 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
             ->name('show')
             ->middleware('can:view_billing');
 
+        Route::delete('/{invoice}', [BillingController::class, 'destroy'])
+            ->whereNumber('invoice')
+            ->name('destroy')
+            ->middleware('can:create_invoices');
+
+        Route::post('/{id}/restore', [BillingController::class, 'restore'])
+            ->name('restore')
+            ->middleware('can:create_invoices');
+
         // Payment routes
         Route::get('/{invoice}/payment', [BillingController::class, 'addPayment'])
             ->whereNumber('invoice')
@@ -153,7 +173,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::post('/{invoice}/payment', [BillingController::class, 'storePayment'])
             ->whereNumber('invoice')
             ->name('payment.store')
-            ->middleware('can:process_payments');
+            ->middleware('can:create,App\\Models\\Payment');
 
         // AJAX route to fetch patient pending items (consultations, lab tests, medicines)
         Route::get('/patient-items/{patient}', [BillingController::class, 'getPatientItems'])
@@ -168,6 +188,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/pos', [PharmacyController::class, 'create'])->name('create'); // POS Screen
         Route::post('/sale', [PharmacyController::class, 'store'])->name('store');
         Route::get('/sale/{pharmacySale}', [PharmacyController::class, 'show'])->name('show');
+        Route::delete('/sale/{pharmacySale}', [PharmacyController::class, 'destroy'])->name('destroy');
+        Route::post('/sale/{id}/restore', [PharmacyController::class, 'restore'])->name('restore');
 
         // Inventory (Batches)
         Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
@@ -200,6 +222,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/beds/{bed}/edit', [BedController::class, 'edit'])->name('beds.edit');
         Route::put('/beds/{bed}', [BedController::class, 'update'])->name('beds.update');
         Route::get('/{admission}', [IpdController::class, 'show'])->whereNumber('admission')->name('show');
+        Route::delete('/{admission}', [IpdController::class, 'destroy'])->whereNumber('admission')->name('destroy');
+        Route::post('/{id}/restore', [IpdController::class, 'restore'])->name('restore');
 
         // Bed Management
         Route::get('/{admission}/assign-bed', [IpdController::class, 'assignBed'])->whereNumber('admission')->name('assign-bed');
@@ -211,6 +235,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/{admission}/discharge', [IpdController::class, 'discharge'])->whereNumber('admission')->name('discharge');
         Route::post('/{admission}/discharge', [IpdController::class, 'storeDischarge'])->whereNumber('admission')->name('store-discharge');
         Route::get('/rounds', [IpdController::class, 'roundsIndex'])->name('rounds.index');
+        Route::get('/{admission}/rounds/create', [IpdController::class, 'createRound'])->name('rounds.create');
+        Route::post('/{admission}/rounds', [IpdController::class, 'storeRound'])->name('rounds.store');
         Route::get('/bed-status', [IpdController::class, 'bedStatus'])->name('bed_status');
     });
 
@@ -220,6 +246,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/order', [LabController::class, 'create'])->name('create');
         Route::post('/order', [LabController::class, 'store'])->name('store');
         Route::get('/order/{order}', [LabController::class, 'show'])->name('show');
+        Route::delete('/order/{order}', [LabController::class, 'destroy'])->name('destroy');
+        Route::post('/order/{id}/restore', [LabController::class, 'restore'])->name('restore');
         Route::get('/catalog', [LabTestController::class, 'index'])->name('catalog.index');
         Route::get('/catalog/create', [LabTestController::class, 'create'])->name('catalog.create');
         Route::post('/catalog', [LabTestController::class, 'store'])->name('catalog.store');
@@ -260,11 +288,13 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::patch('/doctors/schedule/exceptions/{exception}', [\App\Http\Controllers\AdminScheduleExceptionController::class, 'update'])->name('admin.schedule.exceptions.update')->middleware('can:manage_doctor_schedule');
 
     Route::resource('doctors', DoctorController::class)->middleware('can:view_doctors');
+    Route::post('doctors/{id}/restore', [DoctorController::class, 'restore'])->name('doctors.restore')->middleware('can:view_doctors');
     Route::get('doctors/{doctor}/schedule', [DoctorController::class, 'schedule'])->name('doctors.schedule')->middleware('can:manage_doctor_schedule');
     Route::put('doctors/{doctor}/schedule', [DoctorController::class, 'updateSchedule'])->name('doctors.schedule.update')->middleware('can:manage_doctor_schedule');
 
     // Staff Management (Users & Roles)
     Route::resource('staff', StaffController::class)->middleware('can:view_staff');
+    Route::post('staff/{id}/restore', [StaffController::class, 'restore'])->name('staff.restore')->middleware('can:view_staff');
 
     // Roles & Permissions (Super Admin Only)
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -292,7 +322,10 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Departments
     Route::resource('departments', DepartmentController::class)->except(['create', 'edit', 'show']); // simplified
-    Route::resource('visits', VisitController::class)->only(['index', 'show', 'create', 'store']);
+    Route::post('departments/{id}/restore', [DepartmentController::class, 'restore'])->name('departments.restore');
+    Route::resource('visits', VisitController::class)->only(['index', 'show', 'create', 'store', 'destroy']);
+    Route::post('visits/{id}/restore', [VisitController::class, 'restore'])->name('visits.restore');
+    Route::post('visits/{visit}/procedure-invoice', [VisitController::class, 'storeProcedureInvoice'])->name('visits.procedure.store');
 
     Route::prefix('pharmacy')->name('pharmacy.')->middleware('can:view_pharmacy')->group(function () {
         Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
@@ -307,6 +340,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     // Billing payments index
     Route::prefix('billing')->name('billing.')->middleware('can:view_billing')->group(function () {
         Route::get('/payments', [\App\Http\Controllers\PaymentController::class, 'index'])->name('payments.index');
+        Route::delete('/payments/{payment}', [\App\Http\Controllers\PaymentController::class, 'destroy'])->name('payments.destroy');
+        Route::post('/payments/{id}/restore', [\App\Http\Controllers\PaymentController::class, 'restore'])->name('payments.restore');
     });
 
     // Activity logs
@@ -325,6 +360,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     // Vitals
     Route::prefix('vitals')->name('vitals.')->group(function () {
         Route::get('/record', [\App\Http\Controllers\Extras\VitalsController::class, 'record'])->name('record');
+        Route::post('/record', [\App\Http\Controllers\Extras\VitalsController::class, 'store'])->name('store');
         Route::get('/history', [\App\Http\Controllers\Extras\VitalsController::class, 'history'])->name('history');
     });
 

@@ -68,7 +68,8 @@
                                                 <span class="ti ti-user fs-20 p-2"></span>
                                             </div>
                                             <div>
-                                                <div class="fw-semibold">{{ $doctor->user?->name }}</div>
+                                                <div class="fw-semibold">{{ $doctor->user?->name ?? 'Deleted Doctor' }}
+                                                </div>
                                                 <div class="text-muted">{{ $doctor->license_number }}</div>
                                             </div>
                                         </div>
@@ -115,7 +116,7 @@
 
                                                 <div class="modal-header">
                                                     <h5 class="modal-title">
-                                                        Assign Clinics – {{ $doctor->user?->name }}
+                                                        Assign Clinics – {{ $doctor->user?->name ?? 'Deleted Doctor' }}
                                                     </h5>
                                                     <button type="button" class="btn-close"
                                                         data-bs-dismiss="modal"></button>

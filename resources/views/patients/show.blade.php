@@ -112,7 +112,7 @@
                                         @forelse($patient->appointments as $appointment)
                                             <tr>
                                                 <td>{{ $appointment->appointment_date }}</td>
-                                                <td>{{ $appointment->doctor->user->name }}</td>
+                                                <td>{{ $appointment->doctor?->user?->name ?? 'Deleted Doctor' }}</td>
                                                 <td>
                                                     <span
                                                         class="badge bg-{{ $appointment->status === 'confirmed' ? 'success' : ($appointment->status === 'cancelled' ? 'danger' : 'warning') }}-subtle text-{{ $appointment->status === 'confirmed' ? 'success' : ($appointment->status === 'cancelled' ? 'danger' : 'warning') }}">
@@ -155,7 +155,7 @@
                                                 <td>{{ $admission->admission_date }}</td>
                                                 <td>{{ $admission->discharge_date ? $admission->discharge_date : '-' }}
                                                 </td>
-                                                <td>{{ $admission->doctor->user->name }}</td>
+                                                <td>{{ $admission->doctor?->user?->name ?? 'Deleted Doctor' }}</td>
                                                 <td>
                                                     <span
                                                         class="badge bg-secondary-subtle text-secondary">{{ ucfirst($admission->status) }}</span>

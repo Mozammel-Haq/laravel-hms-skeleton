@@ -29,7 +29,7 @@ class InvoiceRbacTest extends TestCase
         ]);
     }
 
-    public function test_receptionist_with_create_invoices_permission_cannot_access_create_due_to_policy()
+    public function test_receptionist_with_create_invoices_permission_can_access_create_invoice()
     {
         $user = User::factory()->create(['clinic_id' => $this->clinic->id]);
         $role = Role::firstOrCreate(['name' => 'Receptionist'], ['description' => 'Front Desk']);
@@ -38,7 +38,8 @@ class InvoiceRbacTest extends TestCase
         $user->assignRole($role);
 
         $response = $this->actingAs($user)->get(route('billing.create'));
-        $response->assertStatus(403);
+        $response->assertStatus(200);
+        $response->assertSee('Create Invoice');
     }
 
     public function test_accountant_can_access_create_invoice()

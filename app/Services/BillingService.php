@@ -21,9 +21,9 @@ class BillingService
      * @param float $tax
      * @return Invoice
      */
-    public function createInvoice($patient, array $items, ?int $appointmentId = null, float $discount = 0, float $tax = 0)
+    public function createInvoice($patient, array $items, ?int $appointmentId = null, float $discount = 0, float $tax = 0, ?int $visitId = null, ?string $invoiceType = null, ?int $createdBy = null, bool $finalize = true)
     {
-        return DB::transaction(function () use ($patient, $items, $appointmentId, $discount, $tax) {
+        return DB::transaction(function () use ($patient, $items, $appointmentId, $discount, $tax, $visitId, $invoiceType, $createdBy, $finalize) {
             $subtotal = collect($items)->sum(fn($item) => $item['quantity'] * $item['unit_price']);
             $totalAmount = $subtotal - $discount + $tax;
 
@@ -35,13 +35,19 @@ class BillingService
                 'clinic_id' => $patient->clinic_id,
                 'patient_id' => $patient->id,
                 'appointment_id' => $appointmentId,
+                'visit_id' => $visitId,
                 'invoice_number' => $invoiceNumber,
+                'invoice_type' => $invoiceType,
                 'subtotal' => $subtotal,
                 'discount' => $discount,
                 'tax' => $tax,
                 'total_amount' => $totalAmount,
                 'status' => 'unpaid',
+                'state' => $finalize ? 'finalized' : 'draft',
                 'issued_at' => now(),
+                'finalized_at' => $finalize ? now() : null,
+                'finalized_by' => $finalize ? ($createdBy ?? auth()->id()) : null,
+                'created_by' => $createdBy ?? auth()->id(),
             ]);
 
             foreach ($items as $item) {

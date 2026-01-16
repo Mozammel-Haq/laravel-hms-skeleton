@@ -55,17 +55,17 @@
                                         <h6 class="text-dark fw-semibold mb-1">
                                             {{ optional(auth()->user()->clinic)->name ?? 'Clinic' }}</h6>
                                         <p class="mb-1">Dr.
-                                            {{ optional($consultation->visit->appointment->doctor->user)->name ?? auth()->user()->name }}
+                                            {{ $consultation->visit?->appointment?->doctor?->user?->name ?? auth()->user()->name }}
                                         </p>
                                         <p class="mb-0">
-                                            {{ optional($consultation->visit->appointment->doctor->department)->name ?? 'Department' }}
+                                            {{ $consultation->visit?->appointment?->doctor?->department?->name ?? 'Department' }}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div class="text-lg-end">
                                     <p class="text-dark mb-1">Department : <span
-                                            class="text-body">{{ optional($consultation->visit->appointment->doctor->department)->name ?? 'N/A' }}</span>
+                                            class="text-body">{{ $consultation->visit?->appointment?->doctor?->department?->name ?? 'N/A' }}</span>
                                     </p>
                                     <p class="text-dark mb-1">Prescribed on : <span
                                             class="text-body">{{ now()->format('d M Y') }}</span></p>

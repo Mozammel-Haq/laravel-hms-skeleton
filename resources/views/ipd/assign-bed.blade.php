@@ -22,12 +22,13 @@
                                     <option value="" disabled selected>Select a bed...</option>
                                     @foreach ($beds as $bed)
                                         <option value="{{ $bed->id }}">
-                                            Bed {{ $bed->bed_number }} - Room {{ $bed->room->room_number ?? 'N/A' }} 
-                                            ({{ $bed->room->ward->name ?? 'N/A' }}) - {{ ucfirst($bed->room->room_type ?? '') }}
+                                            Bed {{ $bed->bed_number }} - Room {{ $bed->room->room_number ?? 'N/A' }}
+                                            ({{ $bed->room->ward->name ?? 'N/A' }})
+                                            - {{ ucfirst($bed->room->room_type ?? '') }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @if($beds->isEmpty())
+                                @if ($beds->isEmpty())
                                     <div class="form-text text-danger mt-2">
                                         No available beds found. Please discharge patients or add new beds.
                                     </div>
@@ -61,15 +62,15 @@
                                 <div class="text-muted small">{{ $admission->patient->patient_code }}</div>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <div class="text-muted small text-uppercase fw-bold mb-1">Attending Doctor</div>
-                            <div>Dr. {{ $admission->doctor->user->name }}</div>
+                            <div>Dr. {{ $admission->doctor?->user?->name ?? 'Deleted Doctor' }}</div>
                         </div>
 
                         <div class="mb-3">
                             <div class="text-muted small text-uppercase fw-bold mb-1">Admission Date</div>
-                            <div>{{ $admission->created_at->format('d M Y, h:i A') }}</div>
+                            <div>{{ $admission->created_at }}</div>
                         </div>
 
                         <div>

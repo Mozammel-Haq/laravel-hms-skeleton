@@ -19,5 +19,7 @@ class MedicineBatch extends BaseTenantModel
     {
         return $this->belongsTo(Medicine::class);
     }
+    protected $casts = [
+        'expiry_date' => 'date',
+    ];
 }
-

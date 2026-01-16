@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Consultation;
 use App\Models\Visit;
+use App\Services\AppointmentService;
+use App\Services\BillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -13,14 +15,66 @@ class VisitController extends Controller
 {
     public function index()
     {
-        $visits = Visit::with(['appointment.patient', 'consultation'])->latest()->paginate(20);
+        $query = Visit::with(['appointment.patient', 'consultation']);
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } else {
+            $query->latest();
+        }
+
+        $visits = $query->paginate(20);
         return view('visits.index', compact('visits'));
+    }
+
+    public function destroy(Visit $visit)
+    {
+        Gate::authorize('delete', $visit);
+        $visit->delete();
+        return redirect()->route('visits.index')->with('success', 'Visit deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $visit = Visit::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $visit);
+        $visit->restore();
+        return redirect()->route('visits.index')->with('success', 'Visit restored successfully.');
     }
 
     public function show(Visit $visit)
     {
         $visit->load(['appointment.patient', 'consultation']);
         return view('visits.show', compact('visit'));
+    }
+
+    public function storeProcedureInvoice(Request $request, Visit $visit)
+    {
+        Gate::authorize('create', \App\Models\Invoice::class);
+        $data = $request->validate([
+            'description' => 'required|string|max:255',
+            'quantity' => 'required|integer|min:1',
+            'unit_price' => 'required|numeric|min:0',
+        ]);
+        $patient = $visit->appointment->patient;
+        app(BillingService::class)->createInvoice(
+            $patient,
+            [[
+                'item_type' => 'service',
+                'reference_id' => null,
+                'description' => $data['description'],
+                'quantity' => (int)$data['quantity'],
+                'unit_price' => (float)$data['unit_price'],
+            ]],
+            $visit->appointment_id,
+            discount: 0,
+            tax: 0,
+            visitId: $visit->id,
+            invoiceType: 'procedure',
+            createdBy: auth()->id(),
+            finalize: true
+        );
+        return redirect()->route('visits.show', $visit)->with('success', 'Procedure invoice generated.');
     }
 
     public function create()
@@ -64,10 +118,31 @@ class VisitController extends Controller
                 $visit->save();
             }
 
+            // Generate consultation invoice (finalized) for pre-payment
+            $feeInfo = app(AppointmentService::class)->calculateFee($appointment->doctor, $appointment->patient_id);
+            $items = [[
+                'item_type' => 'consultation',
+                'reference_id' => $consultation->id,
+                'description' => ($feeInfo['type'] ?? 'new') === 'follow_up' ? 'Consultation Fee (Follow-up)' : 'Consultation Fee (Initial)',
+                'quantity' => 1,
+                'unit_price' => $feeInfo['fee'] ?? 0,
+            ]];
+            app(BillingService::class)->createInvoice(
+                $appointment->patient,
+                $items,
+                $appointment->id,
+                discount: 0,
+                tax: 0,
+                visitId: $visit->id,
+                invoiceType: 'consultation',
+                createdBy: auth()->id(),
+                finalize: true
+            );
+
             return $visit;
         });
 
         return redirect()->route('visits.show', $visit)
-            ->with('success', 'Visit started. Consultation is ready.');
+            ->with('success', 'Visit started. Consultation fee invoice generated. Please collect payment.');
     }
 }

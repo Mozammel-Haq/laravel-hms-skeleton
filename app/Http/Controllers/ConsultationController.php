@@ -19,21 +19,40 @@ class ConsultationController extends Controller
     {
         Gate::authorize('view_consultations');
         $doctor = Doctor::where('user_id', auth()->user()->id)->first();
-        if($doctor){
-            $consultations = Consultation::with(['patient', 'doctor'])->where('doctor_id', $doctor->id)
-            ->whereHas('visit.appointment', function ($q) use ($doctor) {
-            $q->where('doctor_id', $doctor->id);})
-            ->latest()
-            ->paginate(perPage: 50);
-        }else{
-            $consultations = Consultation::with(['patient', 'doctor'])
-            ->latest()
-            ->paginate(perPage: 50);
+
+        $query = Consultation::with(['patient', 'doctor']);
+
+        if ($doctor) {
+            $query->where('doctor_id', $doctor->id)
+                ->whereHas('visit.appointment', function ($q) use ($doctor) {
+                    $q->where('doctor_id', $doctor->id);
+                });
         }
 
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } else {
+            $query->latest();
+        }
 
-        // dd($consultations);
+        $consultations = $query->paginate(perPage: 50);
+
         return view('clinical.consultations.index', compact('consultations'));
+    }
+
+    public function destroy(Consultation $consultation)
+    {
+        Gate::authorize('delete', $consultation); // Assuming delete policy exists or maps to appropriate permission
+        $consultation->delete();
+        return redirect()->route('clinical.consultations.index')->with('success', 'Consultation deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $consultation = Consultation::withTrashed()->findOrFail($id);
+        Gate::authorize('delete', $consultation);
+        $consultation->restore();
+        return redirect()->route('clinical.consultations.index')->with('success', 'Consultation restored successfully.');
     }
     /**
      * Start a consultation for an appointment.
@@ -41,19 +60,36 @@ class ConsultationController extends Controller
     public function create(Appointment $appointment)
     {
         Gate::authorize('create', Consultation::class);
-        $doctorId = Doctor::where('user_id', auth()->user()->id)->first()->id;
-        if($appointment->doctor_id !== $doctorId){
+        $doctor = Doctor::where('user_id', auth()->id())->first();
+        if (!$doctor || $appointment->doctor_id !== $doctor->id) {
             return redirect()->route('appointments.index')
                 ->with('warning', 'You are not authorized to start a consultation for this appointment.');
         }
-        if ($appointment->status !== 'confirmed') {
+        $consultationInvoice = \App\Models\Invoice::where('appointment_id', $appointment->id)
+            ->where('invoice_type', 'consultation')
+            ->latest()
+            ->first();
+        if (!$consultationInvoice || $consultationInvoice->status !== 'paid') {
             return redirect()->route('appointments.index')
-                ->with('warning', 'Consultation can only start for confirmed appointments.');
+                ->with('warning', 'Consultation can only start after consultation payment is completed.');
+        }
+        if (!in_array($appointment->status, ['confirmed', 'arrived'], true)) {
+            return redirect()->route('appointments.index')
+                ->with('warning', 'Consultation can only start for confirmed or arrived appointments.');
+        }
+
+        $visit = $appointment->visit;
+        $latestVitals = null;
+        if ($visit) {
+            $latestVitals = \App\Models\PatientVital::where('visit_id', $visit->id)
+                ->latest('recorded_at')
+                ->first();
         }
 
         return view('clinical.consultation.create', [
             'appointment' => $appointment,
             'patient'     => $appointment->patient,
+            'latestVitals' => $latestVitals,
         ]);
     }
 
@@ -62,10 +98,14 @@ class ConsultationController extends Controller
     public function store(Request $request, Appointment $appointment)
     {
         Gate::authorize('create', Consultation::class);
-         $doctorId = Doctor::where('user_id', auth()->user()->id)->first()->id;
-         if($appointment->doctor_id !== $doctorId){
+        $doctor = Doctor::where('user_id', auth()->id())->first();
+        if (!$doctor || $appointment->doctor_id !== $doctor->id) {
             return redirect()->route('appointments.index')
                 ->with('warning', 'You are not authorized to start a consultation for this appointment.');
+        }
+        if (!in_array($appointment->status, ['confirmed', 'arrived'], true)) {
+            return redirect()->route('appointments.index')
+                ->with('warning', 'Consultation can only start for confirmed or arrived appointments.');
         }
         $data = $request->validate([
             'diagnosis' => 'required|string|max:255',

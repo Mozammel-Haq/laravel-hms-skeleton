@@ -5,17 +5,26 @@
             <p class="text-muted">Configure clinical departments for the clinic</p>
         </div>
 
-        @can('create', \App\Models\Department::class)
-        <div class="action-btn">
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
-                <i class="ti ti-plus me-1"></i> Add Department
-            </button>
+        <div class="d-flex gap-2">
+            <div class="btn-group">
+                <a href="{{ route('departments.index') }}"
+                    class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                <a href="{{ route('departments.index', ['status' => 'trashed']) }}"
+                    class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+            </div>
+
+            @can('create', \App\Models\Department::class)
+                <div class="action-btn">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                        <i class="ti ti-plus me-1"></i> Add Department
+                    </button>
+                </div>
+            @endcan
         </div>
-        @endcan
     </div>
 
     {{-- Success message --}}
-    @if(session('success'))
+    @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
@@ -41,32 +50,43 @@
                                             <i class="ti ti-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
+                                            @if ($department->trashed())
+                                                @can('delete', $department)
+                                                    <li>
+                                                        <form method="POST"
+                                                            action="{{ route('departments.restore', $department->id) }}">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item text-success"
+                                                                onclick="return confirm('Restore this department?')">
+                                                                <i class="ti ti-refresh me-2"></i>Restore
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endcan
+                                            @else
+                                                @can('update', $department)
+                                                    <li>
+                                                        <button class="dropdown-item" data-bs-toggle="modal"
+                                                            data-bs-target="#editDepartmentModal-{{ $department->id }}">
+                                                            <i class="ti ti-edit me-2"></i>Edit
+                                                        </button>
+                                                    </li>
+                                                @endcan
 
-                                            @can('update', $department)
-                                            <li>
-                                                <button
-                                                    class="dropdown-item"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#editDepartmentModal-{{ $department->id }}">
-                                                    <i class="ti ti-edit me-2"></i>Edit
-                                                </button>
-                                            </li>
-                                            @endcan
-
-                                            @can('delete', $department)
-                                            <li>
-                                                <form method="POST" action="{{ route('departments.destroy', $department) }}">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button
-                                                        type="submit"
-                                                        class="dropdown-item text-danger"
-                                                        onclick="return confirm('Delete this department?')">
-                                                        <i class="ti ti-trash me-2"></i>Delete
-                                                    </button>
-                                                </form>
-                                            </li>
-                                            @endcan
+                                                @can('delete', $department)
+                                                    <li>
+                                                        <form method="POST"
+                                                            action="{{ route('departments.destroy', $department) }}">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item text-danger"
+                                                                onclick="return confirm('Delete this department?')">
+                                                                <i class="ti ti-trash me-2"></i>Delete
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endcan
+                                            @endif
 
                                         </ul>
                                     </div>
@@ -75,46 +95,40 @@
 
                             {{-- EDIT MODAL --}}
                             @can('update', $department)
-                            <div class="modal fade" id="editDepartmentModal-{{ $department->id }}" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <form method="POST" action="{{ route('departments.update', $department) }}">
-                                            @csrf
-                                            @method('PUT')
+                                <div class="modal fade" id="editDepartmentModal-{{ $department->id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form method="POST" action="{{ route('departments.update', $department) }}">
+                                                @csrf
+                                                @method('PUT')
 
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Edit Department</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Name</label>
-                                                    <input
-                                                        type="text"
-                                                        name="name"
-                                                        class="form-control"
-                                                        value="{{ $department->name }}"
-                                                        required>
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Edit Department</h5>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
                                                 </div>
 
-                                                <div class="mb-3">
-                                                    <label class="form-label">Description</label>
-                                                    <textarea
-                                                        name="description"
-                                                        class="form-control"
-                                                        rows="3">{{ $department->description }}</textarea>
-                                                </div>
-                                            </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Name</label>
+                                                        <input type="text" name="name" class="form-control"
+                                                            value="{{ $department->name }}" required>
+                                                    </div>
 
-                                            <div class="modal-footer">
-                                                <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                                <button class="btn btn-primary">Update</button>
-                                            </div>
-                                        </form>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Description</label>
+                                                        <textarea name="description" class="form-control" rows="3">{{ $department->description }}</textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                    <button class="btn btn-primary">Update</button>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             @endcan
 
                         @empty
@@ -132,44 +146,37 @@
 
     {{-- ADD MODAL --}}
     @can('create', \App\Models\Department::class)
-    <div class="modal fade" id="addDepartmentModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="POST" action="{{ route('departments.store') }}">
-                    @csrf
+        <div class="modal fade" id="addDepartmentModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="POST" action="{{ route('departments.store') }}">
+                        @csrf
 
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add Department</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                class="form-control"
-                                required>
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Department</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea
-                                name="description"
-                                class="form-control"
-                                rows="3"></textarea>
-                        </div>
-                    </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
 
-                    <div class="modal-footer">
-                        <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                        <button class="btn btn-primary">Save</button>
-                    </div>
-                </form>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
     @endcan
 
 </x-app-layout>

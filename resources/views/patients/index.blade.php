@@ -5,11 +5,11 @@
             <p class="text-muted">Manage patient records</p>
         </div>
         @can('create', \App\Models\Patient::class)
-        <div class="action-btn">
-            <a href="{{ route('patients.create') }}" class="btn btn-primary">
-                <i class="ti ti-plus me-1"></i> Add Patient
-            </a>
-        </div>
+            <div class="action-btn">
+                <a href="{{ route('patients.create') }}" class="btn btn-primary">
+                    <i class="ti ti-plus me-1"></i> Add Patient
+                </a>
+            </div>
         @endcan
     </div>
 
@@ -29,85 +29,104 @@
                     </thead>
                     <tbody>
                         @forelse($patients as $patient)
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar avatar-sm me-2">
-                                        <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                            {{ substr($patient->name, 0, 1) }}
-                                        </span>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm me-2">
+                                            <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                {{ substr($patient->name, 0, 1) }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ $patient->name }}</div>
+                                            <div class="text-muted small">{{ $patient->patient_code }}</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class="fw-bold">{{ $patient->name }}</div>
-                                        <div class="text-muted small">{{ $patient->patient_code }}</div>
+                                </td>
+                                <td>
+                                    <div><i class="ti ti-phone me-1 text-muted"></i> {{ $patient->phone }}</div>
+                                    @if ($patient->email)
+                                        <div class="text-muted small"><i class="ti ti-mail me-1"></i>
+                                            {{ $patient->email }}</div>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div>{{ \Carbon\Carbon::parse($patient->date_of_birth)->age }} Years</div>
+                                    <div class="text-muted small text-capitalize">{{ $patient->gender }}</div>
+                                </td>
+                                <td>
+                                    @if ($patient->blood_group)
+                                        <span
+                                            class="badge bg-danger-subtle text-danger">{{ $patient->blood_group }}</span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($patient->status === 'active')
+                                        <span class="badge bg-success-subtle text-success">Active</span>
+                                    @else
+                                        <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light btn-icon" data-bs-toggle="dropdown">
+                                            <i class="ti ti-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            @if ($patient->trashed())
+                                                <li>
+                                                    <form action="{{ route('patients.restore', $patient->id) }}"
+                                                        method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item text-success"
+                                                            onclick="return confirm('Are you sure you want to restore this patient?')">
+                                                            <i class="ti ti-rotate-clockwise me-2"></i>Restore
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            @else
+                                                @can('view', $patient)
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('patients.show', $patient) }}">
+                                                            <i class="ti ti-eye me-2"></i>View
+                                                        </a>
+                                                    </li>
+                                                @endcan
+                                                @can('update', $patient)
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('patients.edit', $patient) }}">
+                                                            <i class="ti ti-edit me-2"></i>Edit
+                                                        </a>
+                                                    </li>
+                                                @endcan
+                                                @can('delete', $patient)
+                                                    <li>
+                                                        <form action="{{ route('patients.destroy', $patient) }}"
+                                                            method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item text-danger"
+                                                                onclick="return confirm('Are you sure you want to delete this patient?')">
+                                                                <i class="ti ti-trash me-2"></i>Delete
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endcan
+                                            @endif
+                                        </ul>
                                     </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div><i class="ti ti-phone me-1 text-muted"></i> {{ $patient->phone }}</div>
-                                @if($patient->email)
-                                <div class="text-muted small"><i class="ti ti-mail me-1"></i> {{ $patient->email }}</div>
-                                @endif
-                            </td>
-                            <td>
-                                <div>{{ \Carbon\Carbon::parse($patient->date_of_birth)->age }} Years</div>
-                                <div class="text-muted small text-capitalize">{{ $patient->gender }}</div>
-                            </td>
-                            <td>
-                                @if($patient->blood_group)
-                                    <span class="badge bg-danger-subtle text-danger">{{ $patient->blood_group }}</span>
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($patient->status === 'active')
-                                    <span class="badge bg-success-subtle text-success">Active</span>
-                                @else
-                                    <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-light btn-icon" data-bs-toggle="dropdown">
-                                        <i class="ti ti-dots-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        @can('view', $patient)
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('patients.show', $patient) }}">
-                                                <i class="ti ti-eye me-2"></i>View
-                                            </a>
-                                        </li>
-                                        @endcan
-                                        @can('update', $patient)
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('patients.edit', $patient) }}">
-                                                <i class="ti ti-edit me-2"></i>Edit
-                                            </a>
-                                        </li>
-                                        @endcan
-                                        @can('delete', $patient)
-                                        <li>
-                                            <form action="{{ route('patients.destroy', $patient) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Are you sure you want to delete this patient?')">
-                                                    <i class="ti ti-trash me-2"></i>Delete
-                                                </button>
-                                            </form>
-                                        </li>
-                                        @endcan
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
                         @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-5">
-                                <div class="text-muted">No patients found</div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="text-muted">No patients found</div>
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>

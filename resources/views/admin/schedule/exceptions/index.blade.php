@@ -28,12 +28,12 @@
                                         <div class="d-flex align-items-center">
                                             <div class="avatar avatar-sm me-2">
                                                 <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                                    {{ substr($exception->doctor->user->name, 0, 1) }}
+                                                    {{ substr($exception->doctor?->user?->name ?? '?', 0, 1) }}
                                                 </span>
                                             </div>
                                             <div>
-                                                <div class="fw-bold">{{ $exception->doctor->user->name }}</div>
-                                                <div class="text-muted small">{{ $exception->doctor->specialization }}</div>
+                                                <div class="fw-bold">{{ $exception->doctor?->user?->name ?? 'Deleted Doctor' }}</div>
+                                                <div class="text-muted small">{{ $exception->doctor?->specialization ?? '' }}</div>
                                             </div>
                                         </div>
                                     </td>

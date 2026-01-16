@@ -1,9 +1,17 @@
 <x-app-layout>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="page-title mb-0">Pharmacy Sales</h3>
-        <a href="{{ route('pharmacy.create') }}" class="btn btn-primary">
-            <i class="ti ti-shopping-cart-plus me-1"></i> New Sale (POS)
-        </a>
+        <div class="d-flex gap-2">
+            <div class="btn-group">
+                <a href="{{ route('pharmacy.index') }}"
+                    class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                <a href="{{ route('pharmacy.index', ['status' => 'trashed']) }}"
+                    class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+            </div>
+            <a href="{{ route('pharmacy.create') }}" class="btn btn-primary">
+                <i class="ti ti-shopping-cart-plus me-1"></i> New Sale (POS)
+            </a>
+        </div>
     </div>
 
     <div class="card border-0 shadow-sm">
@@ -31,9 +39,30 @@
                             <td>{{ number_format($sale->total_amount, 2) }}</td>
                             <td><span class="badge bg-success">Completed</span></td>
                             <td>
-                                <a href="{{ route('pharmacy.show', $sale) }}" class="btn btn-sm btn-outline-primary">
-                                    View Details
-                                </a>
+                                @if ($sale->trashed())
+                                    <form action="{{ route('pharmacy.restore', $sale->id) }}" method="POST"
+                                        class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-outline-success"
+                                            onclick="return confirm('Are you sure you want to restore this sale?')">
+                                            Restore
+                                        </button>
+                                    </form>
+                                @else
+                                    <a href="{{ route('pharmacy.show', $sale) }}"
+                                        class="btn btn-sm btn-outline-primary">
+                                        View Details
+                                    </a>
+                                    <form action="{{ route('pharmacy.destroy', $sale) }}" method="POST"
+                                        class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Are you sure you want to delete this sale?')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @empty
