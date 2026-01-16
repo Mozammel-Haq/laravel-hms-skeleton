@@ -71,7 +71,15 @@ class PatientController extends Controller
     {
         Gate::authorize('view', $patient);
 
-        $patient->load(['appointments', 'admissions']);
+        $patient->load([
+            'appointments.doctor.user',
+            'appointments.doctor.department',
+            'admissions.doctor.user',
+            'vitals',
+            'medicalHistory',
+            'invoices.payments',
+        ]);
+
         return view('patients.show', compact('patient'));
     }
 
