@@ -1,11 +1,12 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Record Vitals</h3>
-            <a href="{{ route('vitals.history') }}" class="btn btn-outline-secondary">View History</a>
-        </div>
-        <div class="card">
+
+        <div class="card mt-2">
             <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="page-title mb-0">Record Vitals</h3>
+                    <a href="{{ route('vitals.history') }}" class="btn btn-outline-secondary">View History</a>
+                </div>
                 <form class="row g-3" method="POST" action="{{ route('vitals.store') }}">
                     @csrf
                     <div class="col-md-6">

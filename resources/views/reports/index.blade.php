@@ -1,10 +1,14 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Reports</h3>
-            <a href="{{ route('reports.financial') }}" class="btn btn-outline-primary">Financial</a>
+        <div class="card mb-3 mt-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="page-title mb-0">Reports</h3>
+                    <a href="{{ route('reports.financial') }}" class="btn btn-outline-primary">Financial</a>
+                </div>
+            </div>
         </div>
-        <div class="row g-3">
+        <div class="row g-3 mb-3">
             <div class="col-md-3">
                 <a href="{{ route('reports.summary') }}" class="text-decoration-none">
                     <div class="card h-100">

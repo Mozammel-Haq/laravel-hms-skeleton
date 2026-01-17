@@ -1,14 +1,15 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="page-header">
-            <div class="row">
-                <div class="col">
-                    <h3 class="page-title">Lab Results</h3>
-                </div>
-            </div>
-        </div>
-        <div class="card">
+
+        <div class="card mt-2">
             <div class="card-body">
+                <div class="page-header">
+                    <div class="row">
+                        <div class="col">
+                            <h3 class="page-title">Lab Results</h3>
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead>
@@ -28,8 +29,9 @@
                                     <td>{{ $result->result_value ?? '' }}</td>
                                     <td>{{ optional($result->recorded_at)->format('Y-m-d H:i') }}</td>
                                     <td>
-                                        @if($result->order)
-                                            <a href="{{ route('lab.show', $result->order) }}" class="btn btn-sm btn-primary">View Order</a>
+                                        @if ($result->order)
+                                            <a href="{{ route('lab.show', $result->order) }}"
+                                                class="btn btn-sm btn-primary">View Order</a>
                                         @endif
                                     </td>
                                 </tr>

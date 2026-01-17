@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4 card p-3">
             <h3 class="page-title mb-0">New Sale (POS)</h3>
             <a href="{{ route('pharmacy.index') }}" class="btn btn-outline-secondary">
                 <i class="ti ti-arrow-left me-1"></i> Back to History
@@ -63,60 +64,60 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Prescription ID <span class="text-danger">*</span></label>
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Payment Reference</label>
-                                <input type="text" name="payment_reference" class="form-control"
-                                    value="{{ old('payment_reference') }}" placeholder="Receipt/Txn ID (optional)">
-                                @error('payment_reference')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <hr>
-                            <button type="submit" class="btn btn-success w-100 py-2">
-                                <i class="ti ti-check me-1"></i> Complete Sale
-                            </button>
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Payment Reference</label>
+                            <input type="text" name="payment_reference" class="form-control"
+                                value="{{ old('payment_reference') }}" placeholder="Receipt/Txn ID (optional)">
+                            @error('payment_reference')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <hr>
+                        <button type="submit" class="btn btn-success w-100 py-2">
+                            <i class="ti ti-check me-1"></i> Complete Sale
+                        </button>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
 
-    <script>
-        function initMedicineSelect2(selectEl) {
-            const $el = $(selectEl);
-            $el.select2({
-                width: '100%',
-                placeholder: 'Search medicine',
-                allowClear: true,
-                ajax: {
-                    url: '{{ route('pharmacy.medicines.search') }}',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            term: params.term || ''
-                        };
-                    },
-                    processResults: function(data) {
-                        return data;
-                    },
-                    cache: true
+<script>
+    function initMedicineSelect2(selectEl) {
+        const $el = $(selectEl);
+        $el.select2({
+            width: '100%',
+            placeholder: 'Search medicine',
+            allowClear: true,
+            ajax: {
+                url: '{{ route('pharmacy.medicines.search') }}',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        term: params.term || ''
+                    };
                 },
-                minimumInputLength: 1
-            });
-        }
+                processResults: function(data) {
+                    return data;
+                },
+                cache: true
+            },
+            minimumInputLength: 1
+        });
+    }
 
-        function addItem() {
-            const index = document.querySelectorAll('#items-container tr').length;
-            const tr = document.createElement('tr');
+    function addItem() {
+        const index = document.querySelectorAll('#items-container tr').length;
+        const tr = document.createElement('tr');
 
-            tr.innerHTML = `
+        tr.innerHTML = `
                 <td>
                     <select name="items[${index}][medicine_id]" class="form-select form-select-sm medicine-select" required>
                         <option value="">Search medicine</option>
@@ -132,14 +133,14 @@
                 </td>
             `;
 
-            document.getElementById('items-container').appendChild(tr);
-            initMedicineSelect2(tr.querySelector('.medicine-select'));
-        }
+        document.getElementById('items-container').appendChild(tr);
+        initMedicineSelect2(tr.querySelector('.medicine-select'));
+    }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (document.querySelectorAll('#items-container tr').length === 0) {
-                addItem();
-            }
-        });
-    </script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.querySelectorAll('#items-container tr').length === 0) {
+            addItem();
+        }
+    });
+</script>
 </x-app-layout>

@@ -1,7 +1,8 @@
 <x-app-layout>
-    <h5 class="mb-3">Create Ward</h5>
-    <div class="card">
+
+    <div class="card mt-2">
         <div class="card-body">
+            <h5 class="mb-3">Create Ward</h5>
             <form method="post" action="{{ route('ipd.wards.store') }}">
                 @csrf
                 <div class="row g-3">

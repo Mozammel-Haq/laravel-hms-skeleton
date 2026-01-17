@@ -1,16 +1,17 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="page-title mb-0">Edit Staff Member</h3>
-            <a href="{{ route('staff.index') }}" class="btn btn-outline-secondary">
-                <i class="ti ti-arrow-left me-1"></i> Back to List
-            </a>
-        </div>
+
 
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm">
+            <div class="col-lg-12">
+                <div class="card border-0 mt-2">
                     <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 class="page-title mb-0">Edit Staff Member</h3>
+                            <a href="{{ route('staff.index') }}" class="btn btn-outline-secondary">
+                                <i class="ti ti-arrow-left me-1"></i> Back to List
+                            </a>
+                        </div>
                         <form action="{{ route('staff.update', $user) }}" method="POST">
                             @csrf
                             @method('PUT')
@@ -19,26 +20,33 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                                <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
-                                @error('name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                <input type="text" name="name" class="form-control"
+                                    value="{{ old('name', $user->name) }}" required>
+                                @error('name')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Email Address (Read Only)</label>
-                                <input type="email" class="form-control bg-light" value="{{ $user->email }}" readonly disabled>
+                                <input type="email" class="form-control bg-light" value="{{ $user->email }}" readonly
+                                    disabled>
                             </div>
 
                             <div class="mb-4">
                                 <label class="form-label">Role <span class="text-danger">*</span></label>
                                 <select name="role_id" class="form-select" required>
                                     <option value="">Select Role</option>
-                                    @foreach($roles as $role)
-                                        <option value="{{ $role->id }}" {{ old('role_id', $user->roles->first()->id ?? '') == $role->id ? 'selected' : '' }}>
+                                    @foreach ($roles as $role)
+                                        <option value="{{ $role->id }}"
+                                            {{ old('role_id', $user->roles->first()->id ?? '') == $role->id ? 'selected' : '' }}>
                                             {{ ucfirst($role->name) }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('role_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                @error('role_id')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="d-flex justify-content-end gap-2">

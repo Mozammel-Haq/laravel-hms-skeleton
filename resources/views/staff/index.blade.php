@@ -1,28 +1,29 @@
 <x-app-layout>
-    <div class="page-header d-flex justify-content-between align-items-center mb-4">
-        <div class="page-title">
-            <h4>Staff & Users</h4>
-            <p class="text-muted">Manage clinic user accounts and roles</p>
-        </div>
-        <div class="d-flex gap-2">
-            <div class="btn-group">
-                <a href="{{ route('staff.index') }}"
-                    class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                <a href="{{ route('staff.index', ['status' => 'trashed']) }}"
-                    class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-            </div>
-            @can('create', \App\Models\User::class)
-                <div class="action-btn">
-                    <a href="{{ route('staff.create') }}" class="btn btn-primary">
-                        <i class="ti ti-user-plus me-1"></i> Create User
-                    </a>
-                </div>
-            @endcan
-        </div>
-    </div>
 
-    <div class="card">
+
+    <div class="card mt-2">
         <div class="card-body">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div class="page-title">
+                    <h4>Staff & Users</h4>
+                    <p class="text-muted">Manage clinic user accounts and roles</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <div class="btn-group">
+                        <a href="{{ route('staff.index') }}"
+                            class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                        <a href="{{ route('staff.index', ['status' => 'trashed']) }}"
+                            class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+                    </div>
+                    @can('create', \App\Models\User::class)
+                        <div class="action-btn">
+                            <a href="{{ route('staff.create') }}" class="btn btn-primary">
+                                <i class="ti ti-user-plus me-1"></i> Create User
+                            </a>
+                        </div>
+                    @endcan
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">

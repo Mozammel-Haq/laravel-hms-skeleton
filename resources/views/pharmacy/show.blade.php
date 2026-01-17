@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 card p-3 mt-2">
             <div>
                 <h3 class="page-title mb-1">Sale Details</h3>
                 <div class="text-muted">Sale #{{ $sale->id }} &bull; {{ $sale->created_at }}</div>

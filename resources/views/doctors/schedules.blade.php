@@ -1,13 +1,15 @@
 <x-app-layout>
     <div class="container-fluid" x-data="scheduleCalendar()" x-init="init()">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center my-3 px-3">
             <h3 class="page-title mb-0">Doctor Schedules</h3>
             <div class="d-flex gap-2">
                 <div class="btn-group">
-                    <button class="btn" :class="view === 'calendar' ? 'btn-primary' : 'btn-outline-primary'" @click="view = 'calendar'">
+                    <button class="btn" :class="view === 'calendar' ? 'btn-primary' : 'btn-outline-primary'"
+                        @click="view = 'calendar'">
                         <i class="bi bi-calendar3"></i> Calendar
                     </button>
-                    <button class="btn" :class="view === 'list' ? 'btn-primary' : 'btn-outline-primary'" @click="view = 'list'">
+                    <button class="btn" :class="view === 'list' ? 'btn-primary' : 'btn-outline-primary'"
+                        @click="view = 'list'">
                         <i class="bi bi-list"></i> List
                     </button>
                 </div>
@@ -24,7 +26,8 @@
                     </button>
                     <div class="d-flex align-items-center gap-2">
                         <h4 class="mb-0 fw-bold" x-text="monthName + ' ' + year"></h4>
-                        <div x-show="loading" class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                        <div x-show="loading" class="spinner-border spinner-border-sm text-primary" role="status">
+                        </div>
                     </div>
                     <button class="btn btn-outline-secondary btn-sm" @click="nextMonth()">
                         Next <i class="bi bi-chevron-right"></i>
@@ -48,14 +51,20 @@
                             <div class="row g-0 border-bottom">
                                 <template x-for="(day, dIndex) in week" :key="dIndex">
                                     <div class="col border-end p-2 position-relative transition-all"
-                                         style="min-height: 120px; cursor: pointer;"
-                                         :class="{'bg-light text-muted': !day.isCurrentMonth, 'bg-white hover-bg-gray-100': day.isCurrentMonth}"
-                                         @click="selectDate(day)">
+                                        style="min-height: 120px; cursor: pointer;"
+                                        :class="{
+                                            'bg-light text-muted': !day.isCurrentMonth,
+                                            'bg-white hover-bg-gray-100': day
+                                                .isCurrentMonth
+                                        }"
+                                        @click="selectDate(day)">
 
                                         <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <span class="fw-semibold" :class="{'text-primary': isToday(day.fullDate)}" x-text="day.date"></span>
+                                            <span class="fw-semibold" :class="{ 'text-primary': isToday(day.fullDate) }"
+                                                x-text="day.date"></span>
                                             <template x-if="day.doctors.length > 0">
-                                                <span class="badge bg-success rounded-pill" x-text="day.doctors.length"></span>
+                                                <span class="badge bg-success rounded-pill"
+                                                    x-text="day.doctors.length"></span>
                                             </template>
                                         </div>
 
@@ -66,7 +75,8 @@
                                                 </div>
                                             </template>
                                             <template x-if="day.doctors.length > 3">
-                                                <div class="text-primary fst-italic" style="font-size: 0.75rem;" x-text="'+' + (day.doctors.length - 3) + ' more'"></div>
+                                                <div class="text-primary fst-italic" style="font-size: 0.75rem;"
+                                                    x-text="'+' + (day.doctors.length - 3) + ' more'"></div>
                                             </template>
                                         </div>
                                     </div>
@@ -94,11 +104,10 @@
                             </thead>
                             <tbody>
                                 @foreach ($doctors->doctors as $doctor)
-
-
                                     <tr>
                                         <td>
-                                            <div class="fw-semibold">{{ $doctor->user?->name ?? 'Deleted Doctor' }}</div>
+                                            <div class="fw-semibold">{{ $doctor->user?->name ?? 'Deleted Doctor' }}
+                                            </div>
                                             <div class="text-muted small">{{ $doctor->specialization }}</div>
                                         </td>
                                         <td>
@@ -106,17 +115,21 @@
                                                 $days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                                                 $activeDays = $doctor->schedules->pluck('day_of_week')->toArray();
                                             @endphp
-                                            @foreach($days as $index => $day)
-                                                <span class="badge {{ in_array($index, $activeDays) ? 'bg-success' : 'bg-light text-dark border' }} me-1">{{ $day }}</span>
+                                            @foreach ($days as $index => $day)
+                                                <span
+                                                    class="badge {{ in_array($index, $activeDays) ? 'bg-success' : 'bg-light text-dark border' }} me-1">{{ $day }}</span>
                                             @endforeach
                                         </td>
                                         <td>
-                                            @if($doctor->schedules->isNotEmpty())
+                                            @if ($doctor->schedules->isNotEmpty())
                                                 <div class="d-flex flex-column">
-                                                    <span>{{ \Carbon\Carbon::parse($doctor->schedules->first()->start_time)->format('H:i') }} -
-                                                    {{ \Carbon\Carbon::parse($doctor->schedules->first()->end_time)->format('H:i') }}</span>
-                                                    @if($doctor->schedules->count() > 1)
-                                                        <small class="text-muted">(+{{ $doctor->schedules->count() - 1 }} more)</small>
+                                                    <span>{{ \Carbon\Carbon::parse($doctor->schedules->first()->start_time)->format('H:i') }}
+                                                        -
+                                                        {{ \Carbon\Carbon::parse($doctor->schedules->first()->end_time)->format('H:i') }}</span>
+                                                    @if ($doctor->schedules->count() > 1)
+                                                        <small
+                                                            class="text-muted">(+{{ $doctor->schedules->count() - 1 }}
+                                                            more)</small>
                                                     @endif
                                                 </div>
                                             @else
@@ -161,12 +174,15 @@
                                         <div class="card-body">
                                             <div class="d-flex justify-content-between mb-2">
                                                 <h6 class="card-title fw-bold mb-0" x-text="doc.name"></h6>
-                                                <span class="badge" :class="doc.type === 'specific' ? 'bg-info' : 'bg-primary'" x-text="doc.type === 'specific' ? 'Specific' : 'Weekly'"></span>
+                                                <span class="badge"
+                                                    :class="doc.type === 'specific' ? 'bg-info' : 'bg-primary'"
+                                                    x-text="doc.type === 'specific' ? 'Specific' : 'Weekly'"></span>
                                             </div>
                                             <div class="text-muted small mb-2" x-text="doc.specialization"></div>
                                             <div class="d-flex align-items-center text-dark">
                                                 <i class="bi bi-clock me-2"></i>
-                                                <span class="fw-semibold" x-text="formatTime(doc.start_time) + ' - ' + formatTime(doc.end_time)"></span>
+                                                <span class="fw-semibold"
+                                                    x-text="formatTime(doc.start_time) + ' - ' + formatTime(doc.end_time)"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -187,10 +203,14 @@
         .hover-bg-gray-100:hover {
             background-color: #f8f9fa !important;
         }
+
         .transition-all {
             transition: all 0.2s;
         }
-        [x-cloak] { display: none !important; }
+
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 
     <script>
@@ -204,9 +224,17 @@
                 selectedDateStr: '',
                 detailModal: null,
 
-                get year() { return this.currentDate.getFullYear(); },
-                get month() { return this.currentDate.getMonth() + 1; },
-                get monthName() { return this.currentDate.toLocaleString('default', { month: 'long' }); },
+                get year() {
+                    return this.currentDate.getFullYear();
+                },
+                get month() {
+                    return this.currentDate.getMonth() + 1;
+                },
+                get monthName() {
+                    return this.currentDate.toLocaleString('default', {
+                        month: 'long'
+                    });
+                },
 
                 get calendarDays() {
                     const year = this.year;
@@ -228,8 +256,8 @@
                         let week = [];
                         for (let i = 0; i < 7; i++) {
                             const dateStr = current.getFullYear() + '-' +
-                                            String(current.getMonth() + 1).padStart(2, '0') + '-' +
-                                            String(current.getDate()).padStart(2, '0');
+                                String(current.getMonth() + 1).padStart(2, '0') + '-' +
+                                String(current.getDate()).padStart(2, '0');
 
                             week.push({
                                 date: current.getDate(),
@@ -292,25 +320,30 @@
                         this.detailModal.show();
                     } else {
                         // Fallback if bootstrap object not available directly
-                         const modalEl = document.getElementById('scheduleDetailModal');
-                         const modal = new bootstrap.Modal(modalEl);
-                         this.detailModal = modal;
-                         modal.show();
+                        const modalEl = document.getElementById('scheduleDetailModal');
+                        const modal = new bootstrap.Modal(modalEl);
+                        this.detailModal = modal;
+                        modal.show();
                     }
                 },
 
                 isToday(dateStr) {
                     const today = new Date();
                     const todayStr = today.getFullYear() + '-' +
-                                     String(today.getMonth() + 1).padStart(2, '0') + '-' +
-                                     String(today.getDate()).padStart(2, '0');
+                        String(today.getMonth() + 1).padStart(2, '0') + '-' +
+                        String(today.getDate()).padStart(2, '0');
                     return dateStr === todayStr;
                 },
 
                 formatDate(dateStr) {
                     if (!dateStr) return '';
                     const date = new Date(dateStr);
-                    return date.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    return date.toLocaleDateString(undefined, {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
                 },
 
                 formatTime(timeStr) {

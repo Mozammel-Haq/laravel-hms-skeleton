@@ -1,30 +1,33 @@
 <x-app-layout>
     <div class="content">
-        <div class="page-header">
-            <div class="row">
-                <div class="col-sm-12">
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('doctor.schedule.exceptions.index') }}">Schedule Exceptions</a></li>
-                        <li class="breadcrumb-item active">New Request</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+
 
         <div class="row">
             <div class="col-md-8 offset-md-2">
-                <div class="card">
+                <div class="card mt-2">
                     <div class="card-header">
                         <h4 class="card-title">Request Schedule Exception</h4>
                     </div>
                     <div class="card-body">
+                        <div class="page-header">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a
+                                                href="{{ route('doctor.schedule.exceptions.index') }}">Schedule
+                                                Exceptions</a></li>
+                                        <li class="breadcrumb-item active">New Request</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                         <form method="POST" action="{{ route('doctor.schedule.exceptions.store') }}">
                             @csrf
-                            
+
                             <div class="form-group">
                                 <label>Clinic <span class="text-danger">*</span></label>
                                 <select class="select form-control" name="clinic_id" required>
-                                    @foreach($doctor->clinics as $clinic)
+                                    @foreach ($doctor->clinics as $clinic)
                                         <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
                                     @endforeach
                                 </select>
@@ -33,7 +36,8 @@
                             <div class="form-group">
                                 <label>Date <span class="text-danger">*</span></label>
                                 <div class="cal-icon">
-                                    <input type="text" class="form-control datetimepicker" name="exception_date" required>
+                                    <input type="text" class="form-control datetimepicker" name="exception_date"
+                                        required>
                                 </div>
                             </div>
 
@@ -76,29 +80,29 @@
     </div>
 
     @push('scripts')
-    <script>
-        $(document).ready(function() {
-            if($('.datetimepicker').length > 0) {
-                $('.datetimepicker').datetimepicker({
-                    format: 'YYYY-MM-DD',
-                    minDate: new Date(),
-                    icons: {
-                        up: "fas fa-angle-up",
-                        down: "fas fa-angle-down",
-                        next: 'fas fa-angle-right',
-                        previous: 'fas fa-angle-left'
+        <script>
+            $(document).ready(function() {
+                if ($('.datetimepicker').length > 0) {
+                    $('.datetimepicker').datetimepicker({
+                        format: 'YYYY-MM-DD',
+                        minDate: new Date(),
+                        icons: {
+                            up: "fas fa-angle-up",
+                            down: "fas fa-angle-down",
+                            next: 'fas fa-angle-right',
+                            previous: 'fas fa-angle-left'
+                        }
+                    });
+                }
+
+                $('#type_select').on('change', function() {
+                    if ($(this).val() === 'custom_hours') {
+                        $('#time_inputs').show();
+                    } else {
+                        $('#time_inputs').hide();
                     }
                 });
-            }
-
-            $('#type_select').on('change', function() {
-                if ($(this).val() === 'custom_hours') {
-                    $('#time_inputs').show();
-                } else {
-                    $('#time_inputs').hide();
-                }
             });
-        });
-    </script>
+        </script>
     @endpush
 </x-app-layout>

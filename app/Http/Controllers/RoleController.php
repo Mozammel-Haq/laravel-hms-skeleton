@@ -20,16 +20,6 @@ class RoleController extends Controller
         return view('admin.roles.index', compact('roles'));
     }
 
-    public function create()
-    {
-        if (!auth()->user()->hasRole('Super Admin')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $permissions = Permission::orderBy('name')->get();
-        return view('admin.roles.create', compact('permissions'));
-    }
-
     public function store(Request $request)
     {
         if (!auth()->user()->hasRole('Super Admin')) {
@@ -55,17 +45,6 @@ class RoleController extends Controller
         return redirect()->route('admin.roles.index')->with('success', 'Role created successfully.');
     }
 
-    public function edit(Role $role)
-    {
-        if (!auth()->user()->hasRole('Super Admin')) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        $permissions = Permission::orderBy('name')->get();
-        $rolePermissions = $role->permissions->pluck('id')->toArray();
-
-        return view('admin.roles.edit', compact('role', 'permissions', 'rolePermissions'));
-    }
 
     public function update(Request $request, Role $role)
     {
