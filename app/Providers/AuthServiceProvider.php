@@ -10,6 +10,7 @@ use App\Models\Consultation;
 use App\Models\Invoice;
 use App\Models\LabTestOrder;
 use App\Models\Patient;
+use App\Models\PatientVital;
 use App\Models\Payment;
 use App\Models\PharmacySale;
 use App\Models\Prescription;
@@ -28,6 +29,7 @@ use App\Policies\ConsultationPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\LabTestOrderPolicy;
 use App\Policies\PatientPolicy;
+use App\Policies\PatientVitalPolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\PharmacySalePolicy;
 use App\Policies\PrescriptionPolicy;
@@ -49,6 +51,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Patient::class => PatientPolicy::class,
+        PatientVital::class => PatientVitalPolicy::class,
         Appointment::class => AppointmentPolicy::class,
         Visit::class => VisitPolicy::class,
         Consultation::class => ConsultationPolicy::class,

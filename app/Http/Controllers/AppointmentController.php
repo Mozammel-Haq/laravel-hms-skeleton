@@ -29,6 +29,11 @@ class AppointmentController extends Controller
 
         $query = Appointment::with(['patient', 'doctor.user']);
 
+        $user = auth()->user();
+        if ($user && $user->hasRole('Doctor') && $user->doctor) {
+            $query->where('doctor_id', $user->doctor->id);
+        }
+
         if (request('status') === 'trashed') {
             $query->onlyTrashed();
         } else {
@@ -44,12 +49,12 @@ class AppointmentController extends Controller
     {
         $appointment = Appointment::withTrashed()->findOrFail($id);
         Gate::authorize('delete', $appointment);
-        
+
         $appointment->restore();
         // Optionally revert status if we changed it, or keep as is.
         // If we want to revert to pending or keep it as it was (which might be confusing if it was 'cancelled' then deleted).
         // Let's assume we just restore it.
-        
+
         return redirect()->route('appointments.index')->with('success', 'Appointment restored successfully.');
     }
 
@@ -108,7 +113,13 @@ class AppointmentController extends Controller
     public function show(Appointment $appointment)
     {
         Gate::authorize('view', $appointment);
-        return view('appointments.show', compact('appointment'));
+
+        $consultationInvoice = \App\Models\Invoice::where('appointment_id', $appointment->id)
+            ->where('invoice_type', 'consultation')
+            ->latest()
+            ->first();
+
+        return view('appointments.show', compact('appointment', 'consultationInvoice'));
     }
 
     /**

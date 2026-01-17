@@ -18,17 +18,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($invoices as $row)
+                            @foreach ($invoices as $invoice)
+                                @php
+                                    $subtotal = $invoice->total_amount ?? ($invoice->total ?? 0);
+                                    $vat = $subtotal * 0.1;
+                                    $total = $subtotal + $vat;
+                                @endphp
                                 <tr>
-                                    <td>#{{ $row['invoice']->id }}</td>
-                                    <td>{{ number_format($row['subtotal'], 2) }}</td>
-                                    <td>{{ number_format($row['vat'], 2) }}</td>
-                                    <td>{{ number_format($row['total'], 2) }}</td>
-                                    <td>{{ $row['invoice']->created_at }}</td>
+                                    <td>#{{ $invoice->id }}</td>
+                                    <td>{{ number_format($subtotal, 2) }}</td>
+                                    <td>{{ number_format($vat, 2) }}</td>
+                                    <td>{{ number_format($total, 2) }}</td>
+                                    <td>{{ $invoice->created_at }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-3">
+                    {{ $invoices->links() }}
                 </div>
             </div>
         </div>

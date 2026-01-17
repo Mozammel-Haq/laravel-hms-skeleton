@@ -212,6 +212,7 @@
                                         <th>Date</th>
                                         <th>Doctor</th>
                                         <th>Notes</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -220,10 +221,16 @@
                                             <td>{{ $round->round_date }}</td>
                                             <td>{{ $round->doctor?->user?->name ?? 'Unknown' }}</td>
                                             <td>{{ $round->notes }}</td>
+                                            <td>
+                                                <a href="{{ route('vitals.record', ['admission_id' => $admission->id, 'inpatient_round_id' => $round->id]) }}"
+                                                    class="btn btn-sm btn-outline-success">
+                                                    <i class="ti ti-heart-rate-monitor me-1"></i> Record Vitals
+                                                </a>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="3" class="text-center text-muted">No rounds recorded.</td>
+                                            <td colspan="4" class="text-center text-muted">No rounds recorded.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -237,10 +244,10 @@
                     <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Vitals</h5>
                         @if ($admission->status === 'admitted')
-                            <a href="{{ route('vitals.record', ['admission_id' => $admission->id]) }}" <i
-                                class="ti ti-heart-rate-monitor me-1"></i> Record Vitals
+                            <a href="{{ route('vitals.record', ['admission_id' => $admission->id]) }}"
+                                class="btn btn-sm btn-outline-success">
+                                <i class="ti ti-heart-rate-monitor me-1"></i> Record Vitals
                             </a>
-                        @endif
                         @endif
                     </div>
                     <div class="card-body">

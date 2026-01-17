@@ -42,10 +42,12 @@ class DoctorsExtrasController extends Controller
     public function schedules()
     {
         $clinicId = auth()->user()->clinic_id;
-        // $doctors = Doctor::with(['user', 'schedules'])->orderBy('user_id')->where('clinic_id','=',$clinicId)->get();
-
-        $doctors = Clinic::with(['doctors', "doctors.user", "doctors.schedules"])->find($clinicId);
-        // return $doctors;
+        $doctors = Doctor::with(['user', 'schedules'])
+            ->whereHas('clinics', function ($query) use ($clinicId) {
+                $query->where('clinics.id', $clinicId);
+            })
+            ->orderBy('user_id')
+            ->paginate(20);
         return view('doctors.schedules', compact('doctors'));
     }
 

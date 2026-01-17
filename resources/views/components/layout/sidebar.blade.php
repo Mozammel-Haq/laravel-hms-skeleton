@@ -323,15 +323,15 @@
                             <li><a href="{{ route('appointments.index') }}">Upcoming</a></li>
                         </ul>
                     </li>
-                    <li class="submenu">
+                    <li>
                         <a href="{{ route('doctor.schedule.index') }}"
-                            class="{{ request()->routeIs('doctor.schedule.*') ? 'active subdrop' : '' }}">
+                            class="{{ request()->routeIs('doctor.schedule.*') ? 'active' : '' }}">
                             <i class="ti ti-calendar"></i><span>My Schedule</span>
                         </a>
                     </li>
-                    <li class="submenu">
+                    <li>
                         <a href="{{ route('doctor.profile.index') }}"
-                            class="{{ request()->routeIs('doctor.profile.*') ? 'active subdrop' : '' }}">
+                            class="{{ request()->routeIs('doctor.profile.*') ? 'active' : '' }}">
                             <i class="ti ti-user-circle"></i><span>My Profile</span>
                         </a>
                     </li>
@@ -439,6 +439,18 @@
                 <!-- 5. NURSE FLOW -->
                 @if (auth()->check() && auth()->user()->hasRole('Nurse'))
                     <li class="menu-title"><span>Nursing Station</span></li>
+
+                    <li class="submenu">
+                        <a href="#"
+                            class="{{ request()->routeIs('appointments.*') || request()->routeIs('appointments.booking.*') ? 'active subdrop' : '' }}">
+                            <i class="ti ti-calendar-plus"></i><span>Appointments</span><span
+                                class="menu-arrow"></span>
+                        </a>
+                        <ul
+                            style="{{ request()->routeIs('appointments.*') || request()->routeIs('appointments.booking.*') ? 'display: block;' : 'display: none;' }}">
+                            <li><a href="{{ route('appointments.index') }}">Today List</a></li>
+                        </ul>
+                    </li>
 
                     <li class="submenu">
                         <a href="#" class="{{ request()->routeIs('ipd.*') ? 'active subdrop' : '' }}">

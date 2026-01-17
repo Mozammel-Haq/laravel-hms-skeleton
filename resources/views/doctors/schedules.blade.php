@@ -103,7 +103,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($doctors->doctors as $doctor)
+                                @foreach ($doctors as $doctor)
                                     <tr>
                                         <td>
                                             <div class="fw-semibold">{{ $doctor->user?->name ?? 'Deleted Doctor' }}
@@ -146,6 +146,9 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
+                    <div class="mt-3">
+                        {{ $doctors->links() }}
                     </div>
                 </div>
             </div>

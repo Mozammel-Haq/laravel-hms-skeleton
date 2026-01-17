@@ -68,6 +68,13 @@
                 </div>
             @endif
 
+            @if(session('warning'))
+                <div class="alert alert-warning alert-dismissible fade show m-4" role="alert">
+                    {{ session('warning') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             {{ $slot }}
             <x-layout.footer />
 

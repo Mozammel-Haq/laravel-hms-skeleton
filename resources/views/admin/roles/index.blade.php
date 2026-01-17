@@ -68,6 +68,9 @@
                     </tbody>
                 </table>
             </div>
+            <div class="mt-3">
+                {{ $roles->links() }}
+            </div>
         </div>
 
     </div>

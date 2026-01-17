@@ -38,7 +38,7 @@
                         </div>
                         <div class="col-md-6 text-md-end">
                             <label class="text-muted mb-1">Status</label>
-                            <div>
+                            <div class="mb-2">
                                 @switch($appointment->status)
                                     @case('confirmed')
                                         <span class="badge bg-success-subtle text-success fs-6">Confirmed</span>
@@ -59,6 +59,21 @@
                                     @default
                                         <span class="badge bg-warning-subtle text-warning fs-6">Pending</span>
                                 @endswitch
+                            </div>
+
+                            <label class="text-muted mb-1">Consultation Payment</label>
+                            <div>
+                                @if ($consultationInvoice)
+                                    @if ($consultationInvoice->status === 'paid')
+                                        <span class="badge bg-success-subtle text-success fs-6">Paid</span>
+                                    @elseif ($consultationInvoice->status === 'partial')
+                                        <span class="badge bg-warning-subtle text-warning fs-6">Partially Paid</span>
+                                    @else
+                                        <span class="badge bg-danger-subtle text-danger fs-6">Unpaid</span>
+                                    @endif
+                                @else
+                                    <span class="badge bg-secondary-subtle text-secondary fs-6">Not Invoiced</span>
+                                @endif
                             </div>
                         </div>
                     </div>

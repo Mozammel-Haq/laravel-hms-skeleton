@@ -9,21 +9,38 @@
                 </div>
                 <form class="row g-3" method="POST" action="{{ route('vitals.store') }}">
                     @csrf
-                    <div class="col-md-6">
-                        <label class="form-label">Patient</label>
-                        <select class="form-select" name="patient_id" required>
-                            <option value="">Select patient</option>
-                            @foreach ($patients as $p)
-                                <option value="{{ $p->id }}" @selected(old('patient_id') == $p->id)>
-                                    {{ $p->name ?? ($p->full_name ?? 'Patient') }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    @php
+                        $singlePatient = $patients instanceof \Illuminate\Support\Collection && $patients->count() === 1 ? $patients->first() : null;
+                        $hasContext = (isset($visit) && $visit) || request()->has('admission_id') || request()->has('appointment_id');
+                    @endphp
+                    @if ($singlePatient && $hasContext)
+                        <div class="col-md-6">
+                            <label class="form-label">Patient</label>
+                            <input type="hidden" name="patient_id" value="{{ $singlePatient->id }}">
+                            <div class="form-control-plaintext fw-semibold">
+                                {{ $singlePatient->name ?? ($singlePatient->full_name ?? 'Patient') }}
+                            </div>
+                        </div>
+                    @else
+                        <div class="col-md-6">
+                            <label class="form-label">Patient</label>
+                            <select class="form-select" name="patient_id" required>
+                                <option value="">Select patient</option>
+                                @foreach ($patients as $p)
+                                    <option value="{{ $p->id }}" @selected(old('patient_id') == $p->id)>
+                                        {{ $p->name ?? ($p->full_name ?? 'Patient') }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
                     @if (isset($visit) && $visit)
                         <input type="hidden" name="visit_id" value="{{ $visit->id }}">
                     @endif
                     @if (request()->has('admission_id'))
                         <input type="hidden" name="admission_id" value="{{ request('admission_id') }}">
+                    @endif
+                    @if (request()->has('inpatient_round_id'))
+                        <input type="hidden" name="inpatient_round_id" value="{{ request('inpatient_round_id') }}">
                     @endif
                     <div class="col-md-3">
                         <label class="form-label">Temperature (°C)</label>

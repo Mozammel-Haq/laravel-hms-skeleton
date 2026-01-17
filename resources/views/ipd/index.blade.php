@@ -102,6 +102,9 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="mt-3">
+                    {{ $admissions->links() }}
+                </div>
             </div>
         </div>
     </div>

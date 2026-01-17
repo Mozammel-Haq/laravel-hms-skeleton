@@ -17,7 +17,7 @@ class DepartmentController extends Controller
             $query->onlyTrashed();
         }
 
-        $departments = $query->get();
+        $departments = $query->paginate(20);
         return view('departments.index', compact('departments'));
     }
 
