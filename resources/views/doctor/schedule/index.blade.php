@@ -31,12 +31,44 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as $day)
+                                    @php
+                                        $days = [
+                                            1 => 'Monday',
+                                            2 => 'Tuesday',
+                                            3 => 'Wednesday',
+                                            4 => 'Thursday',
+                                            5 => 'Friday',
+                                            6 => 'Saturday',
+                                            0 => 'Sunday',
+                                        ];
+                                    @endphp
+                                    @foreach ($days as $index => $label)
+                                        @php
+                                            $daySchedules = $schedules->get($index, collect());
+                                            $morning = [];
+                                            $afternoon = [];
+                                            $evening = [];
+
+                                            foreach ($daySchedules as $schedule) {
+                                                $start = $schedule->start_time;
+                                                $end = $schedule->end_time;
+                                                $startHour = (int) substr($start, 0, 2);
+                                                $range = substr($start, 0, 5) . '–' . substr($end, 0, 5);
+
+                                                if ($startHour < 12) {
+                                                    $morning[] = $range;
+                                                } elseif ($startHour < 17) {
+                                                    $afternoon[] = $range;
+                                                } else {
+                                                    $evening[] = $range;
+                                                }
+                                            }
+                                        @endphp
                                         <tr>
-                                            <td>{{ $day }}</td>
-                                            <td>09:00–12:00</td>
-                                            <td>14:00–17:00</td>
-                                            <td>—</td>
+                                            <td>{{ $label }}</td>
+                                            <td>{{ $morning ? implode(', ', array_unique($morning)) : '—' }}</td>
+                                            <td>{{ $afternoon ? implode(', ', array_unique($afternoon)) : '—' }}</td>
+                                            <td>{{ $evening ? implode(', ', array_unique($evening)) : '—' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

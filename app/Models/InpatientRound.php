@@ -18,4 +18,9 @@ class InpatientRound extends BaseTenantModel
     {
         return $this->belongsTo(Doctor::class);
     }
+
+    public function vitals()
+    {
+        return $this->hasMany(PatientVital::class, 'inpatient_round_id');
+    }
 }

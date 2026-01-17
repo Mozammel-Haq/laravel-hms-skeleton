@@ -61,17 +61,53 @@
                     </div>
 
                     <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-transparent py-3">
-                            <h5 class="card-title mb-0">Latest Vitals</h5>
+                        <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Vitals History</h5>
+                            @if (isset($appointment->visit) && $appointment->visit)
+                                <a href="{{ route('vitals.record', ['visit_id' => $appointment->visit->id, 'appointment_id' => $appointment->id]) }}"
+                                    class="btn btn-sm btn-outline-success">
+                                    <i class="ti ti-heart-rate-monitor me-1"></i> Record Vitals
+                                </a>
+                            @endif
                         </div>
                         <div class="card-body">
-                            @if (isset($latestVitals) && $latestVitals)
-                                <div class="mb-1">Recorded At: {{ $latestVitals->recorded_at?->format('d M Y H:i') }}
+                            @php
+                                $history = isset($vitalsHistory) ? $vitalsHistory : collect();
+                            @endphp
+                            @if ($history->isNotEmpty())
+                                <div class="mb-3">
+                                    <div class="fw-semibold mb-1">Latest</div>
+                                    <div class="mb-1">Recorded At: {{ $history->first()->recorded_at?->format('d M Y H:i') }}</div>
+                                    <div class="mb-1">Temperature: {{ $history->first()->temperature }}</div>
+                                    <div class="mb-1">Pulse: {{ $history->first()->heart_rate }}</div>
+                                    <div class="mb-1">BP: {{ $history->first()->blood_pressure }}</div>
+                                    <div class="mb-1">Resp Rate: {{ $history->first()->respiratory_rate }}</div>
                                 </div>
-                                <div class="mb-1">Temperature: {{ $latestVitals->temperature }}</div>
-                                <div class="mb-1">Pulse: {{ $latestVitals->heart_rate }}</div>
-                                <div class="mb-1">BP: {{ $latestVitals->blood_pressure }}</div>
-                                <div class="mb-1">Resp Rate: {{ $latestVitals->respiratory_rate }}</div>
+                                <hr>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Temp</th>
+                                                <th>Pulse</th>
+                                                <th>BP</th>
+                                                <th>Resp</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($history as $v)
+                                                <tr>
+                                                    <td>{{ $v->recorded_at?->format('d M Y H:i') }}</td>
+                                                    <td>{{ $v->temperature }}</td>
+                                                    <td>{{ $v->heart_rate }}</td>
+                                                    <td>{{ $v->blood_pressure }}</td>
+                                                    <td>{{ $v->respiratory_rate }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             @else
                                 <div class="text-muted">No vitals recorded for this visit.</div>
                             @endif
@@ -82,12 +118,6 @@
                         <button class="btn btn-primary btn-lg">
                             <i class="ti ti-check me-2"></i> Save Consultation
                         </button>
-                        @if (isset($appointment->visit) && $appointment->visit)
-                            <a href="{{ route('vitals.record', ['visit_id' => $appointment->visit->id, 'appointment_id' => $appointment->id]) }}"
-                                class="btn btn-outline-success btn-lg mt-2">
-                                <i class="ti ti-heart-rate-monitor me-2"></i> Record Vitals
-                            </a>
-                        @endif
                     </div>
                 </div>
             </div>

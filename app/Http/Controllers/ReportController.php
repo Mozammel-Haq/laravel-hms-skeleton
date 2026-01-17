@@ -122,17 +122,7 @@ class ReportController extends Controller
     public function tax()
     {
         Gate::authorize('view_financial_reports');
-        $invoices = \App\Models\Invoice::latest()->take(50)->get()->map(function ($inv) {
-            $subtotal = $inv->total ?? 0;
-            $vat = $subtotal * 0.10;
-            $total = $subtotal + $vat;
-            return [
-                'invoice' => $inv,
-                'subtotal' => $subtotal,
-                'vat' => $vat,
-                'total' => $total,
-            ];
-        });
+        $invoices = \App\Models\Invoice::latest()->paginate(20);
         return view('reports.tax', compact('invoices'));
     }
 }

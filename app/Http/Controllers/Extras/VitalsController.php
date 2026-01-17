@@ -8,7 +8,9 @@ use App\Models\Appointment;
 use App\Models\Visit;
 use App\Models\PatientVital;
 use App\Models\Admission;
+use App\Models\InpatientRound;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class VitalsController extends Controller
 {
@@ -16,8 +18,13 @@ class VitalsController extends Controller
     {
         $visit = null;
         $appointment = null;
+        $round = null;
 
-        if ($request->filled('admission_id')) {
+        if ($request->filled('inpatient_round_id')) {
+            $round = InpatientRound::with('admission.patient')->findOrFail($request->query('inpatient_round_id'));
+            $admission = $round->admission;
+            $patients = collect([$admission->patient])->filter();
+        } elseif ($request->filled('admission_id')) {
             $admission = Admission::with('patient')->findOrFail($request->query('admission_id'));
             $visit = null;
             $appointment = null;
@@ -39,6 +46,8 @@ class VitalsController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('create', PatientVital::class);
+
         $data = $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'visit_id' => 'nullable|exists:visits,id',
@@ -56,6 +65,7 @@ class VitalsController extends Controller
 
         $visit = null;
         $admission = null;
+        $round = null;
 
         if (!empty($data['visit_id'])) {
             $visit = Visit::with('appointment')->findOrFail($data['visit_id']);
@@ -71,6 +81,20 @@ class VitalsController extends Controller
             if ($admission->patient_id !== (int) $data['patient_id']) {
                 return redirect()->back()->withErrors([
                     'patient_id' => 'Selected patient does not match the admission.',
+                ]);
+            }
+        }
+
+        if (!empty($data['inpatient_round_id'])) {
+            $round = InpatientRound::with('admission.patient')->findOrFail($data['inpatient_round_id']);
+            if (!empty($data['admission_id']) && $round->admission_id !== (int) $data['admission_id']) {
+                return redirect()->back()->withErrors([
+                    'inpatient_round_id' => 'Selected round does not belong to the admission.',
+                ]);
+            }
+            if ($round->admission && $round->admission->patient_id !== (int) $data['patient_id']) {
+                return redirect()->back()->withErrors([
+                    'patient_id' => 'Selected patient does not match the round admission.',
                 ]);
             }
         }
@@ -95,6 +119,12 @@ class VitalsController extends Controller
         if ($visit && $visit->appointment) {
             return redirect()
                 ->route('appointments.show', $visit->appointment)
+                ->with('success', 'Vitals recorded successfully.');
+        }
+
+        if ($admission) {
+            return redirect()
+                ->route('ipd.show', $admission)
                 ->with('success', 'Vitals recorded successfully.');
         }
 

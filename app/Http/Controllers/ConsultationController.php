@@ -71,7 +71,10 @@ class ConsultationController extends Controller
             ->first();
         if (!$consultationInvoice || $consultationInvoice->status !== 'paid') {
             return redirect()->route('appointments.index')
-                ->with('warning', 'Consultation can only start after consultation payment is completed.');
+                ->with(
+                    'warning',
+                    'Consultation can only start after the consultation invoice has been generated and fully paid.'
+                );
         }
         if (!in_array($appointment->status, ['confirmed', 'arrived'], true)) {
             return redirect()->route('appointments.index')
@@ -80,16 +83,19 @@ class ConsultationController extends Controller
 
         $visit = $appointment->visit;
         $latestVitals = null;
+        $vitalsHistory = collect();
         if ($visit) {
-            $latestVitals = \App\Models\PatientVital::where('visit_id', $visit->id)
-                ->latest('recorded_at')
-                ->first();
+            $vitalsHistory = \App\Models\PatientVital::where('visit_id', $visit->id)
+                ->orderByDesc('recorded_at')
+                ->get();
+            $latestVitals = $vitalsHistory->first();
         }
 
         return view('clinical.consultation.create', [
             'appointment' => $appointment,
             'patient'     => $appointment->patient,
             'latestVitals' => $latestVitals,
+            'vitalsHistory' => $vitalsHistory,
         ]);
     }
 

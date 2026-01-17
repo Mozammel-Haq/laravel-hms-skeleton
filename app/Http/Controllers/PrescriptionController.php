@@ -82,8 +82,14 @@ class PrescriptionController extends Controller
             'visit.appointment.doctor.user',
             'visit.appointment.doctor.department',
         ]);
+        $vitalsHistory = collect();
+        if ($consultation->visit) {
+            $vitalsHistory = \App\Models\PatientVital::where('visit_id', $consultation->visit->id)
+                ->orderByDesc('recorded_at')
+                ->get();
+        }
         $medicines = Medicine::where('status', 'active')->orderBy('name')->get();
-        return view('clinical.prescription.create', compact('consultation', 'medicines'));
+        return view('clinical.prescription.create', compact('consultation', 'medicines', 'vitalsHistory'));
     }
 
     public function store(Request $request, Consultation $consultation)

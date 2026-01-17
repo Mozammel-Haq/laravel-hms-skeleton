@@ -100,6 +100,43 @@
                                 </div>
                             </div>
 
+                            <div class="mb-4">
+                                <h6 class="mb-2 fs-14 fw-medium"> Vitals History (This Visit) </h6>
+                                <div class="border rounded p-2">
+                                    @php
+                                        $vitals = isset($vitalsHistory) ? $vitalsHistory : collect();
+                                    @endphp
+                                    @if ($vitals->isNotEmpty())
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-hover mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Temp</th>
+                                                        <th>Pulse</th>
+                                                        <th>BP</th>
+                                                        <th>Resp</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($vitals as $v)
+                                                        <tr>
+                                                            <td>{{ $v->recorded_at?->format('d M Y H:i') }}</td>
+                                                            <td>{{ $v->temperature }}</td>
+                                                            <td>{{ $v->heart_rate }}</td>
+                                                            <td>{{ $v->blood_pressure }}</td>
+                                                            <td>{{ $v->respiratory_rate }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <div class="text-muted">No vitals recorded for this visit.</div>
+                                    @endif
+                                </div>
+                            </div>
+
 
                             <!-- Patient Complaints (Smaller Input) -->
                             <div class="mb-4">
