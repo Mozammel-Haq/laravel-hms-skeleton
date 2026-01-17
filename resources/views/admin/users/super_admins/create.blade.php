@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="card">
+    <div class="card mt-2">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Create Super Admin</h5>
             <a href="{{ route('admin.super-admin-users.index') }}" class="btn btn-secondary btn-sm">

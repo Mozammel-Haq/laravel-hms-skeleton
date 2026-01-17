@@ -1,5 +1,7 @@
 <x-app-layout>
-    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div class="card m-2">
+        <div class="card-body">
+                <div class="page-header d-flex justify-content-between align-items-center mb-4">
         <div class="page-title">
             <h4>Appointment Details</h4>
             <p class="text-muted">View appointment information</p>

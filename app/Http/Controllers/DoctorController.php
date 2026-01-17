@@ -47,16 +47,43 @@ class DoctorController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:30',
             'password' => 'required|string|min:8',
             'primary_department_id' => 'required|exists:departments,id',
             'specialization' => 'required|string',
             'license_number' => 'required|string',
+            'registration_number' => 'nullable|string|max:255',
+            'experience_years' => 'nullable|integer|min:0',
+            'gender' => 'nullable|in:male,female,other',
+            'blood_group' => 'nullable|string|max:5',
+            'date_of_birth' => 'nullable|date',
+            'consultation_fee' => 'nullable|numeric|min:0',
+            'follow_up_fee' => 'nullable|numeric|min:0',
+            'biography' => 'nullable|string',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'is_featured' => 'sometimes|boolean',
         ]);
 
         DB::transaction(function () use ($request) {
+            $photoPath = null;
+
+            if ($request->hasFile('profile_photo')) {
+                $file = $request->file('profile_photo');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $destination = public_path('assets/img/doctors');
+
+                if (!is_dir($destination)) {
+                    mkdir($destination, 0755, true);
+                }
+
+                $file->move($destination, $filename);
+                $photoPath = 'assets/img/doctors/' . $filename;
+            }
+
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
+                'phone' => $request->phone,
                 'password' => Hash::make($request->password),
                 'clinic_id' => auth()->user()->clinic_id,
                 'email_verified_at' => now(),
@@ -70,6 +97,16 @@ class DoctorController extends Controller
                 'primary_department_id' => $request->primary_department_id,
                 'specialization' => $request->specialization,
                 'license_number' => $request->license_number,
+                'registration_number' => $request->registration_number,
+                'experience_years' => $request->experience_years ?? 0,
+                'gender' => $request->gender,
+                'blood_group' => $request->blood_group,
+                'date_of_birth' => $request->date_of_birth,
+                'consultation_fee' => $request->consultation_fee,
+                'follow_up_fee' => $request->follow_up_fee,
+                'biography' => $request->biography,
+                'profile_photo' => $photoPath,
+                'is_featured' => $request->boolean('is_featured', false),
                 'status' => 'active',
             ]);
 
@@ -107,12 +144,60 @@ class DoctorController extends Controller
         Gate::authorize('update', $doctor);
 
         $request->validate([
+            'phone' => 'nullable|string|max:30',
             'specialization' => 'required|string',
             'license_number' => 'required|string',
+            'registration_number' => 'nullable|string|max:255',
+            'experience_years' => 'nullable|integer|min:0',
+            'gender' => 'nullable|in:male,female,other',
+            'blood_group' => 'nullable|string|max:5',
+            'date_of_birth' => 'nullable|date',
+            'consultation_fee' => 'nullable|numeric|min:0',
+            'follow_up_fee' => 'nullable|numeric|min:0',
+            'biography' => 'nullable|string',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'is_featured' => 'sometimes|boolean',
             'status' => 'required|in:active,inactive',
         ]);
 
-        $doctor->update($request->only(['specialization', 'license_number', 'status']));
+        $photoPath = $doctor->profile_photo;
+
+        if ($request->filled('phone') || $request->has('phone')) {
+            if ($doctor->user) {
+                $doctor->user->update([
+                    'phone' => $request->phone,
+                ]);
+            }
+        }
+
+        if ($request->hasFile('profile_photo')) {
+            $file = $request->file('profile_photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $destination = public_path('assets/img/doctors');
+
+            if (!is_dir($destination)) {
+                mkdir($destination, 0755, true);
+            }
+
+            $file->move($destination, $filename);
+            $photoPath = 'assets/img/doctors/' . $filename;
+        }
+
+        $doctor->update([
+            'specialization' => $request->specialization,
+            'license_number' => $request->license_number,
+            'registration_number' => $request->registration_number,
+            'experience_years' => $request->experience_years ?? $doctor->experience_years,
+            'gender' => $request->gender,
+            'blood_group' => $request->blood_group,
+            'date_of_birth' => $request->date_of_birth,
+            'consultation_fee' => $request->consultation_fee,
+            'follow_up_fee' => $request->follow_up_fee,
+            'biography' => $request->biography,
+            'profile_photo' => $photoPath,
+            'is_featured' => $request->boolean('is_featured', $doctor->is_featured),
+            'status' => $request->status,
+        ]);
 
         return redirect()->route('doctors.show', $doctor)->with('success', 'Doctor updated successfully.');
     }

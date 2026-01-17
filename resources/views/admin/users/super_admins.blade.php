@@ -1,11 +1,12 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div class="card mt-2">
+            <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Super Admins</h3>
             <a href="{{ route('admin.permissions.index') }}" class="btn btn-outline-secondary">Permissions</a>
         </div>
-        <div class="card">
-            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>

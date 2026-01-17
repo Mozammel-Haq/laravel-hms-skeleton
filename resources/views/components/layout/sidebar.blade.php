@@ -330,6 +330,12 @@
                         </a>
                     </li>
                     <li class="submenu">
+                        <a href="{{ route('doctor.profile.index') }}"
+                            class="{{ request()->routeIs('doctor.profile.*') ? 'active subdrop' : '' }}">
+                            <i class="ti ti-user-circle"></i><span>My Profile</span>
+                        </a>
+                    </li>
+                    <li class="submenu">
                         <a href="#" class="{{ request()->routeIs('patients.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-users"></i><span>Patients</span><span class="menu-arrow"></span>
                         </a>

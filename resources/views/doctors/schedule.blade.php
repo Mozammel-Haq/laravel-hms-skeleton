@@ -1,5 +1,11 @@
 <x-app-layout>
     <div class="container-fluid">
+
+
+        <div class="row justify-content-center">
+            <div class="col-lg-12">
+                <div class="card border-0 mt-2">
+                    <div class="card-body p-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="page-title mb-0">Manage Schedule</h3>
@@ -10,11 +16,6 @@
                 <i class="ti ti-arrow-left me-1"></i> Back to Doctors
             </a>
         </div>
-
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
                         @if ($errors->any())
                             <div class="alert alert-danger mb-4">
                                 <ul class="mb-0">

@@ -276,10 +276,10 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         ->middleware('can:viewAny,can:create,can:update,can:delete');
 
     // Doctors Management
-    Route::get('/doctors/assignment', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'assignment'])->name('doctors.assignment')->middleware('can:view_doctors');
+    Route::get('/doctors/assignment', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'assignment'])->name('doctors.assignment')->middleware('can:edit_doctors');
     Route::post('/doctors/assignment/{doctor}', [\App\Http\Controllers\Extras\DoctorAssignmentController::class, 'update'])
         ->name('doctors.assignment.update')
-        ->middleware('can:view_doctors');
+        ->middleware('can:edit_doctors');
     Route::get('/doctors/schedules/events', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'getCalendarEvents'])->name('doctors.schedules.events')->middleware('can:view_doctors');
     Route::get('/doctors/schedules', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'schedules'])->name('doctors.schedules')->middleware('can:view_doctors');
 
@@ -349,6 +349,21 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Doctor schedule (current doctor)
     Route::get('/doctor/schedule', [\App\Http\Controllers\Extras\DoctorSelfScheduleController::class, 'index'])->name('doctor.schedule.index');
+
+    Route::prefix('doctor/profile')->name('doctor.profile.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'index'])->name('index');
+        Route::post('/educations', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'storeEducation'])->name('educations.store');
+        Route::put('/educations/{education}', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'updateEducation'])->name('educations.update');
+        Route::delete('/educations/{education}', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'destroyEducation'])->name('educations.destroy');
+
+        Route::post('/awards', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'storeAward'])->name('awards.store');
+        Route::put('/awards/{award}', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'updateAward'])->name('awards.update');
+        Route::delete('/awards/{award}', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'destroyAward'])->name('awards.destroy');
+
+        Route::post('/certifications', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'storeCertification'])->name('certifications.store');
+        Route::put('/certifications/{certification}', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'updateCertification'])->name('certifications.update');
+        Route::delete('/certifications/{certification}', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'destroyCertification'])->name('certifications.destroy');
+    });
 
     // Clinical extras
 
