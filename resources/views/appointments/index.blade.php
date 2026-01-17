@@ -1,5 +1,11 @@
 <x-app-layout>
-    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div class="container-fluid">
+
+
+
+    <div class="card m-2">
+        <div class="card-body">
+                <div class="page-header d-flex justify-content-between align-items-center mb-4">
         <div class="page-title">
             <h4>Appointments</h4>
             <p class="text-muted">Manage patient appointments</p>
@@ -18,9 +24,6 @@
             </div>
         @endcan
     </div>
-
-    <div class="card">
-        <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">

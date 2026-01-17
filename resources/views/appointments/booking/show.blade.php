@@ -1,133 +1,187 @@
 <x-app-layout>
-    <div class="content">
-        <div class="page-header">
-            <div class="row">
-                <div class="col-sm-12">
-<a href="{{ route('appointments.booking.index') }}">Find a Doctor</a>
-                </div>
-            </div>
+    <div class="container-fluid">
+
+        <!-- Breadcrumb -->
+        <div class="mb-2 mt-2">
+            <a href="{{ route('appointments.booking.index') }}" class="btn btn-outline-secondary">
+                ← Find a Doctor
+            </a>
         </div>
 
-        <div class="row">
+        <div class="row g-4">
             <!-- Doctor Profile Side -->
-            <div class="col-md-4">
-                <div class="card profile-widget">
-                    <div class="doctor-img text-center">
-                        <a href="#" class="avatar-xxl">
-                            <img class="avatar-img"
-                                src="{{ $doctor->user?->profile_photo_url ?? asset('assets/img/profiles/avatar-01.jpg') }}"
-                                alt="User Image">
-                        </a>
-                    </div>
-                    <h4 class="doctor-name text-center">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}</h4>
-                    <div class="doc-prof text-center">{{ $doctor->department->name ?? 'General' }}</div>
-                    <div class="user-country text-center">
-                        <i class="fa fa-map-marker"></i>
-                        @foreach ($doctor->clinics as $clinic)
-                            {{ $clinic->name }}@if (!$loop->last)
-                                ,
-                            @endif
-                        @endforeach
-                    </div>
-                    <hr>
-                    <div class="doc-info-cont">
-                        <h5 class="mb-2">Consultation Fee</h5>
-                        <p>{{ number_format($doctor->consultation_fee, 2) }} BDT</p>
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body p-3">
+
+                        <!-- Avatar -->
+                        <div class="text-center mb-3">
+                            <img
+                                src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                                class="rounded-circle border"
+                                style="width:110px;height:110px;object-fit:cover;"
+                                alt="Doctor Image">
+                        </div>
+
+                        <!-- Basic Info -->
+                        <h5 class="fw-semibold text-center mb-1">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}</h5>
+                        <div class="text-muted text-center mb-2">{{ $doctor->department->name ?? 'General' }}</div>
+
+                        <!-- Clinics -->
+                        <div class="mb-3 text-center">
+                            @foreach ($doctor->clinics as $clinic)
+                                <span class="badge bg-light text-muted me-1 mb-1">
+                                    <i class="fa fa-map-marker me-1"></i>{{ $clinic->name }}
+                                </span>
+                            @endforeach
+                        </div>
+
+                        <hr class="my-2">
+
+                        <!-- Details -->
+                        <div class="small">
+                            <div class="mb-2 d-flex align-items-center">
+                                <i class="fa fa-stethoscope me-2 text-muted"></i>
+                                <span>{{ $doctor->specialization ?? 'Specialization not set' }}</span>
+                            </div>
+
+                            <div class="mb-2 d-flex align-items-center">
+                                <i class="fa fa-briefcase me-2 text-muted"></i>
+                                <span>
+                                    {{ $doctor->experience_years ? $doctor->experience_years . ' years experience' : 'Experience not specified' }}
+                                </span>
+                            </div>
+
+                            <div class="mb-2 d-flex align-items-center">
+                                <i class="fa fa-user me-2 text-muted"></i>
+                                <span>{{ $doctor->gender ?? 'Gender not specified' }}</span>
+                            </div>
+
+                            <div class="mb-2 d-flex align-items-center">
+                                <i class="fa fa-tint me-2 text-muted"></i>
+                                <span>{{ $doctor->blood_group ?? 'Blood group not specified' }}</span>
+                            </div>
+
+                            <div class="mb-2 d-flex align-items-center">
+                                <i class="fa fa-phone me-2 text-muted"></i>
+                                <span>{{ $doctor->user?->phone ?? 'Phone not set' }}</span>
+                            </div>
+
+                            <div class="mb-3 d-flex align-items-center">
+                                <i class="fa fa-envelope me-2 text-muted"></i>
+                                <span>{{ $doctor->user?->email ?? 'Email not set' }}</span>
+                            </div>
+
+                            <hr class="my-2">
+
+                            <div class="mb-1 d-flex justify-content-between">
+                                <span class="text-muted">Consultation Fee</span>
+                                <strong>
+                                    {{ !is_null($doctor->consultation_fee) ? number_format($doctor->consultation_fee, 2) . ' BDT' : 'N/A' }}
+                                </strong>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-between">
+                                <span class="text-muted">Follow-up Fee</span>
+                                <strong>
+                                    {{ !is_null($doctor->follow_up_fee ?? null) ? number_format($doctor->follow_up_fee, 2) . ' BDT' : 'N/A' }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <small class="text-muted d-block mb-1">About Doctor</small>
+                                <p class="mb-0 text-muted">
+                                    {{ $doctor->biography ?: 'No biography available.' }}
+                                </p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
 
             <!-- Booking Form Side -->
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Book Appointment</h4>
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 fw-semibold">Book Appointment</h5>
                     </div>
-                    <div class="card-body">
+
+                    <div class="card-body p-4">
                         <form method="POST" action="{{ route('appointments.booking.store') }}" id="bookingForm">
                             @csrf
+
                             <input type="hidden" name="doctor_id" value="{{ $doctor->id }}">
                             <input type="hidden" name="start_time" id="start_time">
                             <input type="hidden" name="end_time" id="end_time">
 
-                            <div class="row">
-                                <!-- Patient Selection -->
+                            <!-- Patient & Clinic Selection -->
+                            <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Patient <span class="text-danger">*</span></label>
-                                        <select class="select form-control" name="patient_id" id="patient_id" required>
-                                            <option value="">Select Patient</option>
-                                            @foreach ($patients as $patient)
-                                                <option value="{{ $patient->id }}">{{ $patient->name }}
-                                                    ({{ $patient->patient_code ?? $patient->id }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                    <label class="form-label fw-medium">Patient <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" name="patient_id" id="patient_id" required>
+                                        <option value="">Select Patient</option>
+                                        @foreach ($patients as $patient)
+                                            <option value="{{ $patient->id }}">
+                                                {{ $patient->name }} ({{ $patient->patient_code ?? $patient->id }})
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
-                                <!-- Clinic Selection -->
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Clinic Location <span class="text-danger">*</span></label>
-                                        <select class="select form-control" name="clinic_id" id="clinic_id" required>
-                                            @foreach ($doctor->clinics as $clinic)
-                                                <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <!-- Date Selection -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Appointment Date <span class="text-danger">*</span></label>
-                                        <div class="cal-icon">
-                                            <input type="text" class="form-control datetimepicker"
-                                                name="appointment_date" id="appointment_date" required>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Fee Display -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Calculated Fee</label>
-                                        <input type="text" class="form-control" id="fee_display"
-                                            value="Select Patient first">
-                                        <small id="fee_note" class="text-muted"></small>
-                                    </div>
+                                    <label class="form-label fw-medium">Clinic Location <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" name="clinic_id" id="clinic_id" required>
+                                        @foreach ($doctor->clinics as $clinic)
+                                            <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
 
-                            <!-- Slots Section -->
-                            <div class="row mt-4">
-                                <div class="col-md-12">
-                                    <h5>Available Slots</h5>
-                                    <div id="slots_container" class="mt-3">
-                                        <p class="text-muted">Please select a date to view available slots.</p>
-                                    </div>
-                                    <div id="slot_error" class="text-danger mt-2" style="display:none;"></div>
+                            <!-- Date & Fee -->
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Appointment Date <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control form-control-sm datetimepicker"
+                                        name="appointment_date" id="appointment_date" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-medium">Calculated Fee</label>
+                                    <input type="text" class="form-control form-control-sm" id="fee_display"
+                                        value="Select Patient first" readonly>
+                                    <small id="fee_note" class="text-muted"></small>
                                 </div>
                             </div>
 
-                            <div class="row mt-4">
-                                <div class="col-md-12 text-end">
-                                    <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Confirm
-                                        Booking</button>
+                            <!-- Available Slots -->
+                            <div class="mb-4">
+                                <h6 class="fw-semibold mb-2">Available Slots</h6>
+                                <div id="slots_container" class="border rounded p-3 bg-light">
+                                    <p class="text-muted mb-0">Please select a date to view available slots.</p>
                                 </div>
+                                <div id="slot_error" class="text-danger mt-2" style="display:none;"></div>
                             </div>
+
+                            <!-- Submit Button -->
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-primary px-4" id="submitBtn" disabled>
+                                    Confirm Booking
+                                </button>
+                            </div>
+
                         </form>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
     @push('scripts')
         <script>
+            // Keep your original JS intact
             $(document).ready(function() {
-                // Initialize Datepicker
                 if ($('.datetimepicker').length > 0) {
                     $('.datetimepicker').datetimepicker({
                         format: 'YYYY-MM-DD',
@@ -141,7 +195,6 @@
                     });
                 }
 
-                // Fetch Fee on Patient Change
                 $('#patient_id').on('change', function() {
                     var patientId = $(this).val();
                     if (!patientId) {
@@ -153,20 +206,14 @@
                     $.ajax({
                         url: '{{ route('appointments.booking.fee', $doctor->id) }}',
                         type: 'GET',
-                        data: {
-                            patient_id: patientId
-                        },
+                        data: { patient_id: patientId },
                         success: function(response) {
-                            console.log(response)
                             $('#fee_display').val(response.fee + ' BDT');
                             if (response.is_discounted) {
-                                $('#fee_note').text('Returning patient discount applied (' +
-                                    response.type + ').');
+                                $('#fee_note').text('Returning patient discount applied (' + response.type + ').');
                             } else {
-                                $('#fee_note').text('Standard consultation fee (' + response.type +
-                                    ').');
+                                $('#fee_note').text('Standard consultation fee (' + response.type + ').');
                             }
-
                         },
                         error: function() {
                             $('#fee_display').val('Error calculating fee');
@@ -174,7 +221,6 @@
                     });
                 });
 
-                // Fetch Slots on Date Change
                 $('.datetimepicker').on('dp.change', function(e) {
                     var date = e.date.format('YYYY-MM-DD');
                     loadSlots(date);
@@ -191,33 +237,24 @@
                     $.ajax({
                         url: '{{ route('appointments.booking.slots', $doctor->id) }}',
                         type: 'GET',
-                        data: {
-                            date: date
-                        },
+                        data: { date: date },
                         success: function(response) {
                             var slots = response.slots;
                             var html = '<div class="row">';
-
                             if (slots.length === 0) {
                                 html = '<p class="text-danger">No slots available for this date.</p>';
                             } else {
                                 $.each(slots, function(index, slot) {
-                                    var btnClass = slot.is_booked ? 'btn-secondary disabled' :
-                                        'btn-outline-primary slot-btn';
+                                    var btnClass = slot.is_booked ? 'btn-secondary disabled' : 'btn-outline-primary slot-btn';
                                     var disabled = slot.is_booked ? 'disabled' : '';
-                                    var title = slot.is_booked ? 'Booked' : 'Available';
-
                                     html += '<div class="col-6 col-sm-4 col-md-3 mb-3">';
-                                    html += '<button type="button" class="btn ' + btnClass +
-                                        ' w-100" ' + disabled + ' ';
-                                    html += 'data-start="' + slot.start_time + '" data-end="' + slot
-                                        .end_time + '">';
+                                    html += '<button type="button" class="btn ' + btnClass + ' w-100" ' + disabled +
+                                        ' data-start="' + slot.start_time + '" data-end="' + slot.end_time + '">';
                                     html += slot.start_time + ' - ' + slot.end_time;
                                     html += '</button></div>';
                                 });
                                 html += '</div>';
                             }
-
                             $('#slots_container').html(html);
                         },
                         error: function() {
@@ -226,23 +263,26 @@
                     });
                 }
 
-                // Handle Slot Selection
                 $(document).on('click', '.slot-btn', function() {
                     $('.slot-btn').removeClass('btn-primary').addClass('btn-outline-primary');
                     $(this).removeClass('btn-outline-primary').addClass('btn-primary');
 
-                    var start = $(this).data('start');
-                    var end = $(this).data('end');
-
-                    $('#start_time').val(start);
-                    $('#end_time').val(end);
+                    $('#start_time').val($(this).data('start'));
+                    $('#end_time').val($(this).data('end'));
                     $('#submitBtn').prop('disabled', false);
                 });
             });
         </script>
+
         <style>
+            /* UI Enhancements Only */
             .slot-btn {
-                transition: all 0.3s;
+                transition: all 0.2s ease;
+                font-size: 0.85rem;
+            }
+
+            .slot-btn:hover:not(.disabled) {
+                transform: translateY(-1px);
             }
 
             .slot-btn.disabled {

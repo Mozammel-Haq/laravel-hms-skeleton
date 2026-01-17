@@ -12,14 +12,30 @@ class DoctorsExtrasController extends Controller
 {
     public function assignment()
     {
-        // Permission requirement: Only Super Admin can access assignment view
-        if (!auth()->user() || !auth()->user()->hasRole('Super Admin')) {
+        $user = auth()->user();
+
+        if (!$user) {
             abort(403);
         }
-        $clinics = Clinic::orderBy('name')->get();
-        $clinicId = auth()->user()->clinic_id;
-        $doctors = Doctor::with(['user', 'clinics', 'department'])->orderByDesc('created_at')->get();
-        // $doctors = Clinic::with(['doctors', "doctors.user", "doctors.schedules"])->find($clinicId);
+
+        if ($user->hasRole('Super Admin')) {
+            $clinics = Clinic::orderBy('name')->get();
+            $doctors = Doctor::with(['user', 'clinics', 'department'])
+                ->orderByDesc('created_at')
+                ->paginate(20);
+        } else {
+            $clinicId = $user->clinic_id;
+
+            $clinics = Clinic::whereKey($clinicId)->get();
+
+            $doctors = Doctor::with(['user', 'clinics', 'department'])
+                ->whereHas('department', function ($query) use ($clinicId) {
+                    $query->where('clinic_id', $clinicId);
+                })
+                ->orderByDesc('created_at')
+                ->paginate(20);
+        }
+
         return view('doctors.assignment', compact('clinics', 'doctors'));
     }
 

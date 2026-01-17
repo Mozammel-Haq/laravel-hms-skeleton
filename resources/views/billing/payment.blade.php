@@ -1,14 +1,15 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Record Payment</h3>
-            <a href="{{ route('billing.show', $invoice) }}" class="btn btn-outline-secondary">Back to Invoice</a>
-        </div>
+
 
         <div class="row">
             <div class="col-md-8">
-                <div class="card mb-3">
+                <div class="card mb-3 mt-2">
                     <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="page-title mb-0">Record Payment</h3>
+            <a href="{{ route('billing.show', $invoice) }}" class="btn btn-outline-secondary">Back to Invoice</a>
+        </div>
                         <div class="mb-2">
                             <strong>Invoice:</strong> {{ $invoice->invoice_number ?? $invoice->id }}
                         </div>

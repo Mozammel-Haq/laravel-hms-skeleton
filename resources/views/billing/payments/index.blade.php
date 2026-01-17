@@ -1,6 +1,9 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div class="card m-2">
+            <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Payments</h3>
             <div class="d-flex gap-2">
                 <div class="btn-group">
@@ -12,8 +15,6 @@
                 <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Billing</a>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>

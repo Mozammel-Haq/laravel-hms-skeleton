@@ -1,6 +1,6 @@
 <x-app-layout>
     {{-- Clinic Admin Crud List with delete and Update options --}}
-    <div class="card">
+    <div class="card mt-2">
         <div class="card-body">
             <div class="card-body d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">All Clinic Admins</h5>

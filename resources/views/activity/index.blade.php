@@ -1,11 +1,12 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div class="card mt-2">
+            <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Activity Logs</h3>
             <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">Dashboard</a>
         </div>
-        <div class="card">
-            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
@@ -26,7 +27,7 @@
                                     <td>{{ class_basename($log->entity_type) }}</td>
                                     <td>{{ $log->entity_id }}</td>
                                     <td>{{ $log->ip_address }}</td>
-                                    <td>{{ $log->created_at->format('Y-m-d H:i') }}</td>
+                                    <td>{{ $log->created_at }}</td>
                                 </tr>
                             @empty
                                 <tr>

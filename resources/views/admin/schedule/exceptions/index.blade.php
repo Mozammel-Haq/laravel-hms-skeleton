@@ -1,14 +1,15 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+
+
+        <div class="card border-0 mt-2">
+            <div class="card-body p-0">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="page-title mb-0">Schedule Exception Requests</h3>
                 <div class="text-muted">Review and approve doctor schedule changes</div>
             </div>
         </div>
-
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
@@ -60,7 +61,7 @@
                                     </td>
                                     <td>
                                         @if($exception->is_available)
-                                            {{ \Carbon\Carbon::parse($exception->start_time)->format('H:i') }} - 
+                                            {{ \Carbon\Carbon::parse($exception->start_time)->format('H:i') }} -
                                             {{ \Carbon\Carbon::parse($exception->end_time)->format('H:i') }}
                                         @else
                                             <span class="text-muted">Unavailable</span>
@@ -109,7 +110,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 @if($exceptions->hasPages())
                     <div class="card-footer bg-white border-top-0">
                         {{ $exceptions->links() }}

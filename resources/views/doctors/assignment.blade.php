@@ -127,18 +127,36 @@
                                                         Select the clinics where this doctor practices.
                                                     </p>
 
-                                                    @foreach ($clinics as $clinic)
-                                                        <div class="form-check mb-2">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                name="clinic_ids[]" value="{{ $clinic->id }}"
-                                                                id="doctor{{ $doctor->id }}clinic{{ $clinic->id }}"
-                                                                {{ $doctor->clinics->contains($clinic->id) ? 'checked' : '' }}>
-                                                            <label class="form-check-label"
-                                                                for="doctor{{ $doctor->id }}clinic{{ $clinic->id }}">
-                                                                {{ $clinic->name }}
-                                                            </label>
-                                                        </div>
-                                                    @endforeach
+                                    @role('Super Admin')
+                                        @foreach ($clinics as $clinic)
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox"
+                                                    name="clinic_ids[]" value="{{ $clinic->id }}"
+                                                    id="doctor{{ $doctor->id }}clinic{{ $clinic->id }}"
+                                                    {{ $doctor->clinics->contains($clinic->id) ? 'checked' : '' }}>
+                                                <label class="form-check-label"
+                                                    for="doctor{{ $doctor->id }}clinic{{ $clinic->id }}">
+                                                    {{ $clinic->name }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        @php
+                                            $userClinicId = auth()->user()->clinic_id ?? null;
+                                        @endphp
+                                        @foreach ($clinics->where('id', $userClinicId) as $clinic)
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox"
+                                                    name="clinic_ids[]" value="{{ $clinic->id }}"
+                                                    id="doctor{{ $doctor->id }}clinic{{ $clinic->id }}"
+                                                    {{ $doctor->clinics->contains($clinic->id) ? 'checked' : '' }}>
+                                                <label class="form-check-label"
+                                                    for="doctor{{ $doctor->id }}clinic{{ $clinic->id }}">
+                                                    {{ $clinic->name }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    @endrole
                                                 </div>
 
                                                 <div class="modal-footer">
@@ -165,8 +183,52 @@
                         </tbody>
                     </table>
                 </div>
+                @if ($doctors instanceof \Illuminate\Pagination\AbstractPaginator)
+                    <div class="mt-3">
+                        {{ $doctors->withQueryString()->links() }}
+                    </div>
+                @endif
             </div>
         </div>
 
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var searchInput = document.getElementById('searchDoctor');
+            var clinicSelect = document.getElementById('filterClinic');
+            var clearButton = document.getElementById('clearFilters');
+            var tableBody = document.getElementById('doctorTable');
+
+            if (!searchInput || !clinicSelect || !clearButton || !tableBody) {
+                return;
+            }
+
+            var rows = Array.prototype.slice.call(tableBody.querySelectorAll('tr'));
+
+            function applyFilters() {
+                var searchTerm = searchInput.value.toLowerCase().trim();
+                var clinicId = clinicSelect.value;
+
+                rows.forEach(function (row) {
+                    var text = row.textContent.toLowerCase();
+                    var clinicsAttr = row.getAttribute('data-clinics') || '';
+                    var clinics = clinicsAttr.split(',').filter(Boolean);
+
+                    var matchesSearch = !searchTerm || text.indexOf(searchTerm) !== -1;
+                    var matchesClinic = !clinicId || clinics.indexOf(clinicId) !== -1;
+
+                    row.style.display = (matchesSearch && matchesClinic) ? '' : 'none';
+                });
+            }
+
+            searchInput.addEventListener('keyup', applyFilters);
+            clinicSelect.addEventListener('change', applyFilters);
+
+            clearButton.addEventListener('click', function () {
+                searchInput.value = '';
+                clinicSelect.value = '';
+                applyFilters();
+            });
+        });
+    </script>
 </x-app-layout>

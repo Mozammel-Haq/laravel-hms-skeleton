@@ -34,19 +34,32 @@ class DoctorAssignmentController extends Controller
 
     public function update(Request $request, Doctor $doctor)
     {
-        // Permission requirement: Only Super Admins can assign clinics to doctors
-        if (!auth()->user() || !auth()->user()->hasRole('Super Admin')) {
-            abort(403, 'Only Super Admin can manage doctor clinic assignments.');
-        }
+        $user = auth()->user();
 
-        Gate::authorize('update', $doctor);
+        if (!$user) {
+            abort(403);
+        }
 
         $validated = $request->validate([
             'clinic_ids' => 'nullable|array',
             'clinic_ids.*' => 'exists:clinics,id',
         ]);
 
-        $doctor->clinics()->sync($validated['clinic_ids'] ?? []);
+        if ($user->hasRole('Super Admin')) {
+            $doctor->clinics()->sync($validated['clinic_ids'] ?? []);
+        } elseif ($user->hasRole('Clinic Admin')) {
+            $clinicId = $user->clinic_id;
+            $clinicIds = $validated['clinic_ids'] ?? [];
+            $shouldAttach = in_array($clinicId, $clinicIds);
+
+            if ($shouldAttach) {
+                $doctor->clinics()->syncWithoutDetaching([$clinicId]);
+            } else {
+                $doctor->clinics()->detach($clinicId);
+            }
+        } else {
+            abort(403);
+        }
 
         return redirect()->route('doctors.assignment')
             ->with('success', 'Doctor clinic assignments updated successfully.');

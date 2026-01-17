@@ -1,16 +1,11 @@
 <x-app-layout>
     <div class="content">
-        <div class="page-header">
-            <div class="row">
-                <div class="col-sm-12">
-                    <a href="{{ route('dashboard') }}">Dashboard</a>
-                </div>
-            </div>
-        </div>
+
 
         <div class="row">
             <div class="col-sm-12">
                 <div class="card card-table show-entire">
+                    
                     <div class="card-body">
                         <div class="page-table-header mb-2">
                             <div class="row align-items-center">
@@ -63,55 +58,76 @@
                             </div>
                         </form>
 
-                        <!-- Doctors Grid -->
-                        <div class="row">
-                            @forelse($doctors as $doctor)
-                                <div class="col-md-4 col-sm-6 col-lg-3">
-                                    <div class="profile-widget">
-                                        <div class="doctor-img text-center">
-                                            <a href="{{ route('appointments.booking.show', $doctor) }}"
-                                                class="avatar-xxl">
-                                                <img class="avatar-img"
-                                                    src="{{ $doctor->user?->profile_photo_url ?? asset('assets/img/profiles/avatar-01.jpg') }}"
-                                                    alt="User Image">
-                                            </a>
-                                        </div>
-                                        <div class="dropdown profile-action">
-                                            <a href="#" class="action-icon dropdown-toggle"
-                                                data-bs-toggle="dropdown" aria-expanded="false"><i
-                                                    class="fa fa-ellipsis-v"></i></a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item"
-                                                    href="{{ route('appointments.booking.show', $doctor) }}">Book
-                                                    Now</a>
-                                            </div>
-                                        </div>
-                                        <h4 class="doctor-name text-center">
-                                            <a href="{{ route('appointments.booking.show', $doctor) }}">Dr.
-                                                {{ $doctor->user?->name ?? 'Deleted Doctor' }}</a>
-                                        </h4>
-                                        <div class="doc-prof text-center">{{ $doctor->department->name ?? 'General' }}
-                                        </div>
-                                        <div class="user-country text-center">
-                                            <i class="fa fa-map-marker"></i>
-                                            @foreach ($doctor->clinics as $clinic)
-                                                {{ $clinic->name }}@if (!$loop->last)
-                                                    ,
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                        <div class="mt-3 text-center">
-                                            <a href="{{ route('appointments.booking.show', $doctor) }}"
-                                                class="btn btn-primary btn-sm">Book Appointment</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                @empty
-                                    <div class="col-12 text-center">
-                                        <p>No doctors found matching your criteria.</p>
-                                    </div>
-                                @endforelse
-                            </div>
+<!-- Doctors Grid -->
+<div class="row g-3">
+    @forelse($doctors as $doctor)
+        <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="card shadow-sm border border-light doctor-card">
+
+                <!-- Card Body -->
+                <div class="card-body text-center p-3">
+
+                    <!-- Avatar -->
+                    <a href="{{ route('appointments.booking.show', $doctor) }}"
+                       class="d-inline-block mb-2">
+                        <img
+                            src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                            class="rounded-circle border"
+                            style="width:90px;height:90px;object-fit:cover;"
+                            alt="Doctor">
+                    </a>
+
+                    <!-- Dropdown -->
+                    <div class="dropdown position-absolute top-0 end-0 m-3">
+                        <a href="#" class="text-muted" data-bs-toggle="dropdown">
+                            <i class="fa fa-ellipsis-v"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a class="dropdown-item"
+                               href="{{ route('doctors.show', $doctor) }}">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Name -->
+                    <h6 class="fw-semibold mb-0">
+                        <a href="{{ route('appointments.booking.show', $doctor) }}"
+                           class="text-dark text-decoration-none">
+                            {{ $doctor->user?->name ?? 'Inactive Doctor' }}
+                        </a>
+                    </h6>
+
+                    <!-- Department -->
+                    <small class="text-muted d-block mb-2">
+                        {{ $doctor->department->name ?? 'General' }}
+                    </small>
+
+                    <!-- Clinics -->
+                    <div class="fs-13 text-muted mb-2">
+                        <i class="fa fa-map-marker me-1"></i>
+                        {{ $doctor->clinics->pluck('name')->join(', ') }}
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 text-center">
+                    <a href="{{ route('appointments.booking.show', $doctor) }}"
+                       class="btn btn-sm btn-outline-primary px-3">
+                        Book Appointment
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    @empty
+        <div class="col-12 text-center py-4">
+            <p class="text-muted mb-0">No doctors found matching your criteria.</p>
+        </div>
+    @endforelse
+</div>
+
 
                             <!-- Pagination -->
                             <div class="row">

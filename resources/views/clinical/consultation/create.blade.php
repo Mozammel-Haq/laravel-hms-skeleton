@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 card-body">
             <div>
                 <h3 class="page-title mb-0">New Consultation</h3>
                 <div class="text-muted">
