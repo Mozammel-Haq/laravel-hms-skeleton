@@ -1,5 +1,10 @@
 <x-app-layout>
-    <h5 class="mb-3">Visit #{{ $visit->id }}</h5>
+    <div class="page-header d-flex justify-content-between align-items-center mb-4 card p-4 mt-2">
+        <div class="page-title">
+            <h4>Visit #{{ $visit->id }}</h4>
+            <p class="text-muted">View visit details</p>
+        </div>
+    </div>
     <div class="row g-3">
         <div class="col-md-6">
             <div class="card">
@@ -50,10 +55,13 @@
                                     <td>{{ $inv->state }}</td>
                                     <td>{{ number_format($inv->total_amount, 2) }}</td>
                                     <td>{{ optional($inv->issued_at)->format('Y-m-d') }}</td>
-                                    <td><a href="{{ route('billing.show', $inv) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                                    <td><a href="{{ route('billing.show', $inv) }}"
+                                            class="btn btn-sm btn-outline-primary">View</a></td>
                                 </tr>
                             @empty
-                                <tr><td colspan="7">No invoices yet for this visit.</td></tr>
+                                <tr>
+                                    <td colspan="7">No invoices yet for this visit.</td>
+                                </tr>
                             @endforelse
                         </tbody>
                         <tfoot>
@@ -68,27 +76,28 @@
         </div>
         <div class="col-md-4">
             @can('create', \App\Models\Invoice::class)
-            <div class="card">
-                <div class="card-header">Add Procedure/Service Invoice</div>
-                <div class="card-body">
-                    <form method="post" action="{{ route('visits.procedure.store', $visit) }}">
-                        @csrf
-                        <div class="mb-2">
-                            <label class="form-label">Description</label>
-                            <input type="text" name="description" class="form-control" required>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Quantity</label>
-                            <input type="number" name="quantity" class="form-control" value="1" min="1" required>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Unit Price</label>
-                            <input type="number" step="0.01" name="unit_price" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-sm">Generate Invoice</button>
-                    </form>
+                <div class="card">
+                    <div class="card-header">Add Procedure/Service Invoice</div>
+                    <div class="card-body">
+                        <form method="post" action="{{ route('visits.procedure.store', $visit) }}">
+                            @csrf
+                            <div class="mb-2">
+                                <label class="form-label">Description</label>
+                                <input type="text" name="description" class="form-control" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Quantity</label>
+                                <input type="number" name="quantity" class="form-control" value="1" min="1"
+                                    required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Unit Price</label>
+                                <input type="number" step="0.01" name="unit_price" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm">Generate Invoice</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
             @endcan
         </div>
     </div>

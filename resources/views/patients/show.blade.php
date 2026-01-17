@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="mb-4 d-flex justify-content-between align-items-center">
+    <div class="mb-4 d-flex justify-content-between align-items-center card-body">
         <h6 class="fw-bold mb-0 d-flex align-items-center">
             <a href="{{ route('patients.index') }}" class="text-dark">
                 <i class="ti ti-chevron-left me-1"></i> Patients
@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <div class="card mb-4">
+    <div class="card mt-2 mb-4">
         <div class="row align-items-end">
             <div class="col-xl-9 col-lg-8">
                 <div class="d-sm-flex align-items-center position-relative overflow-hidden p-3">

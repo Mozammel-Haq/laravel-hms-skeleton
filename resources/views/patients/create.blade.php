@@ -1,15 +1,15 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="fw-semibold fs-4 text-dark mb-0">
-            Add New Patient
-        </h2>
-    </x-slot>
+
+
+
 
     <div class="py-4">
         <div class="container">
-            <div class="card shadow-sm">
+            <div class="card mt-3">
                 <div class="card-body">
-
+                    <h2 class="fw-semibold fs-4 text-dark mb-0">
+                        Add New Patient
+                    </h2>
                     <form method="POST" action="{{ route('patients.store') }}">
                         @csrf
 

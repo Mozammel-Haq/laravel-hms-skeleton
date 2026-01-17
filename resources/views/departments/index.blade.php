@@ -1,35 +1,36 @@
 <x-app-layout>
-    <div class="page-header d-flex justify-content-between align-items-center mb-4">
-        <div class="page-title">
-            <h4>Departments</h4>
-            <p class="text-muted">Configure clinical departments for the clinic</p>
-        </div>
 
-        <div class="d-flex gap-2">
-            <div class="btn-group">
-                <a href="{{ route('departments.index') }}"
-                    class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                <a href="{{ route('departments.index', ['status' => 'trashed']) }}"
-                    class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-            </div>
-
-            @can('create', \App\Models\Department::class)
-                <div class="action-btn">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
-                        <i class="ti ti-plus me-1"></i> Add Department
-                    </button>
-                </div>
-            @endcan
-        </div>
-    </div>
 
     {{-- Success message --}}
     @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <div class="card">
+    <div class="card mt-2">
         <div class="card-body">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div class="page-title">
+                    <h4>Departments</h4>
+                    <p class="text-muted">Configure clinical departments for the clinic</p>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <div class="btn-group">
+                        <a href="{{ route('departments.index') }}"
+                            class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                        <a href="{{ route('departments.index', ['status' => 'trashed']) }}"
+                            class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+                    </div>
+
+                    @can('create', \App\Models\Department::class)
+                        <div class="action-btn">
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                                <i class="ti ti-plus me-1"></i> Add Department
+                            </button>
+                        </div>
+                    @endcan
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">

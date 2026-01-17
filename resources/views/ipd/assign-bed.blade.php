@@ -1,19 +1,20 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-1">Assign Bed</h4>
-                <p class="text-muted mb-0">Assign a bed to the admitted patient</p>
-            </div>
-            <a href="{{ route('ipd.show', $admission->id) }}" class="btn btn-outline-secondary">
-                <i class="ti ti-arrow-left me-1"></i> Back to Admission
-            </a>
-        </div>
+
 
         <div class="row g-4">
             <div class="col-lg-7">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
+                <div class="card border-0 mt-2">
+                    <div class="card-body px-3 py-2">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h4 class="mb-1">Assign Bed</h4>
+                                <p class="text-muted mb-0">Assign a bed to the admitted patient</p>
+                            </div>
+                            <a href="{{ route('ipd.show', $admission->id) }}" class="btn btn-outline-secondary">
+                                <i class="ti ti-arrow-left me-1"></i> Back to Admission
+                            </a>
+                        </div>
                         <form method="POST" action="{{ route('ipd.store-bed', $admission->id) }}">
                             @csrf
                             <div class="mb-4">

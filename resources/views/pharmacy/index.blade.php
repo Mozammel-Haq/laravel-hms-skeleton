@@ -1,20 +1,21 @@
 <x-app-layout>
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="page-title mb-0">Pharmacy Sales</h3>
-        <div class="d-flex gap-2">
-            <div class="btn-group">
-                <a href="{{ route('pharmacy.index') }}"
-                    class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                <a href="{{ route('pharmacy.index', ['status' => 'trashed']) }}"
-                    class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-            </div>
-            <a href="{{ route('pharmacy.create') }}" class="btn btn-primary">
-                <i class="ti ti-shopping-cart-plus me-1"></i> New Sale (POS)
-            </a>
-        </div>
-    </div>
 
-    <div class="card border-0 shadow-sm">
+
+    <div class="card border-0 mt-2 p-3">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="page-title mb-0">Pharmacy Sales</h3>
+            <div class="d-flex gap-2">
+                <div class="btn-group">
+                    <a href="{{ route('pharmacy.index') }}"
+                        class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                    <a href="{{ route('pharmacy.index', ['status' => 'trashed']) }}"
+                        class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+                </div>
+                <a href="{{ route('pharmacy.create') }}" class="btn btn-primary">
+                    <i class="ti ti-shopping-cart-plus me-1"></i> New Sale (POS)
+                </a>
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">

@@ -1,5 +1,10 @@
 <x-app-layout>
-    <h5 class="mb-3">Start Visit</h5>
+    <div class="page-header d-flex justify-content-between align-items-center mb-4 card p-4 mt-2">
+        <div class="page-title">
+            <h4>Start Visit</h4>
+            <p class="text-muted">Create a new visit for a patient</p>
+        </div>
+    </div>
     <div class="card">
         <div class="card-body">
             <form method="POST" action="{{ route('visits.store') }}">
@@ -8,9 +13,10 @@
                     <label class="form-label">Select Appointment</label>
                     <select name="appointment_id" class="form-select" required>
                         <option value="">Choose an appointment</option>
-                        @foreach($appointments as $a)
+                        @foreach ($appointments as $a)
                             <option value="{{ $a->id }}">
-                                #{{ $a->id }} — {{ optional($a->patient)->name }} with {{ optional($a->doctor)->user->name ?? 'Doctor' }} on {{ $a->appointment_date }}
+                                #{{ $a->id }} — {{ optional($a->patient)->name }} with
+                                {{ optional($a->doctor)->user->name ?? 'Doctor' }} on {{ $a->appointment_date }}
                             </option>
                         @endforeach
                     </select>

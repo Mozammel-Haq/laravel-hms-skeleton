@@ -1,19 +1,20 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Lab Orders</h3>
-            <div class="d-flex gap-2">
-                <div class="btn-group">
-                    <a href="{{ route('lab.index') }}"
-                        class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                    <a href="{{ route('lab.index', ['status' => 'trashed']) }}"
-                        class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-                </div>
-                <a href="{{ route('lab.create') }}" class="btn btn-outline-primary">Order Test</a>
-            </div>
-        </div>
-        <div class="card">
+
+        <div class="card mt-2">
             <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+                    <h3 class="page-title mb-0">Lab Orders</h3>
+                    <div class="d-flex gap-2">
+                        <div class="btn-group">
+                            <a href="{{ route('lab.index') }}"
+                                class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                            <a href="{{ route('lab.index', ['status' => 'trashed']) }}"
+                                class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+                        </div>
+                        <a href="{{ route('lab.create') }}" class="btn btn-outline-primary">Order Test</a>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">

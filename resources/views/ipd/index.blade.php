@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center my-3">
             <h3 class="page-title mb-0">IPD Dashboard</h3>
             <div class="d-flex gap-2">
                 <div class="btn-group">

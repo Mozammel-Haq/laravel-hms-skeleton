@@ -2,19 +2,20 @@
     <div class="container-fluid">
 
         {{-- Page Header --}}
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-                <h3 class="page-title mb-0">Doctor Clinic Assignments</h3>
-                <p class="text-muted mb-0">Assign doctors to one or more clinics</p>
-            </div>
-            <a href="{{ route('doctors.create') }}" class="btn btn-primary">
-                <i class="ti ti-plus me-1"></i> Add Doctor
-            </a>
-        </div>
+
 
         {{-- Filters --}}
-        <div class="card mb-4">
+        <div class="card mb-4 mt-2">
             <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="page-title mb-0">Doctor Clinic Assignments</h3>
+                        <p class="text-muted mb-0">Assign doctors to one or more clinics</p>
+                    </div>
+                    <a href="{{ route('doctors.create') }}" class="btn btn-primary">
+                        <i class="ti ti-plus me-1"></i> Add Doctor
+                    </a>
+                </div>
                 <form class="row g-3" onsubmit="return false;">
                     <div class="col-md-4">
                         <label class="form-label">View Doctors by Clinic</label>
@@ -127,36 +128,36 @@
                                                         Select the clinics where this doctor practices.
                                                     </p>
 
-                                    @role('Super Admin')
-                                        @foreach ($clinics as $clinic)
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox"
-                                                    name="clinic_ids[]" value="{{ $clinic->id }}"
-                                                    id="doctor{{ $doctor->id }}clinic{{ $clinic->id }}"
-                                                    {{ $doctor->clinics->contains($clinic->id) ? 'checked' : '' }}>
-                                                <label class="form-check-label"
-                                                    for="doctor{{ $doctor->id }}clinic{{ $clinic->id }}">
-                                                    {{ $clinic->name }}
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    @else
-                                        @php
-                                            $userClinicId = auth()->user()->clinic_id ?? null;
-                                        @endphp
-                                        @foreach ($clinics->where('id', $userClinicId) as $clinic)
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox"
-                                                    name="clinic_ids[]" value="{{ $clinic->id }}"
-                                                    id="doctor{{ $doctor->id }}clinic{{ $clinic->id }}"
-                                                    {{ $doctor->clinics->contains($clinic->id) ? 'checked' : '' }}>
-                                                <label class="form-check-label"
-                                                    for="doctor{{ $doctor->id }}clinic{{ $clinic->id }}">
-                                                    {{ $clinic->name }}
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    @endrole
+                                                    @role('Super Admin')
+                                                        @foreach ($clinics as $clinic)
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    name="clinic_ids[]" value="{{ $clinic->id }}"
+                                                                    id="doctor{{ $doctor->id }}clinic{{ $clinic->id }}"
+                                                                    {{ $doctor->clinics->contains($clinic->id) ? 'checked' : '' }}>
+                                                                <label class="form-check-label"
+                                                                    for="doctor{{ $doctor->id }}clinic{{ $clinic->id }}">
+                                                                    {{ $clinic->name }}
+                                                                </label>
+                                                            </div>
+                                                        @endforeach
+                                                    @else
+                                                        @php
+                                                            $userClinicId = auth()->user()->clinic_id ?? null;
+                                                        @endphp
+                                                        @foreach ($clinics->where('id', $userClinicId) as $clinic)
+                                                            <div class="form-check mb-2">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    name="clinic_ids[]" value="{{ $clinic->id }}"
+                                                                    id="doctor{{ $doctor->id }}clinic{{ $clinic->id }}"
+                                                                    {{ $doctor->clinics->contains($clinic->id) ? 'checked' : '' }}>
+                                                                <label class="form-check-label"
+                                                                    for="doctor{{ $doctor->id }}clinic{{ $clinic->id }}">
+                                                                    {{ $clinic->name }}
+                                                                </label>
+                                                            </div>
+                                                        @endforeach
+                                                    @endrole
                                                 </div>
 
                                                 <div class="modal-footer">
@@ -193,7 +194,7 @@
 
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             var searchInput = document.getElementById('searchDoctor');
             var clinicSelect = document.getElementById('filterClinic');
             var clearButton = document.getElementById('clearFilters');
@@ -209,7 +210,7 @@
                 var searchTerm = searchInput.value.toLowerCase().trim();
                 var clinicId = clinicSelect.value;
 
-                rows.forEach(function (row) {
+                rows.forEach(function(row) {
                     var text = row.textContent.toLowerCase();
                     var clinicsAttr = row.getAttribute('data-clinics') || '';
                     var clinics = clinicsAttr.split(',').filter(Boolean);
@@ -224,7 +225,7 @@
             searchInput.addEventListener('keyup', applyFilters);
             clinicSelect.addEventListener('change', applyFilters);
 
-            clearButton.addEventListener('click', function () {
+            clearButton.addEventListener('click', function() {
                 searchInput.value = '';
                 clinicSelect.value = '';
                 applyFilters();

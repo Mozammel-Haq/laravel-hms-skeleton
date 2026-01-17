@@ -1,13 +1,15 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">My Schedule</h3>
-            <a href="{{ route('appointments.index') }}" class="btn btn-outline-secondary">View Appointments</a>
-        </div>
+
         <div class="row">
             <div class="col-lg-8">
-                <div class="card mb-4">
+                <div class="card mb-4 mt-2">
                     <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="page-title mb-0">My Schedule</h3>
+                            <a href="{{ route('appointments.index') }}" class="btn btn-outline-secondary">View
+                                Appointments</a>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
                                 <div class="fw-semibold">{{ auth()->user()->name }}</div>

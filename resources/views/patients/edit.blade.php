@@ -2,13 +2,13 @@
     <div class="container py-4">
 
         <!-- Page Header -->
-        <div class="mb-4">
-            <h4 class="fw-semibold">Edit Patient</h4>
-        </div>
 
-        <div class="card shadow-sm">
+
+        <div class="card mt-3">
             <div class="card-body">
-
+                <div class="mb-4">
+                    <h4 class="fw-semibold">Edit Patient</h4>
+                </div>
                 <form method="POST" action="{{ route('patients.update', $patient) }}">
                     @csrf
                     @method('PUT')

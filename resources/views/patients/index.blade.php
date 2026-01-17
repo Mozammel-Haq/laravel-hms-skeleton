@@ -1,20 +1,21 @@
 <x-app-layout>
-    <div class="page-header d-flex justify-content-between align-items-center mb-4">
-        <div class="page-title">
-            <h4>Patients</h4>
-            <p class="text-muted">Manage patient records</p>
-        </div>
-        @can('create', \App\Models\Patient::class)
-            <div class="action-btn">
-                <a href="{{ route('patients.create') }}" class="btn btn-primary">
-                    <i class="ti ti-plus me-1"></i> Add Patient
-                </a>
-            </div>
-        @endcan
-    </div>
 
-    <div class="card">
+
+    <div class="card mt-2">
         <div class="card-body">
+            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                <div class="page-title">
+                    <h4>Patients</h4>
+                    <p class="text-muted">Manage patient records</p>
+                </div>
+                @can('create', \App\Models\Patient::class)
+                    <div class="action-btn">
+                        <a href="{{ route('patients.create') }}" class="btn btn-primary">
+                            <i class="ti ti-plus me-1"></i> Add Patient
+                        </a>
+                    </div>
+                @endcan
+            </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">

@@ -1,17 +1,18 @@
 <x-app-layout>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">Visits</h5>
-        <div class="d-flex gap-2">
-            <div class="btn-group">
-                <a href="{{ route('visits.index') }}"
-                    class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                <a href="{{ route('visits.index', ['status' => 'trashed']) }}"
-                    class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+
+    <div class="card mt-2">
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-3 px-3">
+            <h5 class="mb-0">Visits</h5>
+            <div class="d-flex gap-2">
+                <div class="btn-group">
+                    <a href="{{ route('visits.index') }}"
+                        class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                    <a href="{{ route('visits.index', ['status' => 'trashed']) }}"
+                        class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+                </div>
+                <a href="{{ route('visits.create') }}" class="btn btn-outline-primary">New Visit</a>
             </div>
-            <a href="{{ route('visits.create') }}" class="btn btn-outline-primary">New Visit</a>
         </div>
-    </div>
-    <div class="card">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>

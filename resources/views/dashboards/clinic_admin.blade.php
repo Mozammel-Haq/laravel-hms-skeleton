@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container-fluid">
         <!-- Stats Cards -->
-        <div class="row g-3 mb-4">
+        <div class="row g-3 mb-4 py-3">
             <div class="col-md-3">
                 <div class="card h-100 bg-primary text-white">
                     <div class="card-body">

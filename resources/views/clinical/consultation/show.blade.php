@@ -1,13 +1,14 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Consultation</h3>
-            <a href="{{ route('clinical.prescriptions.index') }}" class="btn btn-outline-secondary">Prescriptions</a>
-        </div>
         <div class="row g-3">
             <div class="col-lg-4">
-                <div class="card h-100">
+                <div class="card mt-2">
                     <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="page-title mb-0">Consultation</h3>
+                            <a href="{{ route('clinical.prescriptions.index') }}"
+                                class="btn btn-outline-secondary">Prescriptions</a>
+                        </div>
                         <div class="fw-semibold mb-2">Patient</div>
                         <div class="d-flex align-items-center mb-3">
                             <span class="avatar avatar-lg rounded-circle me-3">

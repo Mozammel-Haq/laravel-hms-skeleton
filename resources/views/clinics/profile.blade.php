@@ -3,14 +3,16 @@
         $clinic = optional(auth()->user())->clinic;
     @endphp
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Clinic Profile</h3>
-            <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">Dashboard</a>
-        </div>
+
         <div class="row">
             <div class="col-lg-8">
-                <div class="card mb-4">
+                <div class="card mb-4 mt-2">
                     <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="page-title mb-0">Clinic Profile</h3>
+                            <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">Dashboard</a>
+                        </div>
+                        <hr class="my-4">
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="text-muted">Name</div>
@@ -41,7 +43,7 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="card">
+                <div class="card mt-2">
                     <div class="card-body">
                         <div class="fw-semibold mb-2">Quick Actions</div>
                         <a href="{{ route('departments.index') }}" class="btn btn-outline-primary w-100 mb-2">Manage

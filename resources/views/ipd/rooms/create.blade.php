@@ -1,14 +1,15 @@
 <x-app-layout>
-    <h5 class="mb-3">Create Room</h5>
-    <div class="card">
+
+    <div class="card mt-2">
         <div class="card-body">
+            <h5 class="mb-3">Create Room</h5>
             <form method="post" action="{{ route('ipd.rooms.store') }}">
                 @csrf
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Ward</label>
                         <select name="ward_id" class="form-select" required>
-                            @foreach($wards as $ward)
+                            @foreach ($wards as $ward)
                                 <option value="{{ $ward->id }}">{{ $ward->name }}</option>
                             @endforeach
                         </select>

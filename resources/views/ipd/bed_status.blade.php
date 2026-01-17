@@ -1,13 +1,14 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Bed Status</h3>
-            <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">IPD Dashboard</a>
-        </div>
+
         <div class="row g-3 mb-4">
             <div class="col-md-6">
-                <div class="card h-100">
+                <div class="card mt-2">
                     <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="page-title mb-0">Bed Status</h3>
+                            <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">IPD Dashboard</a>
+                        </div>
                         <div class="text-muted">Available Beds</div>
                         <div class="display-6">{{ $bedsAvailable }}</div>
                     </div>

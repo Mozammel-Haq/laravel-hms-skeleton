@@ -299,7 +299,10 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     // Roles & Permissions (Super Admin Only)
     Route::prefix('admin')->name('admin.')->group(function () {
 
-        Route::resource('roles', RoleController::class);
+        Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
+        Route::post('roles', [RoleController::class, 'store'])->name('roles.store');
+        Route::put('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+        Route::delete('roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
         Route::resource('permissions', PermissionController::class);
 
         Route::put(

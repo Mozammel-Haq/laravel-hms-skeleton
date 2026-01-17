@@ -1,7 +1,8 @@
 <x-app-layout>
-    <h5 class="mb-3">Edit Ward</h5>
-    <div class="card">
+
+    <div class="card mt-2 px-3 py-2">
         <div class="card-body">
+            <h5 class="mb-3">Edit Ward</h5>
             <form method="post" action="{{ route('ipd.wards.update', $ward) }}">
                 @csrf
                 @method('PUT')
@@ -13,9 +14,9 @@
                     <div class="col-md-4">
                         <label class="form-label">Type</label>
                         <select name="type" class="form-select" required>
-                            <option value="general" @if($ward->type==='general') selected @endif>General</option>
-                            <option value="icu" @if($ward->type==='icu') selected @endif>ICU</option>
-                            <option value="cabin" @if($ward->type==='cabin') selected @endif>Cabin</option>
+                            <option value="general" @if ($ward->type === 'general') selected @endif>General</option>
+                            <option value="icu" @if ($ward->type === 'icu') selected @endif>ICU</option>
+                            <option value="cabin" @if ($ward->type === 'cabin') selected @endif>Cabin</option>
                         </select>
                     </div>
                     <div class="col-md-4">
@@ -29,8 +30,8 @@
                     <div class="col-md-4">
                         <label class="form-label">Status</label>
                         <select name="status" class="form-select" required>
-                            <option value="active" @if($ward->status==='active') selected @endif>Active</option>
-                            <option value="inactive" @if($ward->status==='inactive') selected @endif>Inactive</option>
+                            <option value="active" @if ($ward->status === 'active') selected @endif>Active</option>
+                            <option value="inactive" @if ($ward->status === 'inactive') selected @endif>Inactive</option>
                         </select>
                     </div>
                 </div>

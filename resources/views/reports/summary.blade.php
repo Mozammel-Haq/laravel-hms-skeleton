@@ -1,8 +1,12 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">OPD/IPD Summary</h3>
-            <a href="{{ route('reports.financial') }}" class="btn btn-outline-secondary">Financial</a>
+        <div class="card mb-3 mt-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="page-title mb-0">OPD/IPD Summary</h3>
+                    <a href="{{ route('reports.financial') }}" class="btn btn-outline-secondary">Financial</a>
+                </div>
+            </div>
         </div>
         <div class="row g-3 mb-4">
             <div class="col-md-3">
