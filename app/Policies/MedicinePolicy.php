@@ -9,7 +9,9 @@ class MedicinePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('view_pharmacy_inventory') || $user->hasPermission('manage_pharmacy_inventory');
+        return $user->hasPermission('view_pharmacy')
+            || $user->hasPermission('view_pharmacy_inventory')
+            || $user->hasPermission('manage_pharmacy_inventory');
     }
 
     public function view(User $user, Medicine $medicine): bool

@@ -101,7 +101,21 @@
                             </div>
 
                             <div class="mb-4">
-                                <h6 class="mb-2 fs-14 fw-medium"> Vitals History (This Visit) </h6>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="fs-14 fw-medium mb-0">Vitals History (This Visit)</h6>
+                                    @php
+                                        $patientId = optional($consultation->visit->appointment->patient)->id ?? null;
+                                    @endphp
+                                    @if ($patientId)
+                                        <a href="{{ route('vitals.history', ['patient_id' => $patientId]) }}" target="_blank" class="btn btn-xs btn-outline-primary">
+                                            View All Vitals
+                                        </a>
+                                    @else
+                                        <a href="{{ route('vitals.history') }}" target="_blank" class="btn btn-xs btn-outline-p">
+                                            View All Vitals
+                                        </a>
+                                    @endif
+                                </div>
                                 <div class="border rounded p-2">
                                     @php
                                         $vitals = isset($vitalsHistory) ? $vitalsHistory : collect();
@@ -153,6 +167,8 @@
                                 </div>
                             </div>
 
+
+
                             <!-- Medicines (TABLE BLOCK EXACT) -->
                             <div class="mb-4">
                                 <h6 class="mb-3 fs-16 fw-bold"> Prescribed Medicines </h6>
@@ -201,7 +217,11 @@
                                 </div>
                             </div>
 
-
+                            
+                                                        <div class="mb-4">
+                                <h6 class="mb-3 fs-16 fw-bold">Notes / Advice</h6>
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Enter any notes or advice">{{ old('notes') }}</textarea>
+                            </div>
                             <!-- Terms + Signature (EXACT) -->
                             <div
                                 class="pb-3 mb-3 border-1 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">

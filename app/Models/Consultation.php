@@ -18,6 +18,11 @@ class Consultation extends BaseTenantModel
         'diagnosis',
         'follow_up_required',
         'follow_up_date',
+        'symptoms',
+    ];
+
+    protected $casts = [
+        'symptoms' => 'array',
     ];
 
     public function visit()

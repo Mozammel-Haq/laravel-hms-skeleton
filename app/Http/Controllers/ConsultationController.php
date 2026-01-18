@@ -116,6 +116,8 @@ class ConsultationController extends Controller
         $data = $request->validate([
             'diagnosis' => 'required|string|max:255',
             'doctor_notes' => 'required|string',
+            'symptoms' => 'nullable|array',
+            'symptoms.*' => 'nullable|string|max:255',
             'follow_up_required' => 'nullable|boolean',
             'follow_up_date' => 'nullable|date',
         ]);
@@ -132,6 +134,12 @@ class ConsultationController extends Controller
                 ]
             );
 
+            $symptoms = array_values(
+                array_filter($data['symptoms'] ?? [], function ($value) {
+                    return trim($value) !== '';
+                })
+            );
+
             $consultation = Consultation::create([
                 'visit_id' => $visit->id,
                 'clinic_id' => $appointment->clinic_id,
@@ -139,6 +147,7 @@ class ConsultationController extends Controller
                 'patient_id' => $appointment->patient_id,
                 'diagnosis' => $data['diagnosis'],
                 'doctor_notes' => $data['doctor_notes'],
+                'symptoms' => $symptoms,
                 'follow_up_required' => (bool)($data['follow_up_required'] ?? false),
                 'follow_up_date' => $data['follow_up_date'] ?? null,
                 'status' => 'completed',

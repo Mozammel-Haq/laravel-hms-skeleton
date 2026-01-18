@@ -74,7 +74,18 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
                                 <div class="text-muted">Symptoms</div>
-                                <div class="fw-semibold">{{ $consultation->symptoms ?? 'N/A' }}</div>
+                                @php
+                                    $symptoms = is_array($consultation->symptoms) ? $consultation->symptoms : ($consultation->symptoms ? [$consultation->symptoms] : []);
+                                @endphp
+                                @if (!empty($symptoms))
+                                    <ul class="mb-0 ps-3">
+                                        @foreach ($symptoms as $symptom)
+                                            <li>{{ $symptom }}</li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <div class="fw-semibold">N/A</div>
+                                @endif
                             </div>
                             <div class="col-md-4">
                                 <div class="text-muted">Diagnosis</div>
@@ -82,7 +93,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="text-muted">Notes</div>
-                                <div class="fw-semibold">{{ $consultation->notes ?? 'N/A' }}</div>
+                                <div class="fw-semibold">{{ optional($consultation->prescription)->notes ?? 'N/A' }}</div>
                             </div>
                         </div>
                         <div class="fw-semibold mb-2">Prescription Items</div>

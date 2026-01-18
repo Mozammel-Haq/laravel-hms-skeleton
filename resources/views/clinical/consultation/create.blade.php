@@ -25,6 +25,18 @@
 
                         <div class="card-body">
                             <div class="mb-3">
+                                <label class="form-label">Symptoms</label>
+                                <div id="symptom-wrapper">
+                                    <div class="d-flex gap-2 mb-2">
+                                        <input type="text" name="symptoms[]" class="form-control" placeholder="Enter symptom">
+                                        <button type="button" class="btn btn-sm btn-primary add-symptom">
+                                            <i class="ti ti-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="form-label">Diagnosis <span class="text-danger">*</span></label>
                                 <textarea name="diagnosis" class="form-control" rows="2" required>{{ old('diagnosis') }}</textarea>
                             </div>
@@ -130,5 +142,31 @@
                 document.getElementById('follow_up_date_box')
                     .classList.toggle('d-none', !this.checked);
             });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var wrapper = document.getElementById('symptom-wrapper');
+            if (!wrapper) {
+                return;
+            }
+
+            wrapper.addEventListener('click', function(e) {
+                if (e.target.closest('.add-symptom')) {
+                    var div = document.createElement('div');
+                    div.className = 'd-flex gap-2 mb-2';
+                    div.innerHTML = '<input type="text" name="symptoms[]" class="form-control" placeholder="Enter symptom"><button type="button" class="btn btn-sm btn-outline-danger remove-symptom"><i class="ti ti-trash"></i></button>';
+                    wrapper.appendChild(div);
+                } else if (e.target.closest('.remove-symptom')) {
+                    var row = e.target.closest('.d-flex');
+                    if (row && wrapper.children.length > 1) {
+                        wrapper.removeChild(row);
+                    } else if (row) {
+                        var input = row.querySelector('input[name="symptoms[]"]');
+                        if (input) {
+                            input.value = '';
+                        }
+                    }
+                }
+            });
+        });
     </script>
 </x-app-layout>

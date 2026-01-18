@@ -1,9 +1,11 @@
 <x-app-layout>
-    <div class="page-header d-flex justify-content-between align-items-center mb-4 card p-4 mt-2">
+    <div class="card mt-3 py-2">
+    <div class="page-header d-flex justify-content-between align-items-center mb-3 px-4 mt-2">
         <div class="page-title">
             <h4>Visit #{{ $visit->id }}</h4>
             <p class="text-muted">View visit details</p>
         </div>
+    </div>
     </div>
     <div class="row g-3">
         <div class="col-md-6">
@@ -25,7 +27,7 @@
         </div>
     </div>
 
-    <div class="row g-3 mt-3">
+    <div class="row g-3 ">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">Invoices for this Visit</div>

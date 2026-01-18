@@ -4,7 +4,13 @@
         <div class="card mt-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="page-title mb-0">Vitals History</h3>
+                    <h3 class="page-title mb-0">
+                        @if (isset($patient) && $patient)
+                            Vitals History for {{ $patient->name }}
+                        @else
+                            Vitals History
+                        @endif
+                    </h3>
                     <a href="{{ route('vitals.record') }}" class="btn btn-outline-secondary">Record Vitals</a>
                 </div>
                 <div class="table-responsive">
