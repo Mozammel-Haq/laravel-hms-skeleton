@@ -195,6 +195,7 @@ class RolePermissionSeeder extends Seeder
             'view_billing',
             'view_invoices',
             'create_invoices',
+            'process_payments',
         ])->pluck('id'));
 
         // Accountant

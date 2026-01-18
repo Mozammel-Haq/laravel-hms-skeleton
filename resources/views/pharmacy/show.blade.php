@@ -68,6 +68,16 @@
                             <span class="text-muted small text-uppercase">Prescription ID</span><br>
                             <span class="fw-semibold">#{{ $sale->prescription_id ?? 'N/A' }}</span>
                         </div>
+                        @if (isset($invoice) && $invoice)
+                            <div class="mb-2">
+                                <span class="text-muted small text-uppercase">Invoice</span><br>
+                                <span class="fw-semibold">{{ $invoice->invoice_number }}</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted small text-uppercase">Invoice Status</span><br>
+                                <span class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'partial' ? 'warning' : 'secondary') }}">{{ ucfirst($invoice->status) }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -76,6 +86,13 @@
                         <button class="btn btn-outline-primary w-100 mb-2">
                             <i class="ti ti-printer me-1"></i> Print Invoice
                         </button>
+                        @if (isset($invoice) && $invoice)
+                            @can('process_payments')
+                                <a href="{{ route('billing.payment.add', $invoice->id) }}" class="btn btn-success w-100">
+                                    <i class="ti ti-cash me-1"></i> Add Payment
+                                </a>
+                            @endcan
+                        @endif
                     </div>
                 </div>
             </div>

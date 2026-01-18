@@ -6,6 +6,7 @@ use App\Models\Medicine;
 use App\Models\Patient;
 use App\Models\PharmacySale;
 use App\Models\Prescription;
+use App\Models\Invoice;
 use App\Services\BillingService;
 use App\Services\PharmacyService;
 use Illuminate\Http\Request;
@@ -35,7 +36,7 @@ class PharmacyController extends Controller
         return view('pharmacy.index', compact('sales'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         Gate::authorize('create', PharmacySale::class);
         $patients = Patient::orderBy('name')->get();
@@ -43,7 +44,11 @@ class PharmacyController extends Controller
             $q->where('clinic_id', auth()->user()->clinic_id)
                 ->where('quantity_in_stock', '>', 0);
         })->orderBy('name')->get();
-        return view('pharmacy.pos', compact('patients', 'medicines'));
+        $prescription = null;
+        if ($request->filled('prescription_id')) {
+            $prescription = Prescription::with(['items.medicine', 'consultation.patient'])->find($request->input('prescription_id'));
+        }
+        return view('pharmacy.pos', compact('patients', 'medicines', 'prescription'));
     }
 
     public function store(Request $request)
@@ -96,13 +101,19 @@ class PharmacyController extends Controller
         }
     }
 
-    public function show(PharmacySale $pharmacySale) // Implicit binding might fail if param name differs
+    public function show(PharmacySale $pharmacySale)
     {
-        // Parameter name in route is likely 'pharmacy' or 'pharmacy_sale'
-        // Let's assume standard resource naming
         Gate::authorize('view', $pharmacySale);
-        $pharmacySale->load(['patient']);
-        return view('pharmacy.show', ['sale' => $pharmacySale]);
+        $pharmacySale->load(['patient', 'items.medicine', 'prescription.consultation.visit']);
+        $invoice = null;
+        $visitId = optional(optional($pharmacySale->prescription)->consultation)->visit_id;
+        $query = Invoice::where('patient_id', $pharmacySale->patient_id)
+            ->where('invoice_type', 'pharmacy');
+        if ($visitId) {
+            $query->where('visit_id', $visitId);
+        }
+        $invoice = $query->orderByDesc('issued_at')->first();
+        return view('pharmacy.show', ['sale' => $pharmacySale, 'invoice' => $invoice]);
     }
 
     public function destroy(PharmacySale $pharmacySale)
