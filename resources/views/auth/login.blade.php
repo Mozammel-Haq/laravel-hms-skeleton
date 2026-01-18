@@ -126,7 +126,7 @@
                                                 </button>
                                             </div>
 
-                                            <div class="col-6 col-md-4 col-lg-3">
+                                            <div class="col-6 col-md-4 col-lg-3 mb-5">
                                                 <button type="button"
                                                     class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2 demo-login py-3 rounded-3 shadow-sm"
                                                     data-email="accountant@hospital.com">
@@ -137,11 +137,6 @@
 
                                         </div>
 
-                                        <div class="text-center my-4">
-                                            <span class="badge bg-light text-dark px-4 py-3 rounded-pill fw-semibold">
-                                                Password for all: <strong class="ms-1">password</strong>
-                                            </span>
-                                        </div>
                                     </div>
 
                                 </div>
