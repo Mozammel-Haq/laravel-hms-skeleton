@@ -33,7 +33,8 @@
                         <div class="mb-4">
                             <x-input-label for="appointment_date" :value="__('Date')" />
                             <x-text-input id="appointment_date" class="block mt-1 w-full" type="date"
-                                name="appointment_date" :value="old('appointment_date', $appointment->appointment_date)" required />
+                                name="appointment_date" :value="old('appointment_date', $appointment->appointment_date)"
+                                min="{{ now()->toDateString() }}" required />
                             <x-input-error :messages="$errors->get('appointment_date')" class="mt-2" />
                         </div>
 

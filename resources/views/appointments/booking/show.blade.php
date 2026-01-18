@@ -222,7 +222,26 @@
                 });
 
                 $('.datetimepicker').on('dp.change', function(e) {
-                    var date = e.date.format('YYYY-MM-DD');
+                    if (!e.date) {
+                        $('#slots_container').html('<p class="text-muted mb-0">Please select a date to view available slots.</p>');
+                        $('#submitBtn').prop('disabled', true);
+                        $('#start_time').val('');
+                        $('#end_time').val('');
+                        return;
+                    }
+
+                    var selected = e.date.startOf('day');
+                    var today = moment().startOf('day');
+
+                    if (selected.isBefore(today)) {
+                        $('#slots_container').html('<p class="text-danger mb-0">You cannot book appointments for past dates.</p>');
+                        $('#submitBtn').prop('disabled', true);
+                        $('#start_time').val('');
+                        $('#end_time').val('');
+                        return;
+                    }
+
+                    var date = selected.format('YYYY-MM-DD');
                     loadSlots(date);
                 });
 

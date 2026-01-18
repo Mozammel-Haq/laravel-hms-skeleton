@@ -95,11 +95,13 @@
                                                                 Saturday</option>
                                                         </select>
                                                     </div>
-                                                    <div class="date-field"
+                                        <div class="date-field"
                                                         style="display: {{ $type == 'date' ? 'block' : 'none' }}">
                                                         <input type="date"
                                                             name="schedules[{{ $index }}][schedule_date]"
-                                                            class="form-control" value="{{ $schedule->schedule_date }}"
+                                                            class="form-control"
+                                                            value="{{ $schedule->schedule_date }}"
+                                                            min="{{ now()->toDateString() }}"
                                                             {{ $type == 'date' ? 'required' : '' }}>
                                                     </div>
                                                 </td>
@@ -201,7 +203,10 @@
                             </select>
                         </div>
                         <div class="date-field" style="display: none;">
-                            <input type="date" name="schedules[${uniqueIndex}][schedule_date]" class="form-control">
+                            <input type="date"
+                                   name="schedules[${uniqueIndex}][schedule_date]"
+                                   class="form-control"
+                                   min="${new Date().toISOString().split('T')[0]}">
                         </div>
                     </td>
                     <td>

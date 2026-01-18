@@ -84,7 +84,7 @@ class AppointmentBookingController extends Controller
     public function getSlots(Request $request, Doctor $doctor)
     {
         $request->validate([
-            'date' => 'required|date',
+            'date' => 'required|date|after_or_equal:today',
             'clinic_id' => 'nullable|exists:clinics,id'
         ]);
 

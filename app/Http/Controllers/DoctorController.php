@@ -275,7 +275,7 @@ class DoctorController extends Controller
             'schedules' => 'nullable|array',
             'schedules.*.type' => 'required|in:weekly,date',
             'schedules.*.day_of_week' => 'nullable|required_if:schedules.*.type,weekly|integer|between:0,6',
-            'schedules.*.schedule_date' => 'nullable|required_if:schedules.*.type,date|date',
+            'schedules.*.schedule_date' => 'nullable|required_if:schedules.*.type,date|date|after_or_equal:today',
             'schedules.*.start_time' => [
                 'required',
                 'date_format:H:i',

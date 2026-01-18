@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Medicine;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 
 class MedicineController extends Controller
 {
@@ -96,55 +98,83 @@ class MedicineController extends Controller
 
     public function search(Request $request)
     {
-        Gate::authorize('viewAny', Medicine::class);
-        $term = trim((string) $request->get('term', ''));
-        $clinicId = optional(auth()->user())->clinic_id;
+        try {
+            Gate::authorize('viewAny', Medicine::class);
+            $term = trim((string) $request->get('term', ''));
+            $clinicId = optional(auth()->user())->clinic_id;
 
-        $query = Medicine::query()
-            ->select('medicines.*')
-            ->join('medicine_batches as mb', 'mb.medicine_id', '=', 'medicines.id')
-            ->where('mb.clinic_id', $clinicId)
-            ->where('mb.quantity_in_stock', '>', 0)
-            ->where('medicines.status', 'active')
-            ->groupBy(
-                'medicines.id',
-                'medicines.name',
-                'medicines.generic_name',
-                'medicines.manufacturer',
-                'medicines.strength',
-                'medicines.dosage_form',
-                'medicines.price',
-                'medicines.status',
-                'medicines.created_at',
-                'medicines.updated_at'
-            )
-            ->selectRaw('SUM(mb.quantity_in_stock) as stock');
-
-        if ($term !== '') {
-            $query->where(function ($q) use ($term) {
-                $q->where('medicines.name', 'like', '%' . $term . '%')
-                    ->orWhere('medicines.generic_name', 'like', '%' . $term . '%')
-                    ->orWhere('medicines.manufacturer', 'like', '%' . $term . '%');
-            });
-        }
-
-        $items = $query->orderBy('medicines.name')->limit(20)->get()->map(function ($m) {
-            $label = $m->name;
-            if (!empty($m->strength)) {
-                $label .= ' (' . $m->strength . ')';
+            if (!$clinicId || !Schema::hasTable('medicine_batches')) {
+                return response()->json([
+                    'results' => [],
+                    'pagination' => ['more' => false],
+                ]);
             }
-            $label .= ' — Stock: ' . (int) $m->stock;
-            return [
-                'id' => $m->id,
-                'text' => $label,
-                'price' => $m->price,
-                'stock' => (int) $m->stock,
-            ];
-        });
 
-        return response()->json([
-            'results' => $items,
-            'pagination' => ['more' => false],
-        ]);
+            $quantityColumn = null;
+
+            if (Schema::hasColumn('medicine_batches', 'quantity_in_stock')) {
+                $quantityColumn = 'quantity_in_stock';
+            } elseif (Schema::hasColumn('medicine_batches', 'quantity')) {
+                $quantityColumn = 'quantity';
+            }
+
+            $query = Medicine::query()
+                ->where('status', 'active')
+                ->whereHas('batches', function ($q) use ($clinicId, $quantityColumn) {
+                    $q->where('clinic_id', $clinicId);
+                    if ($quantityColumn) {
+                        $q->where($quantityColumn, '>', 0);
+                    }
+                });
+
+            if ($quantityColumn) {
+                $query->withSum(['batches as stock' => function ($q) use ($clinicId, $quantityColumn) {
+                    $q->where('clinic_id', $clinicId);
+                }], $quantityColumn);
+            }
+
+            if ($term !== '') {
+                $query->where(function ($q) use ($term) {
+                    $q->where('name', 'like', '%' . $term . '%')
+                        ->orWhere('generic_name', 'like', '%' . $term . '%')
+                        ->orWhere('manufacturer', 'like', '%' . $term . '%');
+                });
+            }
+
+            $items = $query->orderBy('name')->limit(20)->get()->map(function ($m) use ($quantityColumn) {
+                $stock = 0;
+
+                if ($quantityColumn && isset($m->stock)) {
+                    $stock = (int) $m->stock;
+                }
+
+                $label = $m->name;
+
+                if (!empty($m->strength)) {
+                    $label .= ' (' . $m->strength . ')';
+                }
+
+                $label .= ' — Stock: ' . $stock;
+
+                return [
+                    'id' => $m->id,
+                    'text' => $label,
+                    'price' => $m->price,
+                    'stock' => $stock,
+                ];
+            });
+
+            return response()->json([
+                'results' => $items,
+                'pagination' => ['more' => false],
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'results' => [],
+                'pagination' => ['more' => false],
+            ]);
+        }
     }
 }

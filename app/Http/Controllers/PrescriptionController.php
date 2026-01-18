@@ -65,8 +65,14 @@ class PrescriptionController extends Controller
             'consultation.doctor.department',
         ]);
 
+        $vitalsHistory = collect();
+        if ($prescription->consultation && $prescription->consultation->visit) {
+            $vitalsHistory = \App\Models\PatientVital::where('visit_id', $prescription->consultation->visit->id)
+                ->orderByDesc('recorded_at')
+                ->get();
+        }
 
-        return view('clinical.prescription.show', compact('prescription'));
+        return view('clinical.prescription.show', compact('prescription', 'vitalsHistory'));
     }
 
 

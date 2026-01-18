@@ -144,7 +144,7 @@ class AppointmentController extends Controller
         Gate::authorize('update', $appointment);
 
         $validated = $request->validate([
-            'appointment_date' => 'required|date',
+            'appointment_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required',
             'status' => 'required|in:pending,confirmed,cancelled,completed,arrived',
         ]);
@@ -186,7 +186,7 @@ class AppointmentController extends Controller
      */
     public function getSlots(Request $request, Doctor $doctor)
     {
-        $request->validate(['date' => 'required|date']);
+        $request->validate(['date' => 'required|date|after_or_equal:today']);
 
         $slots = $this->appointmentService->getAvailableSlots($doctor, $request->date);
 

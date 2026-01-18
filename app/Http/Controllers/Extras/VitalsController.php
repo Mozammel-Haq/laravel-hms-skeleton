@@ -16,6 +16,7 @@ class VitalsController extends Controller
 {
     public function record(Request $request)
     {
+         Gate::authorize('create', PatientVital::class);
         $visit = null;
         $appointment = null;
         $round = null;
@@ -133,10 +134,19 @@ class VitalsController extends Controller
             ->with('success', 'Vitals recorded successfully.');
     }
 
-    public function history()
+    public function history(Request $request)
     {
-        $vitals = PatientVital::with(['patient', 'visit.appointment'])->latest('recorded_at')->paginate(20);
+        $query = PatientVital::with(['patient', 'visit.appointment'])->latest('recorded_at');
 
-        return view('vitals.history', compact('vitals'));
+        $patient = null;
+        if ($request->filled('patient_id')) {
+            $patientId = (int) $request->input('patient_id');
+            $query->where('patient_id', $patientId);
+            $patient = Patient::find($patientId);
+        }
+
+        $vitals = $query->paginate(20);
+
+        return view('vitals.history', compact('vitals', 'patient'));
     }
 }
