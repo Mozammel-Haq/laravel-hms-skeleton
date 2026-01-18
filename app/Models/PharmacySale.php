@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+use App\Models\Prescription;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PharmacySale extends BaseTenantModel
@@ -15,5 +16,9 @@ class PharmacySale extends BaseTenantModel
     public function items()
     {
         return $this->hasMany(PharmacySaleItem::class);
+    }
+    public function prescription()
+    {
+        return $this->belongsTo(Prescription::class);
     }
 }

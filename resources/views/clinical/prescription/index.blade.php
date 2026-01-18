@@ -45,6 +45,10 @@
                                         @else
                                             <a href="{{ route('clinical.prescriptions.show', $rx) }}"
                                                 class="btn btn-sm btn-outline-primary">Open</a>
+                                            @if (auth()->check() && auth()->user()->hasRole('Pharmacist'))
+                                                <a href="{{ route('pharmacy.create', ['prescription_id' => $rx->id]) }}"
+                                                    class="btn btn-sm btn-outline-success">Load to POS</a>
+                                            @endif
                                             <form action="{{ route('clinical.prescriptions.destroy', $rx) }}"
                                                 method="POST" class="d-inline">
                                                 @csrf
