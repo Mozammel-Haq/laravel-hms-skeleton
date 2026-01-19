@@ -4,12 +4,12 @@
 
         <div class="card m-2">
             <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Create Invoice</h3>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="page-title mb-0">Create Invoice</h3>
 
-            <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Invoices</a>
-        </div>
-        <hr>
+                    <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Invoices</a>
+                </div>
+                <hr>
                 <form method="POST" action="{{ route('billing.store') }}">
                     @csrf
 
@@ -17,11 +17,15 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Patient</label>
-                            <select name="patient_id" id="patientSelect" class="form-select" required>
+                            <select name="patient_id" id="patientSelect" class="form-select select2-patient" required>
                                 <option value="">Select patient</option>
-                                @foreach ($patients as $p)
-                                    <option value="{{ $p->id }}">{{ $p->full_name ?? $p->name }}</option>
-                                @endforeach
+                                @if (isset($patients))
+                                    @foreach ($patients as $patient)
+                                        <option value="{{ $patient->id }}" selected>
+                                            {{ $patient->name }} ({{ $patient->patient_code }})
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -113,99 +117,132 @@
         </tr>
     </template>
 
-    <script>
-        let itemsData = {}; // Will hold AJAX fetched items
-        const patientSelect = document.getElementById('patientSelect');
-        const addItemBtn = document.getElementById('addItemBtn');
-        const tableBody = document.querySelector('#invoiceItemsTable tbody');
-
-        // Fetch pending items when patient changes
-        patientSelect.addEventListener('change', function() {
-            const patientId = this.value;
-            if (!patientId) return;
-
-            fetch(`/billing/patient-items/${patientId}`)
-                .then(res => res.json())
-                .then(data => {
-                    itemsData = data; // { consultations: [], lab_tests: [], medicines: [] }
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                // Initialize Select2 with AJAX
+                $('.select2-patient').select2({
+                    ajax: {
+                        url: '{{ route('patients.search') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term,
+                                page: params.page
+                            };
+                        },
+                        processResults: function(data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination.more
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Search for a patient',
+                    minimumInputLength: 0,
+                    allowClear: true,
+                    width: '100%'
                 });
-        });
+            });
 
-        // Add item row
-        addItemBtn.addEventListener('click', function() {
-            const template = document.getElementById('itemRowTemplate').content.cloneNode(true);
-            const select = template.querySelector('.descriptionSelect');
+            let itemsData = {}; // Will hold AJAX fetched items
+            const patientSelect = document.getElementById('patientSelect');
+            const addItemBtn = document.getElementById('addItemBtn');
+            const tableBody = document.querySelector('#invoiceItemsTable tbody');
 
-            // Populate options from fetched items
-            ['consultations', 'lab_tests', 'medicines'].forEach(type => {
-                if (itemsData[type]) {
-                    itemsData[type].forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item.id;
-                        option.dataset.type = type;
-                        option.dataset.price = item.price;
-                        option.text = item.description;
-                        select.appendChild(option);
+            // Fetch pending items when patient changes
+            patientSelect.addEventListener('change', function() {
+                const patientId = this.value;
+                if (!patientId) return;
+
+                fetch(`/billing/patient-items/${patientId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        itemsData = data; // { consultations: [], lab_tests: [], medicines: [] }
                     });
+            });
+
+            // Add item row
+            addItemBtn.addEventListener('click', function() {
+                const template = document.getElementById('itemRowTemplate').content.cloneNode(true);
+                const select = template.querySelector('.descriptionSelect');
+
+                // Populate options from fetched items
+                ['consultations', 'lab_tests', 'medicines'].forEach(type => {
+                    if (itemsData[type]) {
+                        itemsData[type].forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.id;
+                            option.dataset.type = type;
+                            option.dataset.price = item.price;
+                            option.text = item.description;
+                            select.appendChild(option);
+                        });
+                    }
+                });
+
+                tableBody.appendChild(template);
+            });
+
+            // Event delegation for dynamic rows
+            tableBody.addEventListener('change', function(e) {
+                if (e.target.classList.contains('descriptionSelect')) {
+                    const row = e.target.closest('tr');
+                    const selectedOption = e.target.selectedOptions[0];
+                    row.querySelector('.itemType').value = selectedOption.dataset.type || '';
+                    row.querySelector('.unitPrice').value = selectedOption.dataset.price || 0;
+                    updateRowTotal(row);
+                    updateTotals();
                 }
             });
 
-            tableBody.appendChild(template);
-        });
-
-        // Event delegation for dynamic rows
-        tableBody.addEventListener('change', function(e) {
-            if (e.target.classList.contains('descriptionSelect')) {
-                const row = e.target.closest('tr');
-                const selectedOption = e.target.selectedOptions[0];
-                row.querySelector('.itemType').value = selectedOption.dataset.type || '';
-                row.querySelector('.unitPrice').value = selectedOption.dataset.price || 0;
-                updateRowTotal(row);
-                updateTotals();
-            }
-        });
-
-        tableBody.addEventListener('input', function(e) {
-            if (e.target.classList.contains('quantity') || e.target.classList.contains('unitPrice')) {
-                const row = e.target.closest('tr');
-                updateRowTotal(row);
-                updateTotals();
-            }
-        });
-
-        tableBody.addEventListener('click', function(e) {
-            if (e.target.classList.contains('removeItemBtn')) {
-                e.target.closest('tr').remove();
-                updateTotals();
-            }
-        });
-
-        function updateRowTotal(row) {
-            const qty = parseFloat(row.querySelector('.quantity').value) || 0;
-            const price = parseFloat(row.querySelector('.unitPrice').value) || 0;
-            row.querySelector('.total').value = (qty * price).toFixed(2);
-        }
-
-        function updateTotals() {
-            let subtotal = 0;
-            tableBody.querySelectorAll('tr').forEach(row => {
-                subtotal += parseFloat(row.querySelector('.total').value) || 0;
+            tableBody.addEventListener('input', function(e) {
+                if (e.target.classList.contains('quantity') || e.target.classList.contains('unitPrice')) {
+                    const row = e.target.closest('tr');
+                    updateRowTotal(row);
+                    updateTotals();
+                }
             });
-            const discount = parseFloat(document.getElementById('discount').value) || 0;
-            const tax = parseFloat(document.getElementById('tax').value) || 0;
 
-            const discountAmount = discount;
-            const taxAmount = ((subtotal - discountAmount) * tax / 100).toFixed(2);
-            const grandTotal = (subtotal - discountAmount + parseFloat(taxAmount)).toFixed(2);
+            tableBody.addEventListener('click', function(e) {
+                if (e.target.classList.contains('removeItemBtn')) {
+                    e.target.closest('tr').remove();
+                    updateTotals();
+                }
+            });
 
-            document.getElementById('subtotal').innerText = subtotal.toFixed(2);
-            document.getElementById('discountAmount').innerText = discountAmount.toFixed(2);
-            document.getElementById('taxAmount').innerText = taxAmount;
-            document.getElementById('grandTotal').innerText = grandTotal;
-        }
+            function updateRowTotal(row) {
+                const qty = parseFloat(row.querySelector('.quantity').value) || 0;
+                const price = parseFloat(row.querySelector('.unitPrice').value) || 0;
+                row.querySelector('.total').value = (qty * price).toFixed(2);
+            }
 
-        // Update totals when discount or tax changes
-        document.getElementById('discount').addEventListener('input', updateTotals);
-        document.getElementById('tax').addEventListener('input', updateTotals);
-    </script>
+            function updateTotals() {
+                let subtotal = 0;
+                tableBody.querySelectorAll('tr').forEach(row => {
+                    subtotal += parseFloat(row.querySelector('.total').value) || 0;
+                });
+                const discount = parseFloat(document.getElementById('discount').value) || 0;
+                const tax = parseFloat(document.getElementById('tax').value) || 0;
+
+                const discountAmount = discount;
+                const taxAmount = ((subtotal - discountAmount) * tax / 100).toFixed(2);
+                const grandTotal = (subtotal - discountAmount + parseFloat(taxAmount)).toFixed(2);
+
+                document.getElementById('subtotal').innerText = subtotal.toFixed(2);
+                document.getElementById('discountAmount').innerText = discountAmount.toFixed(2);
+                document.getElementById('taxAmount').innerText = taxAmount;
+                document.getElementById('grandTotal').innerText = grandTotal;
+            }
+
+            // Update totals when discount or tax changes
+            document.getElementById('discount').addEventListener('input', updateTotals);
+            document.getElementById('tax').addEventListener('input', updateTotals);
+        </script>
+    @endpush
 </x-app-layout>

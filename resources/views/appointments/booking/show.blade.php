@@ -16,10 +16,8 @@
 
                         <!-- Avatar -->
                         <div class="text-center mb-3">
-                            <img
-                                src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
-                                class="rounded-circle border"
-                                style="width:110px;height:110px;object-fit:cover;"
+                            <img src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                                class="rounded-circle border" style="width:110px;height:110px;object-fit:cover;"
                                 alt="Doctor Image">
                         </div>
 
@@ -117,19 +115,24 @@
                             <!-- Patient & Clinic Selection -->
                             <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-medium">Patient <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-sm" name="patient_id" id="patient_id" required>
+                                    <label class="form-label fw-medium">Patient <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm select2-patient" name="patient_id"
+                                        id="patient_id" required>
                                         <option value="">Select Patient</option>
-                                        @foreach ($patients as $patient)
-                                            <option value="{{ $patient->id }}">
-                                                {{ $patient->name }} ({{ $patient->patient_code ?? $patient->id }})
-                                            </option>
-                                        @endforeach
+                                        @if (isset($patients))
+                                            @foreach ($patients as $patient)
+                                                <option value="{{ $patient->id }}" selected>
+                                                    {{ $patient->name }} ({{ $patient->patient_code }})
+                                                </option>
+                                            @endforeach
+                                        @endif
                                     </select>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-medium">Clinic Location <span class="text-danger">*</span></label>
+                                    <label class="form-label fw-medium">Clinic Location <span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select form-select-sm" name="clinic_id" id="clinic_id" required>
                                         @foreach ($doctor->clinics as $clinic)
                                             <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
@@ -141,7 +144,8 @@
                             <!-- Date & Fee -->
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-medium">Appointment Date <span class="text-danger">*</span></label>
+                                    <label class="form-label fw-medium">Appointment Date <span
+                                            class="text-danger">*</span></label>
                                     <input type="text" class="form-control form-control-sm datetimepicker"
                                         name="appointment_date" id="appointment_date" required>
                                 </div>
@@ -180,6 +184,37 @@
 
     @push('scripts')
         <script>
+            $(document).ready(function() {
+                // Initialize Select2 with AJAX
+                $('.select2-patient').select2({
+                    ajax: {
+                        url: '{{ route('patients.search') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term,
+                                page: params.page
+                            };
+                        },
+                        processResults: function(data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination.more
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Search for a patient',
+                    minimumInputLength: 0,
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
+
             // Keep your original JS intact
             $(document).ready(function() {
                 if ($('.datetimepicker').length > 0) {
@@ -206,13 +241,17 @@
                     $.ajax({
                         url: '{{ route('appointments.booking.fee', $doctor->id) }}',
                         type: 'GET',
-                        data: { patient_id: patientId },
+                        data: {
+                            patient_id: patientId
+                        },
                         success: function(response) {
                             $('#fee_display').val(response.fee + ' BDT');
                             if (response.is_discounted) {
-                                $('#fee_note').text('Returning patient discount applied (' + response.type + ').');
+                                $('#fee_note').text('Returning patient discount applied (' +
+                                    response.type + ').');
                             } else {
-                                $('#fee_note').text('Standard consultation fee (' + response.type + ').');
+                                $('#fee_note').text('Standard consultation fee (' + response.type +
+                                    ').');
                             }
                         },
                         error: function() {
@@ -223,7 +262,8 @@
 
                 $('.datetimepicker').on('dp.change', function(e) {
                     if (!e.date) {
-                        $('#slots_container').html('<p class="text-muted mb-0">Please select a date to view available slots.</p>');
+                        $('#slots_container').html(
+                            '<p class="text-muted mb-0">Please select a date to view available slots.</p>');
                         $('#submitBtn').prop('disabled', true);
                         $('#start_time').val('');
                         $('#end_time').val('');
@@ -234,7 +274,8 @@
                     var today = moment().startOf('day');
 
                     if (selected.isBefore(today)) {
-                        $('#slots_container').html('<p class="text-danger mb-0">You cannot book appointments for past dates.</p>');
+                        $('#slots_container').html(
+                            '<p class="text-danger mb-0">You cannot book appointments for past dates.</p>');
                         $('#submitBtn').prop('disabled', true);
                         $('#start_time').val('');
                         $('#end_time').val('');
@@ -256,7 +297,9 @@
                     $.ajax({
                         url: '{{ route('appointments.booking.slots', $doctor->id) }}',
                         type: 'GET',
-                        data: { date: date },
+                        data: {
+                            date: date
+                        },
                         success: function(response) {
                             var slots = response.slots;
                             var html = '<div class="row">';
@@ -264,11 +307,14 @@
                                 html = '<p class="text-danger">No slots available for this date.</p>';
                             } else {
                                 $.each(slots, function(index, slot) {
-                                    var btnClass = slot.is_booked ? 'btn-secondary disabled' : 'btn-outline-primary slot-btn';
+                                    var btnClass = slot.is_booked ? 'btn-secondary disabled' :
+                                        'btn-outline-primary slot-btn';
                                     var disabled = slot.is_booked ? 'disabled' : '';
                                     html += '<div class="col-6 col-sm-4 col-md-3 mb-3">';
-                                    html += '<button type="button" class="btn ' + btnClass + ' w-100" ' + disabled +
-                                        ' data-start="' + slot.start_time + '" data-end="' + slot.end_time + '">';
+                                    html += '<button type="button" class="btn ' + btnClass +
+                                        ' w-100" ' + disabled +
+                                        ' data-start="' + slot.start_time + '" data-end="' + slot
+                                        .end_time + '">';
                                     html += slot.start_time + ' - ' + slot.end_time;
                                     html += '</button></div>';
                                 });

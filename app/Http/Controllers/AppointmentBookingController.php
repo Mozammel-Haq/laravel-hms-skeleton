@@ -67,13 +67,21 @@ class AppointmentBookingController extends Controller
     /**
      * Show booking calendar for a specific doctor.
      */
-    public function show(Doctor $doctor)
+    public function show(Doctor $doctor, Request $request)
     {
         $doctor->load(['user', 'department', 'clinics']);
 
         // Fetch patients for selection (Limit to 50 for performance, or use AJAX search in real impl)
         // ideally we should use a search API, but for this prototype we'll load some.
-        $patients = Patient::limit(100)->get();
+        $patients = collect(); // Use AJAX search
+        if ($request->has('patient_id') || old('patient_id')) {
+            $patientId = $request->input('patient_id') ?? old('patient_id');
+            $patient = Patient::find($patientId);
+            if ($patient) {
+                $patients->push($patient);
+            }
+        }
+
 
         return view('appointments.booking.show', compact('doctor', 'patients'));
     }

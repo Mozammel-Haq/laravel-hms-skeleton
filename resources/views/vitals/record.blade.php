@@ -1,17 +1,24 @@
 <x-app-layout>
     <div class="container-fluid">
 
-        <div class="card mt-2">
+        <div class="card mt-2 mx-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Record Vitals</h3>
                     <a href="{{ route('vitals.history') }}" class="btn btn-outline-secondary">View History</a>
                 </div>
-                <form class="row g-3" method="POST" action="{{ route('vitals.store') }}">
+                <hr>
+                <form class="row g-3 mt-3" method="POST" action="{{ route('vitals.store') }}">
                     @csrf
                     @php
-                        $singlePatient = $patients instanceof \Illuminate\Support\Collection && $patients->count() === 1 ? $patients->first() : null;
-                        $hasContext = (isset($visit) && $visit) || request()->has('admission_id') || request()->has('appointment_id');
+                        $singlePatient =
+                            $patients instanceof \Illuminate\Support\Collection && $patients->count() === 1
+                                ? $patients->first()
+                                : null;
+                        $hasContext =
+                            (isset($visit) && $visit) ||
+                            request()->has('admission_id') ||
+                            request()->has('appointment_id');
                     @endphp
                     @if ($singlePatient && $hasContext)
                         <div class="col-md-6">
@@ -24,12 +31,15 @@
                     @else
                         <div class="col-md-6">
                             <label class="form-label">Patient</label>
-                            <select class="form-select" name="patient_id" required>
+                            <select class="form-select select2-patient" name="patient_id" required>
                                 <option value="">Select patient</option>
-                                @foreach ($patients as $p)
-                                    <option value="{{ $p->id }}" @selected(old('patient_id') == $p->id)>
-                                        {{ $p->name ?? ($p->full_name ?? 'Patient') }}</option>
-                                @endforeach
+                                @if (isset($patients))
+                                    @foreach ($patients as $patient)
+                                        <option value="{{ $patient->id }}" selected>
+                                            {{ $patient->name }} ({{ $patient->patient_code }})
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                     @endif
@@ -70,4 +80,38 @@
             </div>
         </div>
     </div>
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                // Initialize Select2 with AJAX
+                $('.select2-patient').select2({
+                    ajax: {
+                        url: '{{ route('patients.search') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term,
+                                page: params.page
+                            };
+                        },
+                        processResults: function(data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination.more
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Search for a patient',
+                    minimumInputLength: 0,
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>

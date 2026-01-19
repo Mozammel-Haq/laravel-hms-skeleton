@@ -13,12 +13,15 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Patient</label>
-                            <select name="patient_id" class="form-select" required>
+                            <select name="patient_id" class="form-select select2-patient" required>
                                 <option value="">Select patient</option>
-                                @foreach ($patients as $p)
-                                    <option value="{{ $p->id }}">{{ $p->full_name ?? ($p->name ?? 'Patient') }}
-                                    </option>
-                                @endforeach
+                                @if (isset($patients))
+                                    @foreach ($patients as $patient)
+                                        <option value="{{ $patient->id }}" selected>
+                                            {{ $patient->name }} ({{ $patient->patient_code }})
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -42,4 +45,38 @@
             </div>
         </div>
     </div>
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                // Initialize Select2 with AJAX
+                $('.select2-patient').select2({
+                    ajax: {
+                        url: '{{ route('patients.search') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term,
+                                page: params.page
+                            };
+                        },
+                        processResults: function(data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination.more
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Search for a patient',
+                    minimumInputLength: 0,
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>

@@ -63,6 +63,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Patients
+    Route::get('patients/search', [\App\Http\Controllers\PatientSearchController::class, 'search'])->name('patients.search');
     Route::resource('patients', PatientController::class)->middleware('can:view_patients');
     Route::post('patients/{id}/restore', [PatientController::class, 'restore'])->name('patients.restore')->middleware('can:delete_patients');
 

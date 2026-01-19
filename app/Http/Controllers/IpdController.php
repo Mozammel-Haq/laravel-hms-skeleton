@@ -91,10 +91,18 @@ class IpdController extends Controller
         return redirect()->route('ipd.index')->with('success', 'Admission record restored successfully.');
     }
 
-    public function create()
+    public function create(Request $request)
     {
         Gate::authorize('create', Admission::class);
-        $patients = Patient::all();
+        $patients = collect();
+        if ($request->has('patient_id') || old('patient_id')) {
+            $patientId = $request->input('patient_id') ?? old('patient_id');
+            $patient = Patient::find($patientId);
+            if ($patient) {
+                $patients = collect([$patient]);
+            }
+        }
+
         $doctors = Doctor::where('status', 'active')->get();
         $wards = Ward::where('clinic_id', auth()->user()->clinic_id)
             ->with(['rooms.beds' => function ($query) {

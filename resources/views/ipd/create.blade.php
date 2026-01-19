@@ -20,22 +20,11 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <x-input-label for="patient_id" :value="__('Select Patient')" />
-                            <select id="patient_id" name="patient_id" class="form-select mt-1 block w-full" required>
+                            <select id="patient_id" name="patient_id"
+                                class="form-select mt-1 block w-full select2-patient" required>
                                 <option value="">Select a patient...</option>
-                                @foreach ($patients as $patient)
-                                    <option value="{{ $patient->id }}"
-                                        {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
-                                        {{ $patient->name }} ({{ $patient->patient_code }})
-                                    </option>
-                                @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('patient_id')" class="mt-2" />
-                            @if ($patients->isEmpty())
-                                <div class="form-text text-warning">
-                                    No patients found. <a href="{{ route('patients.create') }}">Register a patient
-                                        first.</a>
-                                </div>
-                            @endif
                         </div>
 
                         <div class="col-md-6">
@@ -72,8 +61,7 @@
                         <div class="col-md-8">
                             <div class="mt-2 d-flex justify-content-end">
                                 <input type="hidden" name="bed_id" id="bed_id" value="{{ old('bed_id') }}">
-                                <button type="submit" class="btn btn-primary" id="admit-button"
-                                    {{ $patients->isEmpty() ? 'disabled' : '' }}>
+                                <button type="submit" class="btn btn-primary" id="admit-button">
                                     <i class="ti ti-check me-1"></i> Admit Patient
                                 </button>
                             </div>
@@ -164,101 +152,134 @@
             </div>
         </div>
     </div>
-    <script>
-        function bedMatrix(config) {
-            return {
-                wards: config.wards || [],
-                selectedWardId: null,
-                selectedRoomId: null,
-                selectedBedId: config.initialBedId,
-                init() {
-                    if (this.wards.length) {
-                        const wardWithRooms = this.wards.find(w => w.rooms && w.rooms.length);
-                        if (wardWithRooms) {
-                            this.selectedWardId = wardWithRooms.id;
-                            this.selectedRoomId = wardWithRooms.rooms[0].id;
-                        } else {
-                            this.selectedWardId = this.wards[0].id;
-                            this.selectedRoomId = null;
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                // Initialize Select2 with AJAX
+                $('.select2-patient').select2({
+                    ajax: {
+                        url: '{{ route('patients.search') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term,
+                                page: params.page
+                            };
+                        },
+                        processResults: function(data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination.more
+                                }
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Search for a patient',
+                    minimumInputLength: 0,
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
+
+            function bedMatrix(config) {
+                return {
+                    wards: config.wards || [],
+                    selectedWardId: null,
+                    selectedRoomId: null,
+                    selectedBedId: config.initialBedId,
+                    init() {
+                        if (this.wards.length) {
+                            const wardWithRooms = this.wards.find(w => w.rooms && w.rooms.length);
+                            if (wardWithRooms) {
+                                this.selectedWardId = wardWithRooms.id;
+                                this.selectedRoomId = wardWithRooms.rooms[0].id;
+                            } else {
+                                this.selectedWardId = this.wards[0].id;
+                                this.selectedRoomId = null;
+                            }
                         }
-                    }
-                    if (this.selectedBedId) {
-                        for (const ward of this.wards) {
-                            for (const room of ward.rooms || []) {
-                                for (const bed of room.beds || []) {
-                                    if (bed.id === this.selectedBedId) {
-                                        this.selectedWardId = ward.id;
-                                        this.selectedRoomId = room.id;
+                        if (this.selectedBedId) {
+                            for (const ward of this.wards) {
+                                for (const room of ward.rooms || []) {
+                                    for (const bed of room.beds || []) {
+                                        if (bed.id === this.selectedBedId) {
+                                            this.selectedWardId = ward.id;
+                                            this.selectedRoomId = room.id;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    this.updateHidden();
-                    this.updateButtonState();
-                },
-                get rooms() {
-                    const wardId = Number(this.selectedWardId);
-                    const ward = this.wards.find(w => Number(w.id) === wardId);
-                    return ward && ward.rooms ? ward.rooms : [];
-                },
-                get beds() {
-                    const wardId = Number(this.selectedWardId);
-                    const ward = this.wards.find(w => Number(w.id) === wardId);
-                    if (!ward || !ward.rooms) return [];
-                    const roomId = Number(this.selectedRoomId);
-                    const room = ward.rooms.find(r => Number(r.id) === roomId);
-                    return room && room.beds ? room.beds : [];
-                },
-                onWardChange() {
-                    const wardId = Number(this.selectedWardId);
-                    const ward = this.wards.find(w => Number(w.id) === wardId);
-                    if (ward && ward.rooms && ward.rooms.length) {
-                        this.selectedRoomId = ward.rooms[0].id;
-                    } else {
-                        this.selectedRoomId = null;
-                    }
-                },
-                selectBed(bed) {
-                    if (bed.status !== 'available') return;
-                    this.selectedBedId = bed.id;
-                    this.updateHidden();
-                    this.updateButtonState();
-                },
-                isSelected(bed) {
-                    return this.selectedBedId === bed.id;
-                },
-                bedButtonClass(bed) {
-                    let classes = ['btn-outline-secondary'];
-                    if (bed.status === 'available') {
-                        classes = ['btn-outline-success'];
-                    } else if (bed.status === 'occupied') {
-                        classes = ['btn-outline-danger'];
-                    } else if (bed.status === 'maintenance') {
-                        classes = ['btn-outline-secondary', 'opacity-50'];
-                    }
-                    if (this.isSelected(bed)) {
-                        classes.push('active');
-                    }
-                    return classes.join(' ');
-                },
-                updateHidden() {
-                    const input = document.getElementById('bed_id');
-                    if (input) {
-                        input.value = this.selectedBedId || '';
-                    }
-                },
-                updateButtonState() {
-                    const button = document.getElementById('admit-button');
-                    if (button) {
-                        if (this.selectedBedId) {
-                            button.removeAttribute('disabled');
+                        this.updateHidden();
+                        this.updateButtonState();
+                    },
+                    get rooms() {
+                        const wardId = Number(this.selectedWardId);
+                        const ward = this.wards.find(w => Number(w.id) === wardId);
+                        return ward && ward.rooms ? ward.rooms : [];
+                    },
+                    get beds() {
+                        const wardId = Number(this.selectedWardId);
+                        const ward = this.wards.find(w => Number(w.id) === wardId);
+                        if (!ward || !ward.rooms) return [];
+                        const roomId = Number(this.selectedRoomId);
+                        const room = ward.rooms.find(r => Number(r.id) === roomId);
+                        return room && room.beds ? room.beds : [];
+                    },
+                    onWardChange() {
+                        const wardId = Number(this.selectedWardId);
+                        const ward = this.wards.find(w => Number(w.id) === wardId);
+                        if (ward && ward.rooms && ward.rooms.length) {
+                            this.selectedRoomId = ward.rooms[0].id;
                         } else {
-                            button.setAttribute('disabled', 'disabled');
+                            this.selectedRoomId = null;
                         }
-                    }
-                },
-            };
-        }
-    </script>
+                    },
+                    selectBed(bed) {
+                        if (bed.status !== 'available') return;
+                        this.selectedBedId = bed.id;
+                        this.updateHidden();
+                        this.updateButtonState();
+                    },
+                    isSelected(bed) {
+                        return this.selectedBedId === bed.id;
+                    },
+                    bedButtonClass(bed) {
+                        let classes = ['btn-outline-secondary'];
+                        if (bed.status === 'available') {
+                            classes = ['btn-outline-success'];
+                        } else if (bed.status === 'occupied') {
+                            classes = ['btn-outline-danger'];
+                        } else if (bed.status === 'maintenance') {
+                            classes = ['btn-outline-secondary', 'opacity-50'];
+                        }
+                        if (this.isSelected(bed)) {
+                            classes.push('active');
+                        }
+                        return classes.join(' ');
+                    },
+                    updateHidden() {
+                        const input = document.getElementById('bed_id');
+                        if (input) {
+                            input.value = this.selectedBedId || '';
+                        }
+                    },
+                    updateButtonState() {
+                        const button = document.getElementById('admit-button');
+                        if (button) {
+                            if (this.selectedBedId) {
+                                button.removeAttribute('disabled');
+                            } else {
+                                button.setAttribute('disabled', 'disabled');
+                            }
+                        }
+                    },
+                };
+            }
+        </script>
+    @endpush
 </x-app-layout>

@@ -50,10 +50,17 @@ class LabController extends Controller
         return view('lab.index', compact('orders'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         Gate::authorize('create', LabTestOrder::class);
-        $patients = Patient::all();
+        $patients = collect(); // Use AJAX search
+        if ($request->has('patient_id') || old('patient_id')) {
+            $patientId = $request->input('patient_id') ?? old('patient_id');
+            $patient = Patient::find($patientId);
+            if ($patient) {
+                $patients->push($patient);
+            }
+        }
         $tests = LabTest::all();
         return view('lab.create', compact('patients', 'tests'));
     }
