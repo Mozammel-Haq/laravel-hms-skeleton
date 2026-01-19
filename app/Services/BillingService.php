@@ -13,7 +13,7 @@ class BillingService
 {
     /**
      * Create a new invoice.
-     * 
+     *
      * @param mixed $patient
      * @param array $items Array of ['item_type', 'reference_id', 'description', 'quantity', 'unit_price']
      * @param int|null $appointmentId
@@ -25,9 +25,12 @@ class BillingService
     {
         return DB::transaction(function () use ($patient, $items, $appointmentId, $discount, $tax, $visitId, $invoiceType, $createdBy, $finalize) {
             $subtotal = collect($items)->sum(fn($item) => $item['quantity'] * $item['unit_price']);
-            $totalAmount = $subtotal - $discount + $tax;
 
-            // Generate a simple unique invoice number for now. 
+            // Calculate tax amount (tax is passed as percentage)
+            $taxAmount = max(0, ($subtotal - $discount)) * ($tax / 100);
+            $totalAmount = max(0, $subtotal - $discount + $taxAmount);
+
+            // Generate a simple unique invoice number for now.
             // In production, this should be sequential per clinic.
             $invoiceNumber = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
@@ -68,7 +71,7 @@ class BillingService
 
     /**
      * Record a payment for an invoice.
-     * 
+     *
      * @param Invoice $invoice
      * @param float $amount
      * @param string $method
@@ -93,14 +96,14 @@ class BillingService
             // But we didn't add it to the relationship instance.
             // Let's just sum from DB.
             // Wait, inside transaction, if we query relation, it should see the new record if we refresh or query DB.
-            
+
             // Payment::create inserts into DB.
             // $invoice->payments() queries DB.
             // So it should include the new payment.
-            
+
             // Re-fetch total paid
             $totalPaid = $invoice->payments()->sum('amount');
-            
+
             if ($totalPaid >= $invoice->total_amount) {
                 $invoice->update(['status' => 'paid']);
             } elseif ($totalPaid > 0) {

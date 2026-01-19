@@ -36,7 +36,7 @@
                         $invoices = \App\Models\Invoice::where('visit_id', $visit->id)->latest()->get();
                         $total = $invoices->sum('total_amount');
                     @endphp
-                    <table class="table table-sm datatable">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -95,6 +95,16 @@
                             <div class="mb-2">
                                 <label class="form-label">Unit Price</label>
                                 <input type="number" step="0.01" name="unit_price" class="form-control" required>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <label class="form-label">Discount</label>
+                                    <input type="number" name="discount" class="form-control" step="0.01" min="0" value="0">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Tax (%)</label>
+                                    <input type="number" name="tax" class="form-control" step="0.01" min="0" value="0">
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-primary btn-sm">Generate Invoice</button>
                         </form>

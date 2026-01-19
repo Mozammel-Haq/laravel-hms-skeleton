@@ -73,6 +73,7 @@ class AdminUsersController extends Controller
             'phone'     => 'nullable|string|max:50',
             'status'    => 'required|in:active,inactive,blocked',
             'clinic_id' => $isSuperAdmin ? 'nullable' : 'required|exists:clinics,id',
+            'profile_photo' => 'nullable|image|max:2048',
         ]);
 
         $user = User::create([
@@ -83,6 +84,12 @@ class AdminUsersController extends Controller
             'status'    => $data['status'],
             'clinic_id' => $isSuperAdmin ? $mainSuperAdmin->clinic_id : $data['clinic_id'],
         ]);
+
+        if ($request->hasFile('profile_photo')) {
+            $path = $request->file('profile_photo')->store('profile-photos', 'public');
+            $user->profile_photo_path = $path;
+            $user->save();
+        }
 
         $role = $isSuperAdmin ? 'Super Admin' : 'Clinic Admin';
         $user->assignRole($role);
@@ -125,6 +132,7 @@ class AdminUsersController extends Controller
             'phone'     => 'nullable|string|max:50',
             'status'    => 'required|in:active,inactive,suspended',
             'clinic_id' => $isSuperAdmin ? 'nullable' : 'required|exists:clinics,id',
+            'profile_photo' => 'nullable|image|max:2048',
         ]);
 
         // Update fields
@@ -140,6 +148,15 @@ class AdminUsersController extends Controller
         // Optional password update
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
+        }
+
+        if ($request->hasFile('profile_photo')) {
+            $path = $request->file('profile_photo')->store('profile-photos', 'public');
+            // Delete old photo if exists
+            if ($user->profile_photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
+            }
+            $user->profile_photo_path = $path;
         }
 
         $user->save();

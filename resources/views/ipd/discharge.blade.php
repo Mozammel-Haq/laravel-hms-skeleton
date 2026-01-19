@@ -22,9 +22,11 @@
                                     <div class="avatar avatar-lg me-3">
                                         @if ($admission->patient->profile_photo)
                                             <img src="{{ asset($admission->patient->profile_photo) }}"
-                                                alt="{{ $admission->patient->name }}" class="rounded-circle w-100 h-100 object-fit-cover">
+                                                alt="{{ $admission->patient->name }}"
+                                                class="rounded-circle w-100 h-100 object-fit-cover">
                                         @else
-                                            <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
+                                            <span
+                                                class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
                                                 {{ substr($admission->patient->name, 0, 1) }}
                                             </span>
                                         @endif
@@ -75,22 +77,49 @@
                                         <div class="col-md-6">
                                             <x-input-label for="discharge_date" :value="__('Discharge Date')" />
                                             <x-text-input id="discharge_date" class="block mt-1 w-full form-control"
-                                                type="datetime-local" name="discharge_date"
-                                                :value="old('discharge_date', now()->format('Y-m-d\TH:i'))" required />
+                                                type="datetime-local" name="discharge_date" :value="old('discharge_date', now()->format('Y-m-d\TH:i'))"
+                                                required />
                                             <x-input-error :messages="$errors->get('discharge_date')" class="mt-2" />
                                         </div>
                                     </div>
 
-                                    <div class="alert alert-warning mt-4 mb-0 d-flex align-items-center">
-                                        <i class="ti ti-alert-circle fs-2 me-3"></i>
-                                        <div>
-                                            <h6 class="mb-1">Confirm Discharge</h6>
-                                            <p class="mb-0 small">
-                                                Discharging this patient will mark the admission as completed and free up
-                                                any currently assigned bed.
-                                            </p>
+                                    <div class="row g-3 mt-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Discount</label>
+                                            <input type="number" name="discount" class="form-control" step="0.01"
+                                                min="0" value="0">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Tax (%)</label>
+                                            <input type="number" name="tax" class="form-control" step="0.01"
+                                                min="0" value="0">
                                         </div>
                                     </div>
+
+                                    @if (isset($unpaidInvoices) && $unpaidInvoices)
+                                        <div class="alert alert-danger mt-4 mb-0 d-flex align-items-center">
+                                            <i class="ti ti-ban fs-2 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-1">Cannot Discharge</h6>
+                                                <p class="mb-0 small">
+                                                    This patient has unpaid invoices. Please settle all dues before
+                                                    discharging.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="alert alert-warning mt-4 mb-0 d-flex align-items-center">
+                                            <i class="ti ti-alert-circle fs-2 me-3"></i>
+                                            <div>
+                                                <h6 class="mb-1">Confirm Discharge</h6>
+                                                <p class="mb-0 small">
+                                                    Discharging this patient will mark the admission as completed and
+                                                    free up
+                                                    any currently assigned bed.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -98,7 +127,8 @@
                                 <a href="{{ route('ipd.show', $admission) }}" class="btn btn-outline-secondary">
                                     Cancel
                                 </a>
-                                <button type="submit" class="btn btn-danger">
+                                <button type="submit" class="btn btn-danger"
+                                    {{ isset($unpaidInvoices) && $unpaidInvoices ? 'disabled' : '' }}>
                                     <i class="ti ti-door-exit me-1"></i> Confirm Discharge
                                 </button>
                             </div>

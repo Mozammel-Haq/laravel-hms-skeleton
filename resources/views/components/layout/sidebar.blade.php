@@ -179,21 +179,8 @@
                             <i class="ti ti-report"></i><span>Global Reports</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('reports.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('reports.financial') }}">Revenue (All Clinics)</a></li>
-                            <li><a href="{{ route('reports.demographics') }}">Patient Volume</a></li>
-                        </ul>
-                    </li>
+                            <li><a href="{{ route('reports.index') }}">All reports</a></li>
 
-                    <li class="submenu">
-                        <a href="#"
-                            class="{{ request()->routeIs('admin.schedule.requests.*') || request()->routeIs('admin.schedule.exceptions.*') ? 'active subdrop' : '' }}">
-                            <i class="ti ti-calendar-stats"></i><span>Doctor Schedules</span><span
-                                class="menu-arrow"></span>
-                        </a>
-                        <ul
-                            style="{{ request()->routeIs('admin.schedule.requests.*') || request()->routeIs('admin.schedule.exceptions.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('admin.schedule.requests.index') }}">Schedule Requests</a></li>
-                            <li><a href="{{ route('admin.schedule.exceptions.index') }}">Exceptions</a></li>
                         </ul>
                     </li>
                 @endif
@@ -338,12 +325,10 @@
                     <li class="menu-title"><span>Clinical Workflow</span></li>
 
                     <li class="submenu">
-                        <a href="#"
-                            class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
+                        <a href="#" class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-calendar"></i><span>Appointments</span><span class="menu-arrow"></span>
                         </a>
-                        <ul
-                            style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('appointments.index') }}">Today</a></li>
                             <li><a href="{{ route('appointments.index') }}">Upcoming</a></li>
                         </ul>

@@ -35,6 +35,7 @@ class User extends BaseTenantModel implements AuthenticatableContract, MustVerif
         'is_two_factor_enabled',
         'last_login_at',
         'email_verified_at',
+        'profile_photo_path',
     ];
 
     /**
@@ -54,6 +55,20 @@ class User extends BaseTenantModel implements AuthenticatableContract, MustVerif
         'password'         => 'hashed',
         'is_two_factor_enabled' => 'boolean',
     ];
+
+    protected $appends = [
+        'profile_photo_url',
+    ];
+
+    /**
+     * Get the URL to the user's profile photo.
+     */
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->profile_photo_path
+            ? asset('storage/' . $this->profile_photo_path)
+            : asset('assets/img/users/user-01.jpg'); // Default image
+    }
 
     /**
      * Relationships
@@ -82,6 +97,14 @@ class User extends BaseTenantModel implements AuthenticatableContract, MustVerif
             return $this->roles->contains('name', $role);
         }
         return $this->roles->contains($role);
+    }
+
+    public function hasAnyRole($roles)
+    {
+        if (is_array($roles)) {
+            return $this->roles->whereIn('name', $roles)->isNotEmpty();
+        }
+        return $this->hasRole($roles);
     }
 
     public function hasPermission($permission)

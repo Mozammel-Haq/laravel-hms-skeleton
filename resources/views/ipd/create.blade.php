@@ -55,6 +55,32 @@
                                 placeholder="Enter reason for admission and initial notes...">{{ old('admission_reason') }}</textarea>
                             <x-input-error :messages="$errors->get('admission_reason')" class="mt-2" />
                         </div>
+
+                        <div class="col-md-6">
+                            <x-input-label for="admission_fee" :value="__('Admission Fee')" />
+                            <x-text-input id="admission_fee" class="block mt-1 w-full form-control" type="number"
+                                name="admission_fee" :value="old('admission_fee', 0)" min="0" step="0.01" />
+                            <x-input-error :messages="$errors->get('admission_fee')" class="mt-2" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <x-input-label for="deposit_amount" :value="__('Deposit Amount')" />
+                            <x-text-input id="deposit_amount" class="block mt-1 w-full form-control" type="number"
+                                name="deposit_amount" :value="old('deposit_amount', 0)" min="0" step="0.01" />
+                            <x-input-error :messages="$errors->get('deposit_amount')" class="mt-2" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Discount (on Fee)</label>
+                            <input type="number" name="discount" class="form-control" step="0.01" min="0"
+                                value="0">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tax % (on Fee)</label>
+                            <input type="number" name="tax" class="form-control" step="0.01" min="0"
+                                value="0">
+                        </div>
                     </div>
 
                     <div class="row g-4 mt-3">
@@ -96,7 +122,8 @@
                                         </div>
                                         <div class="col-6">
                                             <label class="form-label small mb-1">Room</label>
-                                            <select class="form-select form-select-sm" x-model.number="selectedRoomId">
+                                            <select class="form-select form-select-sm"
+                                                x-model.number="selectedRoomId">
                                                 <template x-for="room in rooms" :key="room.id">
                                                     <option :value="room.id"
                                                         x-text="room.room_number + ' (' + (room.room_type || '') + ')'">

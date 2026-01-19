@@ -55,6 +55,8 @@ class VisitController extends Controller
             'description' => 'required|string|max:255',
             'quantity' => 'required|integer|min:1',
             'unit_price' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
         ]);
         $patient = $visit->appointment->patient;
         app(BillingService::class)->createInvoice(
@@ -67,8 +69,8 @@ class VisitController extends Controller
                 'unit_price' => (float)$data['unit_price'],
             ]],
             $visit->appointment_id,
-            discount: 0,
-            tax: 0,
+            discount: (float)($data['discount'] ?? 0),
+            tax: (float)($data['tax'] ?? 0),
             visitId: $visit->id,
             invoiceType: 'procedure',
             createdBy: auth()->id(),
@@ -93,11 +95,13 @@ class VisitController extends Controller
         Gate::authorize('create', Visit::class);
         $data = $request->validate([
             'appointment_id' => 'required|exists:appointments,id',
+            'discount' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
         ]);
 
         $appointment = Appointment::findOrFail($data['appointment_id']);
 
-        $visit = DB::transaction(function () use ($appointment) {
+        $visit = DB::transaction(function () use ($appointment, $data) {
             $visit = Visit::where('appointment_id', $appointment->id)->latest()->first();
             if (!$visit) {
                 $visit = Visit::create([
@@ -131,8 +135,8 @@ class VisitController extends Controller
                 $appointment->patient,
                 $items,
                 $appointment->id,
-                discount: 0,
-                tax: 0,
+                discount: (float)($data['discount'] ?? 0),
+                tax: (float)($data['tax'] ?? 0),
                 visitId: $visit->id,
                 invoiceType: 'consultation',
                 createdBy: auth()->id(),

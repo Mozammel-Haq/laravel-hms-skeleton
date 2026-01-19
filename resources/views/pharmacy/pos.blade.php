@@ -90,6 +90,19 @@
                                 @enderror
                             </div>
 
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Discount</label>
+                                    <input type="number" name="discount" class="form-control" step="0.01"
+                                        min="0" value="0">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Tax (%)</label>
+                                    <input type="number" name="tax" class="form-control" step="0.01"
+                                        min="0" value="0">
+                                </div>
+                            </div>
+
                             <hr>
                             <button type="submit" class="btn btn-success w-100 py-2">
                                 <i class="ti ti-check me-1"></i> Complete Sale

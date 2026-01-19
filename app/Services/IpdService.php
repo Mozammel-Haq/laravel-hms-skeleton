@@ -88,15 +88,17 @@ class IpdService
     }
 
     /**
-     * Discharge a patient and generate invoice.
+     * Discharge a patient.
      *
      * @param Admission $admission
      * @param string $dischargeDate
+     * @param int|null $dischargedBy
+     * @param string|null $reason
      * @return Admission
      */
-    public function dischargePatient(Admission $admission, string $dischargeDate)
+    public function dischargePatient(Admission $admission, string $dischargeDate, ?int $dischargedBy = null, ?string $reason = null)
     {
-        return DB::transaction(function () use ($admission, $dischargeDate) {
+        return DB::transaction(function () use ($admission, $dischargeDate, $dischargedBy, $reason) {
             // Release bed if any
             $currentAssignment = $admission->bedAssignments()
                 ->whereNull('released_at')
@@ -108,12 +110,12 @@ class IpdService
                 $bed->update(['status' => 'available']);
             }
 
-            // Generate Invoice
-            $this->generateDischargeInvoice($admission, $dischargeDate);
-
             $admission->update([
                 'status' => 'discharged',
                 'current_bed_id' => null,
+                'discharged_by' => $dischargedBy,
+                'discharge_date' => $dischargeDate,
+                'discharge_reason' => $reason,
             ]);
 
             return $admission;
@@ -125,9 +127,11 @@ class IpdService
      *
      * @param Admission $admission
      * @param string|null $dischargeDate
+     * @param float $discount
+     * @param float $tax
      * @return Invoice
      */
-    public function generateDischargeInvoice(Admission $admission, ?string $dischargeDate = null)
+    public function generateDischargeInvoice(Admission $admission, ?string $dischargeDate = null, float $discount = 0, float $tax = 0)
     {
         $items = [];
 
@@ -176,8 +180,8 @@ class IpdService
             $admission->patient,
             $items,
             appointmentId: null,
-            discount: 0,
-            tax: 0,
+            discount: $discount,
+            tax: $tax,
             visitId: null,
             invoiceType: 'ipd_discharge',
             createdBy: auth()->id(),

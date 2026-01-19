@@ -122,8 +122,8 @@ class BillingController extends Controller
                 'subtotal'   => $subtotal,
                 'discount'   => $discount,
                 'tax'        => $tax,
-                'tax_amount' => $taxAmount,
-                'total'      => $grandTotal,
+                // 'tax_amount' => $taxAmount, // Column does not exist
+                'total_amount'      => $grandTotal, // Column is total_amount, not total
                 'status'     => 'unpaid', // default status
             ]);
 

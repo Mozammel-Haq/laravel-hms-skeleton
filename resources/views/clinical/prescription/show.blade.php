@@ -1,4 +1,40 @@
 <x-app-layout>
+    @push('styles')
+        <style>
+            @media print {
+
+                .navbar-header,
+                .sidebar,
+                .footer {
+                    display: none !important;
+                }
+
+                .page-wrapper {
+                    margin-left: 0 !important;
+                    padding: 0 !important;
+                    width: 100% !important;
+                }
+
+                .main-wrapper {
+                    padding: 0 !important;
+                }
+
+                .card {
+                    border: none !important;
+                    box-shadow: none !important;
+                }
+
+                .content {
+                    padding: 0 !important;
+                }
+
+                body {
+                    background-color: white !important;
+                }
+            }
+        </style>
+    @endpush
+
     <div class="content">
 
         <!-- start row -->
@@ -6,7 +42,7 @@
             <div class="col-lg-10">
 
                 <!-- Page Header -->
-                <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-3 d-print-none">
                     <h6 class="fw-bold mb-0 d-flex align-items-center">
                         <a href="{{ route('clinical.prescriptions.index') }}">
                             <i class="ti ti-chevron-left me-1 fs-14"></i> Prescription
@@ -154,7 +190,7 @@
                             <h6 class="fs-16 fw-bold mb-3">Prescribed Medicines</h6>
 
                             <div class="table-responsive border bg-white">
-                                <table class="table table-nowrap datatable">
+                                <table class="table table-nowrap">
                                     <thead class="table-light">
                                         <tr>
                                             <th>#</th>

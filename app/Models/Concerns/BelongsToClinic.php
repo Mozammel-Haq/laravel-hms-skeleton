@@ -28,4 +28,9 @@ trait BelongsToClinic
             }
         });
     }
+
+    public function clinic()
+    {
+        return $this->belongsTo(\App\Models\Clinic::class);
+    }
 }

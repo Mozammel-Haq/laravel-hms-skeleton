@@ -41,6 +41,14 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+    Route::post('/notifications/{id}/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+
+    // Activity Logs
+    Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity_logs.index');
+
     //=====Switch Clinic=======
     Route::get('/system/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('system.switch-clinic');
     Route::get('/system/clear-clinic', [SystemController::class, 'clearClinicContext'])->name('system.clear-clinic');
@@ -234,6 +242,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/bed-assignments/{bedAssignment}', [BedAssignmentController::class, 'show'])->name('bed_assignments.show');
 
         // Discharge
+        Route::post('/{admission}/recommend-discharge', [IpdController::class, 'recommendDischarge'])->whereNumber('admission')->name('recommend-discharge');
         Route::get('/{admission}/discharge', [IpdController::class, 'discharge'])->whereNumber('admission')->name('discharge');
         Route::post('/{admission}/discharge', [IpdController::class, 'storeDischarge'])->whereNumber('admission')->name('store-discharge');
         Route::get('/rounds', [IpdController::class, 'roundsIndex'])->name('rounds.index');

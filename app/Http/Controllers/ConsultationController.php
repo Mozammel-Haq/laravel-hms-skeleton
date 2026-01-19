@@ -124,6 +124,9 @@ class ConsultationController extends Controller
     public function store(Request $request, Appointment $appointment)
     {
         Gate::authorize('create', Consultation::class);
+        if (!auth()->user()->hasRole('Doctor')) {
+            abort(403, 'Only Doctors can make consultations.');
+        }
         $doctor = Doctor::where('user_id', auth()->id())->first();
         if (!$doctor || $appointment->doctor_id !== $doctor->id) {
             return redirect()->route('appointments.index')
