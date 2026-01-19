@@ -56,11 +56,17 @@ class BillingController extends Controller
     }
 
     // Show create invoice form
-    public function create()
+    public function create(Request $request)
     {
         Gate::authorize('create', Invoice::class);
-
-        $patients = Patient::orderBy('name')->get();
+        $patients = collect();
+        if ($request->has('patient_id') || old('patient_id')) {
+            $patientId = $request->input('patient_id') ?? old('patient_id');
+            $patient = Patient::find($patientId);
+            if ($patient) {
+                $patients->push($patient);
+            }
+        }
         return view('billing.create', compact('patients'));
     }
 

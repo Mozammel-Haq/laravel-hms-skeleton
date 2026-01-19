@@ -39,7 +39,14 @@ class VitalsController extends Controller
             $visit = $appointment->visit;
             $patients = collect([$appointment->patient])->filter();
         } else {
-            $patients = Patient::orderBy('name')->take(100)->get();
+            $patients = collect();
+            if ($request->has('patient_id') || old('patient_id')) {
+                $patientId = $request->input('patient_id') ?? old('patient_id');
+                $patient = Patient::find($patientId);
+                if ($patient) {
+                    $patients->push($patient);
+                }
+            }
         }
 
         return view('vitals.record', compact('patients', 'visit', 'appointment'));

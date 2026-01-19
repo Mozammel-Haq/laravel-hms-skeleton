@@ -39,7 +39,7 @@ class PharmacyController extends Controller
     public function create(Request $request)
     {
         Gate::authorize('create', PharmacySale::class);
-        $patients = Patient::orderBy('name')->get();
+        $patients = collect(); // Use AJAX search
         $medicines = Medicine::whereHas('batches', function ($q) {
             $q->where('clinic_id', auth()->user()->clinic_id)
                 ->where('quantity_in_stock', '>', 0);
@@ -48,6 +48,20 @@ class PharmacyController extends Controller
         if ($request->filled('prescription_id')) {
             $prescription = Prescription::with(['items.medicine', 'consultation.patient'])->find($request->input('prescription_id'));
         }
+
+        // Pre-fill patient for Select2
+        $targetPatientId = old('patient_id');
+        if (!$targetPatientId && $prescription && $prescription->consultation && $prescription->consultation->patient) {
+            $targetPatientId = $prescription->consultation->patient->id;
+        }
+
+        if ($targetPatientId) {
+            $p = Patient::find($targetPatientId);
+            if ($p) {
+                $patients->push($p);
+            }
+        }
+
         return view('pharmacy.pos', compact('patients', 'medicines', 'prescription'));
     }
 

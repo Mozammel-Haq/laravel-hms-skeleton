@@ -34,7 +34,9 @@
                                     </tbody>
                                 </table>
                             </div>
-                            @error('items') <div class="text-danger mt-2">{{ $message }}</div> @enderror
+                            @error('items')
+                                <div class="text-danger mt-2">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -46,7 +48,12 @@
 
                             @php
                                 $selectedPatientId = old('patient_id');
-                                if (!$selectedPatientId && isset($prescription) && $prescription->consultation && $prescription->consultation->patient) {
+                                if (
+                                    !$selectedPatientId &&
+                                    isset($prescription) &&
+                                    $prescription->consultation &&
+                                    $prescription->consultation->patient
+                                ) {
                                     $selectedPatientId = $prescription->consultation->patient->id;
                                 }
                                 $prefilledPrescriptionId = old('prescription_id');
@@ -56,22 +63,31 @@
                             @endphp
                             <div class="mb-3">
                                 <label class="form-label">Patient <span class="text-danger">*</span></label>
-                                <select name="patient_id" class="form-select" required>
+                                <select name="patient_id" class="form-select select2-patient" required>
                                     <option value="">Select Patient</option>
-                                    @foreach($patients as $patient)
-                                        <option value="{{ $patient->id }}" {{ (string) $selectedPatientId === (string) $patient->id ? 'selected' : '' }}>
-                                            {{ $patient->name }} ({{ $patient->patient_code }})
-                                        </option>
-                                    @endforeach
+                                    @if ($selectedPatientId && isset($patients))
+                                        @foreach ($patients as $patient)
+                                            @if ((string) $selectedPatientId === (string) $patient->id)
+                                                <option value="{{ $patient->id }}" selected>
+                                                    {{ $patient->name }} ({{ $patient->patient_code }})
+                                                </option>
+                                            @endif
+                                        @endforeach
+                                    @endif
                                 </select>
-                                @error('patient_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                @error('patient_id')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Prescription ID <span class="text-danger">*</span></label>
-                                <input type="number" name="prescription_id" class="form-control" value="{{ $prefilledPrescriptionId }}" placeholder="Enter Prescription ID" required>
+                                <input type="number" name="prescription_id" class="form-control"
+                                    value="{{ $prefilledPrescriptionId }}" placeholder="Enter Prescription ID" required>
                                 <div class="form-text">Required for record keeping.</div>
-                                @error('prescription_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                @error('prescription_id')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <hr>
@@ -85,57 +101,88 @@
         </form>
     </div>
 
-    <script>
-        @php
-            $preloadedItems = [];
-            if (isset($prescription)) {
-                foreach ($prescription->items as $item) {
-                    if (!$item->medicine) {
-                        continue;
-                    }
-                    $label = $item->medicine->name;
-                    if (!empty($item->medicine->strength)) {
-                        $label .= ' (' . $item->medicine->strength . ')';
-                    }
-                    $preloadedItems[] = [
-                        'medicine_id' => $item->medicine->id,
-                        'medicine_text' => $label,
-                        'quantity' => 1,
-                    ];
-                }
-            }
-        @endphp
-        const preloadedItems = @json($preloadedItems);
-
-        function initMedicineSelect2(selectEl) {
-            const $el = $(selectEl);
-            $el.select2({
-                width: '100%',
-                placeholder: 'Search medicine',
-                allowClear: true,
-                ajax: {
-                    url: '{{ route('pharmacy.medicines.search') }}',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {
-                            term: params.term || ''
-                        };
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                // Initialize Select2 with AJAX
+                $('.select2-patient').select2({
+                    ajax: {
+                        url: '{{ route('patients.search') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term,
+                                page: params.page
+                            };
+                        },
+                        processResults: function(data, params) {
+                            params.page = params.page || 1;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination.more
+                                }
+                            };
+                        },
+                        cache: true
                     },
-                    processResults: function (data) {
-                        return data;
-                    },
-                    cache: true
-                },
-                minimumInputLength: 1
+                    placeholder: 'Search for a patient',
+                    minimumInputLength: 0,
+                    allowClear: true,
+                    width: '100%'
+                });
             });
-        }
+            @php
+                $preloadedItems = [];
+                if (isset($prescription)) {
+                    foreach ($prescription->items as $item) {
+                        if (!$item->medicine) {
+                            continue;
+                        }
+                        $label = $item->medicine->name;
+                        if (!empty($item->medicine->strength)) {
+                            $label .= ' (' . $item->medicine->strength . ')';
+                        }
+                        $preloadedItems[] = [
+                            'medicine_id' => $item->medicine->id,
+                            'medicine_text' => $label,
+                            'quantity' => 1,
+                        ];
+                    }
+                }
+            @endphp
+            const preloadedItems = @json($preloadedItems);
 
-        function addItem(prefill = null) {
-            const index = document.querySelectorAll('#items-container tr').length;
-            const tr = document.createElement('tr');
+            function initMedicineSelect2(selectEl) {
+                const $el = $(selectEl);
+                $el.select2({
+                    width: '100%',
+                    placeholder: 'Search medicine',
+                    allowClear: true,
+                    ajax: {
+                        url: '{{ route('pharmacy.medicines.search') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term || ''
+                            };
+                        },
+                        processResults: function(data) {
+                            return data;
+                        },
+                        cache: true
+                    },
+                    minimumInputLength: 1
+                });
+            }
 
-            tr.innerHTML = `
+            function addItem(prefill = null) {
+                const index = document.querySelectorAll('#items-container tr').length;
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
                 <td>
                     <select name="items[${index}][medicine_id]" class="form-select form-select-sm medicine-select" required>
                         <option value="">Search medicine</option>
@@ -151,28 +198,29 @@
                 </td>
             `;
 
-            document.getElementById('items-container').appendChild(tr);
-            const selectEl = tr.querySelector('.medicine-select');
-            initMedicineSelect2(selectEl);
-            const quantityInput = tr.querySelector('input[name="items[' + index + '][quantity]"]');
-            if (prefill && prefill.medicine_id) {
-                const option = new Option(prefill.medicine_text || 'Selected medicine', prefill.medicine_id, true, true);
-                selectEl.appendChild(option);
-                $(selectEl).trigger('change');
+                document.getElementById('items-container').appendChild(tr);
+                const selectEl = tr.querySelector('.medicine-select');
+                initMedicineSelect2(selectEl);
+                const quantityInput = tr.querySelector('input[name="items[' + index + '][quantity]"]');
+                if (prefill && prefill.medicine_id) {
+                    const option = new Option(prefill.medicine_text || 'Selected medicine', prefill.medicine_id, true, true);
+                    selectEl.appendChild(option);
+                    $(selectEl).trigger('change');
+                }
+                if (prefill && prefill.quantity) {
+                    quantityInput.value = prefill.quantity;
+                }
             }
-            if (prefill && prefill.quantity) {
-                quantityInput.value = prefill.quantity;
-            }
-        }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (Array.isArray(preloadedItems) && preloadedItems.length > 0) {
-                preloadedItems.forEach(function (item) {
-                    addItem(item);
-                });
-            } else if (document.querySelectorAll('#items-container tr').length === 0) {
-                addItem();
-            }
-        });
-    </script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (Array.isArray(preloadedItems) && preloadedItems.length > 0) {
+                    preloadedItems.forEach(function(item) {
+                        addItem(item);
+                    });
+                } else if (document.querySelectorAll('#items-container tr').length === 0) {
+                    addItem();
+                }
+            });
+        </script>
+    @endpush
 </x-app-layout>
