@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid py-3">
+    <div class="container-fluid py-3 mx-2">
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm">
@@ -51,8 +51,26 @@
                         <tbody>
                             @foreach ($admissions as $ad)
                                 <tr>
-                                    <td>{{ $ad->patient->name ?? 'Patient' }}</td>
-                                    <td>{{ $ad->doctor->user->name ?? 'Doctor' }}</td>
+                                    <td>
+                                        @if ($ad->patient)
+                                            <a href="{{ route('patients.show', $ad->patient) }}"
+                                                class="text-decoration-none text-body">
+                                                {{ $ad->patient->name ?? 'Patient' }}
+                                            </a>
+                                        @else
+                                            Patient
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($ad->doctor)
+                                            <a href="{{ route('doctors.show', $ad->doctor) }}"
+                                                class="text-decoration-none text-body">
+                                                {{ $ad->doctor->user->name ?? 'Doctor' }}
+                                            </a>
+                                        @else
+                                            Doctor
+                                        @endif
+                                    </td>
                                     <td>{{ $ad->created_at?->format('d M, H:i') }}</td>
                                     <td><span class="badge bg-primary">{{ $ad->status }}</span></td>
                                     <td class="text-end">

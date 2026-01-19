@@ -1,7 +1,7 @@
 <x-app-layout>
 
     <div class="content">
-        <div class="card  p-3">
+        <div class="card p-3 mx-2">
             <!-- Page Header -->
             <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3 pb-3 border-bottom">
                 <div class="flex-grow-1">
@@ -13,6 +13,7 @@
                     </button>
                 </div>
             </div>
+            <hr>
 
             <!-- Roles Table -->
             <div class="table-responsive">

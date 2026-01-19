@@ -1,9 +1,9 @@
 <x-app-layout>
     <div class="container-fluid">
 
-        <div class="card mt-2">
+        <div class="card mt-2 mx-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
                     <h3 class="page-title mb-0">Prescriptions</h3>
                     <div class="btn-group">
                         <a href="{{ route('clinical.prescriptions.index') }}"
@@ -12,6 +12,7 @@
                             class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
                     </div>
                 </div>
+                <hr>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle datatable datatable-server">
                         <thead class="table-light">
@@ -28,9 +29,24 @@
                             @forelse ($prescriptions as $rx)
                                 <tr>
                                     <td>{{ $rx->id }}</td>
-                                    <td>{{ optional($rx->consultation?->patient)->full_name ?? (optional($rx->consultation?->patient)->name ?? 'Patient') }}
+                                    <td>
+                                        @if(optional($rx->consultation)->patient)
+                                            <a href="{{ route('patients.show', $rx->consultation->patient) }}" class="text-decoration-none text-body">
+                                                {{ $rx->consultation->patient->full_name ?? $rx->consultation->patient->name }}
+                                            </a>
+                                        @else
+                                            Patient
+                                        @endif
                                     </td>
-                                    <td>{{ optional($rx->consultation?->doctor?->user)->name ?? 'Doctor' }}</td>
+                                    <td>
+                                        @if(optional($rx->consultation)->doctor)
+                                            <a href="{{ route('doctors.show', $rx->consultation->doctor) }}" class="text-decoration-none text-body">
+                                                {{ optional($rx->consultation->doctor->user)->name ?? 'Doctor' }}
+                                            </a>
+                                        @else
+                                            Doctor
+                                        @endif
+                                    </td>
                                     <td>{{ isset($rx->issued_at) ? \Illuminate\Support\Carbon::parse($rx->issued_at)->format('Y-m-d') : $rx->created_at->format('Y-m-d') }}
                                     </td>
                                     <td><span class="badge bg-secondary">{{ $rx->status ?? 'active' }}</span></td>

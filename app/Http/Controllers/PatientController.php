@@ -117,7 +117,22 @@ class PatientController extends Controller
     {
         Gate::authorize('update', $patient);
 
-        $patient->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('profile_photo')) {
+            $file = $request->file('profile_photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $destination = public_path('assets/img/patients');
+
+            if (!is_dir($destination)) {
+                mkdir($destination, 0755, true);
+            }
+
+            $file->move($destination, $filename);
+            $data['profile_photo'] = 'assets/img/patients/' . $filename;
+        }
+
+        $patient->update($data);
 
         return redirect()->route('patients.show', $patient)
             ->with('success', 'Patient updated successfully.');

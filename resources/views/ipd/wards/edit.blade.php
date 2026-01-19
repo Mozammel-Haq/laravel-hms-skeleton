@@ -1,8 +1,9 @@
 <x-app-layout>
 
-    <div class="card mt-2 px-3 py-2">
+    <div class="card mt-2 mx-3 p-2">
         <div class="card-body">
             <h5 class="mb-3">Edit Ward</h5>
+            <hr>
             <form method="post" action="{{ route('ipd.wards.update', $ward) }}">
                 @csrf
                 @method('PUT')

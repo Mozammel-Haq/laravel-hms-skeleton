@@ -7,7 +7,7 @@
             <p class="text-muted">View appointment information</p>
         </div>
         <div class="action-btn">
-            <a href="{{ route('appointments.index') }}" class="btn btn-light me-2">
+            <a href="{{ route('appointments.index') }}" class="btn btn-outline-primary me-2">
                 <i class="ti ti-arrow-left me-1"></i> Back
             </a>
             @can('update', $appointment)
@@ -82,17 +82,24 @@
                         <div class="col-md-6">
                             <div class="p-3 bg-light rounded">
                                 <h6 class="text-muted mb-3">Patient Details</h6>
-                                <div class="d-flex align-items-center mb-3">
+                                <a href="{{ route('patients.show', $appointment->patient) }}"
+                                    class="d-flex align-items-center mb-3 text-decoration-none text-body">
                                     <div class="avatar me-3">
-                                        <span class="avatar-title rounded-circle bg-primary text-white">
-                                            {{ substr($appointment->patient->name, 0, 1) }}
-                                        </span>
+                                        @if ($appointment->patient->profile_photo)
+                                            <img src="{{ asset($appointment->patient->profile_photo) }}"
+                                                alt="{{ $appointment->patient->name }}" class="rounded-circle"
+                                                style="width:40px;height:40px;object-fit:cover;">
+                                        @else
+                                            <span class="avatar-title rounded-circle bg-primary text-white">
+                                                {{ substr($appointment->patient->name, 0, 1) }}
+                                            </span>
+                                        @endif
                                     </div>
                                     <div>
                                         <div class="fw-bold">{{ $appointment->patient->name }}</div>
                                         <div class="text-muted small">{{ $appointment->patient->patient_code }}</div>
                                     </div>
-                                </div>
+                                </a>
                                 <div class="mb-2">
                                     <i class="ti ti-phone me-2 text-muted"></i>
                                     {{ $appointment->patient->phone ?? 'N/A' }}
@@ -108,13 +115,27 @@
                                 <h6 class="text-muted mb-3">Doctor Details</h6>
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="avatar me-3">
-                                        <span class="avatar-title rounded-circle bg-info text-white">
-                                            {{ substr($appointment->doctor?->user?->name ?? 'D', 0, 1) }}
-                                        </span>
+                                        @if ($appointment->doctor && $appointment->doctor->profile_photo)
+                                            <img src="{{ asset($appointment->doctor->profile_photo) }}"
+                                                alt="{{ $appointment->doctor->user?->name }}" class="rounded-circle"
+                                                style="width:40px;height:40px;object-fit:cover;">
+                                        @else
+                                            <span class="avatar-title rounded-circle bg-info text-white">
+                                                {{ substr($appointment->doctor?->user?->name ?? 'D', 0, 1) }}
+                                            </span>
+                                        @endif
                                     </div>
                                     <div>
                                         <div class="fw-bold">
-                                            {{ $appointment->doctor?->user?->name ?? 'Deleted Doctor' }}</div>
+                                            @if ($appointment->doctor)
+                                                <a href="{{ route('doctors.show', $appointment->doctor) }}"
+                                                    class="text-decoration-none text-body">
+                                                    {{ $appointment->doctor->user?->name ?? 'Deleted Doctor' }}
+                                                </a>
+                                            @else
+                                                Deleted Doctor
+                                            @endif
+                                        </div>
                                         <div class="text-muted small">
                                             {{ $appointment->doctor?->specialization ?? 'N/A' }}</div>
                                     </div>

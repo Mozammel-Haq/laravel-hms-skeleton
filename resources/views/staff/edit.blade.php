@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
 
         <div class="row justify-content-center">

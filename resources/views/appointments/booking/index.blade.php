@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card card-table show-entire">
-                    
+
                     <div class="card-body">
                         <div class="page-table-header mb-2">
                             <div class="row align-items-center">
@@ -16,6 +16,7 @@
                                 </div>
                             </div>
                         </div>
+                        <hr>
 
                         <!-- Filter Form -->
                         <form method="GET" action="{{ route('appointments.booking.index') }}" class="mb-4">

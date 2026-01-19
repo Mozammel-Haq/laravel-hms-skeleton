@@ -1,15 +1,16 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
 
         <div class="card border-0 mt-2">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="page-title mb-0">Add New Doctor</h4>
-                    <a href="{{ route('doctors.index') }}" class="btn btn-sm btn-outline-secondary">
+                    <a href="{{ route('doctors.index') }}" class="btn btn-sm btn-outline-primary">
                         <i class="ti ti-arrow-left me-1"></i> Back
                     </a>
                 </div>
+                <hr>
                 <form action="{{ route('doctors.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 

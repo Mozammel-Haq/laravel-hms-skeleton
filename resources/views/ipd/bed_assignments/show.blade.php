@@ -1,8 +1,9 @@
 <x-app-layout>
 
-    <div class="card mt-2">
+    <div class="card mt-2 mx-2 p-3">
         <div class="card-title">
             <h5 class="mb-3">Bed Assignment #{{ $assignment->id }}</h5>
+            <hr>
         </div>
 
         <div class="card-body">

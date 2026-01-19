@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
         <div class="row g-3">
             <div class="col-lg-4">
                 <div class="card mt-2">

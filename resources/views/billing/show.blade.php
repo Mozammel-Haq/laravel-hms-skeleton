@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
         <div class="row">
             <div class="col-md-8">
@@ -9,6 +9,7 @@
             <h3 class="page-title mb-0">Invoice {{ $invoice->invoice_number }}</h3>
             <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Back</a>
         </div>
+                        <hr>
                         <div class="mb-3">
                             <strong>Patient:</strong> {{ optional($invoice->patient)->full_name ?? 'Patient' }}
                         </div>

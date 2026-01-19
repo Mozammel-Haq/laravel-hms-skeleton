@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
         <div class="card border-0 mt-2">
             <div class="card-body">
@@ -7,6 +7,7 @@
                     <h3 class="page-title mb-0">Rounds Management</h3>
                     <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">IPD Dashboard</a>
                 </div>
+                <hr>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle datatable datatable-server">
                         <thead class="table-light">

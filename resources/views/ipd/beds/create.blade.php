@@ -1,8 +1,8 @@
 <x-app-layout>
-
-    <div class="card mt-2">
+    <div class="card mt-2 mx-2 p-3">
         <div class="card-body">
             <h5 class="mb-3">Create Bed</h5>
+            <hr>
             <form method="post" action="{{ route('ipd.beds.store') }}">
                 @csrf
                 <div class="row g-3">

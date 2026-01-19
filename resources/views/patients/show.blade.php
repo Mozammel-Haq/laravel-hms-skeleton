@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="mb-4 d-flex justify-content-between align-items-center card-body">
+    <div class="mb-3 mt-2 d-flex justify-content-between align-items-center card-body">
         <h6 class="fw-bold mb-0 d-flex align-items-center">
             <a href="{{ route('patients.index') }}" class="text-dark">
                 <i class="ti ti-chevron-left me-1"></i> Patients
@@ -14,14 +14,19 @@
         </div>
     </div>
 
-    <div class="card mt-2 mb-4">
+    <div class="card mt-2 mb-4 mx-2 p-2">
         <div class="row align-items-end">
             <div class="col-xl-9 col-lg-8">
                 <div class="d-sm-flex align-items-center position-relative overflow-hidden p-3">
-                    <span
-                        class="avatar avatar-xxxl patient-avatar me-3 flex-shrink-0 d-inline-flex align-items-center justify-content-center rounded bg-primary-subtle text-primary fs-1">
-                        {{ strtoupper(substr($patient->name, 0, 1)) }}
-                    </span>
+                    @if ($patient->profile_photo)
+                        <img src="{{ asset($patient->profile_photo) }}" alt="{{ $patient->name }}"
+                            class="avatar avatar-xxxl patient-avatar me-3 flex-shrink-0 rounded object-fit-cover">
+                    @else
+                        <span
+                            class="avatar avatar-xxxl patient-avatar me-3 flex-shrink-0 d-inline-flex align-items-center justify-content-center rounded bg-primary-subtle text-primary fs-1">
+                            {{ strtoupper(substr($patient->name, 0, 1)) }}
+                        </span>
+                    @endif
                     <div>
                         <p class="text-primary mb-1">{{ $patient->patient_code }}</p>
                         <h5 class="mb-1">
@@ -80,7 +85,7 @@
                             </a>
                         @endif
                     </div>
-                    <a href="{{ route('appointments.create') }}" class="btn btn-primary">
+                    <a href="{{ route('appointments.booking.index') }}" class="btn btn-primary">
                         <i class="ti ti-calendar-event me-1"></i> Book Appointment
                     </a>
                 </div>
@@ -90,7 +95,7 @@
 
     <div class="row">
         <div class="col-xl-5 d-flex">
-            <div class="card shadow-sm flex-fill w-100 mb-4 mb-xl-0">
+            <div class="card mx-2 p-2 flex-fill w-100 mb-4 mb-xl-0">
                 <div class="card-header">
                     <h5 class="fw-bold mb-0">
                         <i class="ti ti-user-star me-1"></i> About
@@ -271,7 +276,7 @@
         </div>
     </div>
 
-    <ul class="nav nav-tabs nav-bordered my-4" role="tablist">
+    <ul class="nav nav-tabs nav-bordered m-3" role="tablist">
         <li class="nav-item" role="presentation">
             <a href="#appointments" data-bs-toggle="tab" aria-expanded="true" class="nav-link bg-transparent active"
                 aria-selected="true" role="tab">
@@ -292,7 +297,7 @@
         </li>
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content m-3">
         <div class="tab-pane active show" id="appointments" role="tabpanel">
             <div class="table-responsive">
                 <table class="table table-hover align-middle datatable">
@@ -312,21 +317,41 @@
                                     {{ $appointment->appointment_date }}
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-sm me-2 flex-shrink-0">
-                                            <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                                {{ strtoupper(substr(optional($appointment->doctor->user)->name ?? 'D', 0, 1)) }}
-                                            </span>
+                                    @if ($appointment->doctor)
+                                        <a href="{{ route('doctors.show', $appointment->doctor) }}"
+                                            class="d-flex align-items-center text-decoration-none text-body">
+                                            <div class="avatar avatar-sm me-2 flex-shrink-0">
+                                                <img src="{{ $appointment->doctor->profile_photo ? asset($appointment->doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                    alt="{{ optional($appointment->doctor->user)->name ?? 'Doctor' }}"
+                                                    class="rounded-circle"
+                                                    style="width:32px;height:32px;object-fit:cover;">
+                                            </div>
+                                            <div>
+                                                <h6 class="fs-14 mb-1 text-truncate">
+                                                    {{ optional($appointment->doctor->user)->name ?? 'Doctor' }}
+                                                </h6>
+                                                <p class="mb-0 fs-13 text-truncate">
+                                                    {{ optional($appointment->doctor->department)->name ?? 'Department' }}
+                                                </p>
+                                            </div>
+                                        </a>
+                                    @else
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avatar-sm me-2 flex-shrink-0">
+                                                <img src="{{ asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                    alt="Doctor" class="rounded-circle"
+                                                    style="width:32px;height:32px;object-fit:cover;">
+                                            </div>
+                                            <div>
+                                                <h6 class="fs-14 mb-1 text-truncate">
+                                                    Doctor
+                                                </h6>
+                                                <p class="mb-0 fs-13 text-truncate">
+                                                    Department
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h6 class="fs-14 mb-1 text-truncate">
-                                                {{ optional($appointment->doctor->user)->name ?? 'Doctor' }}
-                                            </h6>
-                                            <p class="mb-0 fs-13 text-truncate">
-                                                {{ optional($appointment->doctor->department)->name ?? 'Department' }}
-                                            </p>
-                                        </div>
-                                    </div>
+                                    @endif
                                 </td>
                                 <td>{{ ucfirst($appointment->visit_type ?? 'new') }}</td>
                                 <td>

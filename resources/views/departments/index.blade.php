@@ -2,18 +2,17 @@
 
 
     {{-- Success message --}}
-    @if (session('success'))
+    {{-- @if (session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+    @endif --}}
 
-    <div class="card mt-2">
+    <div class="card mt-2 mx-2">
         <div class="card-body">
             <div class="page-header d-flex justify-content-between align-items-center mb-4">
                 <div class="page-title">
                     <h4>Departments</h4>
                     <p class="text-muted">Configure clinical departments for the clinic</p>
                 </div>
-
                 <div class="d-flex gap-2">
                     <div class="btn-group">
                         <a href="{{ route('departments.index') }}"
@@ -31,6 +30,7 @@
                     @endcan
                 </div>
             </div>
+            <hr>
             <div class="table-responsive">
                 <table class="table table-hover align-middle datatable datatable-server">
                     <thead class="table-light">

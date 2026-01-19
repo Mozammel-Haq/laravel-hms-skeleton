@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="content">
+    <div class="content mx-2">
 
         <div class="row">
             <div class="col-sm-12">
@@ -17,6 +17,7 @@
                             </div>
                         </div>
                     </div>
+                    <hr>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover table-center mb-0 datatable">

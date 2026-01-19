@@ -1,10 +1,11 @@
 <x-app-layout>
 
-    <div class="card mt-2 p-3">
-        <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+    <div class="card mt-2 mx-2 p-3">
+        <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Rooms</h5>
             <a href="{{ route('ipd.rooms.create') }}" class="btn btn-primary">Add Room</a>
         </div>
+        <hr>
         <div class="table-responsive">
             <table class="table table-hover mb-0 datatable">
                 <thead>

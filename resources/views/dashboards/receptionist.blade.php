@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid py-3">
+    <div class="container-fluid py-3 mx-2">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h3 class="page-title mb-0">Receptionist Dashboard</h3>
         </div>
@@ -89,7 +89,11 @@
                                 <tbody>
                                     @foreach ($patients as $p)
                                         <tr>
-                                            <td>{{ $p->name }}</td>
+                                            <td>
+                                                <a href="{{ route('patients.show', $p) }}" class="text-decoration-none text-body">
+                                                    {{ $p->name }}
+                                                </a>
+                                            </td>
                                             <td>{{ $p->created_at?->format('d M') }}</td>
                                             <td><span class="badge bg-secondary">{{ $p->status ?? 'active' }}</span>
                                             </td>

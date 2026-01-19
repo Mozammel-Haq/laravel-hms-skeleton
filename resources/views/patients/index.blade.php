@@ -1,7 +1,7 @@
 <x-app-layout>
 
 
-    <div class="card mt-2">
+    <div class="card mt-2 mx-2">
         <div class="card-body">
             <div class="page-header d-flex justify-content-between align-items-center mb-4">
                 <div class="page-title">
@@ -16,6 +16,7 @@
                     </div>
                 @endcan
             </div>
+            <hr>
             <div class="table-responsive">
                 <table class="table table-hover align-middle datatable datatable-server">
                     <thead class="table-light">
@@ -32,17 +33,23 @@
                         @forelse($patients as $patient)
                             <tr>
                                 <td>
-                                    <div class="d-flex align-items-center">
+                                    <a href="{{ route('patients.show', $patient) }}"
+                                        class="d-flex align-items-center text-decoration-none text-body">
                                         <div class="avatar avatar-sm me-2">
-                                            <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                                {{ substr($patient->name, 0, 1) }}
-                                            </span>
+                                            @if ($patient->profile_photo)
+                                                <img src="{{ asset($patient->profile_photo) }}" alt="{{ $patient->name }}"
+                                                    class="rounded-circle" style="width:32px;height:32px;object-fit:cover;">
+                                            @else
+                                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                    {{ substr($patient->name, 0, 1) }}
+                                                </span>
+                                            @endif
                                         </div>
                                         <div>
                                             <div class="fw-bold">{{ $patient->name }}</div>
                                             <div class="text-muted small">{{ $patient->patient_code }}</div>
                                         </div>
-                                    </div>
+                                    </a>
                                 </td>
                                 <td>
                                     <div><i class="ti ti-phone me-1 text-muted"></i> {{ $patient->phone }}</div>

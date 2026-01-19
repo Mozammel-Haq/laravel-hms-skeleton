@@ -1,12 +1,13 @@
 <x-app-layout>
     <div class="container-fluid">
 
-        <div class="card mt-2">
+        <div class="card mt-2 mx-2 p-2">
             <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="page-title mb-0">Clinic Admin Accounts</h3>
-            <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-secondary">Roles</a>
+            <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-primary">Roles</a>
         </div>
+        <hr>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle datatable">
                         <thead>

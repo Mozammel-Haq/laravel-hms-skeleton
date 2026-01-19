@@ -24,6 +24,7 @@
                         </div>
                     @endcan
                 </div>
+                <hr>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle datatable datatable-server">
                         <thead class="table-light">
@@ -40,34 +41,53 @@
                             @forelse($appointments as $appointment)
                                 <tr>
                                     <td>
-                                        <div class="fw-bold">{{ $appointment->appointment_date }}</div>
-                                        <div class="text-muted small">
-                                            {{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}</div>
+                                        <a href="{{ route('appointments.show', $appointment) }}"
+                                            class="text-decoration-none text-body">
+                                            <div class="fw-bold">{{ $appointment->appointment_date }}</div>
+                                            <div class="text-muted small">
+                                                {{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}
+                                            </div>
+                                        </a>
                                     </td>
                                     <td>
-                                        <div class="d-flex align-items-center">
+                                        <a href="{{ route('patients.show', $appointment->patient) }}"
+                                            class="d-flex align-items-center text-decoration-none text-body">
                                             <div class="avatar avatar-sm me-2">
-                                                <span
-                                                    class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                                    {{ substr($appointment->patient->name, 0, 1) }}
-                                                </span>
+                                                @if ($appointment->patient->profile_photo)
+                                                    <img src="{{ asset($appointment->patient->profile_photo) }}"
+                                                        alt="{{ $appointment->patient->name }}" class="rounded-circle"
+                                                        style="width:32px;height:32px;object-fit:cover;">
+                                                @else
+                                                    <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                        {{ substr($appointment->patient->name, 0, 1) }}
+                                                    </span>
+                                                @endif
                                             </div>
                                             <div>
                                                 <div class="fw-bold">{{ $appointment->patient->name }}</div>
-                                                <div class="text-muted small">{{ $appointment->patient->patient_code }}
+                                                <div class="text-muted small">
+                                                    {{ $appointment->patient->patient_code }}
                                                 </div>
                                             </div>
-                                        </div>
+                                        </a>
                                     </td>
                                     <td>
-                                        <div>{{ $appointment->doctor?->user?->name ?? 'Deleted Doctor' }}</div>
-                                        <div class="text-muted small">
-                                            {{ $appointment->doctor?->specialization ?? 'N/A' }}
-                                        </div>
+                                        @if ($appointment->doctor)
+                                            <a href="{{ route('doctors.show', $appointment->doctor) }}"
+                                                class="text-decoration-none text-body">
+                                                <div>{{ $appointment->doctor->user?->name ?? 'Deleted Doctor' }}</div>
+                                                <div class="text-muted small">
+                                                    {{ $appointment->doctor->specialization ?? 'N/A' }}
+                                                </div>
+                                            </a>
+                                        @else
+                                            <div>Deleted Doctor</div>
+                                            <div class="text-muted small">N/A</div>
+                                        @endif
                                     </td>
                                     <td>
                                         @if ($appointment->appointment_type === 'online')
-                                            <span class="badge bg-info-subtle text-info">Online</span>
+                                            <span class="badge bg-info-subtle text-">Online</span>
                                         @else
                                             <span class="badge bg-secondary-subtle text-secondary">In Person</span>
                                         @endif
@@ -194,7 +214,7 @@
                         </table>
                     </div>
                     <div class="mt-4">
-                        {{ $appointments->links() }}
+                        {{ $appointments->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
             </div>

@@ -1,12 +1,13 @@
 <x-app-layout>
-    <div class="page-header d-flex justify-content-between align-items-center mb-4 card p-4 mt-2">
+    <div class="card mx-2 p-2 mt-2">
+        <div class="card-body">
+                <div class="page-header d-flex justify-content-between align-items-center">
         <div class="page-title">
             <h4>Start Visit</h4>
             <p class="text-muted">Create a new visit for a patient</p>
         </div>
     </div>
-    <div class="card">
-        <div class="card-body">
+    <hr class="my-4">
             <form method="POST" action="{{ route('visits.store') }}">
                 @csrf
                 <div class="mb-3">

@@ -1,5 +1,5 @@
 <x-app-layout>
-<div class="container-fluid">
+<div class="container-fluid mx-2">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -9,6 +9,7 @@
                         <i class="ti ti-arrow-left me-1"></i> Back
                     </a>
                 </div>
+                <hr>
                 <div class="card-body">
                     <form action="{{ route('doctor.schedule.exceptions.store') }}" method="POST">
                         @csrf

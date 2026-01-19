@@ -139,7 +139,7 @@ class DashboardController extends Controller
             $latestAppointments = $clinic->appointments()->where('clinic_id', $clinicId)
                 ->with(['doctor', 'patient'])
                 ->latest()
-                ->take(10)
+                ->take(5)
                 ->get();
             $topPatients = $clinic->patients()->where('clinic_id', $clinicId)
                 ->withCount('appointments')

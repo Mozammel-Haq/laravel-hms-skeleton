@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
 
         <div class="row g-3">
@@ -9,8 +9,9 @@
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="page-title mb-0">Doctor Profile</h4>
-                            <a href="{{ route('doctors.index') }}" class="btn btn-sm btn-outline-secondary">Back</a>
+                            <a href="{{ route('doctors.index') }}" class="btn btn-sm btn-outline-primary">Back</a>
                         </div>
+                        <hr>
                         <!-- Identity -->
                         <div class="d-flex align-items-center gap-3 mb-3">
                             <div class="rounded-circle border flex-shrink-0"
@@ -108,7 +109,7 @@
             <div class="col-lg-8">
 
                 <!-- Schedule -->
-                <div class="card shadow-sm mb-3">
+                <div class="card shadow-sm mb-3 mt-2">
                     <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
                         <span class="fw-semibold">Schedules</span>
                         <a href="{{ route('doctors.schedule', $doctor) }}"

@@ -1,5 +1,6 @@
 <x-app-layout>
-    <div class="content">
+    <div class="content mx-2">
+
 
 
         <div class="row">
@@ -21,6 +22,7 @@
                                 </div>
                             </div>
                         </div>
+                        <hr>
                         <form method="POST" action="{{ route('doctor.schedule.exceptions.store') }}">
                             @csrf
 

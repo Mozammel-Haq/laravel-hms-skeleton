@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
         <div class="d-flex justify-content-between align-items-center my-3">
             <h3 class="page-title mb-0">IPD Dashboard</h3>
             <div class="d-flex gap-2">
@@ -63,8 +63,33 @@
                         <tbody>
                             @forelse($admissions as $admission)
                                 <tr>
-                                    <td>{{ optional($admission->patient)->full_name ?? 'Patient' }}</td>
-                                    <td>{{ optional($admission->doctor)->user->name ?? 'Doctor' }}</td>
+                                    <td>
+                                        @if ($admission->patient)
+                                            <a href="{{ route('patients.show', $admission->patient) }}"
+                                                class="text-decoration-none text-body">
+                                                {{ $admission->patient->name ?? ($admission->patient->full_name ?? 'Patient') }}
+                                            </a>
+                                        @else
+                                            Patient
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if ($admission->doctor)
+                                            <a href="{{ route('doctors.show', $admission->doctor) }}"
+                                                class="d-flex align-items-center text-decoration-none text-body">
+                                                <div class="avatar avatar-sm me-2">
+                                                    <img src="{{ $admission->doctor->profile_photo ? asset($admission->doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                        alt="{{ $admission->doctor->user?->name }}"
+                                                        class="rounded-circle w-100 h-100 object-fit-cover">
+                                                </div>
+                                                <div>
+                                                    {{ $admission->doctor->user?->name ?? 'Doctor' }}
+                                                </div>
+                                            </a>
+                                        @else
+                                            Doctor
+                                        @endif
+                                    </td>
                                     <td>{{ $admission->created_at }}</td>
                                     <td><span class="badge bg-success">{{ $admission->status }}</span></td>
                                     <td>

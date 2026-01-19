@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
         <div class="card border-0 mt-2 px-3 py-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -11,6 +11,7 @@
                         <i class="ti ti-arrow-left me-1"></i> Back to Admission
                     </a>
                 </div>
+                <hr>
 
                 <div class="row g-4">
                     <div class="col-md-4">
@@ -19,9 +20,14 @@
                                 <h5 class="card-title mb-3">Patient Information</h5>
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="avatar avatar-lg me-3">
-                                        <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
-                                            {{ substr($admission->patient->name, 0, 1) }}
-                                        </span>
+                                        @if ($admission->patient->profile_photo)
+                                            <img src="{{ asset($admission->patient->profile_photo) }}"
+                                                alt="{{ $admission->patient->name }}" class="rounded-circle w-100 h-100 object-fit-cover">
+                                        @else
+                                            <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
+                                                {{ substr($admission->patient->name, 0, 1) }}
+                                            </span>
+                                        @endif
                                     </div>
                                     <div>
                                         <h6 class="mb-0">{{ $admission->patient->name }}</h6>

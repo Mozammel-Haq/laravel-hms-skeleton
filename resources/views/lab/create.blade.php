@@ -1,12 +1,13 @@
 <x-app-layout>
     <div class="container-fluid">
 
-        <div class="card mt-3">
+        <div class="card mt-3 mx-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Order Lab Test</h3>
                     <a href="{{ route('lab.index') }}" class="btn btn-outline-secondary">Back</a>
                 </div>
+                <hr>
                 <form method="post" action="{{ route('lab.store') }}">
                     @csrf
                     <div class="row g-3">

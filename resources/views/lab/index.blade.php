@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container-fluid">
 
-        <div class="card mt-2">
+        <div class="card mt-2 mx-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
                     <h3 class="page-title mb-0">Lab Orders</h3>
@@ -15,6 +15,7 @@
                         <a href="{{ route('lab.create') }}" class="btn btn-outline-primary">Order Test</a>
                     </div>
                 </div>
+                <hr>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle datatable datatable-server">
                         <thead class="table-light">
@@ -31,7 +32,14 @@
                             @forelse ($orders as $order)
                                 <tr>
                                     <td>{{ $order->id }}</td>
-                                    <td>{{ optional($order->patient)->full_name ?? (optional($order->patient)->name ?? 'Patient') }}
+                                    <td>
+                                        @if($order->patient)
+                                            <a href="{{ route('patients.show', $order->patient) }}" class="text-decoration-none text-body">
+                                                {{ $order->patient->full_name ?? $order->patient->name }}
+                                            </a>
+                                        @else
+                                            Patient
+                                        @endif
                                     </td>
                                     <td>{{ optional($order->test)->name ?? 'Test' }}</td>
                                     <td><span

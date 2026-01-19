@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid py-3">
+    <div class="container-fluid py-3 mx-2">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h3 class="page-title mb-0">Doctor Dashboard</h3>
         </div>
@@ -76,7 +76,15 @@
                                 <tbody>
                                     @foreach ($appointments as $a)
                                         <tr>
-                                            <td>{{ $a->patient->name ?? 'Patient' }}</td>
+                                            <td>
+                                                @if($a->patient)
+                                                    <a href="{{ route('patients.show', $a->patient) }}" class="text-decoration-none text-body">
+                                                        {{ $a->patient->name }}
+                                                    </a>
+                                                @else
+                                                    Patient
+                                                @endif
+                                            </td>
                                             <td>{{ $a->created_at }}</td>
                                             <td><span
                                                     class="badge bg-light text-dark">{{ $a->status ?? 'pending' }}</span>

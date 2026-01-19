@@ -64,7 +64,9 @@ class AppointmentController extends Controller
             $query->whereDate('appointment_date', '<=', request('to'));
         }
 
-        $appointments = $query->paginate(15);
+        $appointments = $query
+            ->paginate(5)
+            ->withQueryString();
 
         return view('appointments.index', compact('appointments'));
     }

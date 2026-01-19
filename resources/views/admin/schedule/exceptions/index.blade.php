@@ -2,14 +2,15 @@
     <div class="container-fluid">
 
 
-        <div class="card border-0 mt-2">
+        <div class="card border-0 mt-2 mx-2 p-3">
             <div class="card-body p-0">
                         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="page-title mb-0">Schedule Exception Requests</h3>
-                <div class="text-muted">Review and approve doctor schedule changes</div>
+                <h3 class="page-title mb-0 text-primary">Schedule Exception Requests</h3>
+                <div class="text-muted text-sm">Review and approve doctor schedule changes</div>
             </div>
         </div>
+        <hr>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0 datatable">
                         <thead class="table-light">
@@ -26,17 +27,36 @@
                             @forelse($exceptions as $exception)
                                 <tr>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-sm me-2">
-                                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                                    {{ substr($exception->doctor?->user?->name ?? '?', 0, 1) }}
-                                                </span>
+                                        @if ($exception->doctor)
+                                            <a href="{{ route('doctors.show', $exception->doctor) }}"
+                                                class="d-flex align-items-center text-decoration-none text-body">
+                                                <div class="avatar avatar-sm me-2">
+                                                    <img src="{{ $exception->doctor->profile_photo ? asset($exception->doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                        alt="{{ $exception->doctor->user?->name ?? 'Doctor' }}"
+                                                        class="rounded-circle"
+                                                        style="width:32px;height:32px;object-fit:cover;">
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">
+                                                        {{ $exception->doctor->user?->name ?? 'Deleted Doctor' }}
+                                                    </div>
+                                                    <div class="text-muted small">
+                                                        {{ $exception->doctor->specialization ?? '' }}
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        @else
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-sm me-2">
+                                                    <img src="{{ asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                        alt="Deleted Doctor" class="rounded-circle"
+                                                        style="width:32px;height:32px;object-fit:cover;">
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold">Deleted Doctor</div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div class="fw-bold">{{ $exception->doctor?->user?->name ?? 'Deleted Doctor' }}</div>
-                                                <div class="text-muted small">{{ $exception->doctor?->specialization ?? '' }}</div>
-                                            </div>
-                                        </div>
+                                        @endif
                                     </td>
                                     <td>
                                         <div class="fw-bold">

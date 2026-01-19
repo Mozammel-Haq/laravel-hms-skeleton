@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
         @php $mode = $mode ?? 'admin'; @endphp
 
         <div class="row justify-content-center">
@@ -16,8 +16,9 @@
                                 class="btn btn-outline-secondary">
                                 <i class="ti ti-arrow-left me-1"></i> Back
                             </a>
+                            <hr>
                         </div>
-                        @if ($errors->any())
+                        {{-- @if ($errors->any())
                             <div class="alert alert-danger mb-4">
                                 <ul class="mb-0">
                                     @foreach ($errors->all() as $error)
@@ -25,7 +26,7 @@
                                     @endforeach
                                 </ul>
                             </div>
-                        @endif
+                        @endif --}}
 
                         <div class="alert alert-info d-flex align-items-center mb-4">
                             <i class="ti ti-info-circle fs-4 me-2"></i>

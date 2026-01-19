@@ -1,7 +1,7 @@
 <x-app-layout>
 
 
-    <div class="card border-0 mt-2 p-3">
+    <div class="card mt-2 mx-2 p-3">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="page-title mb-0">Pharmacy Sales</h3>
             <div class="d-flex gap-2">
@@ -16,6 +16,7 @@
                 </a>
             </div>
         </div>
+        <hr>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 datatable">
                 <thead class="table-light">
@@ -34,8 +35,10 @@
                             <td>#{{ $sale->id }}</td>
                             <td>{{ $sale->created_at }}</td>
                             <td>
-                                <div class="fw-semibold">{{ $sale->patient->name }}</div>
-                                <div class="small text-muted">{{ $sale->patient->patient_code }}</div>
+                                <a href="{{ route('patients.show', $sale->patient) }}" class="text-decoration-none text-body">
+                                    <div class="fw-semibold">{{ $sale->patient->name }}</div>
+                                    <div class="small text-muted">{{ $sale->patient->patient_code }}</div>
+                                </a>
                             </td>
                             <td>{{ number_format($sale->total_amount, 2) }}</td>
                             <td><span class="badge bg-success">Completed</span></td>
