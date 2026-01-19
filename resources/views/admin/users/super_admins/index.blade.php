@@ -23,7 +23,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($superAdmins as $user)
+                    @forelse ($superAdmins as $user)
                         <tr>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
@@ -38,7 +38,11 @@
                                 </form>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No super admins found.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
