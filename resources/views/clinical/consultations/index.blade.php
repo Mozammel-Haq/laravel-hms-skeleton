@@ -3,21 +3,21 @@
 
         <div class="card mt-2">
             <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Consultations</h3>
-            <div class="d-flex gap-2">
-                <div class="btn-group">
-                    <a href="{{ route('clinical.consultations.index') }}"
-                        class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                    <a href="{{ route('clinical.consultations.index', ['status' => 'trashed']) }}"
-                        class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="page-title mb-0">Consultations</h3>
+                    <div class="d-flex gap-2">
+                        <div class="btn-group">
+                            <a href="{{ route('clinical.consultations.index') }}"
+                                class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
+                            <a href="{{ route('clinical.consultations.index', ['status' => 'trashed']) }}"
+                                class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+                        </div>
+                        <a href="{{ route('appointments.index') }}" class="btn btn-outline-secondary">Appointments</a>
+                    </div>
                 </div>
-                <a href="{{ route('appointments.index') }}" class="btn btn-outline-secondary">Appointments</a>
-            </div>
-        </div>
-            <hr class="my-4">
+                <hr class="my-4">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle datatable datatable-server">
                         <thead>
                             <tr>
                                 <th>Patient</th>

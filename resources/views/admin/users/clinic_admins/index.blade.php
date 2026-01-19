@@ -6,7 +6,7 @@
             <h5 class="card-title mb-0">All Clinic Admins</h5>
             <a href="{{ route('admin.clinic-admin-users.create') }}" class="btn btn-primary">Create Clinic Admin</a>
         </div>
-            <table class="table table-striped">
+            <table class="table table-striped datatable">
                 <thead>
                     <tr>
                         <th>Name</th>

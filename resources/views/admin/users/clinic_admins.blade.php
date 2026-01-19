@@ -8,7 +8,7 @@
             <a href="{{ route('admin.roles.index') }}" class="btn btn-outline-secondary">Roles</a>
         </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle datatable">
                         <thead>
                             <tr>
                                 <th>Name</th>

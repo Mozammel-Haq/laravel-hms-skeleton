@@ -8,7 +8,7 @@
                     <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">IPD Dashboard</a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle datatable datatable-server">
                         <thead class="table-light">
                             <tr>
                                 <th>Patient</th>
@@ -27,7 +27,7 @@
                                         </div>
                                     </td>
                                     <td>{{ optional($admission->doctor)->user->name ?? 'Doctor' }}</td>
-                                    <td>{{ $admission->created_at->format('d M, Y H:i') }}</td>
+                                    <td>{{ $admission->created_at }}</td>
                                     <td class="text-end">
                                         <a href="{{ route('ipd.rounds.create', $admission->id) }}"
                                             class="btn btn-sm btn-success me-1">

@@ -90,7 +90,7 @@ Author URL: https://themeforest.net/user/dreamstechnologies
     --teal-transparent: #e9f5f4;
     --warning-transparent: #fefbf5;
     --heading-color: #0a1b39;
-    --border-color: #e7e8eb;
+    --border-color: #ccd2dc;
     --body-color: var(--gray-500);
     --primary-rgb: 46, 55, 164;
     --secondary-rgb: 0, 211, 199;
@@ -17004,6 +17004,19 @@ Author URL: https://themeforest.net/user/dreamstechnologies
     text-shadow: none;
     padding: 4px 12px;
     background-color: var(--primary);
+    border-radius: 4px;
+    top: -10px;
+}
+
+.filter-range .irs--flat .irs-from:before,
+.filter-range .irs--flat .irs-to:before,
+.filter-range .irs--flat .irs-single:before {
+    border-top-color: var(--primary);
+    left: 60%;
+}
+
+/*# sourceMappingURL=style.css.map */
+
     border-radius: 4px;
     top: -10px;
 }

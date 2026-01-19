@@ -122,7 +122,26 @@ class ReportController extends Controller
     public function tax()
     {
         Gate::authorize('view_financial_reports');
-        $invoices = \App\Models\Invoice::latest()->paginate(20);
+        $query = \App\Models\Invoice::query();
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('id', $search)
+                    ->orWhere('invoice_type', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $invoices = $query->latest()->paginate(20);
         return view('reports.tax', compact('invoices'));
     }
 }

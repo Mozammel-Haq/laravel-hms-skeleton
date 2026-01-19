@@ -451,31 +451,340 @@ Template Name: Preclinic - Bootstrap Admin Template
         });
     }
 
+    // Global date range filter for DataTables
+    if ($.fn.dataTable && $.fn.dataTable.ext && $.fn.dataTable.ext.search) {
+        $.fn.dataTable.ext.search.push(function (settings, data) {
+            var table = settings.nTable;
+            var $table = $(table);
+            var dateColIndex = $table.data("dt-date-col");
+
+            if (dateColIndex === undefined) {
+                return true;
+            }
+
+            var from = $table.data("dt-date-from");
+            var to = $table.data("dt-date-to");
+
+            if (!from && !to) {
+                return true;
+            }
+
+            var value = data[dateColIndex] || "";
+            var text = value.replace(/<[^>]*>/g, "").trim();
+
+            if (!text) {
+                return false;
+            }
+
+            var cellDate = new Date(text);
+
+            if (isNaN(cellDate.getTime())) {
+                return true;
+            }
+
+            if (from) {
+                var fromDate = new Date(from);
+                if (cellDate < fromDate) {
+                    return false;
+                }
+            }
+
+            if (to) {
+                var toDate = new Date(to);
+                toDate.setHours(23, 59, 59, 999);
+                if (cellDate > toDate) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
     // Datatable
-    if ($(".datatable").length > 0) {
-        $(".datatable").DataTable({
-            bFilter: true,
-            sDom: "fBtlpi",
-            ordering: false,
-            language: {
-                search: " ",
-                sLengthMenu: "_MENU_",
-                searchPlaceholder: "Search",
-                sLengthMenu: "Row Per Page _MENU_ Entries",
-                info: "_START_ - _END_ of _TOTAL_ items",
-                paginate: {
-                    next: '<i class="ti ti-arrow-right"></i>',
-                    previous: '<i class="ti ti-arrow-left text-body"></i> ',
+    if ($(".datatable").length > 0 && $.fn.dataTable) {
+        $(".datatable").each(function () {
+            var tableElement = this;
+            var $table = $(tableElement);
+            var isServerPaginated = $table.hasClass("datatable-server");
+
+            var dataTable = $(tableElement).DataTable({
+                bFilter: true,
+                sDom: isServerPaginated ? "ft" : "fBtlpi",
+                ordering: true,
+                paging: !isServerPaginated,
+                info: !isServerPaginated,
+                lengthChange: !isServerPaginated,
+                language: {
+                    search: " ",
+                    sLengthMenu: "_MENU_",
+                    searchPlaceholder: "Search",
+                    sLengthMenu: "Row Per Page _MENU_ Entries",
+                    info: "_START_ - _END_ of _TOTAL_ items",
+                    paginate: {
+                        next: '<i class="ti ti-arrow-right"></i>',
+                        previous: '<i class="ti ti-arrow-left text-body"></i> ',
+                    },
                 },
-            },
-            // "scrollX": true,         // Enable horizontal scrolling
-            // "scrollCollapse": true,  // Adjust table size when the scroll is used
-            responsive: true,
-            autoWidth: false,
-            initComplete: (settings, json) => {
-                $(".dataTables_filter").appendTo("#tableSearch");
-                $(".dataTables_filter").appendTo(".search-input");
-            },
+                responsive: true,
+                autoWidth: false,
+                initComplete: function (settings) {
+                    var api = new $.fn.dataTable.Api(settings);
+                    var header = $(api.table().header());
+                    var tableNode = api.table().node();
+                    var $table = $(tableNode);
+                    var wrapper = $(api.table().container());
+                    var isServerPaginated = $table.hasClass("datatable-server");
+
+                    var dateColIndex;
+
+                    api.columns().every(function (index) {
+                        var title = $(this.header()).text().toLowerCase();
+                        if (dateColIndex !== undefined) {
+                            return;
+                        }
+
+                        if (
+                            title.indexOf("date") !== -1 ||
+                            title.indexOf("time") !== -1 ||
+                            title.indexOf("issued") !== -1 ||
+                            title.indexOf("recorded") !== -1 ||
+                            title.indexOf("admitted") !== -1 ||
+                            title.indexOf("ordered") !== -1 ||
+                            title.indexOf("created") !== -1 ||
+                            title.indexOf("paid") !== -1
+                        ) {
+                            dateColIndex = index;
+                        }
+                    });
+
+                    if (dateColIndex !== undefined) {
+                        if (!isServerPaginated) {
+                            $table.data("dt-date-col", dateColIndex);
+                        }
+                    }
+
+                    var tableId = $table.attr("id");
+                    if (!tableId) {
+                        tableId =
+                            "datatable-" +
+                            Math.random().toString(36).slice(2, 11);
+                        $table.attr("id", tableId);
+                    }
+
+                    var modalId = tableId + "-filters-modal";
+
+                    var toolbar = $(
+                        '<div class="d-flex justify-content-end mb-2 datatable-toolbar"></div>',
+                    );
+                    var filterButton = $(
+                        '<button type="button" class="btn btn-sm btn-outline-secondary datatable-filter-toggle"><i class="ti ti-filter"></i></button>',
+                    );
+                    toolbar.append(filterButton);
+                    wrapper.prepend(toolbar);
+
+                    var modal = $("#" + modalId);
+                    if (modal.length === 0) {
+                        modal = $(
+                            '<div class="modal fade" tabindex="-1" aria-hidden="true"></div>',
+                        ).attr("id", modalId);
+                        var dialog = $(
+                            '<div class="modal-dialog modal-lg modal-dialog-centered"></div>',
+                        );
+                        var content = $('<div class="modal-content"></div>');
+                        var headerEl = $('<div class="modal-header"></div>');
+                        headerEl.append(
+                            '<h5 class="modal-title">Table filters</h5>',
+                        );
+                        headerEl.append(
+                            '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>',
+                        );
+                        var bodyEl = $('<div class="modal-body"></div>');
+                        var footerEl = $('<div class="modal-footer"></div>');
+                        footerEl.append(
+                            '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>',
+                        );
+
+                        var columnsRow = $('<div class="row mb-3"></div>');
+                        var columnsCol = $('<div class="col-12"></div>');
+                        columnsCol.append('<h6 class="mb-2">Columns</h6>');
+
+                        api.columns().every(function (index) {
+                            var title =
+                                $(this.header()).text().trim() ||
+                                "Column " + (index + 1);
+                            var formCheck = $(
+                                '<div class="form-check form-check-inline me-3 mb-1"></div>',
+                            );
+                            var checkbox = $(
+                                '<input class="form-check-input datatable-column-toggle" type="checkbox" checked>',
+                            ).attr("data-column", index);
+                            var label = $(
+                                '<label class="form-check-label"></label>',
+                            ).text(title);
+                            formCheck.append(checkbox, label);
+                            columnsCol.append(formCheck);
+                        });
+
+                        columnsRow.append(columnsCol);
+                        bodyEl.append(columnsRow);
+
+                        if (dateColIndex !== undefined) {
+                            var dateRow = $(
+                                '<div class="row g-2 align-items-end mb-2"></div>',
+                            );
+
+                            var fromCol = $('<div class="col-md-6"></div>');
+                            fromCol.append(
+                                '<label class="form-label form-label-sm mb-1">From date</label>',
+                            );
+                            var fromInput = $(
+                                '<input type="date" class="form-control form-control-sm datatable-date-from">',
+                            );
+                            fromCol.append(fromInput);
+
+                            var toCol = $('<div class="col-md-6"></div>');
+                            toCol.append(
+                                '<label class="form-label form-label-sm mb-1">To date</label>',
+                            );
+                            var toInput = $(
+                                '<input type="date" class="form-control form-control-sm datatable-date-to">',
+                            );
+                            toCol.append(toInput);
+
+                            dateRow.append(fromCol, toCol);
+                            bodyEl.append(dateRow);
+                        }
+
+                        content.append(headerEl, bodyEl, footerEl);
+                        dialog.append(content);
+                        modal.append(dialog);
+                        $("body").append(modal);
+                    }
+
+                    filterButton.on("click", function () {
+                        var instance = bootstrap.Modal.getOrCreateInstance(
+                            document.getElementById(modalId),
+                        );
+                        instance.show();
+                    });
+
+                    modal.on("change", ".datatable-column-toggle", function () {
+                        var columnIndex = $(this).data("column");
+                        var column = api.column(columnIndex);
+                        column.visible(this.checked);
+                    });
+
+                    if (dateColIndex !== undefined) {
+                        if (isServerPaginated) {
+                            var url = new URL(window.location.href);
+                            var params = url.searchParams;
+                            var existingFrom = params.get("from");
+                            var existingTo = params.get("to");
+                            var fromInput = modal.find(".datatable-date-from");
+                            var toInput = modal.find(".datatable-date-to");
+
+                            if (existingFrom) {
+                                fromInput.val(existingFrom);
+                            }
+
+                            if (existingTo) {
+                                toInput.val(existingTo);
+                            }
+
+                            var applyDateFilter = function () {
+                                var nextUrl = new URL(window.location.href);
+                                var fromValue = fromInput.val();
+                                var toValue = toInput.val();
+
+                                if (fromValue) {
+                                    nextUrl.searchParams.set("from", fromValue);
+                                } else {
+                                    nextUrl.searchParams.delete("from");
+                                }
+
+                                if (toValue) {
+                                    nextUrl.searchParams.set("to", toValue);
+                                } else {
+                                    nextUrl.searchParams.delete("to");
+                                }
+
+                                nextUrl.searchParams.delete("page");
+                                window.location.href = nextUrl.toString();
+                            };
+
+                            fromInput
+                                .off("change")
+                                .on("change", applyDateFilter);
+                            toInput.off("change").on("change", applyDateFilter);
+                        } else {
+                            modal.on(
+                                "change",
+                                ".datatable-date-from",
+                                function () {
+                                    var value = this.value;
+                                    $table.data("dt-date-from", value || null);
+                                    api.draw();
+                                },
+                            );
+
+                            modal.on(
+                                "change",
+                                ".datatable-date-to",
+                                function () {
+                                    var value = this.value;
+                                    $table.data("dt-date-to", value || null);
+                                    api.draw();
+                                },
+                            );
+                        }
+                    }
+
+                    var filterContainer = wrapper.find(".dataTables_filter");
+                    var filterInput = filterContainer.find(
+                        "input[type='search']",
+                    );
+
+                    if (filterInput.length && isServerPaginated) {
+                        var currentUrl = new URL(window.location.href);
+                        var currentParams = currentUrl.searchParams;
+                        var existingSearch = currentParams.get("search") || "";
+
+                        if (existingSearch) {
+                            filterInput.val(existingSearch);
+                        }
+
+                        filterInput.off(".DT");
+
+                        var applySearch = function () {
+                            var value = filterInput.val().trim();
+                            var nextUrl = new URL(window.location.href);
+
+                            if (value) {
+                                nextUrl.searchParams.set("search", value);
+                            } else {
+                                nextUrl.searchParams.delete("search");
+                            }
+
+                            nextUrl.searchParams.delete("page");
+                            window.location.href = nextUrl.toString();
+                        };
+
+                        filterInput.on("keyup", function (e) {
+                            if (e.key === "Enter") {
+                                applySearch();
+                            }
+                        });
+
+                        filterInput.on("change", function () {
+                            applySearch();
+                        });
+                    }
+
+                    $(".dataTables_filter").appendTo("#tableSearch");
+                    $(".dataTables_filter").appendTo(".search-input");
+                },
+            });
         });
     }
 
@@ -513,10 +822,10 @@ Template Name: Preclinic - Bootstrap Admin Template
 
         function report_range(start, end) {
             $("#reportrange span").html(
-                start.format("D MMM YY") + " - " + end.format("D MMM YY")
+                start.format("D MMM YY") + " - " + end.format("D MMM YY"),
             );
         }
-        $("#reportrange").daterangepicker(
+        ($("#reportrange").daterangepicker(
             {
                 startDate: start,
                 endDate: end,
@@ -538,9 +847,9 @@ Template Name: Preclinic - Bootstrap Admin Template
                     ],
                 },
             },
-            report_range
+            report_range,
         ),
-            report_range(end, end);
+            report_range(end, end));
     }
 
     // Date Range Picker
@@ -550,10 +859,10 @@ Template Name: Preclinic - Bootstrap Admin Template
 
         function report_range(start, end) {
             $(".reportrange span").html(
-                start.format("D MMM YY") + " - " + end.format("D MMM YY")
+                start.format("D MMM YY") + " - " + end.format("D MMM YY"),
             );
         }
-        $(".reportrange").daterangepicker(
+        ($(".reportrange").daterangepicker(
             {
                 startDate: start,
                 endDate: end,
@@ -575,9 +884,9 @@ Template Name: Preclinic - Bootstrap Admin Template
                     ],
                 },
             },
-            report_range
+            report_range,
         ),
-            report_range(end, end);
+            report_range(end, end));
     }
 
     if ($(".bookingrange").length > 0) {
@@ -585,7 +894,7 @@ Template Name: Preclinic - Bootstrap Admin Template
         var end = moment();
         function booking_range(start, end) {
             $(".bookingrange span").html(
-                start.format("D MMM YY") + " - " + end.format("D MMM YY")
+                start.format("D MMM YY") + " - " + end.format("D MMM YY"),
             );
         }
 
@@ -611,7 +920,7 @@ Template Name: Preclinic - Bootstrap Admin Template
                     ],
                 },
             },
-            booking_range
+            booking_range,
         );
         booking_range(start, end);
     }
@@ -647,7 +956,7 @@ Template Name: Preclinic - Bootstrap Admin Template
             $(this).val(
                 picker.startDate.format("MM/DD/YYYY") +
                     " - " +
-                    picker.endDate.format("MM/DD/YYYY")
+                    picker.endDate.format("MM/DD/YYYY"),
             );
         });
 
@@ -1038,7 +1347,7 @@ Template Name: Preclinic - Bootstrap Admin Template
     // Tooltip
     if ($('[data-bs-toggle="tooltip"]').length > 0) {
         var tooltipTriggerList = [].slice.call(
-            document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            document.querySelectorAll('[data-bs-toggle="tooltip"]'),
         );
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
@@ -1091,10 +1400,10 @@ Template Name: Preclinic - Bootstrap Admin Template
 
     // Popover
     const popoverTriggerList = document.querySelectorAll(
-        '[data-bs-toggle="popover"]'
+        '[data-bs-toggle="popover"]',
     );
     const popoverList = [...popoverTriggerList].map(
-        (popoverTriggerEl) => new bootstrap.Popover(popoverTriggerEl)
+        (popoverTriggerEl) => new bootstrap.Popover(popoverTriggerEl),
     );
 
     // Choices
@@ -1129,7 +1438,7 @@ Template Name: Preclinic - Bootstrap Admin Template
             }
             if (attrs["data-choices-limit"]) {
                 config.maxItemCount = parseInt(
-                    attrs["data-choices-limit"].value
+                    attrs["data-choices-limit"].value,
                 );
             }
             if (attrs["data-choices-editItem-true"]) {
@@ -1284,7 +1593,7 @@ Template Name: Preclinic - Bootstrap Admin Template
             // Maximum selection
             if ($el.attr("data-max-selections")) {
                 options.maximumSelectionLength = parseInt(
-                    $el.attr("data-max-selections")
+                    $el.attr("data-max-selections"),
                 );
             }
 
@@ -1344,10 +1653,10 @@ Template Name: Preclinic - Bootstrap Admin Template
 
         function report_range(start, end) {
             $(".daterangepick span").html(
-                start.format("D MMM YY") + " - " + end.format("D MMM YY")
+                start.format("D MMM YY") + " - " + end.format("D MMM YY"),
             );
         }
-        $(".daterangepick").daterangepicker(
+        ($(".daterangepick").daterangepicker(
             {
                 startDate: start,
                 endDate: end,
@@ -1369,8 +1678,8 @@ Template Name: Preclinic - Bootstrap Admin Template
                     ],
                 },
             },
-            report_range
+            report_range,
         ),
-            report_range(end, end);
+            report_range(end, end));
     }
 })();

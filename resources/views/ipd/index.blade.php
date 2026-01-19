@@ -50,7 +50,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle datatable datatable-server">
                         <thead>
                             <tr>
                                 <th>Patient</th>

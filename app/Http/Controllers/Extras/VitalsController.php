@@ -16,7 +16,7 @@ class VitalsController extends Controller
 {
     public function record(Request $request)
     {
-         Gate::authorize('create', PatientVital::class);
+        Gate::authorize('create', PatientVital::class);
         $visit = null;
         $appointment = null;
         $round = null;
@@ -143,6 +143,24 @@ class VitalsController extends Controller
             $patientId = (int) $request->input('patient_id');
             $query->where('patient_id', $patientId);
             $patient = Patient::find($patientId);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient', function ($sub) use ($search) {
+                    $sub->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('patient_code', 'like', '%' . $search . '%');
+                })->orWhere('notes', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('recorded_at', '>=', $request->input('from'));
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('recorded_at', '<=', $request->input('to'));
         }
 
         $vitals = $query->paginate(20);

@@ -221,6 +221,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::post('/beds', [BedController::class, 'store'])->name('beds.store');
         Route::get('/beds/{bed}/edit', [BedController::class, 'edit'])->name('beds.edit');
         Route::put('/beds/{bed}', [BedController::class, 'update'])->name('beds.update');
+        Route::post('/beds/reorder', [BedController::class, 'reorder'])->name('beds.reorder');
         Route::get('/{admission}', [IpdController::class, 'show'])->whereNumber('admission')->name('show');
         Route::delete('/{admission}', [IpdController::class, 'destroy'])->whereNumber('admission')->name('destroy');
         Route::post('/{id}/restore', [IpdController::class, 'restore'])->name('restore');
@@ -287,6 +288,11 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     Route::get('/doctors/schedule/exceptions', [\App\Http\Controllers\AdminScheduleExceptionController::class, 'index'])->name('admin.schedule.exceptions.index')->middleware('can:view_doctors');
     Route::patch('/doctors/schedule/exceptions/{exception}', [\App\Http\Controllers\AdminScheduleExceptionController::class, 'update'])->name('admin.schedule.exceptions.update')->middleware('can:manage_doctor_schedule');
 
+    // Admin Schedule Requests
+    Route::get('/doctors/schedule/requests', [\App\Http\Controllers\DoctorScheduleRequestAdminController::class, 'index'])->name('admin.schedule.requests.index')->middleware('can:manage_doctor_schedule');
+    Route::post('/doctors/schedule/requests/{scheduleRequest}/approve', [\App\Http\Controllers\DoctorScheduleRequestAdminController::class, 'approve'])->name('admin.schedule.requests.approve')->middleware('can:manage_doctor_schedule');
+    Route::post('/doctors/schedule/requests/{scheduleRequest}/reject', [\App\Http\Controllers\DoctorScheduleRequestAdminController::class, 'reject'])->name('admin.schedule.requests.reject')->middleware('can:manage_doctor_schedule');
+
     Route::resource('doctors', DoctorController::class)->middleware('can:view_doctors');
     Route::post('doctors/{id}/restore', [DoctorController::class, 'restore'])->name('doctors.restore')->middleware('can:view_doctors');
     Route::get('doctors/{doctor}/schedule', [DoctorController::class, 'schedule'])->name('doctors.schedule')->middleware('can:manage_doctor_schedule');
@@ -352,6 +358,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
     // Doctor schedule (current doctor)
     Route::get('/doctor/schedule', [\App\Http\Controllers\Extras\DoctorSelfScheduleController::class, 'index'])->name('doctor.schedule.index');
+    Route::get('/doctor/schedule/manage', [\App\Http\Controllers\Extras\DoctorSelfScheduleController::class, 'manage'])->name('doctor.schedule.manage');
+    Route::post('/doctor/schedule/request', [\App\Http\Controllers\Extras\DoctorSelfScheduleController::class, 'requestUpdate'])->name('doctor.schedule.request');
 
     Route::prefix('doctor/profile')->name('doctor.profile.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Extras\DoctorProfileController::class, 'index'])->name('index');

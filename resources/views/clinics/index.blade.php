@@ -7,7 +7,7 @@
                 <a href="{{ route('clinics.create') }}" class="btn btn-primary">Create Clinic</a>
             </div>
             <div class="table-responsive">
-                <table class="table table-striped">
+                <table class="table table-striped datatable">
                     <thead>
                         <tr>
                             <th>Name</th>

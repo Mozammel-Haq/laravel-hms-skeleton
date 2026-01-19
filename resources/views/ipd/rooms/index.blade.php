@@ -6,7 +6,7 @@
             <a href="{{ route('ipd.rooms.create') }}" class="btn btn-primary">Add Room</a>
         </div>
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 datatable">
                 <thead>
                     <tr>
                         <th>Room</th>

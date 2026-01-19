@@ -146,7 +146,7 @@ class SampleDataSeeder extends Seeder
                 for ($b = 1; $b <= 4; $b++) {
                     Bed::firstOrCreate(
                         ['room_id' => $room->id, 'bed_number' => $room->room_number . '-' . $b],
-                        ['status' => 'available', 'clinic_id' => $clinicId]
+                        ['status' => 'available', 'clinic_id' => $clinicId, 'position' => $b]
                     );
                 }
             }

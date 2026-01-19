@@ -35,6 +35,26 @@ class ConsultationController extends Controller
             $query->latest();
         }
 
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient', function ($sub) use ($search) {
+                    $sub->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('patient_code', 'like', '%' . $search . '%');
+                })->orWhereHas('doctor.user', function ($sub) use ($search) {
+                    $sub->where('name', 'like', '%' . $search . '%');
+                })->orWhere('type', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
         $consultations = $query->paginate(perPage: 50);
 
         return view('clinical.consultations.index', compact('consultations'));

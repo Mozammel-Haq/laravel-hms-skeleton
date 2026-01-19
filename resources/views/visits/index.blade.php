@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 datatable">
                 <thead>
                     <tr>
                         <th>Appointment</th>

@@ -183,6 +183,19 @@
                             <li><a href="{{ route('reports.demographics') }}">Patient Volume</a></li>
                         </ul>
                     </li>
+
+                    <li class="submenu">
+                        <a href="#"
+                            class="{{ request()->routeIs('admin.schedule.requests.*') || request()->routeIs('admin.schedule.exceptions.*') ? 'active subdrop' : '' }}">
+                            <i class="ti ti-calendar-stats"></i><span>Doctor Schedules</span><span
+                                class="menu-arrow"></span>
+                        </a>
+                        <ul
+                            style="{{ request()->routeIs('admin.schedule.requests.*') || request()->routeIs('admin.schedule.exceptions.*') ? 'display: block;' : 'display: none;' }}">
+                            <li><a href="{{ route('admin.schedule.requests.index') }}">Schedule Requests</a></li>
+                            <li><a href="{{ route('admin.schedule.exceptions.index') }}">Exceptions</a></li>
+                        </ul>
+                    </li>
                 @endif
 
                 <!-- 2. CLINIC ADMIN FLOW -->
@@ -208,6 +221,10 @@
                                     <li><a href="{{ route('doctors.schedules') }}">Schedules</a></li>
                                     <li><a href="{{ route('admin.schedule.exceptions.index') }}">Schedule
                                             Exceptions</a></li>
+                                    @if (auth()->user()->hasPermission('manage_doctor_schedule'))
+                                        <li><a href="{{ route('admin.schedule.requests.index') }}">Schedule
+                                                Requests</a></li>
+                                    @endif
                                 </ul>
                             </li>
                             <li class="submenu">
@@ -242,11 +259,17 @@
                             <i class="ti ti-bed"></i><span>IPD</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('ipd.*') ? 'display: block;' : 'display: none;' }}">
+                            <li><a href="{{ route('ipd.index') }}"
+                                    class="{{ request()->routeIs('ipd.index') ? 'active' : '' }}">Admissions</a></li>
+                            <li><a href="{{ route('ipd.create') }}"
+                                    class="{{ request()->routeIs('ipd.create') ? 'active' : '' }}">Admit Patient</a>
+                            </li>
+                            <li><a href="{{ route('ipd.bed_status') }}"
+                                    class="{{ request()->routeIs('ipd.bed_status') ? 'active' : '' }}">Bed Matrix</a>
+                            </li>
                             <li><a href="{{ route('ipd.wards.index') }}">Wards</a></li>
                             <li><a href="{{ route('ipd.rooms.index') }}">Rooms</a></li>
                             <li><a href="{{ route('ipd.beds.index') }}">Beds</a></li>
-                            <li><a href="{{ route('ipd.index') }}"
-                                    class="{{ request()->routeIs('ipd.*') ? 'active' : '' }}">Admissions</a></li>
                             <li><a href="{{ route('ipd.bed_assignments.index') }}">Bed Assignments</a></li>
                         </ul>
                     </li>
@@ -315,18 +338,32 @@
                     <li class="menu-title"><span>Clinical Workflow</span></li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
+                        <a href="#"
+                            class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-calendar"></i><span>Appointments</span><span class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul
+                            style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('appointments.index') }}">Today</a></li>
                             <li><a href="{{ route('appointments.index') }}">Upcoming</a></li>
                         </ul>
                     </li>
                     <li>
                         <a href="{{ route('doctor.schedule.index') }}"
-                            class="{{ request()->routeIs('doctor.schedule.*') ? 'active' : '' }}">
+                            class="{{ request()->routeIs('doctor.schedule.index') ? 'active' : '' }}">
                             <i class="ti ti-calendar"></i><span>My Schedule</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('doctor.schedule.manage') }}"
+                            class="{{ request()->routeIs('doctor.schedule.manage') ? 'active' : '' }}">
+                            <i class="ti ti-calendar-edit"></i><span>Manage Schedule</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('doctor.schedule.exceptions.index') }}"
+                            class="{{ request()->routeIs('doctor.schedule.exceptions.*') ? 'active' : '' }}">
+                            <i class="ti ti-calendar-exclamation"></i><span>Schedule Exceptions</span>
                         </a>
                     </li>
                     <li>
@@ -418,6 +455,19 @@
                             <li><a href="{{ route('patients.index') }}">Search Patient</a></li>
                         </ul>
                     </li>
+
+                    @if (auth()->user()->hasPermission('view_ipd'))
+                        <li class="submenu">
+                            <a href="#" class="{{ request()->routeIs('ipd.*') ? 'active subdrop' : '' }}">
+                                <i class="ti ti-bed"></i><span>IPD</span><span class="menu-arrow"></span>
+                            </a>
+                            <ul style="{{ request()->routeIs('ipd.*') ? 'display: block;' : 'display: none;' }}">
+                                <li><a href="{{ route('ipd.index') }}">Admitted Patients</a></li>
+                                <li><a href="{{ route('ipd.create') }}">Admit Patient</a></li>
+                                <li><a href="{{ route('ipd.bed_status') }}">Bed Status</a></li>
+                            </ul>
+                        </li>
+                    @endif
 
                     @if (auth()->user()->hasPermission('view_billing') || auth()->user()->hasPermission('create_invoices'))
                         <li class="submenu">

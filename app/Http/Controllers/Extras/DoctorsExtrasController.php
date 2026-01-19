@@ -45,7 +45,27 @@ class DoctorsExtrasController extends Controller
         $doctors = Doctor::with(['user', 'schedules'])
             ->whereHas('clinics', function ($query) use ($clinicId) {
                 $query->where('clinics.id', $clinicId);
-            })
+            });
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $doctors->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($sub) use ($search) {
+                    $sub->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                })->orWhere('specialization', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (request()->filled('from')) {
+            $doctors->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $doctors->whereDate('created_at', '<=', request('to'));
+        }
+
+        $doctors = $doctors
             ->orderBy('user_id')
             ->paginate(20);
         return view('doctors.schedules', compact('doctors'));

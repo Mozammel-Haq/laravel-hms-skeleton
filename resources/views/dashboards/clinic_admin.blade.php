@@ -66,7 +66,7 @@
                         <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0 align-middle">
+                        <table class="table table-hover mb-0 align-middle datatable">
                             <thead class="table-light">
                                 <tr>
                                     <th>Patient</th>
@@ -180,7 +180,7 @@
                         <a href="{{ route('billing.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table class="table table-hover mb-0 datatable">
                             <thead>
                                 <tr>
                                     <th>Invoice</th>
@@ -211,7 +211,4 @@
                         </table>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 </x-app-layout>

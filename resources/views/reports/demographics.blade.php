@@ -8,7 +8,7 @@
                     <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary">Reports Hub</a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle datatable">
                         <thead class="table-light">
                             <tr>
                                 <th>Gender</th>

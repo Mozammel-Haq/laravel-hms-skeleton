@@ -295,7 +295,7 @@
     <div class="tab-content">
         <div class="tab-pane active show" id="appointments" role="tabpanel">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle datatable">
                     <thead>
                         <tr>
                             <th>Date & Time</th>
@@ -367,7 +367,7 @@
 
         <div class="tab-pane" id="transactions" role="tabpanel">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle datatable">
                     <thead class="thead-light">
                         <tr>
                             <th>Transaction ID</th>
@@ -437,7 +437,7 @@
 
         <div class="tab-pane" id="medical" role="tabpanel">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle datatable">
                     <thead>
                         <tr>
                             <th>Condition</th>

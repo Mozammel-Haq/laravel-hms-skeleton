@@ -43,7 +43,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
+                            <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Patient</th>
@@ -74,7 +74,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
+                            <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Patient</th>

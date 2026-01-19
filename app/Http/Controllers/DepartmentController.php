@@ -17,6 +17,22 @@ class DepartmentController extends Controller
             $query->onlyTrashed();
         }
 
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
         $departments = $query->paginate(20);
         return view('departments.index', compact('departments'));
     }
@@ -32,7 +48,7 @@ class DepartmentController extends Controller
     public function store(Request $request)
     {
         Gate::authorize('create', Department::class);
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -46,7 +62,7 @@ class DepartmentController extends Controller
     public function update(Request $request, Department $department)
     {
         Gate::authorize('update', $department);
-        
+
         $request->validate(['name' => 'required|string|max:255']);
         $department->update($request->all());
 

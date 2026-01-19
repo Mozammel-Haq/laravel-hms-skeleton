@@ -28,7 +28,8 @@
                                 <label class="form-label">Symptoms</label>
                                 <div id="symptom-wrapper">
                                     <div class="d-flex gap-2 mb-2">
-                                        <input type="text" name="symptoms[]" class="form-control" placeholder="Enter symptom">
+                                        <input type="text" name="symptoms[]" class="form-control"
+                                            placeholder="Enter symptom">
                                         <button type="button" class="btn btn-sm btn-primary add-symptom">
                                             <i class="ti ti-plus"></i>
                                         </button>
@@ -89,7 +90,8 @@
                             @if ($history->isNotEmpty())
                                 <div class="mb-3">
                                     <div class="fw-semibold mb-1">Latest</div>
-                                    <div class="mb-1">Recorded At: {{ $history->first()->recorded_at?->format('d M Y H:i') }}</div>
+                                    <div class="mb-1">Recorded At:
+                                        {{ $history->first()->recorded_at?->format('d M Y H:i') }}</div>
                                     <div class="mb-1">Temperature: {{ $history->first()->temperature }}</div>
                                     <div class="mb-1">Pulse: {{ $history->first()->heart_rate }}</div>
                                     <div class="mb-1">BP: {{ $history->first()->blood_pressure }}</div>
@@ -97,7 +99,7 @@
                                 </div>
                                 <hr>
                                 <div class="table-responsive">
-                                    <table class="table table-sm table-hover mb-0">
+                                    <table class="table table-sm table-hover mb-0 datatable">
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
@@ -153,7 +155,8 @@
                 if (e.target.closest('.add-symptom')) {
                     var div = document.createElement('div');
                     div.className = 'd-flex gap-2 mb-2';
-                    div.innerHTML = '<input type="text" name="symptoms[]" class="form-control" placeholder="Enter symptom"><button type="button" class="btn btn-sm btn-outline-danger remove-symptom"><i class="ti ti-trash"></i></button>';
+                    div.innerHTML =
+                        '<input type="text" name="symptoms[]" class="form-control" placeholder="Enter symptom"><button type="button" class="btn btn-sm btn-outline-danger remove-symptom"><i class="ti ti-trash"></i></button>';
                     wrapper.appendChild(div);
                 } else if (e.target.closest('.remove-symptom')) {
                     var row = e.target.closest('.d-flex');
