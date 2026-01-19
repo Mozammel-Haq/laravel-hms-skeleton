@@ -2,6 +2,7 @@
 
     <div class="card m-2 p-3">
         <h5 class="mb-3">Bed Assignments</h5>
+        <hr>
         <div class="table-responsive">
             <table class="table table-hover mb-0 datatable">
                 <thead>

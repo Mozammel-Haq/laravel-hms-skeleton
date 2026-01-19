@@ -1,8 +1,9 @@
 <x-app-layout>
 
-    <div class="card mt-3">
+    <div class="card mt-3 mx-2 p-2">
         <div class="card-body">
             <h5 class="mb-3">Add Lab Test</h5>
+            <hr>
             <form method="post" action="{{ route('lab.catalog.store') }}">
                 @csrf
                 <div class="row g-3">

@@ -1,11 +1,12 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
         <div class="d-flex mt-3 justify-content-between align-items-center mb-4">
             <h3 class="page-title mb-0">New Sale (POS)</h3>
             <a href="{{ route('pharmacy.index') }}" class="btn btn-outline-secondary">
                 <i class="ti ti-arrow-left me-1"></i> Back to History
             </a>
         </div>
+        <hr>
 
         <form action="{{ route('pharmacy.store') }}" method="POST" id="pos-form">
             @csrf

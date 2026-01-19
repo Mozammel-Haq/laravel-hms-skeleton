@@ -1,6 +1,6 @@
 <x-app-layout>
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="container-fluid mx-2">
+        <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
             <div>
                 <h4 class="mb-1">Admission Details</h4>
                 <p class="text-muted mb-0">Patient admission record and status</p>
@@ -26,17 +26,23 @@
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Patient Information</h5>
-                        <div class="d-flex align-items-center mb-3">
+                        <a href="{{ route('patients.show', $admission->patient) }}"
+                            class="d-flex align-items-center mb-3 text-decoration-none text-body">
                             <div class="avatar avatar-lg me-3">
-                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
-                                    {{ substr($admission->patient->name, 0, 1) }}
-                                </span>
+                                @if ($admission->patient->profile_photo)
+                                    <img src="{{ asset($admission->patient->profile_photo) }}"
+                                        alt="{{ $admission->patient->name }}" class="rounded-circle w-100 h-100 object-fit-cover">
+                                @else
+                                    <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
+                                        {{ substr($admission->patient->name, 0, 1) }}
+                                    </span>
+                                @endif
                             </div>
                             <div>
                                 <h6 class="mb-0">{{ $admission->patient->name }}</h6>
                                 <div class="text-muted small">{{ $admission->patient->patient_code }}</div>
                             </div>
-                        </div>
+                        </a>
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between px-0">
                                 <span class="text-muted">Gender</span>

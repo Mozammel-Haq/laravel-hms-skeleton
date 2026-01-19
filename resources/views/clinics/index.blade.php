@@ -1,11 +1,12 @@
 <x-app-layout>
     <div class="content pb-0">
 
-        <div class="card mt-2">
+        <div class="card mt-2 mx-2">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">All Clinics</h5>
                 <a href="{{ route('clinics.create') }}" class="btn btn-primary">Create Clinic</a>
             </div>
+            <hr>
             <div class="table-responsive">
                 <table class="table table-striped datatable">
                     <thead>
@@ -19,9 +20,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($clinics as $clinic)
+                        @forelse ($clinics as $clinic)
                             <tr>
-                                <td>{{ $clinic->name }}</td>
+                                <td>
+                                    <a href="{{ route('clinics.show', $clinic) }}"
+                                        class="text-decoration-none text-body fw-medium">
+                                        {{ $clinic->name }}
+                                    </a>
+                                </td>
                                 <td>{{ $clinic->code }}</td>
                                 <td>{{ $clinic->city }}</td>
                                 <td>{{ $clinic->country }}</td>
@@ -39,7 +45,13 @@
                                     </form>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No clinics found.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

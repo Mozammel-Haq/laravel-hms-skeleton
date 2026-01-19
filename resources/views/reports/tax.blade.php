@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="card mb-3 mt-3">
+        <div class="card mb-3 mt-3 mx-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Tax Report</h3>

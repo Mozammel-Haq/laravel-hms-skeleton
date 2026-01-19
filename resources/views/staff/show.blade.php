@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
         <div class="card mt-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">

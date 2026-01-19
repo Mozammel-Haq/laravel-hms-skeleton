@@ -1,14 +1,16 @@
 <x-app-layout>
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid mx-2">
+
+
+    <div class="card px-3 py-2">
+        <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="mb-0">My Schedule Exceptions</h4>
         <a href="{{ route('doctor.schedule.exceptions.create') }}" class="btn btn-primary">
             <i class="ti ti-plus me-1"></i> Request Exception
         </a>
     </div>
-
-    <div class="card">
-        <div class="card-body">
+    <hr>
             @if($exceptions->count() > 0)
                 <div class="table-responsive">
                     <table class="table table-hover datatable">
@@ -42,7 +44,7 @@
                                     </td>
                                     <td>
                                         @if($exception->is_available)
-                                            {{ \Carbon\Carbon::parse($exception->start_time)->format('h:i A') }} - 
+                                            {{ \Carbon\Carbon::parse($exception->start_time)->format('h:i A') }} -
                                             {{ \Carbon\Carbon::parse($exception->end_time)->format('h:i A') }}
                                         @else
                                             -

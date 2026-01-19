@@ -4,16 +4,31 @@
         <!-- Page Header -->
 
 
-        <div class="card mt-3">
+        <div class="card mt-3 mx-2">
             <div class="card-body">
                 <div class="mb-4">
                     <h4 class="fw-semibold">Edit Patient</h4>
                 </div>
-                <form method="POST" action="{{ route('patients.update', $patient) }}">
+                <hr>
+                <form method="POST" action="{{ route('patients.update', $patient) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
                     <div class="row g-3">
+
+                        <!-- Profile Photo -->
+                        <div class="col-12">
+                            <label for="profile_photo" class="form-label">Profile Photo</label>
+                            @if($patient->profile_photo)
+                                <div class="mb-2">
+                                    <img src="{{ asset($patient->profile_photo) }}" alt="Profile Photo" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                                </div>
+                            @endif
+                            <input type="file" id="profile_photo" name="profile_photo" class="form-control @error('profile_photo') is-invalid @enderror">
+                            @error('profile_photo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
                         <!-- Full Name -->
                         <div class="col-12">

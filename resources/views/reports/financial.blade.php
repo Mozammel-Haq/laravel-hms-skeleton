@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
         <form method="get" action="{{ route('reports.financial') }}" class="card mb-3">
             <div class="card-body">

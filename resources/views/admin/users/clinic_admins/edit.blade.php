@@ -1,12 +1,12 @@
 <x-app-layout>
-    <div class="card mt-2">
+    <div class="card mt-2 mx-2">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Edit Clinic Admin</h5>
-            <a href="{{ route('admin.clinic-admin-users.index') }}" class="btn btn-secondary btn-sm">
+            <a href="{{ route('admin.clinic-admin-users.index') }}" class="btn btn-primary btn-sm">
                 Back
             </a>
         </div>
-
+        <hr>
         <div class="card-body">
             <form method="POST" action="{{ route('admin.clinic-admin-users.update', $user) }}">
                 @csrf

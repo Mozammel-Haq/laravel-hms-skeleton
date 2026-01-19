@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid py-3">
+    <div class="container-fluid py-3 mx-2">
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm">
@@ -54,7 +54,15 @@
                                 <tbody>
                                     @foreach ($prescriptions as $p)
                                         <tr>
-                                            <td>{{ $p->patient->name ?? 'Patient' }}</td>
+                                            <td>
+                                                @if($p->patient)
+                                                    <a href="{{ route('patients.show', $p->patient) }}" class="text-decoration-none text-body">
+                                                        {{ $p->patient->name }}
+                                                    </a>
+                                                @else
+                                                    Patient
+                                                @endif
+                                            </td>
                                             <td>{{ $p->created_at }}</td>
                                             <td><span class="badge bg-secondary">{{ $p->status ?? 'active' }}</span>
                                             </td>
@@ -85,7 +93,15 @@
                                 <tbody>
                                     @foreach ($sales as $s)
                                         <tr>
-                                            <td>{{ $s->patient->name ?? 'Patient' }}</td>
+                                            <td>
+                                                @if($s->patient)
+                                                    <a href="{{ route('patients.show', $s->patient) }}" class="text-decoration-none text-body">
+                                                        {{ $s->patient->name }}
+                                                    </a>
+                                                @else
+                                                    Patient
+                                                @endif
+                                            </td>
                                             <td>{{ $s->created_at }}</td>
                                             <td>{{ number_format($s->total_amount, 2) }}</td>
                                         </tr>

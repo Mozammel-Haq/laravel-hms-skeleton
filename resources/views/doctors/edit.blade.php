@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
 
         <div class="card border-0 mt-2">
@@ -10,6 +10,7 @@
                         <i class="ti ti-arrow-left me-1"></i> Back
                     </a>
                 </div>
+                <hr>
                 <form action="{{ route('doctors.update', $doctor) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')

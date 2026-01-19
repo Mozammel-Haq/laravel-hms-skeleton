@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid py-3">
+    <div class="container-fluid py-3 mx-2">
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
@@ -66,7 +66,11 @@
                         <tbody>
                             @foreach ($invoices as $inv)
                                 <tr>
-                                    <td>{{ $inv->invoice_number ?? $inv->id }}</td>
+                                    <td>
+                                        <a href="{{ route('billing.show', $inv) }}" class="text-decoration-none text-body fw-bold">
+                                            {{ $inv->invoice_number ?? $inv->id }}
+                                        </a>
+                                    </td>
                                     <td>{{ number_format($inv->total_amount, 2) }}</td>
                                     <td><span class="badge bg-light text-dark">{{ $inv->status }}</span></td>
                                     <td>{{ $inv->created_at }}</td>

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
 
         <div class="row justify-content-center">
@@ -16,6 +16,7 @@
                                 <i class="ti ti-arrow-left me-1"></i> Back to Admission
                             </a>
                         </div>
+                        <hr>
                         <form method="POST" action="{{ route('ipd.rounds.store', $admission->id) }}">
                             @csrf
 

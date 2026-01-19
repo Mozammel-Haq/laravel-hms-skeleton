@@ -15,6 +15,7 @@
                 <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Billing</a>
             </div>
         </div>
+        <hr>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle datatable">
                         <thead>

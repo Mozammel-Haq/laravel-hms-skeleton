@@ -2,10 +2,11 @@
     <x-slot name="header">
         <h2 class="h4">Super Admin Users</h2>
     </x-slot>
-    <div class="card m-2">
+    <div class="card m-2 p-2">
         <div class="card-header">
             <h3 class="card-title">Super Admin Users</h3>
         </div>
+        <hr>
         <div class="card-body">
             <div class="card-body d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">All Super Admins</h5>

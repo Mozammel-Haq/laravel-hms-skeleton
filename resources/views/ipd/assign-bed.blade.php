@@ -113,9 +113,14 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
                             <div class="avatar avatar-md me-3">
-                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                    {{ substr($admission->patient->name, 0, 1) }}
-                                </span>
+                                @if ($admission->patient->profile_photo)
+                                    <img src="{{ asset($admission->patient->profile_photo) }}"
+                                        alt="{{ $admission->patient->name }}" class="rounded-circle w-100 h-100 object-fit-cover">
+                                @else
+                                    <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                        {{ substr($admission->patient->name, 0, 1) }}
+                                    </span>
+                                @endif
                             </div>
                             <div>
                                 <h6 class="mb-0">{{ $admission->patient->name }}</h6>

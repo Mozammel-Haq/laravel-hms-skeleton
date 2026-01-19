@@ -1,7 +1,7 @@
 <x-app-layout>
 
 
-    <div class="row">
+    <div class="row mx-2">
         <div class="col-md-12">
             <div class="card mt-3 mx-2">
                 <div class="page-header d-flex justify-content-between align-items-center px-4 py-3">

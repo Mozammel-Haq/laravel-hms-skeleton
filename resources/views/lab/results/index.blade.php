@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container-fluid">
 
-        <div class="card mt-2">
+        <div class="card mt-2 mx-2">
             <div class="card-body">
                 <div class="page-header">
                     <div class="row">
@@ -10,6 +10,7 @@
                         </div>
                     </div>
                 </div>
+                <hr>
                 <div class="table-responsive">
                     <table class="table table-striped datatable">
                         <thead>

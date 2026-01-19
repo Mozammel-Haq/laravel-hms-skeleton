@@ -4,16 +4,17 @@
 
         <div class="card border-0 mt-2 px-3 py-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h4 class="mb-1">Admit Patient</h4>
                         <p class="text-muted mb-0">Create a new inpatient admission</p>
                     </div>
-                    <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('ipd.index') }}" class="btn btn-outline-primary">
                         <i class="ti ti-arrow-left me-1"></i> Back to IPD
                     </a>
                 </div>
-                <form action="{{ route('ipd.store') }}" method="POST">
+                <hr>
+                <form action="{{ route('ipd.store') }}" method="POST" class="p-3 border rounded">
                     @csrf
 
                     <div class="row g-3">

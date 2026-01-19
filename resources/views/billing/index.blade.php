@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container-fluid">
 
-        <div class="card mt-3">
+        <div class="card mt-3 mx-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Invoices</h3>
@@ -17,6 +17,7 @@
                         @endcan
                     </div>
                 </div>
+                <hr>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle datatable">
                         <thead>
@@ -30,10 +31,38 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($invoices as $inv)
+                            @forelse ($invoices as $inv)
                                 <tr>
-                                    <td>{{ $inv->invoice_number }}</td>
-                                    <td>{{ optional($inv->patient)->full_name ?? 'Patient' }}</td>
+                                    <td>
+                                        <a href="{{ route('billing.show', $inv->id) }}"
+                                            class="text-decoration-none text-body fw-bold">
+                                            {{ $inv->invoice_number }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        @if ($inv->patient)
+                                            <a href="{{ route('patients.show', $inv->patient) }}"
+                                                class="d-flex align-items-center text-decoration-none text-body">
+                                                <div class="avatar avatar-sm me-2">
+                                                    @if ($inv->patient->profile_photo)
+                                                        <img src="{{ asset($inv->patient->profile_photo) }}"
+                                                            alt="{{ $inv->patient->full_name }}"
+                                                            class="rounded-circle w-100 h-100 object-fit-cover">
+                                                    @else
+                                                        <span
+                                                            class="avatar-title rounded-circle bg-primary-subtle text-primary fs-6">
+                                                            {{ substr($inv->patient->full_name, 0, 1) }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                <div>
+                                                    {{ $inv->patient->full_name }}
+                                                </div>
+                                            </a>
+                                        @else
+                                            Patient
+                                        @endif
+                                    </td>
                                     <td><span
                                             class="badge bg-{{ $inv->status === 'paid' ? 'success' : ($inv->status === 'partial' ? 'warning' : 'secondary') }}">{{ ucfirst($inv->status) }}</span>
                                     </td>
@@ -66,7 +95,13 @@
                                         @endif
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        No invoices found.
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

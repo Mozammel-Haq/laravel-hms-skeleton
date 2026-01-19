@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
 
         <div class="row justify-content-center">
@@ -8,10 +8,11 @@
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h3 class="page-title mb-0">Add Staff Member</h3>
-                            <a href="{{ route('staff.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('staff.index') }}" class="btn btn-outline-primary">
                                 <i class="ti ti-arrow-left me-1"></i> Back to List
                             </a>
                         </div>
+                        <hr>
                         <form action="{{ route('staff.store') }}" method="POST">
                             @csrf
 

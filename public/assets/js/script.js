@@ -501,6 +501,37 @@ Template Name: Preclinic - Bootstrap Admin Template
         });
     }
 
+    if ($(".datatable").length > 0) {
+        $(".datatable").each(function () {
+            var table = this;
+            var tbody = table.tBodies[0];
+            if (!tbody) {
+                $(table).removeClass("datatable datatable-server");
+                return;
+            }
+
+            var rows = Array.prototype.slice.call(tbody.rows);
+            var hasDataRow = false;
+
+            for (var i = 0; i < rows.length; i++) {
+                var row = rows[i];
+                var cells = Array.prototype.slice.call(row.cells);
+                var nonColspanCells = cells.filter(function (cell) {
+                    return !cell.hasAttribute("colspan");
+                });
+
+                if (nonColspanCells.length > 0) {
+                    hasDataRow = true;
+                    break;
+                }
+            }
+
+            if (!hasDataRow) {
+                $(table).removeClass("datatable datatable-server");
+            }
+        });
+    }
+
     // Datatable
     if ($(".datatable").length > 0 && $.fn.dataTable) {
         $(".datatable").each(function () {
@@ -575,13 +606,27 @@ Template Name: Preclinic - Bootstrap Admin Template
                     var modalId = tableId + "-filters-modal";
 
                     var toolbar = $(
-                        '<div class="d-flex justify-content-end mb-2 datatable-toolbar"></div>',
+                        '<div class="d-flex align-items-center justify-content-end mb-2 mt-2 gap-2 datatable-toolbar"></div>',
                     );
                     var filterButton = $(
-                        '<button type="button" class="btn btn-sm btn-outline-secondary datatable-filter-toggle"><i class="ti ti-filter"></i></button>',
+                        '<button type="button" class="btn btn-sm btn-outline-primary datatable-filter-toggle"><i class="ti ti-filter"></i></button>',
                     );
-                    toolbar.append(filterButton);
-                    wrapper.prepend(toolbar);
+                    var dateFilterWrapper = null;
+                    var fromInputToolbar = null;
+                    var toInputToolbar = null;
+
+                    if (dateColIndex !== undefined) {
+                        dateFilterWrapper = $(
+                            '<div class="d-flex align-items-center gap-2 datatable-date-filters"></div>',
+                        );
+                        fromInputToolbar = $(
+                            '<input type="date" class="form-control form-control-sm datatable-date-from" placeholder="From">',
+                        );
+                        toInputToolbar = $(
+                            '<input type="date" class="form-control form-control-sm datatable-date-to" placeholder="To">',
+                        );
+                        dateFilterWrapper.append(fromInputToolbar, toInputToolbar);
+                    }
 
                     var modal = $("#" + modalId);
                     if (modal.length === 0) {
@@ -629,33 +674,6 @@ Template Name: Preclinic - Bootstrap Admin Template
                         columnsRow.append(columnsCol);
                         bodyEl.append(columnsRow);
 
-                        if (dateColIndex !== undefined) {
-                            var dateRow = $(
-                                '<div class="row g-2 align-items-end mb-2"></div>',
-                            );
-
-                            var fromCol = $('<div class="col-md-6"></div>');
-                            fromCol.append(
-                                '<label class="form-label form-label-sm mb-1">From date</label>',
-                            );
-                            var fromInput = $(
-                                '<input type="date" class="form-control form-control-sm datatable-date-from">',
-                            );
-                            fromCol.append(fromInput);
-
-                            var toCol = $('<div class="col-md-6"></div>');
-                            toCol.append(
-                                '<label class="form-label form-label-sm mb-1">To date</label>',
-                            );
-                            var toInput = $(
-                                '<input type="date" class="form-control form-control-sm datatable-date-to">',
-                            );
-                            toCol.append(toInput);
-
-                            dateRow.append(fromCol, toCol);
-                            bodyEl.append(dateRow);
-                        }
-
                         content.append(headerEl, bodyEl, footerEl);
                         dialog.append(content);
                         modal.append(dialog);
@@ -675,27 +693,25 @@ Template Name: Preclinic - Bootstrap Admin Template
                         column.visible(this.checked);
                     });
 
-                    if (dateColIndex !== undefined) {
+                    if (dateColIndex !== undefined && fromInputToolbar && toInputToolbar) {
                         if (isServerPaginated) {
                             var url = new URL(window.location.href);
                             var params = url.searchParams;
                             var existingFrom = params.get("from");
                             var existingTo = params.get("to");
-                            var fromInput = modal.find(".datatable-date-from");
-                            var toInput = modal.find(".datatable-date-to");
 
                             if (existingFrom) {
-                                fromInput.val(existingFrom);
+                                fromInputToolbar.val(existingFrom);
                             }
 
                             if (existingTo) {
-                                toInput.val(existingTo);
+                                toInputToolbar.val(existingTo);
                             }
 
                             var applyDateFilter = function () {
                                 var nextUrl = new URL(window.location.href);
-                                var fromValue = fromInput.val();
-                                var toValue = toInput.val();
+                                var fromValue = fromInputToolbar.val();
+                                var toValue = toInputToolbar.val();
 
                                 if (fromValue) {
                                     nextUrl.searchParams.set("from", fromValue);
@@ -713,30 +729,24 @@ Template Name: Preclinic - Bootstrap Admin Template
                                 window.location.href = nextUrl.toString();
                             };
 
-                            fromInput
+                            fromInputToolbar
                                 .off("change")
                                 .on("change", applyDateFilter);
-                            toInput.off("change").on("change", applyDateFilter);
+                            toInputToolbar
+                                .off("change")
+                                .on("change", applyDateFilter);
                         } else {
-                            modal.on(
-                                "change",
-                                ".datatable-date-from",
-                                function () {
-                                    var value = this.value;
-                                    $table.data("dt-date-from", value || null);
-                                    api.draw();
-                                },
-                            );
+                            fromInputToolbar.on("change", function () {
+                                var value = this.value;
+                                $table.data("dt-date-from", value || null);
+                                api.draw();
+                            });
 
-                            modal.on(
-                                "change",
-                                ".datatable-date-to",
-                                function () {
-                                    var value = this.value;
-                                    $table.data("dt-date-to", value || null);
-                                    api.draw();
-                                },
-                            );
+                            toInputToolbar.on("change", function () {
+                                var value = this.value;
+                                $table.data("dt-date-to", value || null);
+                                api.draw();
+                            });
                         }
                     }
 
@@ -744,6 +754,28 @@ Template Name: Preclinic - Bootstrap Admin Template
                     var filterInput = filterContainer.find(
                         "input[type='search']",
                     );
+
+                    if (filterContainer.length) {
+                        var labelElement = filterContainer.find("label");
+                        var filterWrapper = toolbar;
+
+                        if (labelElement.length) {
+                            var inputElement = labelElement.find(
+                                "input[type='search']",
+                            );
+                            filterWrapper.append(inputElement);
+                            labelElement.remove();
+                        } else if (filterInput.length) {
+                            filterWrapper.append(filterInput);
+                        }
+
+                        if (dateFilterWrapper) {
+                            filterWrapper.append(dateFilterWrapper);
+                        }
+
+                        filterWrapper.append(filterButton);
+                        filterContainer.empty().append(filterWrapper);
+                    }
 
                     if (filterInput.length && isServerPaginated) {
                         var currentUrl = new URL(window.location.href);

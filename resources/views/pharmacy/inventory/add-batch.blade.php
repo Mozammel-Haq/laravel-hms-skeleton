@@ -2,7 +2,7 @@
     <div class="container-fluid">
 
 
-        <div class="card border-0 mt-2">
+        <div class="card mt-2 mx-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -13,6 +13,7 @@
                         <i class="ti ti-arrow-left me-1"></i> Back to Inventory
                     </a>
                 </div>
+                <hr>
                 <form action="{{ route('pharmacy.inventory.store') }}" method="POST">
                     @csrf
 

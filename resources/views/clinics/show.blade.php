@@ -3,6 +3,7 @@
         <div class="card mt-2">
             <div class="card-body">
                 <h2 class="h4">Clinic Details</h2>
+                <hr>
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0">{{ $clinic->name }}</h5>
                     <div class="d-flex gap-2">

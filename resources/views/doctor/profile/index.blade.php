@@ -2,7 +2,7 @@
     <div class="container-fluid">
 
 
-        @if (session('success'))
+        {{-- @if (session('success'))
             <div class="alert alert-success mb-3">
                 {{ session('success') }}
             </div>
@@ -16,7 +16,7 @@
                     @endforeach
                 </ul>
             </div>
-        @endif
+        @endif --}}
 
         <div class="row g-3">
             <div class="col-lg-4">

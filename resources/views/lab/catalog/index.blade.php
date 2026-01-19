@@ -1,7 +1,8 @@
 <x-app-layout>
 
-        <div class="card mt-3 p-3">
+        <div class="card mt-3 p-3 mx-2">
         <h5 class="mb-3">Lab Test Catalog</h5>
+        <hr>
         <div class="table-responsive">
             <table class="table table-hover mb-0 datatable">
                 <thead>

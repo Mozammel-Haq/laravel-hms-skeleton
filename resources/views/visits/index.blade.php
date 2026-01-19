@@ -1,8 +1,9 @@
 <x-app-layout>
 
-    <div class="card mt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3 mt-3 px-3">
+    <div class="card mt-2 mx-2 p-3">
+        <div class="d-flex justify-content-between align-items-center mt-3 px-3">
             <h5 class="mb-0">Visits</h5>
+
             <div class="d-flex gap-2">
                 <div class="btn-group">
                     <a href="{{ route('visits.index') }}"
@@ -13,6 +14,7 @@
                 <a href="{{ route('visits.create') }}" class="btn btn-outline-primary">New Visit</a>
             </div>
         </div>
+        <hr>
         <div class="table-responsive">
             <table class="table table-hover mb-0 datatable">
                 <thead>

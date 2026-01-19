@@ -1,8 +1,8 @@
 <x-app-layout>
 
 
-    <div class="card border-0 mt-3">
-        <div class="d-flex justify-content-between align-items-center mb-4 px-3">
+    <div class="card border-0 mt-3 mx-2 py-3">
+        <div class="d-flex justify-content-between align-items-center px-3">
             <h3 class="page-title mb-0">Doctors</h3>
             <div class="d-flex gap-2">
                 <div class="btn-group">
@@ -16,6 +16,7 @@
                 </a>
             </div>
         </div>
+        <hr>
         <div class="table">
             <table class="table table-hover align-middle mb-0 datatable datatable-server">
                 <thead class="table-light">
@@ -31,16 +32,31 @@
                     @forelse($doctors as $doctor)
                         <tr>
                             <td>
-                                <div class="d-flex align-items-center">
-                                    <div
-                                        class="avatar avatar-sm me-3 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center">
-                                        {{ substr($doctor->user->name, 0, 1) }}
+                                @if ($doctor->user)
+                                    <a href="{{ route('doctors.show', $doctor) }}"
+                                        class="d-flex align-items-center text-decoration-none text-body">
+                                        <div class="avatar avatar-sm me-3">
+                                            <img src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                alt="{{ $doctor->user->name }}" class="rounded-circle"
+                                                style="width:32px;height:32px;object-fit:cover;">
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ $doctor->user->name }}</div>
+                                            <div class="small text-muted">{{ $doctor->user->email }}</div>
+                                        </div>
+                                    </a>
+                                @else
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm me-3">
+                                            <img src="{{ asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                alt="Deleted Doctor" class="rounded-circle"
+                                                style="width:32px;height:32px;object-fit:cover;">
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">Deleted Doctor</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class="fw-semibold">{{ $doctor->user->name }}</div>
-                                        <div class="small text-muted">{{ $doctor->user->email }}</div>
-                                    </div>
-                                </div>
+                                @endif
                             </td>
                             <td>{{ $doctor->department->name ?? 'N/A' }}</td>
                             <td>{{ $doctor->specialization }}</td>
@@ -51,10 +67,9 @@
                             </td>
                             <td>
                                 <div class="dropdown">
-                                    <button class="btn btn-sm btn-light dropdown-toggle" type="button"
-                                        data-bs-toggle="dropdown">
-                                        Actions
-                                    </button>
+                                    <button class="btn btn-sm btn-light btn-icon" data-bs-toggle="dropdown">
+                                            <i class="ti ti-dots-vertical"></i>
+                                        </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         @if ($doctor->trashed())
                                             <li>

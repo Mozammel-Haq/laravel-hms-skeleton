@@ -1,6 +1,5 @@
 <x-app-layout>
-    <div class="content">
-
+    <div class="content mx-2">
         <h6 class="fs-14 mb-3">
             <a href="{{ route('admin.roles.index') }}">
                 <i class="ti ti-chevron-left me-1"></i>Roles

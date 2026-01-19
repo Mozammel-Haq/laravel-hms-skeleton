@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="content pb-0">
 
-        <div class="card mt-2">
+        <div class="card mt-2 mx-2">
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul>
@@ -13,6 +13,7 @@
             @endif
             <div class="card-body">
                 <h2 class="h4">Create Clinic</h2>
+                <hr>
                 <form method="POST" action="{{ route('clinics.store') }}">
                     @csrf
                     <div class="row g-3">

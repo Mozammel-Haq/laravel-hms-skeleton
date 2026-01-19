@@ -93,7 +93,6 @@
 
     <!-- Select2 JS (after jQuery!) -->
     <script src="{{ asset('assets') }}/plugins/select2/js/select2.min.js"></script>
-
     <!-- Other plugins -->
     <script src="{{ asset('assets') }}/plugins/simplebar/simplebar.min.js"></script>
     <script src="{{ asset('assets') }}/plugins/apexchart/apexcharts.min.js"></script>
@@ -106,6 +105,7 @@
     <script src="{{ asset('assets') }}/js/dataTables.bootstrap5.min.js"></script>
     <!-- Your custom scripts -->
     @stack('scripts')
+
     <script src="{{ asset('assets') }}/js/script.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="{{ asset('assets') }}/js/rocket-loader.min.js" defer></script>

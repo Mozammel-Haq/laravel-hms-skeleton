@@ -2,7 +2,7 @@
     <div class="container-fluid">
 
         {{-- TOP STATS (BOOTSTRAP ONLY – NO LEGEND) --}}
-        <div class="row g-3 mb-4">
+        <div class="row g-3 mb-2">
 
             <div class="row g-3">
                 {{-- BED DASHBOARD --}}
@@ -14,7 +14,7 @@
                                 <p class="text-muted mb-0">Real-time inpatient availability overview</p>
                             </div>
                             <div class="mt-3">
-                                <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary btn-sm">Go to IPD
+                                <a href="{{ route('ipd.index') }}" class="btn btn-outline-primary btn-sm">Go to IPD
                                     Dashboard</a>
                             </div>
                         </div>
@@ -254,6 +254,10 @@
                 background: #ffffff;
                 box-shadow: 0 6px 14px rgba(0, 0, 0, .08);
                 transition: transform .15s ease;
+                @media (max-width: 767px) {
+                    height: 60px;
+                    font-size: 24px;
+                }
             }
 
             .bed-frame:hover {

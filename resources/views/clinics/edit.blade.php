@@ -3,7 +3,7 @@
 
 
 
-        <div class="card mt-2">
+        <div class="card mt-2 mx-2">
             <div class="card-body">
 
                 @if ($errors->any())
@@ -16,6 +16,7 @@
                     </div>
                 @endif
                 <h2 class="h4">Edit Clinic</h2>
+                <hr>
                 <form method="POST" action="{{ route('clinics.update', $clinic) }}">
                     @csrf
                     @method('PUT')

@@ -1,11 +1,11 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
 
         {{-- Page Header --}}
 
 
         {{-- Filters --}}
-        <div class="card mb-4 mt-2">
+        <div class="card mb-2 mt-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -16,6 +16,7 @@
                         <i class="ti ti-plus me-1"></i> Add Doctor
                     </a>
                 </div>
+                <hr>
                 <form class="row g-3" onsubmit="return false;">
                     <div class="col-md-4">
                         <label class="form-label">View Doctors by Clinic</label>
@@ -64,16 +65,34 @@
                             @forelse ($doctors as $doctor)
                                 <tr data-clinics="{{ $doctor->clinics->pluck('id')->implode(',') }}">
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar rounded-circle bg-light me-2">
-                                                <span class="ti ti-user fs-20 p-2"></span>
-                                            </div>
-                                            <div>
-                                                <div class="fw-semibold">{{ $doctor->user?->name ?? 'Deleted Doctor' }}
+                                        @if ($doctor->user)
+                                            <a href="{{ route('doctors.show', $doctor) }}"
+                                                class="d-flex align-items-center text-decoration-none text-body">
+                                                <div class="avatar avatar-sm me-2">
+                                                    <img src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                        alt="{{ $doctor->user->name }}" class="rounded-circle"
+                                                        style="width:32px;height:32px;object-fit:cover;">
                                                 </div>
-                                                <div class="text-muted">{{ $doctor->license_number }}</div>
+                                                <div>
+                                                    <div class="fw-semibold">
+                                                        {{ $doctor->user->name }}
+                                                    </div>
+                                                    <div class="text-muted">{{ $doctor->license_number }}</div>
+                                                </div>
+                                            </a>
+                                        @else
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-sm me-2">
+                                                    <img src="{{ asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                        alt="Deleted Doctor" class="rounded-circle"
+                                                        style="width:32px;height:32px;object-fit:cover;">
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold">Deleted Doctor</div>
+                                                    <div class="text-muted">{{ $doctor->license_number }}</div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     </td>
 
                                     <td>{{ $doctor->specialization }}</td>

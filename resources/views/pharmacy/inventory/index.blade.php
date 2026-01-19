@@ -2,7 +2,7 @@
     <div class="container-fluid">
 
 
-        <div class="card border-0 mt-2">
+        <div class="card mt-2 mx-2">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
@@ -18,6 +18,7 @@
                         </a>
                     </div>
                 </div>
+                <hr>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle datatable">
                         <thead class="table-light">

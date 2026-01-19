@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
         <div class="d-flex justify-content-between align-items-center mb-4 card p-3 mt-2">
             <div>
                 <h3 class="page-title mb-1">Sale Details</h3>
@@ -9,6 +9,7 @@
                 <i class="ti ti-arrow-left me-1"></i> Back to List
             </a>
         </div>
+        <hr>
 
         <div class="row g-4">
             <div class="col-lg-8">

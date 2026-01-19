@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="page-title mb-0">Super Admin Dashboard</h3>
             <div class="text-muted">{{ now()->format('l, d M Y') }}</div>

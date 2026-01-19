@@ -1,7 +1,7 @@
 <x-app-layout>
 
 
-    <div class="card mt-2">
+    <div class="card mt-2 mx-2 p-3">
         <div class="card-body">
             <div class="page-header d-flex justify-content-between align-items-center mb-4">
                 <div class="page-title">
@@ -24,6 +24,7 @@
                     @endcan
                 </div>
             </div>
+            <hr>
             <div class="table-responsive">
                 <table class="table table-hover align-middle datatable">
                     <thead class="table-light">
@@ -38,7 +39,11 @@
                     <tbody>
                         @forelse ($users as $user)
                             <tr>
-                                <td>{{ $user->name }}</td>
+                                <td>
+                                    <a href="{{ route('staff.show', $user) }}" class="text-decoration-none text-body fw-bold">
+                                        {{ $user->name }}
+                                    </a>
+                                </td>
                                 <td>{{ $user->email }}</td>
                                 <td>
                                     @foreach ($user->roles as $role)

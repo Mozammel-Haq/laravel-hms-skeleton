@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid py-3">
+    <div class="container-fluid py-3 mx-2">
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="card border-0 shadow-sm">
@@ -48,7 +48,15 @@
                         <tbody>
                             @foreach ($orders as $o)
                                 <tr>
-                                    <td>{{ $o->patient->name ?? 'Patient' }}</td>
+                                    <td>
+                                        @if($o->patient)
+                                            <a href="{{ route('patients.show', $o->patient) }}" class="text-decoration-none text-body">
+                                                {{ $o->patient->name }}
+                                            </a>
+                                        @else
+                                            Patient
+                                        @endif
+                                    </td>
                                     <td>{{ $o->created_at?->format('d M, H:i') }}</td>
                                     <td><span class="badge bg-light text-dark">{{ $o->status }}</span></td>
                                 </tr>
