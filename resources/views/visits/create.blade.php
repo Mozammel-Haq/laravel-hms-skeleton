@@ -22,6 +22,18 @@
                         @endforeach
                     </select>
                 </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Discount</label>
+                        <input type="number" name="discount" class="form-control" step="0.01" min="0" value="0">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tax (%)</label>
+                        <input type="number" name="tax" class="form-control" step="0.01" min="0" value="0">
+                    </div>
+                </div>
+
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary">Start Visit</button>
                 </div>

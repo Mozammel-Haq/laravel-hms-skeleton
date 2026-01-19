@@ -43,10 +43,161 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/plugins/simplebar/simplebar.min.css">
     <!-- Datatable CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/css/dataTables.bootstrap5.min.css">
-    @stack('styles')
+
     <!-- Main CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/css/style.css" id="app-style">
+    <style>
+        /* CSS Variables for theming */
+        :root {
+            /* Light mode colors */
+            --kpi-bg-primary: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+            --kpi-bg-info: linear-gradient(135deg, #f0f9fb 0%, #e6f4f8 100%);
+            --kpi-bg-success: linear-gradient(135deg, #f0f9f5 0%, #e6f4ec 100%);
+            --kpi-bg-warning: linear-gradient(135deg, #fff9f0 0%, #fff4e6 100%);
 
+            --kpi-border-primary: #c2d9ff;
+            --kpi-border-info: #b6e7f2;
+            --kpi-border-success: #b8e6cf;
+            --kpi-border-warning: #ffe5b6;
+
+            --primary-color: #0d6efd;
+            --info-color: #17a2b8;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+        }
+
+        [data-bs-theme="dark"] {
+            /* Dark mode colors */
+            --kpi-bg-primary: linear-gradient(135deg, #0d2b5c 0%, #0a1f42 100%);
+            --kpi-bg-info: linear-gradient(135deg, #0a3d4c 0%, #072a35 100%);
+            --kpi-bg-success: linear-gradient(135deg, #0d4229 0%, #0a2e1d 100%);
+            --kpi-bg-warning: linear-gradient(135deg, #664d03 0%, #4d3a02 100%);
+
+            --kpi-border-primary: #1e4b9e;
+            --kpi-border-info: #166d84;
+            --kpi-border-success: #157347;
+            --kpi-border-warning: #996c00;
+
+            --primary-color: #6ea8fe;
+            --info-color: #6edff6;
+            --success-color: #75b798;
+            --warning-color: #ffda6a;
+        }
+
+        /* KPI Card Styles */
+        .kpi-card {
+            border: 1.5px solid;
+            transition: all 0.3s ease;
+        }
+
+        /* Card specific backgrounds */
+        .kpi-card:nth-child(1) {
+            background: var(--kpi-bg-primary);
+            border-color: var(--kpi-border-primary) !important;
+        }
+
+        .kpi-card:nth-child(2) {
+            background: var(--kpi-bg-info);
+            border-color: var(--kpi-border-info) !important;
+        }
+
+        .kpi-card:nth-child(3) {
+            background: var(--kpi-bg-success);
+            border-color: var(--kpi-border-success) !important;
+        }
+
+        .kpi-card:nth-child(4) {
+            background: var(--kpi-bg-warning);
+            border-color: var(--kpi-border-warning) !important;
+        }
+
+        /* Pattern opacity adjustment for dark mode */
+        [data-bs-theme="dark"] .pattern-bg {
+            opacity: 0.15 !important;
+        }
+
+        [data-bs-theme="dark"] .decorative-shape {
+            opacity: 0.1 !important;
+        }
+
+        /* KPI Label */
+        .kpi-label {
+            color: var(--bs-secondary-color) !important;
+        }
+
+        /* KPI Value */
+        .kpi-value {
+            color: var(--bs-body-color) !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        [data-bs-theme="dark"] .kpi-value {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Icon Container */
+        .kpi-icon-container {
+            background: rgba(var(--bs-primary-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--bs-primary-rgb), 0.2) !important;
+        }
+
+        .kpi-card:nth-child(2) .kpi-icon-container {
+            background: rgba(var(--bs-info-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--bs-info-rgb), 0.2) !important;
+        }
+
+        .kpi-card:nth-child(3) .kpi-icon-container {
+            background: rgba(var(--bs-success-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--bs-success-rgb), 0.2) !important;
+        }
+
+        .kpi-card:nth-child(4) .kpi-icon-container {
+            background: rgba(var(--bs-warning-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--bs-warning-rgb), 0.2) !important;
+        }
+
+        /* Small Icon */
+        .kpi-small-icon {
+            border-color: rgba(var(--bs-primary-rgb), 0.3) !important;
+            background-color: var(--bs-body-bg) !important;
+        }
+
+        .kpi-card:nth-child(2) .kpi-small-icon {
+            border-color: rgba(var(--bs-info-rgb), 0.3) !important;
+        }
+
+        .kpi-card:nth-child(3) .kpi-small-icon {
+            border-color: rgba(var(--bs-success-rgb), 0.3) !important;
+        }
+
+        .kpi-card:nth-child(4) .kpi-small-icon {
+            border-color: rgba(var(--bs-warning-rgb), 0.3) !important;
+        }
+
+        /* Divider */
+        .kpi-divider {
+            border-color: rgba(var(--bs-primary-rgb), 0.2) !important;
+        }
+
+        .kpi-card:nth-child(2) .kpi-divider {
+            border-color: rgba(var(--bs-info-rgb), 0.2) !important;
+        }
+
+        .kpi-card:nth-child(3) .kpi-divider {
+            border-color: rgba(var(--bs-success-rgb), 0.2) !important;
+        }
+
+        .kpi-card:nth-child(4) .kpi-divider {
+            border-color: rgba(var(--bs-warning-rgb), 0.2) !important;
+        }
+
+        /* Footer Text */
+        .kpi-footer {
+            color: var(--bs-secondary-color) !important;
+            margin-bottom: 0;
+        }
+    </style>
+    @stack('styles')
 </head>
 
 <body>

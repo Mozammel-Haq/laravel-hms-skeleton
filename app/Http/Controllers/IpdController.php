@@ -11,6 +11,7 @@ use App\Models\Ward;
 use App\Services\IpdService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
 
 class IpdController extends Controller
 {
@@ -94,6 +95,9 @@ class IpdController extends Controller
     public function create(Request $request)
     {
         Gate::authorize('create', Admission::class);
+        if (!auth()->user()->hasAnyRole(['Receptionist', 'Clinic Admin', 'Super Admin'])) {
+            abort(403, 'Only Receptionist and Admin can admit patients.');
+        }
         $patients = collect();
         if ($request->has('patient_id') || old('patient_id')) {
             $patientId = $request->input('patient_id') ?? old('patient_id');
@@ -116,6 +120,9 @@ class IpdController extends Controller
     public function store(Request $request)
     {
         Gate::authorize('create', Admission::class);
+        if (!auth()->user()->hasAnyRole(['Receptionist', 'Clinic Admin', 'Super Admin'])) {
+            abort(403, 'Only Receptionist and Admin can admit patients.');
+        }
 
         $request->validate([
             'patient_id' => 'required|exists:patients,id',
@@ -125,6 +132,8 @@ class IpdController extends Controller
             'admission_fee' => 'nullable|numeric|min:0',
             'deposit_amount' => 'nullable|numeric|min:0',
             'bed_id' => 'required|exists:beds,id',
+            'discount' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
         ]);
 
         $patient = Patient::findOrFail($request->patient_id);
@@ -159,8 +168,8 @@ class IpdController extends Controller
                 $patient,
                 $items,
                 appointmentId: null,
-                discount: 0,
-                tax: 0,
+                discount: (float)($request->discount ?? 0),
+                tax: (float)($request->tax ?? 0),
                 visitId: null,
                 invoiceType: 'ipd_admission_fee',
                 createdBy: auth()->id(),
@@ -196,6 +205,9 @@ class IpdController extends Controller
     public function assignBed(Admission $admission)
     {
         Gate::authorize('update', $admission);
+        if (!auth()->user()->hasAnyRole(['Receptionist', 'Clinic Admin', 'Super Admin'])) {
+            abort(403, 'Only Receptionist and Admin can assign beds.');
+        }
         $admission->load(['bedAssignments.bed.room.ward']);
         $wards = Ward::where('clinic_id', auth()->user()->clinic_id)
             ->with(['rooms.beds' => function ($query) {
@@ -209,6 +221,9 @@ class IpdController extends Controller
     public function storeBedAssignment(Request $request, Admission $admission)
     {
         Gate::authorize('update', $admission);
+        if (!auth()->user()->hasAnyRole(['Receptionist', 'Clinic Admin', 'Super Admin'])) {
+            abort(403, 'Only Receptionist and Admin can assign beds.');
+        }
 
         $request->validate([
             'bed_id' => 'required|exists:beds,id',
@@ -223,24 +238,71 @@ class IpdController extends Controller
         }
     }
 
+    public function recommendDischarge(Admission $admission)
+    {
+        Gate::authorize('update', $admission);
+        if (!auth()->user()->hasRole('Doctor')) {
+            abort(403, 'Only Doctors can recommend discharge.');
+        }
+
+        $admission->update([
+            'discharge_recommended' => true,
+            'discharge_recommended_by' => auth()->id(),
+        ]);
+
+        return back()->with('success', 'Discharge recommended successfully.');
+    }
+
     public function discharge(Admission $admission)
     {
         Gate::authorize('update', $admission);
-        return view('ipd.discharge', compact('admission'));
+        if (!auth()->user()->hasAnyRole(['Receptionist', 'Clinic Admin', 'Super Admin'])) {
+            abort(403, 'Only Receptionist and Admin can discharge patients.');
+        }
+
+        // Task 4: Check bills.
+        $unpaidInvoices = \App\Models\Invoice::where('patient_id', $admission->patient_id)
+            ->where('status', '!=', 'paid')
+            ->exists();
+
+        return view('ipd.discharge', compact('admission', 'unpaidInvoices'));
     }
 
     public function storeDischarge(Request $request, Admission $admission)
     {
         Gate::authorize('update', $admission);
+        if (!auth()->user()->hasAnyRole(['Receptionist', 'Clinic Admin', 'Super Admin'])) {
+            abort(403, 'Only Receptionist and Admin can discharge patients.');
+        }
+
+        // Task 4: Check bills.
+        $unpaidInvoices = \App\Models\Invoice::where('patient_id', $admission->patient_id)
+            ->where('status', '!=', 'paid')
+            ->exists();
+
+        if ($unpaidInvoices) {
+            return back()->with('error', 'Patient has unpaid invoices. Please settle dues before discharge.');
+        }
 
         $request->validate([
             'discharge_date' => ['required', 'date', 'after_or_equal:' . $admission->admission_date],
+            'discount'       => ['nullable', 'numeric', 'min:0'],
+            'tax'            => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $this->ipdService->dischargePatient($admission, $request->discharge_date);
+        DB::transaction(function () use ($request, $admission) {
+            $this->ipdService->dischargePatient($admission, $request->discharge_date);
+
+            $this->ipdService->generateDischargeInvoice(
+                $admission,
+                $request->discharge_date,
+                (float)$request->input('discount', 0),
+                (float)$request->input('tax', 0)
+            );
+        });
 
         return redirect()->route('ipd.index')
-            ->with('success', 'Patient discharged successfully.');
+            ->with('success', 'Patient discharged and invoice generated successfully.');
     }
 
     public function roundsIndex()
@@ -307,29 +369,33 @@ class IpdController extends Controller
     public function createRound(Admission $admission)
     {
         Gate::authorize('update', $admission);
+
+        $doctor = Doctor::where('user_id', auth()->id())->first();
+        if (!$doctor || $doctor->id !== $admission->doctor_id) {
+            abort(403, 'Only the assigned doctor can create a round for this patient.');
+        }
+
         return view('ipd.rounds.create', compact('admission'));
     }
 
     public function storeRound(Request $request, Admission $admission)
     {
         Gate::authorize('update', $admission);
+
+        $doctor = Doctor::where('user_id', auth()->id())->first();
+        if (!$doctor || $doctor->id !== $admission->doctor_id) {
+            abort(403, 'Only the assigned doctor can create a round for this patient.');
+        }
+
         $request->validate([
             'notes' => 'required|string',
             'round_date' => 'required|date',
         ]);
 
-        $doctorId = null;
-        $doctor = Doctor::where('user_id', auth()->id())->first();
-        if ($doctor) {
-            $doctorId = $doctor->id;
-        } else {
-            $doctorId = $admission->doctor_id; // corrected from admitting_doctor_id based on previous reads which showed doctor_id in store method
-        }
-
         \App\Models\InpatientRound::create([
             'clinic_id' => $admission->clinic_id,
             'admission_id' => $admission->id,
-            'doctor_id' => $doctorId,
+            'doctor_id' => $doctor->id,
             'notes' => $request->notes,
             'round_date' => $request->round_date,
         ]);

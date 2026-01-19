@@ -83,8 +83,21 @@
     @push('scripts')
         <script>
             $(document).ready(function() {
-                // Initialize Select2 with AJAX
-                $('.select2-patient').select2({
+            // Calculate BMI
+            $('input[name="weight"], input[name="height"]').on('input', function() {
+                const weight = parseFloat($('input[name="weight"]').val());
+                const heightCm = parseFloat($('input[name="height"]').val());
+                if (weight > 0 && heightCm > 0) {
+                    const heightM = heightCm / 100;
+                    const bmi = (weight / (heightM * heightM)).toFixed(1);
+                    $('input[name="bmi"]').val(bmi);
+                } else {
+                    $('input[name="bmi"]').val('');
+                }
+            });
+
+            // Initialize Select2 with AJAX
+            $('.select2-patient').select2({
                     ajax: {
                         url: '{{ route('patients.search') }}',
                         dataType: 'json',

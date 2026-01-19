@@ -251,6 +251,8 @@ class DashboardController extends Controller
             return view('dashboards.accountant', compact('cards', 'invoices'));
         }
 
-        return view('dashboard');
+        // Default fallback if no role matches
+        // return view('dashboard');
+        abort(403, 'Unauthorized access: User has no assigned role.');
     }
 }

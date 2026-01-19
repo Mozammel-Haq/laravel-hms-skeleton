@@ -17,13 +17,13 @@ class PrescriptionController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Prescription::class);
-        
+
         $query = Prescription::with(['consultation.patient', 'consultation.doctor.user']);
 
         // Filter by doctor if the user is a doctor
         $doctor = Doctor::where('user_id', auth()->user()->id)->first();
         if ($doctor) {
-            $query->whereHas('consultation', function($q) use ($doctor) {
+            $query->whereHas('consultation', function ($q) use ($doctor) {
                 $q->where('doctor_id', $doctor->id);
             });
         }
@@ -127,7 +127,7 @@ class PrescriptionController extends Controller
         }
 
         if (!auth()->user()->hasRole('Doctor')) {
-            abort(403);
+            abort(403, 'Only Doctors can make prescriptions.');
         }
 
         $validated = $request->validate([

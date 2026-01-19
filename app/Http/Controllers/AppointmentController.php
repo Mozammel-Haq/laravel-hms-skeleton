@@ -87,19 +87,19 @@ class AppointmentController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    // public function create()
-    // {
-    //     Gate::authorize('create', Appointment::class);
+    public function create()
+    {
+        Gate::authorize('create', Appointment::class);
 
-    //     $doctors = Doctor::where('status', 'active')
-    //         ->whereHas('clinics', function ($q) {
-    //             $q->where('clinics.id', TenantContext::getClinicId());
-    //         })
-    //         ->get();
-    //     $patients = Patient::all(); // to do---apply search later
+        $doctors = Doctor::where('status', 'active')
+            ->whereHas('clinics', function ($q) {
+                $q->where('clinics.id', TenantContext::getClinicId());
+            })
+            ->get();
+        $patients = Patient::all(); // to do---apply search later
 
-    //     return view('appointments.create', compact('doctors', 'patients'));
-    // }
+        return view('appointments.create', compact('doctors', 'patients'));
+    }
 
     /**
      * Store a newly created resource in storage.

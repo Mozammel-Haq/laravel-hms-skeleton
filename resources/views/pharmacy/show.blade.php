@@ -1,11 +1,11 @@
 <x-app-layout>
     <div class="container-fluid mx-2">
-        <div class="d-flex justify-content-between align-items-center mb-4 card p-3 mt-2">
+        <div class="d-flex justify-content-between align-items-center p-3 mt-2">
             <div>
                 <h3 class="page-title mb-1">Sale Details</h3>
                 <div class="text-muted">Sale #{{ $sale->id }} &bull; {{ $sale->created_at }}</div>
             </div>
-            <a href="{{ route('pharmacy.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('pharmacy.index') }}" class="btn btn-outline-primary">
                 <i class="ti ti-arrow-left me-1"></i> Back to List
             </a>
         </div>
@@ -18,7 +18,7 @@
                         <h5 class="mb-0">Items Purchased</h5>
                     </div>
                     <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 datatable">
+                        <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
                                     <th>Medicine</th>
@@ -76,7 +76,8 @@
                             </div>
                             <div class="mb-2">
                                 <span class="text-muted small text-uppercase">Invoice Status</span><br>
-                                <span class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'partial' ? 'warning' : 'secondary') }}">{{ ucfirst($invoice->status) }}</span>
+                                <span
+                                    class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'partial' ? 'warning' : 'secondary') }}">{{ ucfirst($invoice->status) }}</span>
                             </div>
                         @endif
                     </div>
@@ -84,15 +85,22 @@
 
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <button class="btn btn-outline-primary w-100 mb-2">
-                            <i class="ti ti-printer me-1"></i> Print Invoice
-                        </button>
                         @if (isset($invoice) && $invoice)
-                            @can('process_payments')
-                                <a href="{{ route('billing.payment.add', $invoice->id) }}" class="btn btn-success w-100">
-                                    <i class="ti ti-cash me-1"></i> Add Payment
-                                </a>
-                            @endcan
+                            <a href="{{ route('billing.show', ['invoice' => $invoice->id, 'print' => 'true']) }}"
+                                class="btn btn-outline-primary w-100 mb-2">
+                                <i class="ti ti-printer me-1"></i> Print Invoice
+                            </a>
+
+                            {{-- Pharmacists might not have explicit process_payments permission, but should be able to pay --}}
+                            {{-- @can('process_payments') --}}
+                            <a href="{{ route('billing.payment.add', $invoice->id) }}" class="btn btn-success w-100">
+                                <i class="ti ti-cash me-1"></i> Add Payment
+                            </a>
+                            {{-- @endcan --}}
+                        @else
+                            <button class="btn btn-secondary w-100 mb-2" disabled>
+                                <i class="ti ti-printer me-1"></i> Invoice Not Generated
+                            </button>
                         @endif
                     </div>
                 </div>

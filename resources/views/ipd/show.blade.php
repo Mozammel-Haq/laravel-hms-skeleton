@@ -13,9 +13,28 @@
                     <a href="{{ route('ipd.assign-bed', $admission) }}" class="btn btn-success">
                         <i class="ti ti-bed me-1"></i> Assign/Transfer Bed
                     </a>
-                    <a href="{{ route('ipd.discharge', $admission) }}" class="btn btn-danger">
-                        <i class="ti ti-door-exit me-1"></i> Discharge
-                    </a>
+
+                    @if (auth()->user()->hasRole('Doctor'))
+                        @if (!$admission->discharge_recommended)
+                            <form action="{{ route('ipd.recommend-discharge', $admission) }}" method="POST"
+                                class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="ti ti-check me-1"></i> Recommend Discharge
+                                </button>
+                            </form>
+                        @else
+                            <button class="btn btn-secondary" disabled>
+                                <i class="ti ti-check me-1"></i> Discharge Recommended
+                            </button>
+                        @endif
+                    @endif
+
+                    @if (auth()->user()->hasAnyRole(['Receptionist', 'Clinic Admin', 'Super Admin']))
+                        <a href="{{ route('ipd.discharge', $admission) }}" class="btn btn-danger">
+                            <i class="ti ti-door-exit me-1"></i> Discharge
+                        </a>
+                    @endif
                 @endif
             </div>
         </div>
@@ -31,7 +50,8 @@
                             <div class="avatar avatar-lg me-3">
                                 @if ($admission->patient->profile_photo)
                                     <img src="{{ asset($admission->patient->profile_photo) }}"
-                                        alt="{{ $admission->patient->name }}" class="rounded-circle w-100 h-100 object-fit-cover">
+                                        alt="{{ $admission->patient->name }}"
+                                        class="rounded-circle w-100 h-100 object-fit-cover">
                                 @else
                                     <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
                                         {{ substr($admission->patient->name, 0, 1) }}
@@ -154,7 +174,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover datatable">
+                            <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Bed / Room / Ward</th>
@@ -212,7 +232,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover datatable">
+                            <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Date</th>
@@ -258,7 +278,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover datatable">
+                            <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Date</th>

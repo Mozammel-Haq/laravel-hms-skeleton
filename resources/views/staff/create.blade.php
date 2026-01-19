@@ -13,10 +13,25 @@
                             </a>
                         </div>
                         <hr>
-                        <form action="{{ route('staff.store') }}" method="POST">
+                        <form action="{{ route('staff.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
                             <h5 class="card-title text-primary mb-3">Account Details</h5>
+
+                            <div class="mb-4">
+                                <label class="form-label">Profile Photo</label>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img id="photo-preview" src="{{ asset('assets/img/users/user-01.jpg') }}"
+                                        class="rounded-circle object-fit-cover" width="80" height="80"
+                                        alt="Preview">
+                                    <input type="file" name="profile_photo" class="form-control" accept="image/*"
+                                        onchange="previewPhoto(this)">
+                                </div>
+                                <div class="form-text">Allowed: jpg, jpeg, png. Max: 2MB</div>
+                                @error('profile_photo')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Full Name <span class="text-danger">*</span></label>
@@ -71,4 +86,16 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('photo-preview').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 </x-app-layout>

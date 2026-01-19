@@ -46,17 +46,17 @@
                                                 <div class="avatar avatar-sm me-2">
                                                     @if ($inv->patient->profile_photo)
                                                         <img src="{{ asset($inv->patient->profile_photo) }}"
-                                                            alt="{{ $inv->patient->full_name }}"
+                                                            alt="{{ $inv->patient->name }}"
                                                             class="rounded-circle w-100 h-100 object-fit-cover">
                                                     @else
                                                         <span
                                                             class="avatar-title rounded-circle bg-primary-subtle text-primary fs-6">
-                                                            {{ substr($inv->patient->full_name, 0, 1) }}
+                                                            {{ substr($inv->patient->name, 0, 1) }}
                                                         </span>
                                                     @endif
                                                 </div>
                                                 <div>
-                                                    {{ $inv->patient->full_name }}
+                                                    {{ $inv->patient->name }}
                                                 </div>
                                             </a>
                                         @else
@@ -79,6 +79,10 @@
                                                 </button>
                                             </form>
                                         @else
+                                            <a href="{{ route('billing.show', ['invoice' => $inv->id, 'print' => 'true']) }}"
+                                                target="_blank" class="btn btn-sm btn-outline-secondary" title="Print">
+                                                <i class="ti ti-printer"></i>
+                                            </a>
                                             <a href="{{ route('billing.show', $inv->id) }}"
                                                 class="btn btn-sm btn-outline-primary">View</a>
                                             @can('delete', $inv)
