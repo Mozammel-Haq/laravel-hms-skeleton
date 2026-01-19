@@ -11,7 +11,7 @@
         <div class="card-body">
             @if($exceptions->count() > 0)
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover datatable">
                         <thead>
                             <tr>
                                 <th>Date Range</th>

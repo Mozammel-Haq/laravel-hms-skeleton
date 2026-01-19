@@ -6,7 +6,7 @@
             <a href="{{ route('ipd.beds.create') }}" class="btn btn-primary">Add Bed</a>
         </div>
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 datatable">
                 <thead>
                     <tr>
                         <th>Bed</th>

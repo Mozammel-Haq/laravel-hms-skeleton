@@ -17,7 +17,7 @@
                         <h5 class="mb-0">Items Purchased</h5>
                     </div>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0 datatable">
                             <thead class="table-light">
                                 <tr>
                                     <th>Medicine</th>

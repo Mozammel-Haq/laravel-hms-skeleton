@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Bed;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BedController extends Controller
 {
@@ -62,5 +63,39 @@ class BedController extends Controller
         ]);
         $bed->update($request->only('room_id', 'bed_number', 'status'));
         return redirect()->route('ipd.beds.index')->with('success', 'Bed updated');
+    }
+
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'room_id' => 'required|integer|exists:rooms,id',
+            'order' => 'required|array',
+            'order.*' => 'integer|exists:beds,id',
+        ]);
+
+        $clinicId = auth()->user()->clinic_id;
+        $roomId = $request->room_id;
+        $bedIds = $request->order;
+
+        $validBedIds = Bed::withoutTenant()
+            ->join('rooms', 'beds.room_id', '=', 'rooms.id')
+            ->join('wards', 'rooms.ward_id', '=', 'wards.id')
+            ->where('wards.clinic_id', $clinicId)
+            ->where('rooms.id', $roomId)
+            ->whereIn('beds.id', $bedIds)
+            ->pluck('beds.id')
+            ->all();
+
+        if (count($validBedIds) !== count($bedIds)) {
+            return response()->json(['status' => 'error'], 422);
+        }
+
+        DB::transaction(function () use ($bedIds) {
+            foreach ($bedIds as $index => $id) {
+                Bed::where('id', $id)->update(['position' => $index + 1]);
+            }
+        });
+
+        return response()->json(['status' => 'ok']);
     }
 }

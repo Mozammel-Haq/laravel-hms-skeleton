@@ -36,7 +36,7 @@
                         $invoices = \App\Models\Invoice::where('visit_id', $visit->id)->latest()->get();
                         $total = $invoices->sum('total_amount');
                     @endphp
-                    <table class="table table-sm">
+                    <table class="table table-sm datatable">
                         <thead>
                             <tr>
                                 <th>#</th>

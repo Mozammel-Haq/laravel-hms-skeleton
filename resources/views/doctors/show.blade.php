@@ -116,7 +116,7 @@
                     </div>
                     <div class="card-body p-2">
                         <div class="table-responsive">
-                            <table class="table table-sm align-middle mb-0">
+                            <table class="table table-sm align-middle mb-0 datatable">
                                 <thead class="table-light">
                                     <tr>
                                         <th>#</th>

@@ -16,12 +16,12 @@
                                 <div class="text-muted">{{ optional($doctor)->specialization }}</div>
                             </div>
                             @if ($doctor)
-                                <a href="{{ route('doctors.schedule', $doctor->user_id) }}"
-                                    class="btn btn-primary">Manage Schedule</a>
+                                <a href="{{ route('doctor.schedule.manage') }}" class="btn btn-primary">Manage
+                                    Schedule</a>
                             @endif
                         </div>
                         <div class="table-responsive">
-                            <table class="table">
+                            <table class="table datatable">
                                 <thead>
                                     <tr>
                                         <th>Day</th>

@@ -40,6 +40,30 @@ class AppointmentController extends Controller
             $query->latest('appointment_date');
         }
 
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('appointment_date', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhere('appointment_type', 'like', '%' . $search . '%')
+                    ->orWhereHas('patient', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('doctor.user', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('appointment_date', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('appointment_date', '<=', request('to'));
+        }
+
         $appointments = $query->paginate(15);
 
         return view('appointments.index', compact('appointments'));
@@ -61,19 +85,19 @@ class AppointmentController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        Gate::authorize('create', Appointment::class);
+    // public function create()
+    // {
+    //     Gate::authorize('create', Appointment::class);
 
-        $doctors = Doctor::where('status', 'active')
-            ->whereHas('clinics', function ($q) {
-                $q->where('clinics.id', TenantContext::getClinicId());
-            })
-            ->get();
-        $patients = Patient::all(); // to do---apply search later
+    //     $doctors = Doctor::where('status', 'active')
+    //         ->whereHas('clinics', function ($q) {
+    //             $q->where('clinics.id', TenantContext::getClinicId());
+    //         })
+    //         ->get();
+    //     $patients = Patient::all(); // to do---apply search later
 
-        return view('appointments.create', compact('doctors', 'patients'));
-    }
+    //     return view('appointments.create', compact('doctors', 'patients'));
+    // }
 
     /**
      * Store a newly created resource in storage.

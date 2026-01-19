@@ -1,21 +1,22 @@
 <x-app-layout>
     <div class="container-fluid">
-
+        @php $mode = $mode ?? 'admin'; @endphp
 
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <div class="card border-0 mt-2">
                     <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="page-title mb-0">Manage Schedule</h3>
-                <div class="text-muted">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}
-                    ({{ $doctor->specialization }})</div>
-            </div>
-            <a href="{{ route('doctors.index') }}" class="btn btn-outline-secondary">
-                <i class="ti ti-arrow-left me-1"></i> Back to Doctors
-            </a>
-        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h3 class="page-title mb-0">Manage Schedule</h3>
+                                <div class="text-muted">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}
+                                    ({{ $doctor->specialization }})</div>
+                            </div>
+                            <a href="{{ $mode === 'self' ? route('doctor.schedule.index') : route('doctors.index') }}"
+                                class="btn btn-outline-secondary">
+                                <i class="ti ti-arrow-left me-1"></i> Back
+                            </a>
+                        </div>
                         @if ($errors->any())
                             <div class="alert alert-danger mb-4">
                                 <ul class="mb-0">
@@ -34,10 +35,13 @@
                             </div>
                         </div>
 
-                        <form action="{{ route('doctors.schedule.update', $doctor) }}" method="POST"
-                            id="schedule-form">
+                        <form
+                            action="{{ $mode === 'self' ? route('doctor.schedule.request') : route('doctors.schedule.update', $doctor) }}"
+                            method="POST" id="schedule-form">
                             @csrf
-                            @method('PUT')
+                            @if ($mode !== 'self')
+                                @method('PUT')
+                            @endif
 
                             <div class="table-responsive mb-4">
                                 <table class="table table-bordered align-middle" id="schedule-table">
@@ -146,8 +150,13 @@
                                 </button>
 
                                 <div class="d-flex gap-2">
-                                    <a href="{{ route('doctors.index') }}" class="btn btn-light">Cancel</a>
-                                    <button type="submit" class="btn btn-primary">Save Schedule</button>
+                                    @if ($mode === 'self')
+                                        <a href="{{ route('doctor.schedule.index') }}" class="btn btn-light">Cancel</a>
+                                        <button type="submit" class="btn btn-primary">Send Request</button>
+                                    @else
+                                        <a href="{{ route('doctors.index') }}" class="btn btn-light">Cancel</a>
+                                        <button type="submit" class="btn btn-primary">Save Schedule</button>
+                                    @endif
                                 </div>
                             </div>
                         </form>

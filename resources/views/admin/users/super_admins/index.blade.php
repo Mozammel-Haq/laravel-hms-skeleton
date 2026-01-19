@@ -11,7 +11,7 @@
             <h5 class="card-title mb-0">All Super Admins</h5>
             <a href="{{ route('admin.super-admin-users.create') }}" class="btn btn-primary">Create Super Admin</a>
         </div>
-            <table class="table table-striped">
+            <table class="table table-striped datatable">
                 <thead>
                     <tr>
                         <th>Name</th>

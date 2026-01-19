@@ -3,7 +3,7 @@
     <div class="card m-2 p-3">
         <h5 class="mb-3">Bed Assignments</h5>
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 datatable">
                 <thead>
                     <tr>
                         <th>Bed</th>

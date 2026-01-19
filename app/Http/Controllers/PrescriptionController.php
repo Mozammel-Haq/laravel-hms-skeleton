@@ -32,6 +32,27 @@ class PrescriptionController extends Controller
             $query->onlyTrashed();
         }
 
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('id', $search)
+                    ->orWhereHas('consultation.patient', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                    })->orWhereHas('consultation.doctor.user', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%');
+                    })->orWhere('status', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('issued_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('issued_at', '<=', request('to'));
+        }
+
         $prescriptions = $query->latest('issued_at')->paginate(20);
 
         return view('clinical.prescription.index', compact('prescriptions'));

@@ -16,7 +16,7 @@
 
             <!-- Roles Table -->
             <div class="table-responsive">
-                <table class="table table-nowrap">
+                <table class="table table-nowrap datatable">
                     <thead class="thead-light">
                         <tr>
                             <th>Role</th>

@@ -46,7 +46,7 @@
             <div class="card-body">
                 <div class="fw-semibold mb-2">Recent Admissions</div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle datatable">
                         <thead>
                             <tr>
                                 <th>Patient</th>

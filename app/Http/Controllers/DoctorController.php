@@ -28,6 +28,27 @@ class DoctorController extends Controller
             $query->onlyTrashed();
         }
 
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($sub) use ($search) {
+                    $sub->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                })->orWhereHas('department', function ($sub) use ($search) {
+                    $sub->where('name', 'like', '%' . $search . '%');
+                })->orWhere('specialization', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
         $doctors = $query->latest()->paginate(15);
 
         return view('doctors.index', compact('doctors'));

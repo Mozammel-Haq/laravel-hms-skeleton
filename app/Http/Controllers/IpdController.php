@@ -32,6 +32,28 @@ class IpdController extends Controller
             $query->where('status', 'admitted')->latest();
         }
 
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('status', 'like', '%' . $search . '%')
+                    ->orWhereHas('patient', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('doctor.user', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
         $admissions = $query->paginate(20);
         $admissionsCount = Admission::where('status', 'admitted')->count();
         $bedsAvailable = \App\Models\Bed::withoutTenant()
@@ -74,7 +96,13 @@ class IpdController extends Controller
         Gate::authorize('create', Admission::class);
         $patients = Patient::all();
         $doctors = Doctor::where('status', 'active')->get();
-        return view('ipd.create', compact('patients', 'doctors'));
+        $wards = Ward::where('clinic_id', auth()->user()->clinic_id)
+            ->with(['rooms.beds' => function ($query) {
+                $query->orderBy('position')->orderBy('bed_number');
+            }])
+            ->orderBy('name')
+            ->get();
+        return view('ipd.create', compact('patients', 'doctors', 'wards'));
     }
 
     public function store(Request $request)
@@ -88,6 +116,7 @@ class IpdController extends Controller
             'admission_reason' => 'required|string',
             'admission_fee' => 'nullable|numeric|min:0',
             'deposit_amount' => 'nullable|numeric|min:0',
+            'bed_id' => 'required|exists:beds,id',
         ]);
 
         $patient = Patient::findOrFail($request->patient_id);
@@ -98,6 +127,15 @@ class IpdController extends Controller
             $request->admission_date,
             $request->admission_reason
         );
+
+        try {
+            $this->ipdService->assignBed($admission, $request->bed_id);
+        } catch (\Exception $e) {
+            $admission->delete();
+            return back()
+                ->withInput()
+                ->withErrors(['bed_id' => $e->getMessage()]);
+        }
 
         // Admission fee invoice (optional)
         $fee = (float)($request->admission_fee ?? 0);
@@ -150,8 +188,14 @@ class IpdController extends Controller
     public function assignBed(Admission $admission)
     {
         Gate::authorize('update', $admission);
-        $beds = Bed::where('status', 'available')->get();
-        return view('ipd.assign-bed', compact('admission', 'beds'));
+        $admission->load(['bedAssignments.bed.room.ward']);
+        $wards = Ward::where('clinic_id', auth()->user()->clinic_id)
+            ->with(['rooms.beds' => function ($query) {
+                $query->orderBy('position')->orderBy('bed_number');
+            }])
+            ->orderBy('name')
+            ->get();
+        return view('ipd.assign-bed', compact('admission', 'wards'));
     }
 
     public function storeBedAssignment(Request $request, Admission $admission)
@@ -194,20 +238,62 @@ class IpdController extends Controller
     public function roundsIndex()
     {
         Gate::authorize('viewAny', Admission::class);
-        $admissions = Admission::with(['patient', 'doctor'])
+        $query = Admission::with(['patient', 'doctor'])
             ->where('status', 'admitted')
-            ->latest()
-            ->paginate(20);
+            ->latest();
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('patient', function ($sub) use ($search) {
+                    $sub->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('patient_code', 'like', '%' . $search . '%');
+                })->orWhereHas('doctor.user', function ($sub) use ($search) {
+                    $sub->where('name', 'like', '%' . $search . '%');
+                })->orWhere('status', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $admissions = $query->paginate(20);
         return view('ipd.rounds.index', compact('admissions'));
     }
 
     public function bedStatus()
     {
         Gate::authorize('viewAny', Admission::class);
-        $wards = Ward::with(['rooms.beds'])->orderBy('name')->get();
+        $wards = Ward::where('clinic_id', auth()->user()->clinic_id)
+            ->with(['rooms.beds' => function ($query) {
+                $query->orderBy('position')->orderBy('bed_number');
+            }])
+            ->orderBy('name')
+            ->get();
         $bedsAvailable = Bed::where('status', 'available')->count();
         $bedsOccupied = Bed::where('status', 'occupied')->count();
-        return view('ipd.bed_status', compact('wards', 'bedsAvailable', 'bedsOccupied'));
+        $bedAdmissions = Admission::with('patient')
+            ->where('status', 'admitted')
+            ->whereNotNull('current_bed_id')
+            ->get()
+            ->mapWithKeys(function ($admission) {
+                return [
+                    $admission->current_bed_id => [
+                        'id' => $admission->id,
+                        'patient_name' => $admission->patient->name ?? '',
+                        'patient_code' => $admission->patient->patient_code ?? '',
+                        'status' => $admission->status,
+                        'admission_date' => $admission->admission_date,
+                        'ipd_show_url' => route('ipd.show', $admission),
+                    ],
+                ];
+            });
+        return view('ipd.bed_status', compact('wards', 'bedsAvailable', 'bedsOccupied', 'bedAdmissions'));
     }
 
     public function createRound(Admission $admission)

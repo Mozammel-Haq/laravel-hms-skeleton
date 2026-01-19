@@ -16,8 +16,8 @@
                 </a>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+        <div class="table">
+            <table class="table table-hover align-middle mb-0 datatable datatable-server">
                 <thead class="table-light">
                     <tr>
                         <th>Doctor</th>

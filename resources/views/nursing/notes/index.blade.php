@@ -8,7 +8,7 @@
                     <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">IPD Dashboard</a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle datatable">
                         <thead>
                             <tr>
                                 <th>Patient</th>

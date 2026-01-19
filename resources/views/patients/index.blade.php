@@ -17,7 +17,7 @@
                 @endcan
             </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle datatable datatable-server">
                     <thead class="table-light">
                         <tr>
                             <th>Patient</th>

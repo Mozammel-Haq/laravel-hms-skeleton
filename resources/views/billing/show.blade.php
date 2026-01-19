@@ -17,7 +17,7 @@
                             <span class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'partial' ? 'warning' : 'secondary') }}">{{ ucfirst($invoice->status) }}</span>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
+                            <table class="table table-hover align-middle datatable">
                                 <thead>
                                     <tr>
                                         <th>Description</th>

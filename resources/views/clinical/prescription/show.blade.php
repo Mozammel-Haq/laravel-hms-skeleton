@@ -107,7 +107,7 @@
                                 @endphp
                                 @if ($vitals->isNotEmpty())
                                     <div class="table-responsive">
-                                        <table class="table table-sm table-hover mb-0">
+                                        <table class="table table-sm table-hover mb-0 datatable">
                                             <thead>
                                                 <tr>
                                                     <th>Date</th>
@@ -154,7 +154,7 @@
                             <h6 class="fs-16 fw-bold mb-3">Prescribed Medicines</h6>
 
                             <div class="table-responsive border bg-white">
-                                <table class="table table-nowrap">
+                                <table class="table table-nowrap datatable">
                                     <thead class="table-light">
                                         <tr>
                                             <th>#</th>

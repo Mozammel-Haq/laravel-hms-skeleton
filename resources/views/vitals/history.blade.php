@@ -14,7 +14,7 @@
                     <a href="{{ route('vitals.record') }}" class="btn btn-outline-secondary">Record Vitals</a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle datatable datatable-server">
                         <thead>
                             <tr>
                                 <th>Patient</th>

@@ -24,6 +24,28 @@ class LabController extends Controller
             $query->latest();
         }
 
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('id', $search)
+                    ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhereHas('patient', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                    })->orWhereHas('test', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
         $orders = $query->paginate(20);
         return view('lab.index', compact('orders'));
     }

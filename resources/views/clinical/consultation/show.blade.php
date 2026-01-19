@@ -106,7 +106,7 @@
                                         class="text-muted small ms-2">({{ $prescription->issued_at ? $prescription->issued_at : 'N/A' }})</span>
                                 </div>
                                 <div class="table-responsive">
-                                    <table class="table table-hover align-middle mb-0">
+                                    <table class="table table-hover align-middle mb-0 datatable">
                                         <thead class="table-light">
                                             <tr>
                                                 <th>Medicine</th>

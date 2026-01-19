@@ -107,11 +107,13 @@
                                         $patientId = optional($consultation->visit->appointment->patient)->id ?? null;
                                     @endphp
                                     @if ($patientId)
-                                        <a href="{{ route('vitals.history', ['patient_id' => $patientId]) }}" target="_blank" class="btn btn-xs btn-outline-primary">
+                                        <a href="{{ route('vitals.history', ['patient_id' => $patientId]) }}"
+                                            target="_blank" class="btn btn-xs btn-outline-primary">
                                             View All Vitals
                                         </a>
                                     @else
-                                        <a href="{{ route('vitals.history') }}" target="_blank" class="btn btn-xs btn-outline-p">
+                                        <a href="{{ route('vitals.history') }}" target="_blank"
+                                            class="btn btn-xs btn-outline-p">
                                             View All Vitals
                                         </a>
                                     @endif
@@ -122,7 +124,7 @@
                                     @endphp
                                     @if ($vitals->isNotEmpty())
                                         <div class="table-responsive">
-                                            <table class="table table-sm table-hover mb-0">
+                                            <table class="table table-sm table-hover mb-0 datatable">
                                                 <thead>
                                                     <tr>
                                                         <th>Date</th>
@@ -217,8 +219,8 @@
                                 </div>
                             </div>
 
-                            
-                                                        <div class="mb-4">
+
+                            <div class="mb-4">
                                 <h6 class="mb-3 fs-16 fw-bold">Notes / Advice</h6>
                                 <textarea name="notes" class="form-control" rows="3" placeholder="Enter any notes or advice">{{ old('notes') }}</textarea>
                             </div>

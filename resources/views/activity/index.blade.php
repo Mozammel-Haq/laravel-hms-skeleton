@@ -8,7 +8,7 @@
             <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">Dashboard</a>
         </div>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle datatable">
                         <thead>
                             <tr>
                                 <th>User</th>
