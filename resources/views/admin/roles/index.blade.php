@@ -29,7 +29,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($roles as $role)
+                        @forelse ($roles as $role)
                             <tr>
                                 <td>{{ $role->name }}</td>
                                 <td>{{ $role->users_count }}</td>
@@ -65,7 +65,11 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">No roles found.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

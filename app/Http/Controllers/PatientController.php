@@ -72,7 +72,31 @@ class PatientController extends Controller
     {
         Gate::authorize('create', Patient::class);
 
-        $patient = Patient::create($request->validated() + [
+        \Illuminate\Support\Facades\Log::info('Patient Store Request Data:', $request->all());
+        \Illuminate\Support\Facades\Log::info('Has File profile_photo:', ['has' => $request->hasFile('profile_photo')]);
+        if ($request->hasFile('profile_photo')) {
+             \Illuminate\Support\Facades\Log::info('File details:', [
+                 'name' => $request->file('profile_photo')->getClientOriginalName(),
+                 'valid' => $request->file('profile_photo')->isValid(),
+             ]);
+        }
+
+        $data = $request->validated();
+
+        if ($request->hasFile('profile_photo')) {
+            $file = $request->file('profile_photo');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $destination = public_path('assets/img/patients');
+
+            if (!is_dir($destination)) {
+                mkdir($destination, 0755, true);
+            }
+
+            $file->move($destination, $filename);
+            $data['profile_photo'] = 'assets/img/patients/' . $filename;
+        }
+
+        $patient = Patient::create($data + [
             'clinic_id'    => auth()->user()->clinic_id,
             'patient_code' => 'TEST',
         ]);
