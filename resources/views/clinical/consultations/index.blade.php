@@ -6,18 +6,39 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Consultations</h3>
                     <div class="d-flex gap-2">
-                        <div class="btn-group">
-                            <a href="{{ route('clinical.consultations.index') }}"
-                                class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                            <a href="{{ route('clinical.consultations.index', ['status' => 'trashed']) }}"
-                                class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-                        </div>
                         <a href="{{ route('appointments.index') }}" class="btn btn-outline-secondary">Appointments</a>
                     </div>
                 </div>
+
+                <!-- Filter Form -->
+                <form method="GET" action="{{ route('clinical.consultations.index') }}" class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" name="search" class="form-control" placeholder="Search by Patient, Doctor..." value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trashed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="from" class="form-control" placeholder="From Date" value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="to" class="form-control" placeholder="To Date" value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                            <a href="{{ route('clinical.consultations.index') }}" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
                 <hr>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle datatable datatable-server">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Patient</th>

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
+    <div class="container-fluid mx-2 mt-3 min-vh-100">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="page-title mb-0">Super Admin Dashboard</h3>
             <div class="text-muted">{{ now()->format('l, d M Y') }}</div>
@@ -34,9 +34,9 @@
                     <div class="card-body position-relative z-1 p-4">
                         <div class="d-flex align-items-start justify-content-between mb-3">
                             <div>
-                                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">MANAGE
+                                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TOTAL
                                 </h6>
-                                <h2 class="fw-bold kpi-value mb-0">Clinics</h2>
+                                <h2 class="fw-bold kpi-value mb-0">{{ $stats['clinics_total'] }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -63,9 +63,9 @@
                                                 stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                     </div>
-                                    <p class="text-muted kpi-footer mb-0">View All Registered</p>
+                                    <p class="text-muted kpi-footer mb-0">Active: {{ $stats['clinics_active'] }}</p>
                                 </div>
-                                <a href="#" class="btn btn-sm btn-outline-primary stretched-link">Go</a>
+                                <a href="{{ route('clinics.index') }}" class="btn btn-sm btn-outline-primary stretched-link">View</a>
                             </div>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">SYSTEM
                                 </h6>
-                                <h2 class="fw-bold kpi-value mb-0">Users</h2>
+                                <h2 class="fw-bold kpi-value mb-0">{{ $stats['users_total'] }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -120,9 +120,9 @@
                                                 stroke-linecap="round" />
                                         </svg>
                                     </div>
-                                    <p class="text-muted kpi-footer mb-0">Manage Roles</p>
+                                    <p class="text-muted kpi-footer mb-0">Total Users</p>
                                 </div>
-                                <a href="#" class="btn btn-sm btn-outline-primary stretched-link">Go</a>
+                                <a href="#" class="btn btn-sm btn-outline-primary stretched-link">View</a>
                             </div>
                         </div>
                     </div>
@@ -150,9 +150,9 @@
                     <div class="card-body position-relative z-1 p-4">
                         <div class="d-flex align-items-start justify-content-between mb-3">
                             <div>
-                                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">GLOBAL
+                                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TOTAL
                                 </h6>
-                                <h2 class="fw-bold kpi-value mb-0">Settings</h2>
+                                <h2 class="fw-bold kpi-value mb-0">{{ $stats['patients_total'] }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -176,9 +176,9 @@
                                                 stroke-linecap="round" />
                                         </svg>
                                     </div>
-                                    <p class="text-muted kpi-footer mb-0">System Config</p>
+                                    <p class="text-muted kpi-footer mb-0">System Patients</p>
                                 </div>
-                                <a href="#" class="btn btn-sm btn-outline-primary stretched-link">Go</a>
+                                <a href="#" class="btn btn-sm btn-outline-primary stretched-link">View</a>
                             </div>
                         </div>
                     </div>

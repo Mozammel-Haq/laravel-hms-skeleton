@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
+    <div class="container-fluid mx-2 mt-3">
         <div class="row g-4 mb-4">
             <!-- Doctors KPI Card -->
             <div class="col-xl-3 col-md-6">
@@ -264,7 +264,7 @@
                                         <td>
                                             <a href="{{ route('appointments.show', $appointment) }}"
                                                 class="text-decoration-none text-body">
-                                                <div>{{ $appointment->appointment_date }}</div>
+                                                <div>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y') }}</div>
                                                 <div class="small text-muted">{{ $appointment->start_time }}</div>
                                             </a>
                                         </td>

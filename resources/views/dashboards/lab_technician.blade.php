@@ -134,7 +134,7 @@
                                             Patient
                                         @endif
                                     </td>
-                                    <td>{{ $o->created_at }}</td>
+                                    <td>{{ $o->created_at}}</td>
                                     <td>
                                         @php
                                             $oStatus = $o->status;

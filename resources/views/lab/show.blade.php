@@ -37,7 +37,7 @@
                                     <table class="table table-hover align-middle">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>Recorded At</th>
+                                                <th>Reported At</th>
                                                 <th>Value</th>
                                                 <th>Notes</th>
                                             </tr>
@@ -45,7 +45,7 @@
                                         <tbody>
                                             @forelse ($order->results as $r)
                                                 <tr>
-                                                    <td>{{ \Illuminate\Support\Carbon::parse($r->recorded_at)->format('Y-m-d H:i') }}
+                                                    <td>{{ \Illuminate\Support\Carbon::parse($r->reported_at)->format('Y-m-d H:i') }}
                                                     </td>
                                                     <td>{{ $r->result_value }}</td>
                                                     <td>{{ $r->notes ?? '—' }}</td>

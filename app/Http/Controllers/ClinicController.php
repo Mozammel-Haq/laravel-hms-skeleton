@@ -11,7 +11,7 @@ class ClinicController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Clinic::class);
-        $clinics = Clinic::orderBy('name')->paginate(20);
+        $clinics = Clinic::latest()->paginate(20);
         return view('clinics.index', compact('clinics'));
     }
 

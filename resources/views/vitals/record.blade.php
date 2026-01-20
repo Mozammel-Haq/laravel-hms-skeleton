@@ -72,6 +72,26 @@
                         <input type="number" class="form-control" name="respiratory_rate"
                             value="{{ old('respiratory_rate') }}" placeholder="16">
                     </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" step="0.1" class="form-control" name="weight"
+                            value="{{ old('weight') }}" placeholder="70.5">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Height (cm)</label>
+                        <input type="number" step="0.1" class="form-control" name="height"
+                            value="{{ old('height') }}" placeholder="175">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">BMI</label>
+                        <input type="text" class="form-control bg-light" name="bmi"
+                            value="{{ old('bmi') }}" readonly tabindex="-1">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">SpO2 (%)</label>
+                        <input type="number" class="form-control" name="spo2"
+                            value="{{ old('spo2') }}" placeholder="98">
+                    </div>
                     <div class="col-12">
                         <button class="btn btn-primary" type="submit">Save</button>
                         <button class="btn btn-outline-secondary" type="reset">Clear</button>

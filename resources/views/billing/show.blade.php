@@ -175,7 +175,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="card">
+                <div class="card mt-2">
                     <div class="card-body">
                         <h5 class="mb-3">Payments</h5>
                         <ul class="list-group">

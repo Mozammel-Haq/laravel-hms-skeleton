@@ -55,7 +55,7 @@ class ConsultationController extends Controller
             $query->whereDate('created_at', '<=', request('to'));
         }
 
-        $consultations = $query->paginate(perPage: 50);
+        $consultations = $query->paginate(perPage: 50)->withQueryString();
 
         return view('clinical.consultations.index', compact('consultations'));
     }

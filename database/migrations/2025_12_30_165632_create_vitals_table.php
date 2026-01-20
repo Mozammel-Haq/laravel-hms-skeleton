@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('patient_id')->constrained()->restrictOnDelete();
-            $table->foreignId('visit_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('visit_id')->nullable()->constrained()->cascadeOnDelete();
 
             $table->string('blood_pressure')->nullable();
             $table->integer('heart_rate')->nullable();

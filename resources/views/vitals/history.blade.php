@@ -22,6 +22,10 @@
                                 <th>Pulse</th>
                                 <th>BP</th>
                                 <th>Resp Rate</th>
+                                <th>Weight</th>
+                                <th>Height</th>
+                                <th>BMI</th>
+                                <th>SpO2</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
@@ -33,11 +37,15 @@
                                     <td>{{ $vital->heart_rate }}</td>
                                     <td>{{ $vital->blood_pressure }}</td>
                                     <td>{{ $vital->respiratory_rate }}</td>
+                                    <td>{{ $vital->weight }}</td>
+                                    <td>{{ $vital->height }}</td>
+                                    <td>{{ $vital->bmi }}</td>
+                                    <td>{{ $vital->spo2 }}</td>
                                     <td>{{ optional($vital->recorded_at)->format('d M Y H:i') }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">No vitals recorded.</td>
+                                    <td colspan="10" class="text-center text-muted">No vitals recorded.</td>
                                 </tr>
                             @endforelse
                         </tbody>

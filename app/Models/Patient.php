@@ -9,6 +9,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Patient extends BaseTenantModel
 {
     use SoftDeletes;
+
+    protected $casts = [
+        'date_of_birth' => 'date',
+    ];
+
+    public function getAgeAttribute($value)
+    {
+        if ($value !== null) {
+            return $value;
+        }
+        if ($this->date_of_birth) {
+            return \Carbon\Carbon::parse($this->date_of_birth)->age;
+        }
+        return null;
+    }
+
     protected static function booted()
     {
         static::created(function ($patient) {
