@@ -91,24 +91,133 @@
         }
 
         /* Card specific backgrounds */
-        .kpi-card:nth-child(1) {
+        .kpi-primary {
             background: var(--kpi-bg-primary);
             border-color: var(--kpi-border-primary) !important;
         }
 
-        .kpi-card:nth-child(2) {
+        .kpi-info {
             background: var(--kpi-bg-info);
             border-color: var(--kpi-border-info) !important;
         }
 
-        .kpi-card:nth-child(3) {
+        .kpi-success {
             background: var(--kpi-bg-success);
             border-color: var(--kpi-border-success) !important;
         }
 
-        .kpi-card:nth-child(4) {
+        .kpi-warning {
             background: var(--kpi-bg-warning);
             border-color: var(--kpi-border-warning) !important;
+        }
+
+        .kpi-danger {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+            border-color: #ffc9c9 !important;
+        }
+
+        [data-bs-theme="dark"] .kpi-danger {
+            background: linear-gradient(135deg, #5c0d0d 0%, #420a0a 100%);
+            border-color: #9e1e1e !important;
+        }
+
+        /* Icon Container Colors */
+        .kpi-primary .kpi-icon-container {
+            background: rgba(var(--bs-primary-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--bs-primary-rgb), 0.2) !important;
+            color: var(--primary-color) !important;
+        }
+
+        .kpi-info .kpi-icon-container {
+            background: rgba(var(--bs-info-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--bs-info-rgb), 0.2) !important;
+            color: var(--info-color) !important;
+        }
+
+        .kpi-success .kpi-icon-container {
+            background: rgba(var(--bs-success-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--bs-success-rgb), 0.2) !important;
+            color: var(--success-color) !important;
+        }
+
+        .kpi-warning .kpi-icon-container {
+            background: rgba(var(--bs-warning-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--bs-warning-rgb), 0.2) !important;
+            color: var(--warning-color) !important;
+        }
+
+        .kpi-danger .kpi-icon-container {
+            background: rgba(var(--bs-danger-rgb), 0.1) !important;
+            border: 1px solid rgba(var(--bs-danger-rgb), 0.2) !important;
+            color: var(--bs-danger) !important;
+        }
+
+        /* SVG Pattern Fills */
+        .kpi-primary pattern rect {
+            fill: var(--primary-color);
+        }
+
+        .kpi-info pattern rect {
+            fill: var(--info-color);
+        }
+
+        .kpi-success pattern rect {
+            fill: var(--success-color);
+        }
+
+        .kpi-warning pattern rect {
+            fill: var(--warning-color);
+        }
+
+        .kpi-danger pattern rect {
+            fill: var(--bs-danger);
+        }
+
+        /* Decorative Shape Gradients */
+        .kpi-primary .decorative-shape {
+            background: radial-gradient(circle at top right, var(--primary-color) 0%, transparent 70%);
+        }
+
+        .kpi-info .decorative-shape {
+            background: radial-gradient(circle at top right, var(--info-color) 0%, transparent 70%);
+        }
+
+        .kpi-success .decorative-shape {
+            background: radial-gradient(circle at top right, var(--success-color) 0%, transparent 70%);
+        }
+
+        .kpi-warning .decorative-shape {
+            background: radial-gradient(circle at top right, var(--warning-color) 0%, transparent 70%);
+        }
+
+        .kpi-danger .decorative-shape {
+            background: radial-gradient(circle at top right, var(--bs-danger) 0%, transparent 70%);
+        }
+
+        /* Text Colors */
+        .kpi-primary .kpi-label {
+            color: var(--primary-color) !important;
+            opacity: 0.8;
+        }
+
+        .kpi-info .kpi-label {
+            color: var(--info-color) !important;
+            opacity: 0.8;
+        }
+
+        .kpi-success .kpi-label {
+            color: var(--success-color) !important;
+            opacity: 0.8;
+        }
+
+        .kpi-warning .kpi-label {
+            color: var(--warning-color) !important;
+            opacity: 0.8;
+        }
+
+        .kpi-danger .kpi-label {
+            color: var(--bs-danger) !important;
+            opacity: 0.8;
         }
 
         /* Pattern opacity adjustment for dark mode */
@@ -120,12 +229,14 @@
             opacity: 0.1 !important;
         }
 
-        /* KPI Label */
+        /* KPI Label Base */
         .kpi-label {
-            color: var(--bs-secondary-color) !important;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
-        /* KPI Value */
+        /* KPI Value Base */
         .kpi-value {
             color: var(--bs-body-color) !important;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
@@ -135,31 +246,23 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
         }
 
-        /* Icon Container */
+        /* Icon Container Base */
         .kpi-icon-container {
-            background: rgba(var(--bs-primary-rgb), 0.1) !important;
-            border: 1px solid rgba(var(--bs-primary-rgb), 0.2) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
         }
 
-        .kpi-card:nth-child(2) .kpi-icon-container {
-            background: rgba(var(--bs-info-rgb), 0.1) !important;
-            border: 1px solid rgba(var(--bs-info-rgb), 0.2) !important;
-        }
-
-        .kpi-card:nth-child(3) .kpi-icon-container {
-            background: rgba(var(--bs-success-rgb), 0.1) !important;
-            border: 1px solid rgba(var(--bs-success-rgb), 0.2) !important;
-        }
-
-        .kpi-card:nth-child(4) .kpi-icon-container {
-            background: rgba(var(--bs-warning-rgb), 0.1) !important;
-            border: 1px solid rgba(var(--bs-warning-rgb), 0.2) !important;
-        }
-
-        /* Small Icon */
+        /* Small Icon Base */
         .kpi-small-icon {
-            border-color: rgba(var(--bs-primary-rgb), 0.3) !important;
-            background-color: var(--bs-body-bg) !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        border-color: rgba(var(--bs-primary-rgb), 0.3) !important;
+        background-color: var(--bs-body-bg) !important;
         }
 
         .kpi-card:nth-child(2) .kpi-small-icon {

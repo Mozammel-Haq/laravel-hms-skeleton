@@ -70,8 +70,16 @@
                             </div>
                             <div class="col-6">
                                 <div class="text-muted">Status</div>
-                                <span class="badge bg-{{ $doctor->status === 'active' ? 'success' : 'secondary' }}">
-                                    {{ ucfirst($doctor->status ?? 'inactive') }}
+                                @php
+                                    $status = $doctor->status ?? 'inactive';
+                                    $color = match($status) {
+                                        'active' => 'success',
+                                        'inactive' => 'warning',
+                                        default => 'primary',
+                                    };
+                                @endphp
+                                <span class="badge bg-{{ $color }}">
+                                    {{ ucfirst($status) }}
                                 </span>
                             </div>
                         </div>

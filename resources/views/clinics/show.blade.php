@@ -27,7 +27,17 @@
                     </div>
                     <div class="col-md-3">
                         <div class="fw-semibold text-muted">Status</div>
-                        <div><span class="badge bg-secondary">{{ $clinic->status }}</span></div>
+                        <div>
+                            @php
+                                $status = $clinic->status;
+                                $color = match($status) {
+                                    'active' => 'success',
+                                    'inactive' => 'warning',
+                                    default => 'secondary',
+                                };
+                            @endphp
+                            <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <div class="fw-semibold text-muted">Timezone</div>

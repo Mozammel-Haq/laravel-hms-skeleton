@@ -71,11 +71,15 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if ($patient->status === 'active')
-                                        <span class="badge bg-success-subtle text-success">Active</span>
-                                    @else
-                                        <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
-                                    @endif
+                                    @php
+                                        $status = $patient->status;
+                                        $color = match($status) {
+                                            'active' => 'success',
+                                            'inactive' => 'warning',
+                                            default => 'secondary',
+                                        };
+                                    @endphp
+                                    <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
                                 </td>
                                 <td>
                                     <div class="dropdown">

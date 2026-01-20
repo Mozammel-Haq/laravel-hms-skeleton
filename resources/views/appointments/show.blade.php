@@ -39,26 +39,17 @@
                         <div class="col-md-6 text-md-end">
                             <label class="text-muted mb-1">Status</label>
                             <div class="mb-2">
-                                @switch($appointment->status)
-                                    @case('confirmed')
-                                        <span class="badge bg-success-subtle text-success fs-6">Confirmed</span>
-                                    @break
-
-                                    @case('arrived')
-                                        <span class="badge bg-info-subtle text-info fs-6">Arrived</span>
-                                    @break
-
-                                    @case('cancelled')
-                                        <span class="badge bg-danger-subtle text-danger fs-6">Cancelled</span>
-                                    @break
-
-                                    @case('completed')
-                                        <span class="badge bg-primary-subtle text-primary fs-6">Completed</span>
-                                    @break
-
-                                    @default
-                                        <span class="badge bg-warning-subtle text-warning fs-6">Pending</span>
-                                @endswitch
+                                @php
+                                    $status = $appointment->status;
+                                    $color = match($status) {
+                                        'confirmed' => 'success',
+                                        'arrived' => 'primary',
+                                        'completed' => 'success',
+                                        'cancelled' => 'danger',
+                                        default => 'warning',
+                                    };
+                                @endphp
+                                <span class="badge bg-{{ $color }} fs-6">{{ ucfirst($status) }}</span>
                             </div>
 
                             <label class="text-muted mb-1">Consultation Payment</label>

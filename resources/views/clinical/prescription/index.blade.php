@@ -30,8 +30,9 @@
                                 <tr>
                                     <td>{{ $rx->id }}</td>
                                     <td>
-                                        @if(optional($rx->consultation)->patient)
-                                            <a href="{{ route('patients.show', $rx->consultation->patient) }}" class="text-decoration-none text-body">
+                                        @if (optional($rx->consultation)->patient)
+                                            <a href="{{ route('patients.show', $rx->consultation->patient) }}"
+                                                class="text-decoration-none text-body">
                                                 {{ $rx->consultation->patient->full_name ?? $rx->consultation->patient->name }}
                                             </a>
                                         @else
@@ -39,8 +40,9 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if(optional($rx->consultation)->doctor)
-                                            <a href="{{ route('doctors.show', $rx->consultation->doctor) }}" class="text-decoration-none text-body">
+                                        @if (optional($rx->consultation)->doctor)
+                                            <a href="{{ route('doctors.show', $rx->consultation->doctor) }}"
+                                                class="text-decoration-none text-body">
                                                 {{ optional($rx->consultation->doctor->user)->name ?? 'Doctor' }}
                                             </a>
                                         @else
@@ -49,7 +51,17 @@
                                     </td>
                                     <td>{{ isset($rx->issued_at) ? \Illuminate\Support\Carbon::parse($rx->issued_at)->format('Y-m-d') : $rx->created_at->format('Y-m-d') }}
                                     </td>
-                                    <td><span class="badge bg-secondary">{{ $rx->status ?? 'active' }}</span></td>
+                                    <td>
+                                        @php
+                                            $rxStatus = $rx->status ?? 'active';
+                                            $rxColor = match ($rxStatus) {
+                                                'active' => 'success',
+                                                'trashed', 'cancelled' => 'danger',
+                                                default => 'primary',
+                                            };
+                                        @endphp
+                                        <span class="badge bg-{{ $rxColor }}">{{ ucfirst($rxStatus) }}</span>
+                                    </td>
                                     <td class="text-end">
                                         @if ($rx->trashed())
                                             <form action="{{ route('clinical.prescriptions.restore', $rx->id) }}"

@@ -63,8 +63,17 @@
                                             Patient
                                         @endif
                                     </td>
-                                    <td><span
-                                            class="badge bg-{{ $inv->status === 'paid' ? 'success' : ($inv->status === 'partial' ? 'warning' : 'secondary') }}">{{ ucfirst($inv->status) }}</span>
+                                    <td>
+                                        @php
+                                            $status = $inv->status;
+                                            $color = match($status) {
+                                                'paid' => 'success',
+                                                'partial' => 'warning',
+                                                'unpaid', 'overdue' => 'danger',
+                                                default => 'primary',
+                                            };
+                                        @endphp
+                                        <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
                                     </td>
                                     <td>{{ number_format($inv->total_amount, 2) }}</td>
                                     <td>{{ \Carbon\Carbon::parse($inv->issued_at)->format('Y-m-d H:i') }}</td>

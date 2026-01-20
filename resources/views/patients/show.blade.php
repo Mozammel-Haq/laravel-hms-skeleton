@@ -436,14 +436,13 @@
                                         $status = $invoice->status;
                                         $statusMap = [
                                             'paid' => ['success', 'Completed'],
-                                            'partial' => ['info', 'Partial'],
+                                            'partial' => ['warning', 'Partial'],
                                             'unpaid' => ['danger', 'Unpaid'],
-                                            'cancelled' => ['secondary', 'Cancelled'],
+                                            'cancelled' => ['danger', 'Cancelled'],
                                         ];
-                                        $meta = $statusMap[$status] ?? ['secondary', ucfirst($status)];
+                                        $meta = $statusMap[$status] ?? ['primary', ucfirst($status)];
                                     @endphp
-                                    <span
-                                        class="badge fs-13 badge-soft-{{ $meta[0] }} rounded text-{{ $meta[0] }} fw-medium border border-{{ $meta[0] }}">
+                                    <span class="badge bg-{{ $meta[0] }}">
                                         {{ $meta[1] }}
                                     </span>
                                 </td>
@@ -478,7 +477,20 @@
                                 <td>
                                     {{ optional($history->diagnosed_date)->format('d M Y') ?? '-' }}
                                 </td>
-                                <td>{{ $history->status ?? '-' }}</td>
+                                <td>
+                                    @php
+                                        $hStatus = $history->status ?? 'unknown';
+                                        $hColor = match ($hStatus) {
+                                            'active', 'cured', 'treated' => 'success',
+                                            'ongoing', 'chronic' => 'warning',
+                                            'critical' => 'danger',
+                                            default => 'primary',
+                                        };
+                                    @endphp
+                                    <span class="badge bg-{{ $hColor }}">
+                                        {{ ucfirst($hStatus) }}
+                                    </span>
+                                </td>
                                 <td class="text-muted">
                                     {{ \Illuminate\Support\Str::limit($history->notes, 80) }}
                                 </td>
