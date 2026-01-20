@@ -267,6 +267,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
         Route::get('/results', [LabResultsController::class, 'index'])->name('results.index');
         Route::get('/order/{order}/result', [LabController::class, 'addResult'])->name('result.add');
         Route::post('/order/{order}/result', [LabController::class, 'storeResult'])->name('result.store');
+        Route::post('/order/{order}/invoice', [LabController::class, 'generateInvoice'])->name('invoice.generate');
     });
 
     // Reports

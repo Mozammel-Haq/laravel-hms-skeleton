@@ -20,6 +20,28 @@
                                 <div class="fw-semibold mt-3 mb-2">Status</div>
                                 <span
                                     class="badge bg-{{ $order->status === 'completed' ? 'success' : 'warning' }}">{{ ucfirst($order->status) }}</span>
+
+                                <div class="fw-semibold mt-3 mb-2">Payment Status</div>
+                                @if ($order->invoice)
+                                    <span class="badge bg-{{ $order->invoice->status === 'paid' ? 'success' : ($order->invoice->status === 'partial' ? 'warning' : 'danger') }}">
+                                        {{ ucfirst($order->invoice->status) }}
+                                    </span>
+                                    <div class="mt-2">
+                                        @if ($order->invoice->status !== 'paid')
+                                            <a href="{{ route('billing.add-payment', $order->invoice) }}" class="btn btn-sm btn-success w-100">Make Payment</a>
+                                        @else
+                                            <span class="text-muted small"><i class="ti ti-check-circle"></i> Paid</span>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="badge bg-secondary">No Invoice</span>
+                                    <div class="mt-2">
+                                        <form action="{{ route('lab.invoice.generate', $order) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-primary w-100">Generate Invoice</button>
+                                        </form>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -27,9 +49,11 @@
                         <div class="card">
                             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                                 <div class="fw-semibold">Results</div>
-                                @if ($order->status !== 'completed')
+                                @if ($order->status !== 'completed' && $order->invoice && $order->invoice->status === 'paid')
                                     <a href="{{ route('lab.result.add', $order) }}"
                                         class="btn btn-sm btn-outline-primary">Add Result</a>
+                                @elseif($order->status !== 'completed')
+                                    <span class="text-muted small">Pay invoice to add results</span>
                                 @endif
                             </div>
                             <div class="card-body">

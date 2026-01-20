@@ -84,9 +84,18 @@ class LabController extends Controller
             'order_date' => now(),
         ]);
 
-        // Create Lab invoice under the visit (if exists) using test price
-        $test = LabTest::find($request->lab_test_id);
-        $visit = Visit::where('appointment_id', $order->appointment_id)->latest()->first();
+        return redirect()->route('lab.index')->with('success', 'Lab test ordered successfully.');
+    }
+
+    public function generateInvoice(LabTestOrder $order)
+    {
+        Gate::authorize('update', $order);
+
+        if ($order->invoice_id) {
+            return back()->with('error', 'Invoice already exists for this order.');
+        }
+
+        $test = $order->test;
         $items = [[
             'item_type' => 'lab',
             'reference_id' => $test?->id,
@@ -94,37 +103,49 @@ class LabController extends Controller
             'quantity' => 1,
             'unit_price' => (float)($test?->price ?? 0),
         ]];
-        app(BillingService::class)->createInvoice(
+
+        $invoice = app(BillingService::class)->createInvoice(
             $order->patient,
             $items,
             $order->appointment_id,
             discount: 0,
             tax: 0,
-            visitId: optional($visit)->id,
+            visitId: null, // Could fetch visit if needed
             invoiceType: 'lab',
             createdBy: auth()->id(),
             finalize: true
         );
 
-        return redirect()->route('lab.show', $order)->with('success', 'Lab test ordered successfully.');
+        $order->update(['invoice_id' => $invoice->id]);
+
+        return redirect()->route('lab.show', $order)->with('success', 'Invoice generated successfully.');
     }
 
     public function show(LabTestOrder $order)
     {
         Gate::authorize('view', $order);
-        $order->load(['patient', 'test', 'results']);
+        $order->load(['patient', 'test', 'results', 'invoice']);
         return view('lab.show', compact('order'));
     }
 
     public function addResult(LabTestOrder $order)
     {
         Gate::authorize('update', $order);
+
+        if (!$order->invoice || $order->invoice->status !== 'paid') {
+            return redirect()->route('lab.show', $order)->with('error', 'Cannot add results. Invoice must be generated and paid first.');
+        }
+
         return view('lab.result', compact('order'));
     }
 
     public function storeResult(Request $request, LabTestOrder $order)
     {
         Gate::authorize('update', $order);
+
+        if (!$order->invoice || $order->invoice->status !== 'paid') {
+            return redirect()->route('lab.show', $order)->with('error', 'Cannot add results. Invoice must be generated and paid first.');
+        }
 
         $request->validate([
             'result_value' => 'required|string',
