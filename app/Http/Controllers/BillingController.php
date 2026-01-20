@@ -113,9 +113,9 @@ class BillingController extends Controller
             $subtotal = 0;
             foreach ($request->items as $item) {
                 $modelClass = match ($item['item_type']) {
-                    'Consultation' => Consultation::class,
-                    'LabTest'      => LabTest::class,
-                    'Medicine'     => Medicine::class,
+                    'consultation' => Consultation::class,
+                    'lab'          => LabTest::class,
+                    'medicine'     => Medicine::class,
                     default        => null,
                 };
                 if (!$modelClass) {
@@ -162,9 +162,9 @@ class BillingController extends Controller
 
                 // Optionally mark the referenced items as invoiced
                 $modelClass = match ($item['item_type']) {
-                    'Consultation' => Consultation::class,
-                    'LabTest'      => LabTest::class,
-                    'Medicine'     => Medicine::class,
+                    'consultation' => Consultation::class,
+                    'lab'          => LabTest::class,
+                    'medicine'     => Medicine::class,
                     default        => null,
                 };
                 if ($modelClass) {
@@ -181,15 +181,15 @@ class BillingController extends Controller
     {
         $consultations = Consultation::where('patient_id', $patient->id)
             ->whereNull('invoice_id')
-            ->get(['id', DB::raw("'Consultation' as type"), 'diagnosis as description', 'fee as price']);
+            ->get(['id', DB::raw("'consultation' as type"), 'diagnosis as description', 'fee as price']);
 
         $lab_tests = LabTest::where('patient_id', $patient->id)
             ->whereNull('invoice_id')
-            ->get(['id', DB::raw("'LabTest' as type"), 'name as description', 'price']);
+            ->get(['id', DB::raw("'lab' as type"), 'name as description', 'price']);
 
         $medicines = Medicine::where('patient_id', $patient->id)
             ->whereNull('invoice_id')
-            ->get(['id', DB::raw("'Medicine' as type"), 'name as description', 'price']);
+            ->get(['id', DB::raw("'medicine' as type"), 'name as description', 'price']);
 
         return response()->json([
             'consultations' => $consultations,

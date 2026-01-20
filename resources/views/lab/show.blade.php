@@ -28,8 +28,8 @@
                                     </span>
                                     <div class="mt-2">
                                         @if ($order->invoice->status !== 'paid')
-                                            <a href="{{ route('billing.add-payment', $order->invoice) }}" class="btn btn-sm btn-success w-100">Make Payment</a>
-                                        @else
+                    <a href="{{ route('billing.payment.add', $order->invoice) }}" class="btn btn-sm btn-success w-100">Make Payment</a>
+                @else
                                             <span class="text-muted small"><i class="ti ti-check-circle"></i> Paid</span>
                                         @endif
                                     </div>
