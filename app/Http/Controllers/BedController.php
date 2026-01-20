@@ -15,7 +15,7 @@ class BedController extends Controller
             ->join('rooms', 'beds.room_id', '=', 'rooms.id')
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
             ->where('wards.clinic_id', auth()->user()->clinic_id)
-            ->orderBy('beds.bed_number')
+            ->latest()
             ->select('beds.*')
             ->paginate(20);
         return view('ipd.beds.index', compact('beds'));

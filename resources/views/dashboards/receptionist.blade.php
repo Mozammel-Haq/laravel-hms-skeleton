@@ -135,7 +135,7 @@
                                         <tr>
                                             <td>{{ $a->patient->name ?? 'Patient' }}</td>
                                             <td>{{ $a->doctor->user->name ?? 'Doctor' }}</td>
-                                            <td>{{ $a->created_at }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($a->appointment_date)->format('M d, Y') }}</td>
                                             <td>
                                                 @php
                                                     $aStatus = $a->status ?? 'pending';

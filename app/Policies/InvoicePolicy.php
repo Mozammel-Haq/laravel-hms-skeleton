@@ -32,7 +32,8 @@ class InvoicePolicy extends BaseTenantPolicy
 
     public function delete(User $user, Invoice $invoice): bool
     {
-        if ($invoice->state === 'finalized') {
+        // Prevent deleting finalized invoices unless they are unpaid
+        if ($invoice->state === 'finalized' && $invoice->status !== 'unpaid') {
             return false;
         }
         return $this->sameClinic($user, $invoice);

@@ -15,7 +15,7 @@ public function index(Request $request)
         abort(403, 'Unauthorized action.');
     }
 
-    $roles = Role::orderBy('name')->get();
+    $roles = Role::latest()->get();
     $selectedRoleId = $request->query('role');
     $role = $selectedRoleId ? Role::findOrFail($selectedRoleId) : $roles->first();
 

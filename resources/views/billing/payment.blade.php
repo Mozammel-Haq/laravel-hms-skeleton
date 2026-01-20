@@ -37,7 +37,7 @@
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card mt-2">
                     <div class="card-body">
                         <form method="POST" action="{{ route('billing.payment.store', $invoice) }}" class="row g-3">
                             @csrf
@@ -75,7 +75,7 @@
             </div>
 
             <div class="col-md-4">
-                <div class="card">
+                <div class="card mt-2">
                     <div class="card-body">
                         <h5 class="mb-3">Existing Payments</h5>
                         <ul class="list-group">

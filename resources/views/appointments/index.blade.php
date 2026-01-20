@@ -24,9 +24,43 @@
                         </div>
                     @endcan
                 </div>
+
+                <!-- Filters -->
+                <form method="GET" action="{{ route('appointments.index') }}" class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" name="search" class="form-control" placeholder="Search..."
+                                value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                <option value="arrived" {{ request('status') == 'arrived' ? 'selected' : '' }}>Arrived</option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                <option value="noshow" {{ request('status') == 'noshow' ? 'selected' : '' }}>No Show</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                                value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                                value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            <a href="{{ route('appointments.index') }}" class="btn btn-light w-100">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
                 <hr>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle datatable datatable-server">
+                <div class="table">
+                    <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th>Date & Time</th>
@@ -89,15 +123,15 @@
                                         @if ($appointment->appointment_type === 'online')
                                             <span class="badge bg-info-subtle text-">Online</span>
                                         @else
-                                            <span class="badge bg-secondary-subtle text-secondary">In Person</span>
+                                            <span class="badge bg-primary-subtle text-primary">In Person</span>
                                         @endif
                                     </td>
                                     <td>
                                         @php
                                             $status = $appointment->status;
                                             $color = match($status) {
-                                                'confirmed' => 'success',
-                                                'arrived' => 'primary',
+                                                'confirmed' => 'primary',
+                                                'arrived' => 'info',
                                                 'completed' => 'success',
                                                 'cancelled' => 'danger',
                                                 default => 'warning',

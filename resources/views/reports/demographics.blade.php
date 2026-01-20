@@ -11,7 +11,7 @@
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'true']) }}" class="btn btn-success me-2">
                     <i class="bi bi-file-spreadsheet"></i> Export Excel
                 </a>
-                
+
                 <div class="btn-group" role="group">
                     <a href="{{ request()->fullUrlWithQuery(['range' => 'today']) }}"
                         class="btn btn-outline-primary {{ request('range') == 'today' ? 'active' : '' }}">Today</a>
@@ -72,7 +72,7 @@
         <div class="row mb-5 g-4">
             <!-- New Patients Card -->
             <div class="col-md-4">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" data-bs-theme="light,dark">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary" data-bs-theme="light,dark">
                     <!-- Pattern Background -->
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -130,7 +130,7 @@
 
             <!-- Dominant Gender Card -->
             <div class="col-md-4">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" data-bs-theme="light,dark">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info" data-bs-theme="light,dark">
                     <!-- Pattern Background -->
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -227,7 +227,7 @@
 
             <!-- Primary Age Group Card -->
             <div class="col-md-4">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" data-bs-theme="light,dark">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info" data-bs-theme="light,dark">
                     <!-- Pattern Background -->
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">

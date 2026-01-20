@@ -35,7 +35,14 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Doctor (optional)</label>
-                            <input type="number" name="doctor_id" class="form-control" placeholder="Doctor ID">
+                            <select name="doctor_id" class="form-select">
+                                <option value="">Select doctor</option>
+                                @if(isset($doctors))
+                                    @foreach($doctors as $doctor)
+                                        <option value="{{ $doctor->id }}">{{ $doctor->user->name ?? $doctor->id }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
                         </div>
                         <div class="col-md-12">
                             <button type="submit" class="btn btn-primary">Submit</button>

@@ -9,7 +9,7 @@ class WardController extends Controller
 {
     public function index()
     {
-        $wards = Ward::orderBy('name')->paginate(20);
+        $wards = Ward::latest()->paginate(20);
         return view('ipd.wards.index', compact('wards'));
     }
 

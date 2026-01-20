@@ -129,16 +129,16 @@
                                     @foreach ($prescriptions as $p)
                                         <tr>
                                             <td>
-                                                @if ($p->patient)
-                                                    <a href="{{ route('patients.show', $p->patient) }}"
+                                                @if ($p->consultation->patient)
+                                                    <a href="{{ route('patients.show', $p->consultation->patient) }}"
                                                         class="text-decoration-none text-body">
-                                                        {{ $p->patient->name }}
+                                                        {{ $p->consultation->patient->name }}
                                                     </a>
                                                 @else
                                                     Patient
                                                 @endif
                                             </td>
-                                            <td>{{ $p->created_at }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($p->issued_at)->format('M d, Y') }}</td>
                                             <td>
                                                 @php
                                                     $pStatus = $p->status ?? 'active';
@@ -188,7 +188,7 @@
                                                     Patient
                                                 @endif
                                             </td>
-                                            <td>{{ $s->created_at }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($s->sale_date ?? $s->created_at)->format('M d, Y') }}</td>
                                             <td>{{ number_format($s->total_amount, 2) }}</td>
                                         </tr>
                                     @endforeach

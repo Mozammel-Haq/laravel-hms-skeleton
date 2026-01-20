@@ -1,14 +1,14 @@
 <x-app-layout>
     <div class="content pb-0">
 
-        <div class="card mt-2 mx-2">
+        <div class="card mt-2 mx-2 px-2">
             <div class="card-body d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">All Clinics</h5>
                 <a href="{{ route('clinics.create') }}" class="btn btn-primary">Create Clinic</a>
             </div>
             <hr>
             <div class="table-responsive">
-                <table class="table table-striped datatable">
+                <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Name</th>

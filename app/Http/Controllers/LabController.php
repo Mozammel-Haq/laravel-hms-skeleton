@@ -11,6 +11,8 @@ use App\Services\BillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+use App\Models\Doctor;
+
 class LabController extends Controller
 {
     public function index()
@@ -46,7 +48,7 @@ class LabController extends Controller
             $query->whereDate('created_at', '<=', request('to'));
         }
 
-        $orders = $query->paginate(20);
+        $orders = $query->paginate(20)->withQueryString();
         return view('lab.index', compact('orders'));
     }
 
@@ -62,7 +64,8 @@ class LabController extends Controller
             }
         }
         $tests = LabTest::all();
-        return view('lab.create', compact('patients', 'tests'));
+        $doctors = Doctor::with('user')->get();
+        return view('lab.create', compact('patients', 'tests', 'doctors'));
     }
 
     public function store(Request $request)
@@ -78,7 +81,7 @@ class LabController extends Controller
         $order = LabTestOrder::create($request->all() + [
             'clinic_id' => auth()->user()->clinic_id,
             'status' => 'pending',
-            'ordered_at' => now(),
+            'order_date' => now(),
         ]);
 
         // Create Lab invoice under the visit (if exists) using test price
@@ -139,8 +142,8 @@ class LabController extends Controller
             'lab_test_order_id' => $order->id,
             'result_value' => $request->result_value,
             'notes' => $request->notes,
-            'recorded_at' => now(),
-            'recorded_by' => auth()->id(),
+            'reported_at' => now(),
+            'reported_by' => auth()->id(),
             'pdf_path' => $pdfPath,
         ]);
 

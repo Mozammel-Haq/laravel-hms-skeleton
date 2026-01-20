@@ -143,7 +143,7 @@
                                 @endphp
                                 @if ($vitals->isNotEmpty())
                                     <div class="table-responsive">
-                                        <table class="table table-sm table-hover mb-0 datatable">
+                                        <table class="table table-sm table-hover mb-0">
                                             <thead>
                                                 <tr>
                                                     <th>Date</th>

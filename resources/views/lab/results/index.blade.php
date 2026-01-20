@@ -10,15 +10,34 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Filter Form -->
+                <form method="GET" action="{{ route('lab.results.index') }}" class="mb-4 mt-3">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <input type="text" name="search" class="form-control" placeholder="Search by Patient, Test, Result..." value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" name="from" class="form-control" placeholder="From Date" value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" name="to" class="form-control" placeholder="To Date" value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        </div>
+                    </div>
+                </form>
+
                 <hr>
                 <div class="table-responsive">
-                    <table class="table table-striped datatable">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Patient</th>
                                 <th>Test</th>
                                 <th>Result</th>
-                                <th>Recorded At</th>
+                                <th>Reported At</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -28,7 +47,7 @@
                                     <td>{{ optional($result->order->patient)->name }}</td>
                                     <td>{{ optional($result->order->test)->name }}</td>
                                     <td>{{ $result->result_value ?? '' }}</td>
-                                    <td>{{ optional($result->recorded_at)->format('Y-m-d H:i') }}</td>
+                                    <td>{{ optional($result->reported_at)->format('Y-m-d H:i') }}</td>
                                     <td>
                                         @if ($result->order)
                                             <a href="{{ route('lab.show', $result->order) }}"

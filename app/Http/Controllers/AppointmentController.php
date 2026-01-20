@@ -35,9 +35,12 @@ class AppointmentController extends Controller
         }
 
         if (request('status') === 'trashed') {
-            $query->onlyTrashed();
+            $query->onlyTrashed()->latest();
         } else {
-            $query->latest('appointment_date');
+            if (request()->filled('status')) {
+                $query->where('status', request('status'));
+            }
+            $query->latest();
         }
 
         if (request()->filled('search')) {
@@ -140,12 +143,28 @@ class AppointmentController extends Controller
     {
         Gate::authorize('view', $appointment);
 
+        $appointment->load([
+            'patient.medicalHistory',
+            'visit.consultation.prescriptions.items.medicine',
+            'visit.invoices',
+        ]);
+
         $consultationInvoice = \App\Models\Invoice::where('appointment_id', $appointment->id)
             ->where('invoice_type', 'consultation')
             ->latest()
             ->first();
 
-        return view('appointments.show', compact('appointment', 'consultationInvoice'));
+        $labOrders = \App\Models\LabTestOrder::with(['test', 'results'])
+            ->where('patient_id', $appointment->patient_id)
+            ->latest()
+            ->get();
+
+        $invoices = \App\Models\Invoice::where('appointment_id', $appointment->id)
+            ->orWhere('visit_id', $appointment->visit?->id)
+            ->latest()
+            ->get();
+
+        return view('appointments.show', compact('appointment', 'consultationInvoice', 'labOrders', 'invoices'));
     }
 
     /**

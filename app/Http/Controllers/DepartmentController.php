@@ -33,7 +33,7 @@ class DepartmentController extends Controller
             $query->whereDate('created_at', '<=', request('to'));
         }
 
-        $departments = $query->paginate(20);
+        $departments = $query->latest()->paginate(20);
         return view('departments.index', compact('departments'));
     }
 

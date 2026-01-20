@@ -53,7 +53,7 @@ class PrescriptionController extends Controller
             $query->whereDate('issued_at', '<=', request('to'));
         }
 
-        $prescriptions = $query->latest('issued_at')->paginate(20);
+        $prescriptions = $query->latest('issued_at')->paginate(20)->withQueryString();
 
         return view('clinical.prescription.index', compact('prescriptions'));
     }

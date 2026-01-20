@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
+    <div class="container-fluid mx-2 mt-3">
         <div class="d-flex justify-content-between align-items-center mb-4 card-body">
             <div>
                 <h3 class="page-title mb-0">New Consultation</h3>
@@ -8,7 +8,7 @@
                     Appointment: {{ $appointment->appointment_date }}
                 </div>
             </div>
-            <a href="{{ route('appointments.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('appointments.index') }}" class="btn btn-outline-primary">
                 <i class="ti ti-arrow-left me-1"></i> Back
             </a>
         </div>

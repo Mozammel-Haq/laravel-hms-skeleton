@@ -7,7 +7,7 @@
         </div>
         <hr>
         <div class="table-responsive">
-            <table class="table table-hover mb-0 datatable">
+            <table class="table table-hover mb-0">
                 <thead>
                     <tr>
                         <th>Room</th>

@@ -7,7 +7,7 @@
             <div class="row g-4 mb-2">
                 <!-- Appointments Today -->
                 <div class="col-md-4">
-                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" data-bs-theme="light,dark">
+                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary" data-bs-theme="light,dark">
                         <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
@@ -58,7 +58,7 @@
 
                 <!-- Prescriptions This Month -->
                 <div class="col-md-4">
-                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info"
+                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary kpi-info"
                         data-bs-theme="light,dark">
                         <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -109,7 +109,7 @@
 
                 <!-- Pending Lab Orders -->
                 <div class="col-md-4">
-                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" data-bs-theme="light,dark">
+                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary" data-bs-theme="light,dark">
                         <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
@@ -192,7 +192,7 @@
                                                     Patient
                                                 @endif
                                             </td>
-                                            <td>{{ $a->created_at }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($a->appointment_date)->format('M d, Y') }}</td>
                                             <td>
                                                 @php
                                                     $statusColors = [
@@ -241,8 +241,8 @@
                                 <tbody>
                                     @foreach ($prescriptions as $p)
                                         <tr>
-                                            <td>{{ $p->patient->name ?? 'Patient' }}</td>
-                                            <td>{{ $p->created_at }}</td>
+                                            <td>{{ $p->consultation->patient->name ?? 'Patient' }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($p->issued_at)->format('M d, Y') }}</td>
                                             <td>
                                                 @php
                                                     $pStatus = $p->status ?? 'active';

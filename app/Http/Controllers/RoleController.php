@@ -16,7 +16,7 @@ class RoleController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $roles = Role::withCount('users')->orderBy('name')->paginate(20);
+        $roles = Role::withCount('users')->latest()->paginate(20);
         return view('admin.roles.index', compact('roles'));
     }
 

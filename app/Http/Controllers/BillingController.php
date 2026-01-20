@@ -24,12 +24,34 @@ class BillingController extends Controller
         $query = Invoice::with('patient');
 
         if (request('status') === 'trashed') {
-            $query->onlyTrashed();
+            $query->onlyTrashed()->latest();
         } else {
+            if (request()->filled('status')) {
+                $query->where('status', request('status'));
+            }
             $query->latest();
         }
 
-        $invoices = $query->paginate(20);
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'like', '%' . $search . '%')
+                    ->orWhereHas('patient', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('issued_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('issued_at', '<=', request('to'));
+        }
+
+        $invoices = $query->paginate(20)->withQueryString();
         return view('billing.index', compact('invoices'));
     }
 
@@ -230,6 +252,10 @@ class BillingController extends Controller
                 }
             }
         });
+
+        if (auth()->user()->hasRole('Receptionist') && $invoice->appointment_id) {
+            return redirect()->route('appointments.show', $invoice->appointment_id)->with('success', 'Payment recorded successfully.');
+        }
 
         return redirect()->route('billing.show', $invoice)->with('success', 'Payment recorded successfully.');
     }

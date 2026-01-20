@@ -8,6 +8,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class LabTestOrder extends BaseTenantModel
 {
     use SoftDeletes;
+
+    protected $guarded = ['id'];
+
+    protected $casts = [
+        'order_date' => 'date',
+    ];
+
     public function results()
     {
         return $this->hasMany(LabTestResult::class);

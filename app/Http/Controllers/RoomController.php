@@ -13,7 +13,7 @@ class RoomController extends Controller
         $rooms = Room::withoutTenant()
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
             ->where('wards.clinic_id', auth()->user()->clinic_id)
-            ->orderBy('rooms.room_number')
+            ->latest()
             ->select('rooms.*')
             ->paginate(20);
         return view('ipd.rooms.index', compact('rooms'));

@@ -18,13 +18,19 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         // dd($user);
         $clinic = $user->clinic;
         if ($user->hasRole('Super Admin')) {
-            return view('dashboards.super_admin');
+            $stats = [
+                'clinics_total' => \App\Models\Clinic::count(),
+                'clinics_active' => \App\Models\Clinic::where('status', 'active')->count(),
+                'users_total' => \App\Models\User::count(),
+                'patients_total' => \App\Models\Patient::withoutTenant()->count(),
+            ];
+            return view('dashboards.super_admin', compact('stats'));
         }
 
         if ($user->hasRole('Clinic Admin')) {
@@ -93,8 +99,16 @@ class DashboardController extends Controller
                         ->whereBetween((new Appointment())->getTable() . '.created_at', [now()->subYear(), now()])->count(),
                 ],
                 'revenue' => [
+                    'total' => $clinic->invoices()->where('clinic_id', $clinicId)->sum('total_amount'),
                     'last_7_days' => $clinic->invoices()->where('clinic_id', $clinicId)
                         ->whereBetween((new Invoice())->getTable() . '.created_at', [now()->subDays(7), now()])->sum('total_amount'),
+                    'last_30_days' => $clinic->invoices()->where('clinic_id', $clinicId)
+                        ->whereBetween((new Invoice())->getTable() . '.created_at', [now()->subDays(30), now()])->sum('total_amount'),
+                ],
+                'invoices' => [
+                    'total' => $clinic->invoices()->where('clinic_id', $clinicId)->count(),
+                    'unpaid' => $clinic->invoices()->where('clinic_id', $clinicId)->where('status', 'unpaid')->count(),
+                    'paid' => $clinic->invoices()->where('clinic_id', $clinicId)->where('status', 'paid')->count(),
                 ],
             ];
             $appointmentStats = $clinic->appointments()->where('clinic_id', $clinicId)
@@ -167,7 +181,7 @@ class DashboardController extends Controller
 
         if ($user->hasRole('Doctor')) {
             $cards = [
-                'appointments_today' => Appointment::whereDate('created_at', now()->toDateString())
+                'appointments_today' => Appointment::where('appointment_date', now()->toDateString())
                     ->where('doctor_id', optional($user->doctor)->id)
                     ->count(),
                 'prescriptions_month' => Prescription::join('consultations', 'prescriptions.consultation_id', '=', 'consultations.id')
@@ -211,7 +225,7 @@ class DashboardController extends Controller
 
         if ($user->hasRole('Receptionist')) {
             $cards = [
-                'appointments_today' => Appointment::whereDate('created_at', now()->toDateString())->count(),
+                'appointments_today' => Appointment::where('appointment_date', now()->toDateString())->count(),
                 'patients_total' => Patient::count(),
             ];
             $appointments = Appointment::with(['patient', 'doctor'])->latest()->take(12)->get();
@@ -245,9 +259,35 @@ class DashboardController extends Controller
             $cards = [
                 'invoices_unpaid' => Invoice::where('status', 'unpaid')->count(),
                 'invoices_paid' => Invoice::where('status', 'paid')->count(),
+                'revenue_today' => Invoice::whereDate('created_at', now()->toDateString())->sum('total_amount'),
                 'revenue_month' => Invoice::whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->sum('total_amount'),
+                'revenue_total' => Invoice::sum('total_amount'),
             ];
-            $invoices = Invoice::latest()->take(15)->get();
+
+            $query = Invoice::query();
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('invoice_number', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+
+            $invoices = $query->latest()->paginate(15)->withQueryString();
+
             return view('dashboards.accountant', compact('cards', 'invoices'));
         }
 
