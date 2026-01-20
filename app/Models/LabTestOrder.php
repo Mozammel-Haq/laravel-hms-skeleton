@@ -19,6 +19,10 @@ class LabTestOrder extends BaseTenantModel
     {
         return $this->hasMany(LabTestResult::class);
     }
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
     public function patient()
     {
         return $this->belongsTo(Patient::class);
