@@ -93,26 +93,17 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @switch($appointment->status)
-                                            @case('confirmed')
-                                                <span class="badge bg-success-subtle text-success">Confirmed</span>
-                                            @break
-
-                                            @case('arrived')
-                                                <span class="badge bg-info-subtle text-info">Arrived</span>
-                                            @break
-
-                                            @case('cancelled')
-                                                <span class="badge bg-danger-subtle text-danger">Cancelled</span>
-                                            @break
-
-                                            @case('completed')
-                                                <span class="badge bg-primary-subtle text-primary">Completed</span>
-                                            @break
-
-                                            @default
-                                                <span class="badge bg-warning-subtle text-warning">Pending</span>
-                                        @endswitch
+                                        @php
+                                            $status = $appointment->status;
+                                            $color = match($status) {
+                                                'confirmed' => 'success',
+                                                'arrived' => 'primary',
+                                                'completed' => 'success',
+                                                'cancelled' => 'danger',
+                                                default => 'warning',
+                                            };
+                                        @endphp
+                                        <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
                                     </td>
                                     <td>
                                         <div class="dropdown">

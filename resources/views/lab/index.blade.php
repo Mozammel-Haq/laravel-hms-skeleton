@@ -42,8 +42,17 @@
                                         @endif
                                     </td>
                                     <td>{{ optional($order->test)->name ?? 'Test' }}</td>
-                                    <td><span
-                                            class="badge bg-{{ $order->status === 'completed' ? 'success' : 'warning' }}">{{ ucfirst($order->status) }}</span>
+                                    <td>
+                                        @php
+                                            $status = $order->status;
+                                            $color = match($status) {
+                                                'completed' => 'success',
+                                                'pending' => 'warning',
+                                                'cancelled' => 'danger',
+                                                default => 'primary',
+                                            };
+                                        @endphp
+                                        <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
                                     </td>
                                     <td>{{ isset($order->ordered_at) ? \Illuminate\Support\Carbon::parse($order->ordered_at) : $order->created_at }}
                                     </td>

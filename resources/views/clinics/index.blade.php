@@ -31,7 +31,17 @@
                                 <td>{{ $clinic->code }}</td>
                                 <td>{{ $clinic->city }}</td>
                                 <td>{{ $clinic->country }}</td>
-                                <td><span class="badge bg-secondary">{{ $clinic->status }}</span></td>
+                                <td>
+                                    @php
+                                        $status = $clinic->status;
+                                        $color = match($status) {
+                                            'active' => 'success',
+                                            'inactive' => 'warning',
+                                            default => 'secondary',
+                                        };
+                                    @endphp
+                                    <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
+                                </td>
                                 <td class="d-flex gap-2">
                                     <a href="{{ route('clinics.show', $clinic) }}"
                                         class="btn btn-sm btn-outline-secondary">View</a>

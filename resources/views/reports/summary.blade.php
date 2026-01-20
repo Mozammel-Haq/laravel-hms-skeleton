@@ -537,7 +537,7 @@
                                         @elseif($admission->status == 'admitted')
                                             <span class="badge bg-warning text-dark">Admitted</span>
                                         @else
-                                            <span class="badge bg-secondary">{{ ucfirst($admission->status) }}</span>
+                                            <span class="badge bg-primary">{{ ucfirst($admission->status) }}</span>
                                         @endif
                                     </td>
                                 </tr>
