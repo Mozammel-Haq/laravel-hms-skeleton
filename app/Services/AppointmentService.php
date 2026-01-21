@@ -106,7 +106,7 @@ class AppointmentService
 
         // 4. Get Booked Appointments
         $bookedAppointments = Appointment::where('doctor_id', $doctor->id)
-            ->where('appointment_date', $date->format('Y-m-d'))
+            ->whereDate('appointment_date', $date->format('Y-m-d'))
             ->whereIn('status', ['pending', 'confirmed'])
             ->get(['start_time', 'end_time']);
 
