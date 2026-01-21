@@ -12,4 +12,10 @@ class Appointment extends BaseTenantModel
     public function doctor() { return $this->belongsTo(Doctor::class); }
     public function visit() { return $this->hasOne(Visit::class); }
     public function statusLogs() { return $this->hasMany(AppointmentStatusLog::class); }
+
+    public $timestamps = true;
+
+    protected $casts = [
+        'appointment_date' => 'date',
+    ];
 }

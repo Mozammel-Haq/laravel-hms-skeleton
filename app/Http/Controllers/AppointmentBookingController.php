@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Notifications\AppointmentBookedNotification;
 use App\Services\AppointmentService;
 use App\Support\TenantContext;
 use Carbon\Carbon;
@@ -147,7 +148,7 @@ class AppointmentBookingController extends Controller
                 ->firstOrFail();
 
             $slotTaken = Appointment::where('doctor_id', $doctor->id)
-                ->where('appointment_date', $appointmentDate)
+                ->whereDate('appointment_date', $appointmentDate)
                 ->whereIn('status', ['pending', 'confirmed'])
                 ->where(function ($q) use ($validated) {
                     $q->where('start_time', '<', $validated['end_time'])
@@ -178,8 +179,11 @@ class AppointmentBookingController extends Controller
                 'end_time'         => $validated['end_time'],
                 'appointment_type' => 'in_person',
                 'status'           => 'pending',
-                'reason'           => 'Standard Appointment',
-                'consultation_fee' => $feeInfo['consultation_fee'],
+                'reason_for_visit' => 'Standard Appointment',
+                'fee'              => $feeInfo['fee'],
+                'visit_type'       => $feeInfo['type'],
+                'booking_source'   => 'reception',
+                'created_by'       => auth()->id(),
             ]);
 
             // Notify Doctor
