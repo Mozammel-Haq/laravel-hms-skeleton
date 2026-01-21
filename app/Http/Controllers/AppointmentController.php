@@ -132,6 +132,17 @@ class AppointmentController extends Controller
             'end_time' => \Carbon\Carbon::parse($request->start_time)->addMinutes(15)->format('H:i'),
         ]);
 
+        // Notify Doctor
+        if ($doctor->user) {
+            $doctor->user->notify(new AppointmentBookedNotification($appointment));
+        }
+
+        // Notify Patient
+        $patient = Patient::find($request->patient_id);
+        if ($patient && $patient->user) {
+            $patient->user->notify(new AppointmentBookedNotification($appointment));
+        }
+
         return redirect()->route('appointments.show', $appointment)
             ->with('success', 'Appointment booked successfully.');
     }

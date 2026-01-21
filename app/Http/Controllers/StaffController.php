@@ -16,13 +16,36 @@ class StaffController extends Controller
         $query = User::with('roles');
 
         if (request('status') === 'trashed') {
-            $query->onlyTrashed();
+            $query->onlyTrashed()->latest();
         } else {
             $query->latest();
         }
 
-        $users = $query->paginate(20);
-        return view('staff.index', compact('users'));
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (request()->filled('role')) {
+            $query->whereHas('roles', function ($q) {
+                $q->where('id', request('role'));
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $users = $query->paginate(20)->withQueryString();
+        $roles = Role::all();
+        return view('staff.index', compact('users', 'roles'));
     }
 
     public function restore($id)

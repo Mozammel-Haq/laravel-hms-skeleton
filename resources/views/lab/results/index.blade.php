@@ -14,17 +14,33 @@
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('lab.results.index') }}" class="mb-4 mt-3">
                     <div class="row g-2">
-                        <div class="col-md-4">
-                            <input type="text" name="search" class="form-control" placeholder="Search by Patient, Test, Result..." value="{{ request('search') }}">
-                        </div>
                         <div class="col-md-3">
-                            <input type="date" name="from" class="form-control" placeholder="From Date" value="{{ request('from') }}">
-                        </div>
-                        <div class="col-md-3">
-                            <input type="date" name="to" class="form-control" placeholder="To Date" value="{{ request('to') }}">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Search by Patient, Test, Result..." value="{{ request('search') }}">
                         </div>
                         <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status
+                                </option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>
+                                    Completed</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
+                                </option>
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
+                                    Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                                value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                                value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
                             <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            <a href="{{ route('lab.results.index') }}" class="btn btn-light w-100">Reset</a>
                         </div>
                     </div>
                 </form>

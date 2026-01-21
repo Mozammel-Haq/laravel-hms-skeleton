@@ -18,12 +18,34 @@ class VisitController extends Controller
         $query = Visit::with(['appointment.patient', 'consultation']);
 
         if (request('status') === 'trashed') {
-            $query->onlyTrashed();
+            $query->onlyTrashed()->latest();
         } else {
+            if (request()->filled('status')) {
+                $query->where('visit_status', request('status'));
+            }
             $query->latest();
         }
 
-        $visits = $query->paginate(20);
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('id', $search)
+                    ->orWhereHas('appointment.patient', function ($sub) use ($search) {
+                        $sub->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $visits = $query->paginate(20)->withQueryString();
         return view('visits.index', compact('visits'));
     }
 

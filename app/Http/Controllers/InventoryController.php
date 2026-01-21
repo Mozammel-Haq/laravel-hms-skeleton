@@ -12,11 +12,38 @@ class InventoryController extends Controller
     public function index()
     {
         // View inventory for the current clinic
-        $batches = MedicineBatch::with('medicine')
-            ->where('clinic_id', auth()->user()->clinic_id)
-            ->where('quantity_in_stock', '>', 0)
-            ->orderBy('expiry_date')
-            ->paginate(20);
+        $query = MedicineBatch::with('medicine')
+            ->where('clinic_id', auth()->user()->clinic_id);
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function($q) use ($search) {
+                $q->where('batch_number', 'like', "%{$search}%")
+                  ->orWhereHas('medicine', function($m) use ($search) {
+                      $m->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if (request()->filled('status')) {
+            if (request('status') === 'expired') {
+                $query->whereDate('expiry_date', '<', now());
+            } elseif (request('status') === 'out_of_stock') {
+                $query->where('quantity_in_stock', 0);
+            } elseif (request('status') === 'in_stock') {
+                $query->where('quantity_in_stock', '>', 0)
+                      ->whereDate('expiry_date', '>=', now());
+            }
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $batches = $query->latest()->paginate(20)->withQueryString();
 
         return view('pharmacy.inventory.batches', compact('batches'));
     }

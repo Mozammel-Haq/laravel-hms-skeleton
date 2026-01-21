@@ -9,12 +9,7 @@
                     <p class="text-muted">Manage clinic user accounts and roles</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <div class="btn-group">
-                        <a href="{{ route('staff.index') }}"
-                            class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                        <a href="{{ route('staff.index', ['status' => 'trashed']) }}"
-                            class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-                    </div>
+
                     @can('create', \App\Models\User::class)
                         <div class="action-btn">
                             <a href="{{ route('staff.create') }}" class="btn btn-primary">
@@ -24,9 +19,48 @@
                     @endcan
                 </div>
             </div>
+
+            <!-- Filter Form -->
+            <form method="GET" action="{{ route('staff.index') }}" class="mb-4">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" name="search" class="form-control" placeholder="Search Name, Email..."
+                            value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-select">
+                            <option value="active" {{ request('status', 'active') == 'active' ? 'selected' : '' }}>
+                                Active</option>
+                            <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trashed
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="role" class="form-select">
+                            <option value="">All Roles</option>
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->id }}"
+                                    {{ request('role') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="from" class="form-control" placeholder="From Date"
+                            value="{{ request('from') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="to" class="form-control" placeholder="To Date"
+                            value="{{ request('to') }}">
+                    </div>
+                    <div class="col-md-1 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </div>
+            </form>
+
             <hr>
             <div class="table-responsive">
-                <table class="table table-hover align-middle datatable">
+                <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
                             <th>Name</th>
@@ -40,7 +74,8 @@
                         @forelse ($users as $user)
                             <tr>
                                 <td>
-                                    <a href="{{ route('staff.show', $user) }}" class="text-decoration-none text-body fw-bold">
+                                    <a href="{{ route('staff.show', $user) }}"
+                                        class="text-decoration-none text-body fw-bold">
                                         {{ $user->name }}
                                     </a>
                                 </td>

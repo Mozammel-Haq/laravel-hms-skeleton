@@ -14,8 +14,15 @@ class DoctorScheduleRequestAdminController extends Controller
     {
         Gate::authorize('manage_doctor_schedule');
 
-        $requests = DoctorScheduleRequest::with('doctor.user')
-            ->where('status', 'pending');
+        $requests = DoctorScheduleRequest::with('doctor.user');
+
+        if (request()->filled('status')) {
+            if (request('status') !== 'all') {
+                $requests->where('status', request('status'));
+            }
+        } else {
+            $requests->where('status', 'pending');
+        }
 
         if (request()->filled('search')) {
             $search = request('search');
@@ -37,7 +44,8 @@ class DoctorScheduleRequestAdminController extends Controller
 
         $requests = $requests
             ->orderByDesc('created_at')
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
         return view('admin.schedule.requests.index', compact('requests'));
     }

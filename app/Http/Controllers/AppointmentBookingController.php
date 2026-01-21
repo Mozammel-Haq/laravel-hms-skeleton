@@ -27,8 +27,15 @@ class AppointmentBookingController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Doctor::with(['user', 'department', 'clinics'])
-            ->where('status', 'active');
+        $query = Doctor::with(['user', 'department', 'clinics']);
+
+        if ($request->filled('status')) {
+            if ($request->input('status') !== 'all') {
+                $query->where('status', $request->input('status'));
+            }
+        } else {
+            $query->where('status', 'active');
+        }
 
         if (TenantContext::hasClinic()) {
             $currentClinicId = TenantContext::getClinicId();
@@ -48,7 +55,14 @@ class AppointmentBookingController extends Controller
             $query->where('primary_department_id', $request->input('department_id'));
         }
 
-        $doctors = $query->paginate(12);
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $doctors = $query->latest()->paginate(12)->withQueryString();
 
         if (TenantContext::hasClinic()) {
             $currentClinicId = TenantContext::getClinicId();
@@ -154,7 +168,7 @@ class AppointmentBookingController extends Controller
                 ? TenantContext::getClinicId()
                 : $validated['clinic_id'];
 
-            Appointment::create([
+            $appointment = Appointment::create([
                 'clinic_id'        => $clinicId,
                 'doctor_id'        => $doctor->id,
                 'patient_id'       => $validated['patient_id'],
@@ -163,16 +177,24 @@ class AppointmentBookingController extends Controller
                 'start_time'       => $validated['start_time'],
                 'end_time'         => $validated['end_time'],
                 'appointment_type' => 'in_person',
-                'booking_source'   => 'reception',
                 'status'           => 'pending',
-                'created_by'       => auth()->id(),
-                'fee'              => $feeInfo['fee'],
-                'visit_type'       => $feeInfo['type'],
+                'reason'           => 'Standard Appointment',
+                'consultation_fee' => $feeInfo['consultation_fee'],
             ]);
 
-            return redirect()
-                ->route('appointments.index')
-                ->with('success', 'Appointment booked successfully.');
+            // Notify Doctor
+            if ($doctor->user) {
+                $doctor->user->notify(new AppointmentBookedNotification($appointment));
+            }
+
+            // Notify Patient (if they have a user account)
+            $patient = Patient::find($validated['patient_id']);
+            if ($patient && $patient->user) {
+                $patient->user->notify(new AppointmentBookedNotification($appointment));
+            }
+
+            return redirect()->route('appointments.booking.show', $doctor)
+                ->with('success', 'Appointment booked successfully! (ID: ' . $appointment->id . ')');
         });
     }
 }

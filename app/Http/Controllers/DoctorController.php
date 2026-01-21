@@ -26,6 +26,8 @@ class DoctorController extends Controller
 
         if (request('status') === 'trashed') {
             $query->onlyTrashed();
+        } elseif (request()->filled('status')) {
+            $query->where('status', request('status'));
         }
 
         if (request()->filled('search')) {
@@ -49,7 +51,7 @@ class DoctorController extends Controller
             $query->whereDate('created_at', '<=', request('to'));
         }
 
-        $doctors = $query->latest()->paginate(15);
+        $doctors = $query->latest()->paginate(15)->withQueryString();
 
         return view('doctors.index', compact('doctors'));
     }

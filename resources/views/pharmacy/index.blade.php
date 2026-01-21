@@ -4,21 +4,41 @@
     <div class="card mt-2 mx-2 p-3">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="page-title mb-0">Pharmacy Sales</h3>
-            <div class="d-flex gap-2">
-                <div class="btn-group">
-                    <a href="{{ route('pharmacy.index') }}"
-                        class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                    <a href="{{ route('pharmacy.index', ['status' => 'trashed']) }}"
-                        class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-                </div>
-                <a href="{{ route('pharmacy.create') }}" class="btn btn-primary">
-                    <i class="ti ti-shopping-cart-plus me-1"></i> New Sale (POS)
-                </a>
-            </div>
+            <a href="{{ route('pharmacy.create') }}" class="btn btn-primary">
+                <i class="ti ti-shopping-cart-plus me-1"></i> New Sale (POS)
+            </a>
         </div>
+
+        <!-- Filter Form -->
+        <form method="GET" action="{{ route('pharmacy.index') }}" class="mb-4">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="text" name="search" class="form-control" placeholder="Search sale ID or patient..."
+                        value="{{ request('search') }}">
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trashed</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="from" class="form-control" placeholder="From Date"
+                        value="{{ request('from') }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="date" name="to" class="form-control" placeholder="To Date"
+                        value="{{ request('to') }}">
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    <a href="{{ route('pharmacy.index') }}" class="btn btn-light w-100">Reset</a>
+                </div>
+            </div>
+        </form>
         <hr>
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 datatable">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th>Sale ID</th>
@@ -35,7 +55,8 @@
                             <td>#{{ $sale->id }}</td>
                             <td>{{ $sale->created_at }}</td>
                             <td>
-                                <a href="{{ route('patients.show', $sale->patient) }}" class="text-decoration-none text-body">
+                                <a href="{{ route('patients.show', $sale->patient) }}"
+                                    class="text-decoration-none text-body">
                                     <div class="fw-semibold">{{ $sale->patient->name }}</div>
                                     <div class="small text-muted">{{ $sale->patient->patient_code }}</div>
                                 </a>

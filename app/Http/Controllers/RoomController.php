@@ -10,12 +10,28 @@ class RoomController extends Controller
 {
     public function index()
     {
-        $rooms = Room::withoutTenant()
+        $query = Room::withoutTenant()
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
             ->where('wards.clinic_id', auth()->user()->clinic_id)
-            ->latest()
-            ->select('rooms.*')
-            ->paginate(20);
+            ->select('rooms.*');
+
+        if (request()->filled('search')) {
+            $query->where('room_number', 'like', '%' . request('search') . '%');
+        }
+
+        if (request()->filled('status') && request('status') !== 'all') {
+            $query->where('rooms.status', request('status'));
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('rooms.created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('rooms.created_at', '<=', request('to'));
+        }
+
+        $rooms = $query->latest('rooms.created_at')->paginate(20)->withQueryString();
         return view('ipd.rooms.index', compact('rooms'));
     }
 

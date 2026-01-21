@@ -72,6 +72,10 @@ class ReportController extends Controller
 
         $query = Invoice::whereBetween('created_at', [$startDate, $endDate]);
 
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
         // KPIs
         $revenue = (clone $query)->sum('total_amount');
         $paid = (clone $query)->where('status', 'paid')->sum('total_amount');

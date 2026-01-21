@@ -11,13 +11,29 @@ class BedController extends Controller
 {
     public function index()
     {
-        $beds = Bed::withoutTenant()
+        $query = Bed::withoutTenant()
             ->join('rooms', 'beds.room_id', '=', 'rooms.id')
             ->join('wards', 'rooms.ward_id', '=', 'wards.id')
             ->where('wards.clinic_id', auth()->user()->clinic_id)
-            ->latest()
-            ->select('beds.*')
-            ->paginate(20);
+            ->select('beds.*');
+
+        if (request()->filled('search')) {
+            $query->where('bed_number', 'like', '%' . request('search') . '%');
+        }
+
+        if (request()->filled('status') && request('status') !== 'all') {
+            $query->where('beds.status', request('status'));
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('beds.created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('beds.created_at', '<=', request('to'));
+        }
+
+        $beds = $query->latest('beds.created_at')->paginate(20)->withQueryString();
         return view('ipd.beds.index', compact('beds'));
     }
 

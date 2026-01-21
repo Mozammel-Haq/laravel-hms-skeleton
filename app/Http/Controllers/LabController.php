@@ -21,7 +21,12 @@ class LabController extends Controller
         $query = LabTestOrder::with(['patient', 'test']);
 
         if (request('status') === 'trashed') {
-            $query->onlyTrashed();
+            $query->onlyTrashed()->latest();
+        } elseif (request()->filled('status')) {
+            if (request('status') !== 'all') {
+                $query->where('status', request('status'));
+            }
+            $query->latest();
         } else {
             $query->latest();
         }
@@ -83,6 +88,15 @@ class LabController extends Controller
             'status' => 'pending',
             'order_date' => now(),
         ]);
+
+        // Notify Lab Technicians
+        $labTechs = \App\Models\User::whereHas('roles', function ($q) {
+            $q->where('name', 'Lab Technician');
+        })->where('clinic_id', auth()->user()->clinic_id)->get();
+
+        foreach ($labTechs as $tech) {
+            $tech->notify(new \App\Notifications\NewLabOrderNotification($order));
+        }
 
         return redirect()->route('lab.index')->with('success', 'Lab test ordered successfully.');
     }
@@ -169,6 +183,16 @@ class LabController extends Controller
         ]);
 
         $order->update(['status' => 'completed']);
+
+        // Notify Patient
+        if ($order->patient && $order->patient->user) {
+            $order->patient->user->notify(new LabResultReadyNotification($order));
+        }
+
+        // Notify Doctor
+        if ($order->doctor && $order->doctor->user) {
+            $order->doctor->user->notify(new LabResultReadyNotification($order));
+        }
 
         return redirect()->route('lab.show', $order)->with('success', 'Result recorded successfully.');
     }

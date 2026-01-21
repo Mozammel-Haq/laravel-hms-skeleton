@@ -3,21 +3,55 @@
 
         <div class="card m-2">
             <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="page-title mb-0">Payments</h3>
-            <div class="d-flex gap-2">
-                <div class="btn-group">
-                    <a href="{{ route('billing.payments.index') }}"
-                        class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                    <a href="{{ route('billing.payments.index', ['status' => 'trashed']) }}"
-                        class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="page-title mb-0">Payments</h3>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Billing</a>
+                    </div>
                 </div>
-                <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Billing</a>
-            </div>
-        </div>
-        <hr>
+                <hr>
+
+                <!-- Filter Form -->
+                <form method="GET" action="{{ route('billing.payments.index') }}" class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-2">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Search Invoice or Patient..." value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <select name="method" class="form-select">
+                                <option value="">All Methods</option>
+                                <option value="cash" {{ request('method') == 'cash' ? 'selected' : '' }}>Cash</option>
+                                <option value="card" {{ request('method') == 'card' ? 'selected' : '' }}>Card</option>
+                                <option value="online" {{ request('method') == 'online' ? 'selected' : '' }}>Online
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="active" {{ request('status') !== 'trashed' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="trashed" {{ request('status') === 'trashed' ? 'selected' : '' }}>Trash
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                                value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                                value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-2 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            <a href="{{ route('billing.payments.index') }}" class="btn btn-light w-100">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle datatable">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Invoice</th>

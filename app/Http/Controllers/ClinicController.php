@@ -11,7 +11,30 @@ class ClinicController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Clinic::class);
-        $clinics = Clinic::latest()->paginate(20);
+        $query = Clinic::query();
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%");
+            });
+        }
+
+        if (request()->filled('status') && request('status') !== 'all') {
+            $query->where('status', request('status'));
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $clinics = $query->latest()->paginate(20)->withQueryString();
         return view('clinics.index', compact('clinics'));
     }
 

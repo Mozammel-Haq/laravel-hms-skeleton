@@ -230,11 +230,19 @@
                                     class="btn btn-outline-primary {{ request('range') == 'year' ? 'active' : '' }}">Year</button>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status</option>
+                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Partial</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
                             <input type="date" name="start_date" class="form-control" placeholder="Start Date"
                                 value="{{ request('start_date') }}">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <input type="date" name="end_date" class="form-control" placeholder="End Date"
                                 value="{{ request('end_date') }}">
                         </div>

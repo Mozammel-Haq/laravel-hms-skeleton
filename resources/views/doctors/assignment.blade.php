@@ -17,30 +17,42 @@
                     </a>
                 </div>
                 <hr>
-                <form class="row g-3" onsubmit="return false;">
-                    <div class="col-md-4">
-                        <label class="form-label">View Doctors by Clinic</label>
-                        <select class="form-select" id="filterClinic">
-                            <option value="">All Clinics</option>
-                            @foreach ($clinics as $clinic)
-                                <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Search Doctor</label>
-                        <input type="text" class="form-control" id="searchDoctor"
-                            placeholder="Doctor name or specialization">
-                    </div>
-
-                    <div class="col-md-4 d-flex align-items-end">
-                        <button type="button" class="btn btn-outline-secondary me-2" id="clearFilters">
-                            Clear
-                        </button>
-                        <a href="{{ route('doctors.index') }}" class="btn btn-outline-primary">
-                            Manage Doctors
-                        </a>
+                <form method="GET" action="{{ route('doctors.assignment') }}" class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <select name="clinic_id" class="form-select">
+                                <option value="">All Clinics</option>
+                                @foreach ($clinics as $clinic)
+                                    <option value="{{ $clinic->id }}"
+                                        {{ request('clinic_id') == $clinic->id ? 'selected' : '' }}>
+                                        {{ $clinic->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="search" class="form-control" placeholder="Search Doctor..."
+                                value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="">Active</option>
+                                <option value="deleted" {{ request('status') == 'deleted' ? 'selected' : '' }}>Deleted
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                                value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                                value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            <a href="{{ route('doctors.assignment') }}" class="btn btn-light w-100">Reset</a>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -50,7 +62,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle datatable">
+                    <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th>Doctor</th>
@@ -63,7 +75,7 @@
 
                         <tbody id="doctorTable">
                             @forelse ($doctors as $doctor)
-                                <tr data-clinics="{{ $doctor->clinics->pluck('id')->implode(',') }}">
+                                <tr>
                                     <td>
                                         @if ($doctor->user)
                                             <a href="{{ route('doctors.show', $doctor) }}"
@@ -212,43 +224,4 @@
         </div>
 
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var searchInput = document.getElementById('searchDoctor');
-            var clinicSelect = document.getElementById('filterClinic');
-            var clearButton = document.getElementById('clearFilters');
-            var tableBody = document.getElementById('doctorTable');
-
-            if (!searchInput || !clinicSelect || !clearButton || !tableBody) {
-                return;
-            }
-
-            var rows = Array.prototype.slice.call(tableBody.querySelectorAll('tr'));
-
-            function applyFilters() {
-                var searchTerm = searchInput.value.toLowerCase().trim();
-                var clinicId = clinicSelect.value;
-
-                rows.forEach(function(row) {
-                    var text = row.textContent.toLowerCase();
-                    var clinicsAttr = row.getAttribute('data-clinics') || '';
-                    var clinics = clinicsAttr.split(',').filter(Boolean);
-
-                    var matchesSearch = !searchTerm || text.indexOf(searchTerm) !== -1;
-                    var matchesClinic = !clinicId || clinics.indexOf(clinicId) !== -1;
-
-                    row.style.display = (matchesSearch && matchesClinic) ? '' : 'none';
-                });
-            }
-
-            searchInput.addEventListener('keyup', applyFilters);
-            clinicSelect.addEventListener('change', applyFilters);
-
-            clearButton.addEventListener('click', function() {
-                searchInput.value = '';
-                clinicSelect.value = '';
-                applyFilters();
-            });
-        });
-    </script>
 </x-app-layout>

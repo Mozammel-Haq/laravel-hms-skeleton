@@ -6,6 +6,38 @@
                 <h5 class="card-title mb-0">All Clinics</h5>
                 <a href="{{ route('clinics.create') }}" class="btn btn-primary">Create Clinic</a>
             </div>
+
+            <!-- Filter Form -->
+            <form method="GET" action="{{ route('clinics.index') }}" class="mb-4 mt-3">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" name="search" class="form-control"
+                            placeholder="Search Name, Code, City..." value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-select">
+                            <option value="all">All Statuses</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive
+                            </option>
+                            <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspended
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="from" class="form-control" placeholder="From Date"
+                            value="{{ request('from') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="to" class="form-control" placeholder="To Date"
+                            value="{{ request('to') }}">
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        <a href="{{ route('clinics.index') }}" class="btn btn-light w-100">Reset</a>
+                    </div>
+                </div>
+            </form>
             <hr>
             <div class="table-responsive">
                 <table class="table table-striped">
@@ -34,7 +66,7 @@
                                 <td>
                                     @php
                                         $status = $clinic->status;
-                                        $color = match($status) {
+                                        $color = match ($status) {
                                             'active' => 'success',
                                             'inactive' => 'warning',
                                             default => 'secondary',

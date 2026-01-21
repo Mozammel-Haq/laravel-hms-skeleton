@@ -10,9 +10,43 @@
                         <div class="text-muted text-sm">Review and approve doctor weekly schedule changes</div>
                     </div>
                 </div>
+
+                <form method="GET" action="{{ route('admin.schedule.requests.index') }}" class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Search Doctor Name or Email..." value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="pending"
+                                    {{ request('status', 'pending') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
+                                    Approved</option>
+                                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
+                                    Rejected</option>
+                                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                                value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                                value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            <a href="{{ route('admin.schedule.requests.index') }}" class="btn btn-light w-100">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
                 <hr>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 datatable datatable-server">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>Doctor</th>

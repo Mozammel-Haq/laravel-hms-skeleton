@@ -6,12 +6,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Invoices</h3>
                     <div class="d-flex gap-2">
-                        <div class="btn-group">
-                            <a href="{{ route('billing.index') }}"
-                                class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                            <a href="{{ route('billing.index', ['status' => 'trashed']) }}"
-                                class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-                        </div>
+
                         @can('create', \App\Models\Invoice::class)
                             <a href="{{ route('billing.create') }}" class="btn btn-primary">Create Invoice</a>
                         @endcan
@@ -22,16 +17,21 @@
                 <form method="GET" action="{{ route('billing.index') }}" class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-3">
-                            <input type="text" name="search" class="form-control" placeholder="Search Invoice # or Patient"
-                                value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Search Invoice # or Patient" value="{{ request('search') }}">
                         </div>
                         <div class="col-md-2">
                             <select name="status" class="form-select">
-                                <option value="">All Status</option>
-                                <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                <option value="all">All Status</option>
+                                <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid
+                                </option>
                                 <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                                <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Partial</option>
-                                <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Overdue</option>
+                                <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Partial
+                                </option>
+                                <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Overdue
+                                </option>
+                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -98,7 +98,7 @@
                                     <td>
                                         @php
                                             $status = $inv->status;
-                                            $color = match($status) {
+                                            $color = match ($status) {
                                                 'paid' => 'success',
                                                 'partial' => 'warning',
                                                 'unpaid', 'overdue' => 'danger',

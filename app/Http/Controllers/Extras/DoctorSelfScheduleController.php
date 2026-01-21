@@ -28,13 +28,36 @@ class DoctorSelfScheduleController extends Controller
             ->get()
             ->groupBy('day_of_week');
 
-        $appointments = Appointment::where('doctor_id', $doctor->id)
+        $appointmentsQuery = Appointment::where('doctor_id', $doctor->id)
             ->where('clinic_id', $clinicId)
-            ->with(['patient'])
-            ->orderBy('appointment_date')
-            ->orderBy('start_time')
-            ->take(10)
-            ->get();
+            ->with(['patient']);
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $appointmentsQuery->whereHas('patient', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('patient_code', 'like', "%{$search}%");
+            });
+        }
+
+        if (request()->filled('status')) {
+            if (request('status') !== 'all') {
+                $appointmentsQuery->where('status', request('status'));
+            }
+        }
+
+        if (request()->filled('from')) {
+            $appointmentsQuery->whereDate('appointment_date', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $appointmentsQuery->whereDate('appointment_date', '<=', request('to'));
+        }
+
+        $appointments = $appointmentsQuery->orderBy('appointment_date', 'desc')
+            ->orderBy('start_time', 'desc')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('doctor.schedule.index', compact('doctor', 'appointments', 'schedules'));
     }

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="container-fluid" x-data="scheduleCalendar()" x-init="init()">
+    <div class="container-fluid" x-data="scheduleCalendar()" x-init="init(); view = '{{ request('view', 'calendar') }}'">
         <div class="d-flex justify-content-between align-items-center my-3 px-3">
             <h3 class="page-title mb-0">Doctor Schedules</h3>
             <div class="d-flex gap-2">
@@ -217,9 +217,9 @@
     </style>
 
     <script>
-        function scheduleCalendar() {
+        function scheduleCalendar(defaultView = 'calendar') {
             return {
-                view: 'calendar',
+                view: defaultView,
                 currentDate: new Date(),
                 events: {},
                 loading: false,

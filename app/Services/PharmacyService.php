@@ -61,6 +61,21 @@ class PharmacyService
                     }
                 }
 
+                // Check for low stock after deduction
+                $newTotalStock = MedicineBatch::where('medicine_id', $medicine->id)
+                    ->where('clinic_id', $patient->clinic_id)
+                    ->sum('quantity_in_stock');
+
+                if ($newTotalStock < 10) {
+                    $pharmacists = \App\Models\User::whereHas('roles', function ($q) {
+                        $q->where('name', 'Pharmacist');
+                    })->where('clinic_id', $patient->clinic_id)->get();
+
+                    foreach ($pharmacists as $pharmacist) {
+                        $pharmacist->notify(new \App\Notifications\LowStockNotification($medicine, (int)$newTotalStock));
+                    }
+                }
+
                 $subtotal = $medicine->price * $item['quantity'];
                 $totalAmount += $subtotal;
 

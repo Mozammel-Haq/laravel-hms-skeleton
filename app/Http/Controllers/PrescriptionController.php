@@ -30,6 +30,10 @@ class PrescriptionController extends Controller
 
         if (request('status') === 'trashed') {
             $query->onlyTrashed();
+        } elseif (request('status') === 'all') {
+            $query->withTrashed();
+        } elseif (request()->filled('status')) {
+            $query->where('status', request('status'));
         }
 
         if (request()->filled('search')) {
@@ -53,7 +57,7 @@ class PrescriptionController extends Controller
             $query->whereDate('issued_at', '<=', request('to'));
         }
 
-        $prescriptions = $query->latest('issued_at')->paginate(20)->withQueryString();
+        $prescriptions = $query->latest()->paginate(20)->withQueryString();
 
         return view('clinical.prescription.index', compact('prescriptions'));
     }

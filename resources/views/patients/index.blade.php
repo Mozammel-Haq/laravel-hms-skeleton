@@ -16,6 +16,37 @@
                     </div>
                 @endcan
             </div>
+            <!-- Filters -->
+            <form method="GET" action="{{ route('patients.index') }}" class="mb-4">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" name="search" class="form-control" placeholder="Search..."
+                            value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-select">
+                            <option value="">All Status</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive
+                            </option>
+                            <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="from" class="form-control" placeholder="From Date"
+                            value="{{ request('from') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="to" class="form-control" placeholder="To Date"
+                            value="{{ request('to') }}">
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        <a href="{{ route('patients.index') }}" class="btn btn-light w-100">Reset</a>
+                    </div>
+                </div>
+            </form>
             <hr>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -37,10 +68,12 @@
                                         class="d-flex align-items-center text-decoration-none text-body">
                                         <div class="avatar avatar-sm me-2">
                                             @if ($patient->profile_photo)
-                                                <img src="{{ asset($patient->profile_photo) }}" alt="{{ $patient->name }}"
-                                                    class="rounded-circle" style="width:32px;height:32px;object-fit:cover;">
+                                                <img src="{{ asset($patient->profile_photo) }}"
+                                                    alt="{{ $patient->name }}" class="rounded-circle"
+                                                    style="width:32px;height:32px;object-fit:cover;">
                                             @else
-                                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                <span
+                                                    class="avatar-title rounded-circle bg-primary-subtle text-primary">
                                                     {{ substr($patient->name, 0, 1) }}
                                                 </span>
                                             @endif
@@ -73,7 +106,7 @@
                                 <td>
                                     @php
                                         $status = $patient->status;
-                                        $color = match($status) {
+                                        $color = match ($status) {
                                             'active' => 'success',
                                             'inactive' => 'warning',
                                             default => 'secondary',

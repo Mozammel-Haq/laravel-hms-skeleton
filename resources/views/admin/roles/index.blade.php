@@ -13,6 +13,29 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Filter Form -->
+            <form method="GET" action="{{ route('admin.roles.index') }}" class="mb-4">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <input type="text" name="search" class="form-control" placeholder="Search Roles..."
+                            value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="from" class="form-control" placeholder="From Date"
+                            value="{{ request('from') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="to" class="form-control" placeholder="To Date"
+                            value="{{ request('to') }}">
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        <a href="{{ route('admin.roles.index') }}" class="btn btn-light w-100">Reset</a>
+                    </div>
+                </div>
+            </form>
+
             <hr>
 
             <!-- Roles Table -->

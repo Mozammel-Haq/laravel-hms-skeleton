@@ -15,11 +15,36 @@ class DoctorAssignmentController extends Controller
         Gate::authorize('view_doctors'); // adjust as per your policies
 
         $clinics = Clinic::orderBy('name')->get();
-        $clinicId = session('selected_clinic_id') ?? auth()->user()->clinic_id;
-        $doctors = Clinic::with(['doctors.user', 'doctors.schedules'])
-            ->find($clinicId);
 
-        return view('doctor_assignments.index', compact('clinics', 'doctors'));
+        $query = Doctor::with(['user', 'clinics', 'primaryDepartment', 'schedules']);
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($u) use ($search) {
+                    $u->where('name', 'like', "%{$search}%");
+                })
+                ->orWhere('specialization', 'like', "%{$search}%")
+                ->orWhere('license_number', 'like', "%{$search}%");
+            });
+        }
+
+        if (request()->filled('clinic_id')) {
+            $clinicId = request('clinic_id');
+            $query->whereHas('clinics', function ($q) use ($clinicId) {
+                $q->where('clinics.id', $clinicId);
+            });
+        }
+
+        if (request()->filled('status')) {
+            if (request('status') === 'deleted') {
+                $query->onlyTrashed();
+            }
+        }
+
+        $doctors = $query->latest()->paginate(20)->withQueryString();
+
+        return view('doctors.assignment', compact('clinics', 'doctors'));
     }
 
     public function edit(Doctor $doctor)
