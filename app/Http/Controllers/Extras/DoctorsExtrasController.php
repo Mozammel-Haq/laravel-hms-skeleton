@@ -18,23 +18,50 @@ class DoctorsExtrasController extends Controller
             abort(403);
         }
 
+        $query = Doctor::with(['user', 'clinics', 'department']);
+
         if ($user->hasRole('Super Admin')) {
             $clinics = Clinic::orderBy('name')->get();
-            $doctors = Doctor::with(['user', 'clinics', 'department'])
-                ->orderByDesc('created_at')
-                ->paginate(20);
+            if (request()->filled('clinic_id')) {
+                $query->whereHas('clinics', function ($q) {
+                    $q->where('clinics.id', request('clinic_id'));
+                });
+            }
         } else {
             $clinicId = $user->clinic_id;
-
             $clinics = Clinic::whereKey($clinicId)->get();
 
-            $doctors = Doctor::with(['user', 'clinics', 'department'])
-                ->whereHas('department', function ($query) use ($clinicId) {
-                    $query->where('clinic_id', $clinicId);
-                })
-                ->orderByDesc('created_at')
-                ->paginate(20);
+            $query->whereHas('department', function ($q) use ($clinicId) {
+                $q->where('clinic_id', $clinicId);
+            });
         }
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($u) use ($search) {
+                    $u->where('name', 'like', "%{$search}%");
+                })
+                    ->orWhere('specialization', 'like', "%{$search}%")
+                    ->orWhere('license_number', 'like', "%{$search}%");
+            });
+        }
+
+        if (request()->filled('status')) {
+            if (request('status') === 'deleted') {
+                $query->onlyTrashed();
+            }
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $doctors = $query->latest()->paginate(20)->withQueryString();
 
         return view('doctors.assignment', compact('clinics', 'doctors'));
     }
@@ -66,7 +93,7 @@ class DoctorsExtrasController extends Controller
         }
 
         $doctors = $doctors
-            ->orderBy('user_id')
+            ->latest()
             ->paginate(20);
         return view('doctors.schedules', compact('doctors'));
     }

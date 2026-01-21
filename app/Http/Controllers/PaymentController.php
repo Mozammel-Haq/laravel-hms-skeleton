@@ -14,12 +14,36 @@ class PaymentController extends Controller
         $query = Payment::with(['invoice.patient']);
 
         if (request('status') === 'trashed') {
-            $query->onlyTrashed();
+            $query->onlyTrashed()->latest();
         } else {
             $query->latest();
         }
 
-        $payments = $query->paginate(50);
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('invoice', function ($sub) use ($search) {
+                    $sub->where('invoice_number', 'like', '%' . $search . '%')
+                        ->orWhereHas('patient', function ($p) use ($search) {
+                            $p->where('name', 'like', '%' . $search . '%');
+                        });
+                });
+            });
+        }
+
+        if (request()->filled('method')) {
+            $query->where('payment_method', request('method'));
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('paid_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('paid_at', '<=', request('to'));
+        }
+
+        $payments = $query->paginate(50)->withQueryString();
         return view('billing.payments.index', compact('payments'));
     }
 

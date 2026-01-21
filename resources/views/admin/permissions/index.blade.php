@@ -48,7 +48,7 @@
 
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-bordered align-middle mb-0 datatable">
+                            <table class="table table-bordered align-middle mb-0">
                                 <tbody>
                                     <tr>
                                         <td class="fw-semibold" style="width: 180px;">

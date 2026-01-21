@@ -8,6 +8,7 @@ use App\Models\Room;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Ward;
+use App\Notifications\BedAssignedNotification;
 use App\Services\IpdService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -28,7 +29,12 @@ class IpdController extends Controller
         $query = Admission::with(['patient', 'doctor', 'bedAssignments.bed']);
 
         if (request('status') === 'trashed') {
-            $query->onlyTrashed();
+            $query->onlyTrashed()->latest();
+        } elseif (request()->filled('status')) {
+            if (request('status') !== 'all') {
+                $query->where('status', request('status'));
+            }
+            $query->latest();
         } else {
             $query->where('status', 'admitted')->latest();
         }
@@ -55,7 +61,7 @@ class IpdController extends Controller
             $query->whereDate('created_at', '<=', request('to'));
         }
 
-        $admissions = $query->paginate(20);
+        $admissions = $query->paginate(20)->withQueryString();
         $admissionsCount = Admission::where('status', 'admitted')->count();
         $bedsAvailable = \App\Models\Bed::withoutTenant()
             ->join('rooms', 'beds.room_id', '=', 'rooms.id')
@@ -308,9 +314,19 @@ class IpdController extends Controller
     public function roundsIndex()
     {
         Gate::authorize('viewAny', Admission::class);
-        $query = Admission::with(['patient', 'doctor'])
-            ->where('status', 'admitted')
-            ->latest();
+        $query = Admission::with(['patient', 'doctor']);
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } elseif (request()->filled('status')) {
+            if (request('status') !== 'all') {
+                $query->where('status', request('status'));
+            }
+        } else {
+            $query->where('status', 'admitted');
+        }
+
+        $query->latest();
 
         if (request()->filled('search')) {
             $search = request('search');

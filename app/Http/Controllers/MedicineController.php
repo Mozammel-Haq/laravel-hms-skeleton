@@ -13,7 +13,33 @@ class MedicineController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', Medicine::class);
-        $medicines = Medicine::latest()->paginate(20);
+
+        $query = Medicine::query();
+
+        if (request('status') === 'trashed') {
+            $query->onlyTrashed();
+        } elseif (request()->filled('status')) {
+            $query->where('status', request('status'));
+        }
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('generic_name', 'like', '%' . $search . '%')
+                    ->orWhere('manufacturer', 'like', '%' . $search . '%');
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $medicines = $query->latest()->paginate(20)->withQueryString();
         return view('pharmacy.inventory.index', compact('medicines'));
     }
 

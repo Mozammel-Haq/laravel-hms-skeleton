@@ -9,7 +9,25 @@ class WardController extends Controller
 {
     public function index()
     {
-        $wards = Ward::latest()->paginate(20);
+        $query = Ward::query();
+
+        if (request()->filled('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%');
+        }
+
+        if (request()->filled('status') && request('status') !== 'all') {
+            $query->where('status', request('status'));
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $wards = $query->latest()->paginate(20)->withQueryString();
         return view('ipd.wards.index', compact('wards'));
     }
 

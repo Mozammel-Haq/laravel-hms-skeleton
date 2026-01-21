@@ -18,9 +18,43 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Filter Form -->
+                <form method="GET" action="{{ route('pharmacy.inventory.index') }}" class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Search Medicine, Batch..." value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="all">All Statuses</option>
+                                <option value="in_stock" {{ request('status') == 'in_stock' ? 'selected' : '' }}>In
+                                    Stock</option>
+                                <option value="out_of_stock"
+                                    {{ request('status') == 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                                <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                                value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                                value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            <a href="{{ route('pharmacy.inventory.index') }}" class="btn btn-light w-100">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
                 <hr>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle datatable">
+                    <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th>Medicine</th>

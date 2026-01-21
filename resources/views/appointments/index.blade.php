@@ -12,12 +12,7 @@
                     </div>
                     @can('create', \App\Models\Appointment::class)
                         <div class="action-btn d-flex gap-2">
-                            <div class="btn-group">
-                                <a href="{{ route('appointments.index') }}"
-                                    class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                                <a href="{{ route('appointments.index', ['status' => 'trashed']) }}"
-                                    class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-                            </div>
+
                             <a href="{{ route('appointments.booking.index') }}" class="btn btn-primary">
                                 <i class="ti ti-plus me-1"></i> Book Appointment
                             </a>
@@ -35,12 +30,18 @@
                         <div class="col-md-2">
                             <select name="status" class="form-select">
                                 <option value="">All Status</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                <option value="arrived" {{ request('status') == 'arrived' ? 'selected' : '' }}>Arrived</option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                <option value="noshow" {{ request('status') == 'noshow' ? 'selected' : '' }}>No Show</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
+                                </option>
+                                <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>
+                                    Confirmed</option>
+                                <option value="arrived" {{ request('status') == 'arrived' ? 'selected' : '' }}>Arrived
+                                </option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>
+                                    Completed</option>
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
+                                    Cancelled</option>
+                                <option value="noshow" {{ request('status') == 'noshow' ? 'selected' : '' }}>No Show
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -92,7 +93,8 @@
                                                         alt="{{ $appointment->patient->name }}" class="rounded-circle"
                                                         style="width:32px;height:32px;object-fit:cover;">
                                                 @else
-                                                    <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                    <span
+                                                        class="avatar-title rounded-circle bg-primary-subtle text-primary">
                                                         {{ substr($appointment->patient->name, 0, 1) }}
                                                     </span>
                                                 @endif
@@ -129,7 +131,7 @@
                                     <td>
                                         @php
                                             $status = $appointment->status;
-                                            $color = match($status) {
+                                            $color = match ($status) {
                                                 'confirmed' => 'primary',
                                                 'arrived' => 'info',
                                                 'completed' => 'success',
@@ -188,7 +190,8 @@
                                                                     <input type="hidden" name="appointment_id"
                                                                         value="{{ $appointment->id }}">
                                                                     <button type="submit" class="dropdown-item">
-                                                                        <i class="ti ti-file-invoice me-2"></i>Start Visit &
+                                                                        <i class="ti ti-file-invoice me-2"></i>Start Visit
+                                                                        &
                                                                         Generate Bill
                                                                     </button>
                                                                 </form>
@@ -198,7 +201,8 @@
                                                             <li>
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('clinical.consultations.create', $appointment) }}">
-                                                                    <i class="ti ti-stethoscope me-2"></i>Start Consultation
+                                                                    <i class="ti ti-stethoscope me-2"></i>Start
+                                                                    Consultation
                                                                 </a>
                                                             </li>
                                                         @endif
@@ -228,19 +232,19 @@
                                         </div>
                                     </td>
                                 </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-5">
-                                            <div class="text-muted">No appointments found</div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4">
-                        {{ $appointments->links('pagination::bootstrap-5') }}
-                    </div>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="text-muted">No appointments found</div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4">
+                    {{ $appointments->links('pagination::bootstrap-5') }}
                 </div>
             </div>
-    </x-app-layout>
+        </div>
+</x-app-layout>

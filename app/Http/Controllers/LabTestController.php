@@ -9,7 +9,26 @@ class LabTestController extends Controller
 {
     public function index()
     {
-        $tests = LabTest::orderBy('name')->paginate(20);
+        $query = LabTest::query();
+
+        if (request()->filled('search')) {
+            $query->where('name', 'like', '%' . request('search') . '%')
+                ->orWhere('category', 'like', '%' . request('search') . '%');
+        }
+
+        if (request()->filled('status')) {
+            $query->where('status', request('status'));
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $tests = $query->latest()->paginate(20)->withQueryString();
         return view('lab.catalog.index', compact('tests'));
     }
 

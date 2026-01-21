@@ -27,7 +27,9 @@ class BillingController extends Controller
             $query->onlyTrashed()->latest();
         } else {
             if (request()->filled('status')) {
-                $query->where('status', request('status'));
+                if (request('status') !== 'all') {
+                    $query->where('status', request('status'));
+                }
             }
             $query->latest();
         }

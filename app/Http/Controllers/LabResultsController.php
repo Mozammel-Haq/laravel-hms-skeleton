@@ -22,6 +22,14 @@ class LabResultsController extends Controller
             });
         }
 
+        if (request()->filled('status')) {
+            if (request('status') !== 'all') {
+                $query->whereHas('order', function ($q) {
+                    $q->where('status', request('status'));
+                });
+            }
+        }
+
         if (request()->filled('from')) {
             $query->whereDate('reported_at', '>=', request('from'));
         }

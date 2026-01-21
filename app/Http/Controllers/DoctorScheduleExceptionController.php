@@ -20,10 +20,31 @@ class DoctorScheduleExceptionController extends Controller
             abort(403, 'User is not a doctor');
         }
 
-        $exceptions = $user->doctor->exceptions()
-            ->with('clinic')
-            ->orderBy('start_date', 'desc')
-            ->paginate(10);
+        $query = $user->doctor->exceptions()
+            ->with('clinic');
+
+        if (request()->filled('status')) {
+            if (request('status') !== 'all') {
+                $query->where('status', request('status'));
+            }
+        }
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where('reason', 'like', "%{$search}%");
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('start_date', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('start_date', '<=', request('to'));
+        }
+
+        $exceptions = $query->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return view('doctors.schedule.exceptions.index', compact('exceptions'));
     }
@@ -74,11 +95,11 @@ class DoctorScheduleExceptionController extends Controller
             ->where('clinic_id', $user->clinic_id)
             ->where(function ($query) use ($request) {
                 $query->whereBetween('start_date', [$request->start_date, $request->end_date])
-                      ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
-                      ->orWhere(function ($q) use ($request) {
-                          $q->where('start_date', '<=', $request->start_date)
+                    ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                    ->orWhere(function ($q) use ($request) {
+                        $q->where('start_date', '<=', $request->start_date)
                             ->where('end_date', '>=', $request->end_date);
-                      });
+                    });
             })
             ->exists();
 

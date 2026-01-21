@@ -18,9 +18,38 @@
                         </a>
                     </div>
                 </div>
+                <!-- Filters -->
+                <form method="GET" action="{{ route('pharmacy.medicines.index') }}" class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" name="search" class="form-control" placeholder="Search..."
+                                value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                                value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                                value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            <a href="{{ route('pharmacy.medicines.index') }}" class="btn btn-light w-100">Reset</a>
+                        </div>
+                    </div>
+                </form>
                 <hr>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle datatable">
+                    <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
                                 <th>Medicine Name</th>

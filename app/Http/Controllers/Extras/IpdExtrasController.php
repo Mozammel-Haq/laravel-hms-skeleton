@@ -12,7 +12,29 @@ class IpdExtrasController extends Controller
     public function rounds()
     {
         Gate::authorize('view_ipd');
-        $admissions = Admission::with(['patient', 'doctor'])->where('status', 'admitted')->latest()->get();
+        $query = Admission::with(['patient', 'doctor'])->where('status', 'admitted');
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function($q) use ($search) {
+                $q->whereHas('patient', function($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('patient_code', 'like', "%{$search}%");
+                })->orWhereHas('doctor.user', function($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        if (request()->filled('from')) {
+            $query->whereDate('created_at', '>=', request('from'));
+        }
+
+        if (request()->filled('to')) {
+            $query->whereDate('created_at', '<=', request('to'));
+        }
+
+        $admissions = $query->latest()->paginate(20)->withQueryString();
         return view('ipd.rounds.index', compact('admissions'));
     }
 

@@ -21,6 +21,8 @@ class PatientController extends Controller
 
         if (request('status') === 'trashed') {
             $query->onlyTrashed();
+        } elseif (request()->filled('status')) {
+            $query->where('status', request('status'));
         }
 
         if (request()->filled('search')) {
@@ -41,7 +43,7 @@ class PatientController extends Controller
             $query->whereDate('created_at', '<=', request('to'));
         }
 
-        $patients = $query->latest()->paginate(10);
+        $patients = $query->latest()->paginate(10)->withQueryString();
         return view('patients.index', compact('patients'));
     }
 
@@ -75,10 +77,10 @@ class PatientController extends Controller
         \Illuminate\Support\Facades\Log::info('Patient Store Request Data:', $request->all());
         \Illuminate\Support\Facades\Log::info('Has File profile_photo:', ['has' => $request->hasFile('profile_photo')]);
         if ($request->hasFile('profile_photo')) {
-             \Illuminate\Support\Facades\Log::info('File details:', [
-                 'name' => $request->file('profile_photo')->getClientOriginalName(),
-                 'valid' => $request->file('profile_photo')->isValid(),
-             ]);
+            \Illuminate\Support\Facades\Log::info('File details:', [
+                'name' => $request->file('profile_photo')->getClientOriginalName(),
+                'valid' => $request->file('profile_photo')->isValid(),
+            ]);
         }
 
         $data = $request->validated();

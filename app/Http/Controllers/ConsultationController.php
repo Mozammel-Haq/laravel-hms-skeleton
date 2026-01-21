@@ -30,7 +30,12 @@ class ConsultationController extends Controller
         }
 
         if (request('status') === 'trashed') {
-            $query->onlyTrashed();
+            $query->onlyTrashed()->latest();
+        } elseif (request()->filled('status')) {
+            if (request('status') !== 'all') {
+                $query->where('status', request('status'));
+            }
+            $query->latest();
         } else {
             $query->latest();
         }

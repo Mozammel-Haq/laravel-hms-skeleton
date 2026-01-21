@@ -19,26 +19,52 @@ class AdminUsersController extends Controller
         Gate::authorize('manage_roles');
 
         if ($request->routeIs('admin.super-admin-users.*')) {
-            $users = User::withoutTenant()
+            $query = User::withoutTenant()
                 ->with('roles')
-                ->whereHas('roles', fn($q) => $q->where('name', 'Super Admin'))
-                ->orderBy('name')
-                ->paginate(50);
-
-            return view('admin.users.super_admins.index', ['superAdmins' => $users]);
-        }
-
-        if ($request->routeIs('admin.clinic-admin-users.*')) {
-            $users = User::withoutTenant()
+                ->whereHas('roles', fn($q) => $q->where('name', 'Super Admin'));
+            $view = 'admin.users.super_admins.index';
+            $variableName = 'superAdmins';
+        } elseif ($request->routeIs('admin.clinic-admin-users.*')) {
+            $query = User::withoutTenant()
                 ->with(['roles', 'clinic'])
-                ->whereHas('roles', fn($q) => $q->where('name', 'Clinic Admin'))
-                ->orderBy('name')
-                ->paginate(50);
-
-            return view('admin.users.clinic_admins.index', ['clinicAdmins' => $users]);
+                ->whereHas('roles', fn($q) => $q->where('name', 'Clinic Admin'));
+            $view = 'admin.users.clinic_admins.index';
+            $variableName = 'clinicAdmins';
+        } else {
+            abort(404);
         }
 
-        abort(404);
+        // Apply filters
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            if ($request->status === 'trashed') {
+                $query->onlyTrashed();
+            } else {
+                $query->where('status', $request->status);
+            }
+        } else {
+            $query->withTrashed();
+        }
+
+        if ($request->filled('from')) {
+            $query->whereDate('created_at', '>=', $request->from);
+        }
+
+        if ($request->filled('to')) {
+            $query->whereDate('created_at', '<=', $request->to);
+        }
+
+        $users = $query->latest()->paginate(50)->withQueryString();
+
+        return view($view, [$variableName => $users]);
     }
 
     /**

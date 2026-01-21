@@ -14,13 +14,6 @@
                     <p class="text-muted">Configure clinical departments for the clinic</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <div class="btn-group">
-                        <a href="{{ route('departments.index') }}"
-                            class="btn btn-{{ request('status') !== 'trashed' ? 'primary' : 'outline-primary' }}">Active</a>
-                        <a href="{{ route('departments.index', ['status' => 'trashed']) }}"
-                            class="btn btn-{{ request('status') === 'trashed' ? 'primary' : 'outline-primary' }}">Trash</a>
-                    </div>
-
                     @can('create', \App\Models\Department::class)
                         <div class="action-btn">
                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
@@ -30,6 +23,35 @@
                     @endcan
                 </div>
             </div>
+            <!-- Filters -->
+            <form method="GET" action="{{ route('departments.index') }}" class="mb-4">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <input type="text" name="search" class="form-control" placeholder="Search..."
+                            value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <select name="status" class="form-select">
+                            <option value="active" {{ request('status', 'active') == 'active' ? 'selected' : '' }}>
+                                Active</option>
+                            <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="from" class="form-control" placeholder="From Date"
+                            value="{{ request('from') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" name="to" class="form-control" placeholder="To Date"
+                            value="{{ request('to') }}">
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        <a href="{{ route('departments.index') }}" class="btn btn-light w-100">Reset</a>
+                    </div>
+                </div>
+            </form>
             <hr>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">

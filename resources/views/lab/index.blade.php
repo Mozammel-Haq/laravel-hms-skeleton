@@ -14,26 +14,33 @@
                 <form method="GET" action="{{ route('lab.index') }}" class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-3">
-                            <input type="text" name="search" class="form-control" placeholder="Search by ID, Patient, Status..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Search by ID, Patient, Status..." value="{{ request('search') }}">
                         </div>
                         <div class="col-md-2">
                             <select name="status" class="form-select">
-                                <option value="">All Statuses</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trashed</option>
+                                <option value="all">All Statuses</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
+                                </option>
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>
+                                    Completed</option>
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
+                                    Cancelled</option>
+                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trashed
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="from" class="form-control" placeholder="From Date" value="{{ request('from') }}">
+                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                                value="{{ request('from') }}">
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="to" class="form-control" placeholder="To Date" value="{{ request('to') }}">
+                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                                value="{{ request('to') }}">
                         </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                            <a href="{{ route('lab.index') }}" class="btn btn-outline-secondary">Reset</a>
+                        <div class="col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                            <a href="{{ route('lab.index') }}" class="btn btn-light w-100">Reset</a>
                         </div>
                     </div>
                 </form>
@@ -56,8 +63,9 @@
                                 <tr>
                                     <td>{{ $order->id }}</td>
                                     <td>
-                                        @if($order->patient)
-                                            <a href="{{ route('patients.show', $order->patient) }}" class="text-decoration-none text-body">
+                                        @if ($order->patient)
+                                            <a href="{{ route('patients.show', $order->patient) }}"
+                                                class="text-decoration-none text-body">
                                                 {{ $order->patient->full_name ?? $order->patient->name }}
                                             </a>
                                         @else
@@ -68,7 +76,7 @@
                                     <td>
                                         @php
                                             $status = $order->status;
-                                            $color = match($status) {
+                                            $color = match ($status) {
                                                 'completed' => 'success',
                                                 'pending' => 'warning',
                                                 'cancelled' => 'danger',
