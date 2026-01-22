@@ -420,7 +420,7 @@
                     if (!text && colIndex !== headers.length - 1) return;
 
                     const li = document.createElement('li');
-                    li.className = 'ms-5 form-check form-switch mb-2 d-flex align-items-center gap-2';
+                    li.className = 'ms-4 form-check form-switch mb-2 d-flex align-items-center gap-2';
 
                     const input = document.createElement('input');
                     input.className = 'form-check-input mt-0';
