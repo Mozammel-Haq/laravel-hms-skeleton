@@ -5,9 +5,9 @@
     <!-- Meta Tags -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Admin Dashboard - Medical & Hospital - Bootstrap 5 Admin Template</title>
+    <title>CityCare - Medical & Hospital Service</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Dreams Technologies">
+    <meta name="author" content="Mozammel Haq">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('assets') }}/img/favicon.png">
@@ -363,6 +363,121 @@
     <script src="{{ asset('assets') }}/js/script.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="{{ asset('assets') }}/js/rocket-loader.min.js" defer></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize column filters for all tables
+            const tables = document.querySelectorAll('table');
+            tables.forEach((table, index) => {
+                // Skip if table has no header
+                if (!table.querySelector('thead')) return;
+
+                // Assign unique ID if missing
+                if (!table.id) {
+                    table.id = 'data-table-' + index;
+                }
+
+                // Create Dropdown Container
+                const dropdown = document.createElement('div');
+                dropdown.className = 'dropdown d-flex justify-content-end mb-2';
+
+                // Dropdown Toggle Button
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-sm btn-primary dropdown-toggle d-flex align-items-center gap-1 mt-1';
+                btn.type = 'button';
+                btn.setAttribute('data-bs-toggle', 'dropdown');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.setAttribute('data-bs-auto-close', 'outside'); // Keep open on click
+                btn.innerHTML = '<i class="ti ti-columns bg-transparent text-white"></i> Columns';
+
+                // Dropdown Menu
+                const menu = document.createElement('ul');
+                menu.className = 'dropdown-menu dropdown-menu-end p-3 shadow';
+                menu.style.minWidth = '250px';
+                menu.style.maxHeight = '300px';
+                menu.style.overflowY = 'auto';
+
+                // Add Header to Menu
+                const header = document.createElement('li');
+                header.innerHTML = '<h6 class="dropdown-header text-uppercase text-muted p-0 mb-2">Visible Columns</h6>';
+                menu.appendChild(header);
+
+                // Add Reset Option
+                const resetItem = document.createElement('li');
+                resetItem.className = 'mb-2 pb-2 border-bottom';
+                resetItem.innerHTML = '<a href="#" class="dropdown-item p-0 text-primary small">Reset to Default</a>';
+                resetItem.querySelector('a').onclick = (e) => {
+                    e.preventDefault();
+                    resetColumns(table, menu);
+                };
+                menu.appendChild(resetItem);
+
+                // Populate Menu Items
+                const headers = table.querySelectorAll('thead tr:first-child th');
+                headers.forEach((th, colIndex) => {
+                    const text = th.textContent.trim();
+                    // Skip empty headers or actions column usually at the end
+                    if (!text && colIndex !== headers.length - 1) return;
+
+                    const li = document.createElement('li');
+                    li.className = 'ms-5 form-check form-switch mb-2 d-flex align-items-center gap-2';
+
+                    const input = document.createElement('input');
+                    input.className = 'form-check-input mt-0';
+                    input.type = 'checkbox';
+                    input.role = 'switch';
+                    input.id = `col-toggle-${table.id}-${colIndex}`;
+                    input.checked = th.style.display !== 'none';
+                    input.onchange = () => toggleColumn(table, colIndex, input.checked);
+
+                    const label = document.createElement('label');
+                    label.className = 'form-check-label text-truncate cursor-pointer';
+                    label.htmlFor = `col-toggle-${table.id}-${colIndex}`;
+                    label.textContent = text || `Column ${colIndex + 1}`;
+                    label.style.cursor = 'pointer';
+                    label.style.maxWidth = '180px';
+
+                    li.appendChild(input);
+                    li.appendChild(label);
+                    menu.appendChild(li);
+                });
+
+                dropdown.appendChild(btn);
+                dropdown.appendChild(menu);
+
+                // Insert dropdown before the table's container (if responsive) or the table itself
+                const responsiveParent = table.closest('.table-responsive') || table.closest('.table-wrapper');
+                if (responsiveParent) {
+                    responsiveParent.parentNode.insertBefore(dropdown, responsiveParent);
+                } else {
+                    table.parentNode.insertBefore(dropdown, table);
+                }
+            });
+
+            function toggleColumn(table, index, show) {
+                // Toggle header
+                const th = table.querySelector(`thead tr th:nth-child(${index + 1})`);
+                if (th) th.style.display = show ? '' : 'none';
+
+                // Toggle all rows
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const td = row.querySelector(`td:nth-child(${index + 1})`);
+                    if (td) td.style.display = show ? '' : 'none';
+                });
+            }
+
+            function resetColumns(table, menu) {
+                const inputs = menu.querySelectorAll('input[type="checkbox"]');
+                inputs.forEach(input => {
+                    input.checked = true;
+                    // Trigger change event or manually call toggle
+                    const colIndex = parseInt(input.id.split('-').pop());
+                    toggleColumn(table, colIndex, true);
+                });
+            }
+        });
+    </script>
 
 </body>
 
