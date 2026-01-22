@@ -57,7 +57,7 @@
                             <th>Age/Gender</th>
                             <th>Blood Group</th>
                             <th>Status</th>
-                            <th>Actions</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,12 +114,12 @@
                                     @endphp
                                     <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
                                 </td>
-                                <td>
+                                <td class="text-end">
                                     <div class="dropdown">
                                         <button class="btn btn-sm btn-light btn-icon" data-bs-toggle="dropdown">
                                             <i class="ti ti-dots-vertical"></i>
                                         </button>
-                                        <ul class="dropdown-menu">
+                                        <ul class="dropdown-menu dropdown-menu-end">
                                             @if ($patient->trashed())
                                                 <li>
                                                     <form action="{{ route('patients.restore', $patient->id) }}"

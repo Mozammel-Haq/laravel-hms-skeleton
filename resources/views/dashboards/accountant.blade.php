@@ -337,8 +337,18 @@
                                     </td>
                                     <td>{{ $inv->created_at }}</td>
                                     <td class="text-end">
-                                        <a href="{{ route('billing.show', $inv) }}"
-                                            class="btn btn-sm btn-outline-primary">View</a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('billing.show', $inv) }}">
+                                                        <i class="ti ti-eye me-1"></i> View
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

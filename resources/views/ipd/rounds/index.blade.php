@@ -62,14 +62,26 @@
                                     <td>{{ optional($admission->doctor)->user->name ?? 'Doctor' }}</td>
                                     <td>{{ $admission->created_at }}</td>
                                     <td class="text-end">
-                                        <a href="{{ route('ipd.rounds.create', $admission->id) }}"
-                                            class="btn btn-sm btn-success me-1">
-                                            <i class="ti ti-plus"></i> Add Round
-                                        </a>
-                                        <a href="{{ route('ipd.show', $admission->id) }}"
-                                            class="btn btn-sm btn-outline-primary">
-                                            <i class="ti ti-eye"></i> Review
-                                        </a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('ipd.rounds.create', $admission->id) }}">
+                                                        <i class="ti ti-plus me-1"></i> Add Round
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('ipd.show', $admission->id) }}">
+                                                        <i class="ti ti-eye me-1"></i> Review
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

@@ -269,7 +269,7 @@
                                 <th>Doctor</th>
                                 <th>Admitted On</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -314,31 +314,54 @@
                                         @endphp
                                         <span class="badge bg-{{ $admColor }}">{{ ucfirst($admStatus) }}</span>
                                     </td>
-                                    <td>
-                                        @if ($admission->trashed())
-                                            <form action="{{ route('ipd.restore', $admission->id) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success"
-                                                    onclick="return confirm('Are you sure you want to restore this admission?')">
-                                                    Restore
-                                                </button>
-                                            </form>
-                                        @else
-                                            <a href="{{ route('ipd.show', $admission->id) }}"
-                                                class="btn btn-sm btn-outline-primary me-2">View</a>
-                                            <a href="{{ route('ipd.assign-bed', $admission->id) }}"
-                                                class="btn btn-sm btn-outline-success me-2">Assign Bed</a>
-                                            <form action="{{ route('ipd.destroy', $admission) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this admission?')">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        @endif
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon dropdown-toggle hide-arrow"
+                                                type="button" data-bs-toggle="dropdown">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                @if ($admission->trashed())
+                                                    <li>
+                                                        <form action="{{ route('ipd.restore', $admission->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item"
+                                                                onclick="return confirm('Are you sure you want to restore this admission?')">
+                                                                <i class="ti ti-refresh me-1"></i> Restore
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @else
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('ipd.show', $admission->id) }}">
+                                                            <i class="ti ti-eye me-1"></i> View
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('ipd.assign-bed', $admission->id) }}">
+                                                            <i class="ti ti-bed me-1"></i> Assign Bed
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <hr class="dropdown-divider">
+                                                    </li>
+                                                    <li>
+                                                        <form action="{{ route('ipd.destroy', $admission) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item text-danger"
+                                                                onclick="return confirm('Are you sure you want to delete this admission?')">
+                                                                <i class="ti ti-trash me-1"></i> Delete
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

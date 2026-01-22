@@ -14,7 +14,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Roles</th>
-                                <th>Actions</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -27,9 +27,19 @@
                                             <span class="badge bg-secondary me-1">{{ $role->name }}</span>
                                         @endforeach
                                     </td>
-                                    <td>
-                                        <a href="{{ route('staff.edit', $user->id) }}"
-                                            class="btn btn-sm btn-outline-primary">Reset Password</a>
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('staff.edit', $user->id) }}">
+                                                        <i class="ti ti-key me-1"></i> Reset Password
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

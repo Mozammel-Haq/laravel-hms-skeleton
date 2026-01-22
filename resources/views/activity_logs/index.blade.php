@@ -6,7 +6,7 @@
         <div class="card-body">
 
             <!-- Filter Form -->
-            <form method="GET" action="{{ route('activity-logs.index') }}" class="mb-4">
+            <form method="GET" action="{{ route('activity_logs.index') }}" class="mb-4">
                 <div class="row g-2">
                     <div class="col-md-3">
                         <input type="text" name="search" class="form-control" placeholder="Search User, Action..."
@@ -36,7 +36,7 @@
                     </div>
                     <div class="col-md-3 d-flex gap-2">
                         <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        <a href="{{ route('activity-logs.index') }}" class="btn btn-light w-100">Reset</a>
+                        <a href="{{ route('activity_logs.index') }}" class="btn btn-light w-100">Reset</a>
                     </div>
                 </div>
             </form>
@@ -57,7 +57,7 @@
                                 <td>{{ $activity->user->name ?? 'System' }}</td>
                                 <td>{{ $activity->action }}</td>
                                 <td>{{ $activity->description }}</td>
-                                <td>{{ $activity->created_at->format('Y-m-d H:i') }}</td>
+                                <td>{{ $activity->created_at }}</td>
                             </tr>
                         @empty
                             <tr>

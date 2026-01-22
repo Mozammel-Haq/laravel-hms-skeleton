@@ -48,7 +48,7 @@
                             <th>Created On</th>
                             <th>Description</th>
                             <th>Permissions</th>
-                            <th>Action</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,24 +64,24 @@
                                         <i class="ti ti-shield-half me-1"></i> Permissions
                                     </a>
                                 </td>
-                                <td>
-                                    <div class="action-item">
-                                        <a href="javascript:void(0);" data-bs-toggle="dropdown">
+                                <td class="text-end">
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="ti ti-dots-vertical"></i>
-                                        </a>
-                                        <ul class="dropdown-menu p-2">
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
                                             <li>
                                                 <button class="dropdown-item" data-bs-toggle="modal"
                                                     data-bs-target="#edit_role" data-id="{{ $role->id }}"
                                                     data-name="{{ $role->name }}"
                                                     data-description="{{ $role->description }}">
-                                                    Edit
+                                                    <i class="ti ti-edit me-1"></i> Edit
                                                 </button>
                                             </li>
                                             <li>
                                                 <button class="dropdown-item text-danger" data-bs-toggle="modal"
                                                     data-bs-target="#delete_role" data-id="{{ $role->id }}">
-                                                    Delete
+                                                    <i class="ti ti-trash me-1"></i> Delete
                                                 </button>
                                             </li>
                                         </ul>

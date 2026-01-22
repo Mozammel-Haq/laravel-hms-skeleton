@@ -48,7 +48,7 @@
                                 <th>Doctor</th>
                                 <th>Issued</th>
                                 <th>Status</th>
-                                <th></th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -89,28 +89,54 @@
                                         <span class="badge bg-{{ $rxColor }}">{{ ucfirst($rxStatus) }}</span>
                                     </td>
                                     <td class="text-end">
-                                        @if ($rx->trashed())
-                                            <form action="{{ route('clinical.prescriptions.restore', $rx->id) }}"
-                                                method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success"
-                                                    onclick="return confirm('Are you sure you want to restore this prescription?')">Restore</button>
-                                            </form>
-                                        @else
-                                            <a href="{{ route('clinical.prescriptions.show', $rx) }}"
-                                                class="btn btn-sm btn-outline-primary">Open</a>
-                                            @if (auth()->check() && auth()->user()->hasRole('Pharmacist'))
-                                                <a href="{{ route('pharmacy.create', ['prescription_id' => $rx->id]) }}"
-                                                    class="btn btn-sm btn-outline-success">Load to POS</a>
-                                            @endif
-                                            <form action="{{ route('clinical.prescriptions.destroy', $rx) }}"
-                                                method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this prescription?')">Delete</button>
-                                            </form>
-                                        @endif
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                @if ($rx->trashed())
+                                                    <li>
+                                                        <form
+                                                            action="{{ route('clinical.prescriptions.restore', $rx->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item text-success"
+                                                                onclick="return confirm('Are you sure you want to restore this prescription?')">
+                                                                <i class="ti ti-refresh me-1"></i> Restore
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @else
+                                                    <li>
+                                                        <a href="{{ route('clinical.prescriptions.show', $rx) }}"
+                                                            class="dropdown-item">
+                                                            <i class="ti ti-eye me-1"></i> Open
+                                                        </a>
+                                                    </li>
+                                                    @if (auth()->check() && auth()->user()->hasRole('Pharmacist'))
+                                                        <li>
+                                                            <a href="{{ route('pharmacy.create', ['prescription_id' => $rx->id]) }}"
+                                                                class="dropdown-item text-success">
+                                                                <i class="ti ti-shopping-cart me-1"></i> Load to POS
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                    <li>
+                                                        <form
+                                                            action="{{ route('clinical.prescriptions.destroy', $rx) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item text-danger"
+                                                                onclick="return confirm('Are you sure you want to delete this prescription?')">
+                                                                <i class="ti ti-trash me-1"></i> Delete
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

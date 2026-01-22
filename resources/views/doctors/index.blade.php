@@ -49,7 +49,7 @@
                         <th>Department</th>
                         <th>Specialization</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,7 +89,7 @@
                                     {{ ucfirst($doctor->status) }}
                                 </span>
                             </td>
-                            <td>
+                            <td class="text-end">
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-light btn-icon" data-bs-toggle="dropdown">
                                         <i class="ti ti-dots-vertical"></i>

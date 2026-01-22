@@ -59,7 +59,7 @@
                                 <th>Status</th>
                                 <th>Total</th>
                                 <th>Issued</th>
-                                <th>Actions</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -109,35 +109,57 @@
                                     </td>
                                     <td>{{ number_format($inv->total_amount, 2) }}</td>
                                     <td>{{ \Carbon\Carbon::parse($inv->issued_at)->format('Y-m-d H:i') }}</td>
-                                    <td>
-                                        @if ($inv->trashed())
-                                            <form action="{{ route('billing.restore', $inv->id) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success"
-                                                    onclick="return confirm('Are you sure you want to restore this invoice?')">
-                                                    Restore
-                                                </button>
-                                            </form>
-                                        @else
-                                            <a href="{{ route('billing.show', ['invoice' => $inv->id, 'print' => 'true']) }}"
-                                                target="_blank" class="btn btn-sm btn-outline-secondary" title="Print">
-                                                <i class="ti ti-printer"></i>
-                                            </a>
-                                            <a href="{{ route('billing.show', $inv->id) }}"
-                                                class="btn btn-sm btn-outline-primary">View</a>
-                                            @can('delete', $inv)
-                                                <form action="{{ route('billing.destroy', $inv) }}" method="POST"
-                                                    class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                        onclick="return confirm('Are you sure you want to delete this invoice?')">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            @endcan
-                                        @endif
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                @if ($inv->trashed())
+                                                    <li>
+                                                        <form action="{{ route('billing.restore', $inv->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item text-success"
+                                                                onclick="return confirm('Are you sure you want to restore this invoice?')">
+                                                                <i class="ti ti-refresh me-1"></i> Restore
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @else
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('billing.show', $inv->id) }}">
+                                                            <i class="ti ti-eye me-1"></i> View
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('billing.show', ['invoice' => $inv->id, 'print' => 'true']) }}"
+                                                            target="_blank">
+                                                            <i class="ti ti-printer me-1"></i> Print
+                                                        </a>
+                                                    </li>
+                                                    @can('delete', $inv)
+                                                        <li>
+                                                            <hr class="dropdown-divider">
+                                                        </li>
+                                                        <li>
+                                                            <form action="{{ route('billing.destroy', $inv) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item text-danger"
+                                                                    onclick="return confirm('Are you sure you want to delete this invoice?')">
+                                                                    <i class="ti ti-trash me-1"></i> Delete
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endcan
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

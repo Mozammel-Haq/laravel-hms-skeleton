@@ -58,7 +58,7 @@
                                     <th>Time</th>
                                     <th>Reason</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
+                                    <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -96,18 +96,29 @@
                                                 <span class="badge bg-danger">Rejected</span>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td class="text-end">
                                             @if ($exception->status == 'pending')
-                                                <form
-                                                    action="{{ route('doctor.schedule.exceptions.destroy', $exception->id) }}"
-                                                    method="POST" class="d-inline"
-                                                    onsubmit="return confirm('Are you sure you want to cancel this request?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        <i class="ti ti-trash"></i>
+                                                <div class="dropdown">
+                                                    <button
+                                                        class="btn btn-sm btn-light btn-icon dropdown-toggle hide-arrow"
+                                                        type="button" data-bs-toggle="dropdown">
+                                                        <i class="ti ti-dots-vertical"></i>
                                                     </button>
-                                                </form>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <form
+                                                                action="{{ route('doctor.schedule.exceptions.destroy', $exception->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item text-danger"
+                                                                    onclick="return confirm('Are you sure you want to cancel this request?')">
+                                                                    <i class="ti ti-trash me-1"></i> Cancel Request
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             @endif
                                         </td>
                                     </tr>

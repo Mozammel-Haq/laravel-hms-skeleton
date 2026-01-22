@@ -55,7 +55,7 @@
                                 <th>Test</th>
                                 <th>Status</th>
                                 <th>Ordered</th>
-                                <th></th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -88,28 +88,47 @@
                                     <td>{{ isset($order->order_date) ? \Illuminate\Support\Carbon::parse($order->order_date)->format('Y-m-d') : $order->created_at->format('Y-m-d') }}
                                     </td>
                                     <td class="text-end">
-                                        @if ($order->trashed())
-                                            <form action="{{ route('lab.restore', $order->id) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success"
-                                                    onclick="return confirm('Are you sure you want to restore this order?')">
-                                                    Restore
-                                                </button>
-                                            </form>
-                                        @else
-                                            <a href="{{ route('lab.show', $order) }}"
-                                                class="btn btn-sm btn-outline-primary">Open</a>
-                                            <form action="{{ route('lab.destroy', $order) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Are you sure you want to delete this order?')">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        @endif
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                @if ($order->trashed())
+                                                    <li>
+                                                        <form action="{{ route('lab.restore', $order->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item"
+                                                                onclick="return confirm('Are you sure you want to restore this order?')">
+                                                                <i class="ti ti-refresh me-1"></i> Restore
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @else
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('lab.show', $order) }}">
+                                                            <i class="ti ti-eye me-1"></i> Open
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <hr class="dropdown-divider">
+                                                    </li>
+                                                    <li>
+                                                        <form action="{{ route('lab.destroy', $order) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item text-danger"
+                                                                onclick="return confirm('Are you sure you want to delete this order?')">
+                                                                <i class="ti ti-trash me-1"></i> Delete
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

@@ -161,8 +161,18 @@
                                         <span class="badge bg-{{ $adColor }}">{{ ucfirst($adStatus) }}</span>
                                     </td>
                                     <td class="text-end">
-                                        <a href="{{ route('ipd.show', $ad) }}"
-                                            class="btn btn-sm btn-primary">Open</a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ route('ipd.show', $ad) }}">
+                                                        <i class="ti ti-eye me-1"></i> Open
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
