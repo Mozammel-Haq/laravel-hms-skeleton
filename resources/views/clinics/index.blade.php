@@ -48,7 +48,7 @@
                             <th>City</th>
                             <th>Country</th>
                             <th>Status</th>
-                            <th>Actions</th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,17 +74,38 @@
                                     @endphp
                                     <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
                                 </td>
-                                <td class="d-flex gap-2">
-                                    <a href="{{ route('clinics.show', $clinic) }}"
-                                        class="btn btn-sm btn-outline-secondary">View</a>
-                                    <a href="{{ route('clinics.edit', $clinic) }}"
-                                        class="btn btn-sm btn-outline-primary">Edit</a>
-                                    <form method="POST" action="{{ route('clinics.destroy', $clinic) }}"
-                                        onsubmit="return confirm('Delete this clinic?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                    </form>
+                                <td class="text-end">
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light btn-icon" type="button"
+                                            data-bs-toggle="dropdown">
+                                            <i class="ti ti-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('clinics.show', $clinic) }}">
+                                                    <i class="ti ti-eye me-1"></i> View
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('clinics.edit', $clinic) }}">
+                                                    <i class="ti ti-edit me-1"></i> Edit
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <form method="POST" action="{{ route('clinics.destroy', $clinic) }}"
+                                                    onsubmit="return confirm('Delete this clinic?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        <i class="ti ti-trash me-1"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

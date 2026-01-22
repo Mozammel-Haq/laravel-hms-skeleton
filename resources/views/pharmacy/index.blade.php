@@ -46,7 +46,7 @@
                         <th>Patient</th>
                         <th>Total Amount</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,31 +63,46 @@
                             </td>
                             <td>{{ number_format($sale->total_amount, 2) }}</td>
                             <td><span class="badge bg-success">Completed</span></td>
-                            <td>
-                                @if ($sale->trashed())
-                                    <form action="{{ route('pharmacy.restore', $sale->id) }}" method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-success"
-                                            onclick="return confirm('Are you sure you want to restore this sale?')">
-                                            Restore
-                                        </button>
-                                    </form>
-                                @else
-                                    <a href="{{ route('pharmacy.show', $sale) }}"
-                                        class="btn btn-sm btn-outline-primary">
-                                        View Details
-                                    </a>
-                                    <form action="{{ route('pharmacy.destroy', $sale) }}" method="POST"
-                                        class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Are you sure you want to delete this sale?')">
-                                            Delete
-                                        </button>
-                                    </form>
-                                @endif
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light btn-icon" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        @if ($sale->trashed())
+                                            <li>
+                                                <form action="{{ route('pharmacy.restore', $sale->id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item"
+                                                        onclick="return confirm('Are you sure you want to restore this sale?')">
+                                                        <i class="ti ti-refresh me-1"></i> Restore
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @else
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('pharmacy.show', $sale) }}">
+                                                    <i class="ti ti-eye me-1"></i> View Details
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <form action="{{ route('pharmacy.destroy', $sale) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="dropdown-item text-danger"
+                                                        onclick="return confirm('Are you sure you want to delete this sale?')">
+                                                        <i class="ti ti-trash me-1"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endif
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     @empty

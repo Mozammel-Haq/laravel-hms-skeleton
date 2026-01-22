@@ -54,7 +54,7 @@
                                 <th>Test</th>
                                 <th>Result</th>
                                 <th>Reported At</th>
-                                <th></th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,10 +64,22 @@
                                     <td>{{ optional($result->order->test)->name }}</td>
                                     <td>{{ $result->result_value ?? '' }}</td>
                                     <td>{{ optional($result->reported_at)->format('Y-m-d H:i') }}</td>
-                                    <td>
+                                    <td class="text-end">
                                         @if ($result->order)
-                                            <a href="{{ route('lab.show', $result->order) }}"
-                                                class="btn btn-sm btn-primary">View Order</a>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('lab.show', $result->order) }}">
+                                                            <i class="ti ti-eye me-1"></i> View Order
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         @endif
                                     </td>
                                 </tr>

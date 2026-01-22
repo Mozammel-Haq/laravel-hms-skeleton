@@ -124,15 +124,26 @@
                                     </td>
 
                                     <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-secondary me-1" data-bs-toggle="modal"
-                                            data-bs-target="#assignClinicModal-{{ $doctor->id }}">
-                                            Assign Clinics
-                                        </button>
-
-                                        <a href="{{ route('doctors.schedule', $doctor->id) }}"
-                                            class="btn btn-sm btn-outline-success">
-                                            Schedule
-                                        </a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <button class="dropdown-item" data-bs-toggle="modal"
+                                                        data-bs-target="#assignClinicModal-{{ $doctor->id }}">
+                                                        <i class="ti ti-building-hospital me-1"></i> Assign Clinics
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('doctors.schedule', $doctor->id) }}">
+                                                        <i class="ti ti-calendar-time me-1"></i> Schedule
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
 

@@ -49,7 +49,7 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -66,15 +66,33 @@
                             <td>{{ $clinicAdmin->phone }}</td>
                             <td>{{ $clinicAdmin->status }}</td>
 
-                            <td>
-                                <a href="{{ route('admin.clinic-admin-users.edit', $clinicAdmin) }}"
-                                    class="btn btn-sm btn-primary">Edit</a>
-                                <form action="{{ route('admin.clinic-admin-users.destroy', $clinicAdmin) }}"
-                                    method="POST" style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                </form>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light btn-icon" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.clinic-admin-users.edit', $clinicAdmin) }}">
+                                                <i class="ti ti-edit me-1"></i> Edit
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <form
+                                                action="{{ route('admin.clinic-admin-users.destroy', $clinicAdmin) }}"
+                                                method="POST"
+                                                onsubmit="return confirm('Are you sure you want to delete this clinic admin?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="ti ti-trash me-1"></i> Delete
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     @empty

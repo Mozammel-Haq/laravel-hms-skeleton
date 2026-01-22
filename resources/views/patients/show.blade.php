@@ -307,7 +307,7 @@
                             <th>Doctor</th>
                             <th>Mode</th>
                             <th>Status</th>
-                            <th></th>
+                            <th class="text-end">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -372,10 +372,20 @@
                                     </span>
                                 </td>
                                 <td class="text-end">
-                                    <a href="{{ route('appointments.show', $appointment) }}"
-                                        class="btn btn-sm btn-light">
-                                        <i class="ti ti-eye"></i>
-                                    </a>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light btn-icon" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="ti ti-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a class="dropdown-item"
+                                                    href="{{ route('appointments.show', $appointment) }}">
+                                                    <i class="ti ti-eye me-1"></i> View Details
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

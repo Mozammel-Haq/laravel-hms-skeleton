@@ -59,7 +59,7 @@
                                 <th>Amount</th>
                                 <th>Method</th>
                                 <th>Paid At</th>
-                                <th>Actions</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -71,29 +71,43 @@
                                     <td>{{ number_format($payment->amount, 2) }}</td>
                                     <td>{{ $payment->payment_method }}</td>
                                     <td>{{ optional($payment->paid_at)->format('Y-m-d H:i') }}</td>
-                                    <td>
-                                        @if ($payment->trashed())
-                                            <form action="{{ route('billing.payments.restore', $payment->id) }}"
-                                                method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success"
-                                                    onclick="return confirm('Are you sure you want to restore this payment?')">
-                                                    Restore
-                                                </button>
-                                            </form>
-                                        @else
-                                            @can('delete', $payment)
-                                                <form action="{{ route('billing.payments.destroy', $payment) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                        onclick="return confirm('Are you sure you want to delete this payment?')">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            @endcan
-                                        @endif
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                @if ($payment->trashed())
+                                                    <li>
+                                                        <form
+                                                            action="{{ route('billing.payments.restore', $payment->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item text-success"
+                                                                onclick="return confirm('Are you sure you want to restore this payment?')">
+                                                                <i class="ti ti-refresh me-1"></i> Restore
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @else
+                                                    @can('delete', $payment)
+                                                        <li>
+                                                            <form
+                                                                action="{{ route('billing.payments.destroy', $payment) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item text-danger"
+                                                                    onclick="return confirm('Are you sure you want to delete this payment?')">
+                                                                    <i class="ti ti-trash me-1"></i> Delete
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endcan
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

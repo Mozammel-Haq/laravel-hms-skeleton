@@ -85,15 +85,18 @@
 
                                             <!-- Dropdown -->
                                             <div class="dropdown position-absolute top-0 end-0 m-3">
-                                                <a href="#" class="text-muted" data-bs-toggle="dropdown">
-                                                    <i class="fa fa-ellipsis-v"></i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('doctors.show', $doctor) }}">
-                                                        View Details
-                                                    </a>
-                                                </div>
+                                                <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="ti ti-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('doctors.show', $doctor) }}">
+                                                            <i class="ti ti-eye me-1"></i> View Details
+                                                        </a>
+                                                    </li>
+                                                </ul>
                                             </div>
 
                                             <!-- Name -->

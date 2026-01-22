@@ -238,7 +238,7 @@
                                         <th>Date</th>
                                         <th>Doctor</th>
                                         <th>Notes</th>
-                                        <th>Actions</th>
+                                        <th class="text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -247,11 +247,19 @@
                                             <td>{{ $round->round_date }}</td>
                                             <td>{{ $round->doctor?->user?->name ?? 'Unknown' }}</td>
                                             <td>{{ $round->notes }}</td>
-                                            <td>
-                                                <a href="{{ route('vitals.record', ['admission_id' => $admission->id, 'inpatient_round_id' => $round->id]) }}"
-                                                    class="btn btn-sm btn-outline-success">
-                                                    <i class="ti ti-heart-rate-monitor me-1"></i> Record Vitals
-                                                </a>
+                                            <td class="text-end">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown">
+                                                        <i class="ti ti-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <a class="dropdown-item" href="{{ route('vitals.record', ['admission_id' => $admission->id, 'inpatient_round_id' => $round->id]) }}">
+                                                                <i class="ti ti-heart-rate-monitor me-1"></i> Record Vitals
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty

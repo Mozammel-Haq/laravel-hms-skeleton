@@ -53,7 +53,7 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,15 +63,35 @@
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->phone ?? '-' }}</td>
                             <td>{{ $user->status }}</td>
-                            <td>
-                                <a href="{{ route('admin.super-admin-users.edit', $user) }}"
-                                    class="btn btn-sm btn-primary">Edit</a>
-                                <form action="{{ route('admin.super-admin-users.destroy', $user) }}" method="POST"
-                                    style="display: inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                </form>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light btn-icon" type="button"
+                                        data-bs-toggle="dropdown">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item"
+                                                href="{{ route('admin.super-admin-users.edit', $user) }}">
+                                                <i class="ti ti-edit me-1"></i> Edit
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <form action="{{ route('admin.super-admin-users.destroy', $user) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item text-danger"
+                                                    onclick="return confirm('Are you sure you want to delete this user?')">
+                                                    <i class="ti ti-trash me-1"></i> Delete
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     @empty

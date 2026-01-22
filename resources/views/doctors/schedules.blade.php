@@ -1,5 +1,6 @@
 <x-app-layout>
-    <div class="container-fluid" x-data="scheduleCalendar()" x-init="init(); view = '{{ request('view', 'calendar') }}'">
+    <div class="container-fluid" x-data="scheduleCalendar()" x-init="init();
+    view = '{{ request('view', 'calendar') }}'">
         <div class="d-flex justify-content-between align-items-center my-3 px-3">
             <h3 class="page-title mb-0">Doctor Schedules</h3>
             <div class="d-flex gap-2">
@@ -99,7 +100,7 @@
                                     <th>Doctor</th>
                                     <th>Availability</th>
                                     <th>Time Slots</th>
-                                    <th>Actions</th>
+                                    <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -136,11 +137,21 @@
                                                 <span class="text-muted fst-italic">Not Set</span>
                                             @endif
                                         </td>
-                                        <td>
-                                            <a href="{{ route('doctors.schedule', $doctor) }}"
-                                                class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-pencil"></i> Edit
-                                            </a>
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light btn-icon dropdown-toggle hide-arrow"
+                                                    type="button" data-bs-toggle="dropdown">
+                                                    <i class="ti ti-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('doctors.schedule', $doctor) }}">
+                                                            <i class="ti ti-pencil me-1"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

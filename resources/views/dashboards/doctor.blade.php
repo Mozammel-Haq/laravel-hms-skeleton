@@ -7,7 +7,8 @@
             <div class="row g-4 mb-2">
                 <!-- Appointments Today -->
                 <div class="col-md-4">
-                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary" data-bs-theme="light,dark">
+                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary"
+                        data-bs-theme="light,dark">
                         <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
@@ -109,7 +110,8 @@
 
                 <!-- Pending Lab Orders -->
                 <div class="col-md-4">
-                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary" data-bs-theme="light,dark">
+                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary"
+                        data-bs-theme="light,dark">
                         <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                                 <defs>
@@ -209,8 +211,20 @@
                                                 </span>
                                             </td>
                                             <td class="text-end">
-                                                <a href="{{ route('appointments.show', $a) }}"
-                                                    class="btn btn-sm btn-primary">Open</a>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="ti ti-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('appointments.show', $a) }}">
+                                                                <i class="ti ti-eye me-1"></i> Open
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -256,8 +270,20 @@
                                                     class="badge bg-{{ $pColor }}">{{ ucfirst($pStatus) }}</span>
                                             </td>
                                             <td class="text-end">
-                                                <a href="{{ route('clinical.prescriptions.show', $p) }}"
-                                                    class="btn btn-sm btn-primary">Open</a>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="ti ti-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('clinical.prescriptions.show', $p) }}">
+                                                                <i class="ti ti-eye me-1"></i> Open
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach

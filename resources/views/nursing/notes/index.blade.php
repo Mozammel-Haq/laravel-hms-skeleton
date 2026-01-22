@@ -47,7 +47,7 @@
                             <tr>
                                 <th>Patient</th>
                                 <th>Note</th>
-                                <th>Actions</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -55,7 +55,8 @@
                                 <tr>
                                     <td>{{ optional($admission->patient)->full_name ?? 'Patient' }}</td>
                                     <td><input type="text" class="form-control" placeholder="Add note"></td>
-                                    <td><button type="button" class="btn btn-sm btn-primary">Save</button></td>
+                                    <td class="text-end"><button type="button"
+                                            class="btn btn-sm btn-primary">Save</button></td>
                                 </tr>
                             @endforeach
                         </tbody>

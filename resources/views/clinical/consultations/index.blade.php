@@ -14,20 +14,25 @@
                 <form method="GET" action="{{ route('clinical.consultations.index') }}" class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-3">
-                            <input type="text" name="search" class="form-control" placeholder="Search by Patient, Doctor..." value="{{ request('search') }}">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Search by Patient, Doctor..." value="{{ request('search') }}">
                         </div>
                         <div class="col-md-2">
                             <select name="status" class="form-select">
                                 <option value="all">All Statuses</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trashed</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trashed
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="from" class="form-control" placeholder="From Date" value="{{ request('from') }}">
+                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                                value="{{ request('from') }}">
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="to" class="form-control" placeholder="To Date" value="{{ request('to') }}">
+                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                                value="{{ request('to') }}">
                         </div>
                         <div class="col-md-3 d-flex gap-2">
                             <button type="submit" class="btn btn-primary w-100">Filter</button>
@@ -45,7 +50,7 @@
                                 <th>Doctor</th>
                                 <th>Date</th>
                                 <th>Type</th>
-                                <th>Actions</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -55,31 +60,52 @@
                                     <td>{{ optional($c->doctor)->user->name ?? 'Doctor' }}</td>
                                     <td>{{ $c->created_at->format('Y-m-d H:i') }}</td>
                                     <td>{{ $c->type ?? 'OPD' }}</td>
-                                    <td>
-                                        @if ($c->trashed())
-                                            <form action="{{ route('clinical.consultations.restore', $c->id) }}"
-                                                method="POST" class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-success"
-                                                    onclick="return confirm('Are you sure you want to restore this consultation?')">
-                                                    Restore
-                                                </button>
-                                            </form>
-                                        @else
-                                            <a href="{{ route('clinical.consultations.show', $c->id) }}"
-                                                class="btn btn-sm btn-outline-primary">View</a>
-                                            @can('delete', $c)
-                                                <form action="{{ route('clinical.consultations.destroy', $c) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                        onclick="return confirm('Are you sure you want to delete this consultation?')">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            @endcan
-                                        @endif
+                                    <td class="text-end">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                @if ($c->trashed())
+                                                    <li>
+                                                        <form
+                                                            action="{{ route('clinical.consultations.restore', $c->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item text-success"
+                                                                onclick="return confirm('Are you sure you want to restore this consultation?')">
+                                                                <i class="ti ti-refresh me-1"></i> Restore
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                @else
+                                                    <li>
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('clinical.consultations.show', $c->id) }}">
+                                                            <i class="ti ti-eye me-1"></i> View
+                                                        </a>
+                                                    </li>
+                                                    @can('delete', $c)
+                                                        <li>
+                                                            <hr class="dropdown-divider">
+                                                        </li>
+                                                        <li>
+                                                            <form
+                                                                action="{{ route('clinical.consultations.destroy', $c) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item text-danger"
+                                                                    onclick="return confirm('Are you sure you want to delete this consultation?')">
+                                                                    <i class="ti ti-trash me-1"></i> Delete
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endcan
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

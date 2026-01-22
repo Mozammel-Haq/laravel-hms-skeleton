@@ -48,7 +48,7 @@
                         <th>Type</th>
                         <th>Daily Rate</th>
                         <th>Status</th>
-                        <th></th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,8 +61,19 @@
                                     class="badge bg-{{ $room->status === 'available' ? 'success' : ($room->status === 'occupied' ? 'danger' : 'secondary') }}">{{ $room->status }}</span>
                             </td>
                             <td class="text-end">
-                                <a href="{{ route('ipd.rooms.edit', $room) }}"
-                                    class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light btn-icon" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('ipd.rooms.edit', $room) }}">
+                                                <i class="ti ti-edit me-1"></i> Edit
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

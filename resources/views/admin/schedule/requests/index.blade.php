@@ -124,21 +124,33 @@
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        <div class="d-flex justify-content-end gap-2">
-                                            <form action="{{ route('admin.schedule.requests.approve', $request) }}"
-                                                method="POST">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-success" title="Approve">
-                                                    <i class="ti ti-check"></i>
-                                                </button>
-                                            </form>
-                                            <form action="{{ route('admin.schedule.requests.reject', $request) }}"
-                                                method="POST">
-                                                @csrf
-                                                <button type="submit" class="btn btn-sm btn-danger" title="Reject">
-                                                    <i class="ti ti-x"></i>
-                                                </button>
-                                            </form>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="ti ti-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <form
+                                                        action="{{ route('admin.schedule.requests.approve', $request) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item text-success">
+                                                            <i class="ti ti-check me-1"></i> Approve
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                                <li>
+                                                    <form
+                                                        action="{{ route('admin.schedule.requests.reject', $request) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item text-danger">
+                                                            <i class="ti ti-x me-1"></i> Reject
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
