@@ -76,7 +76,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">SALES
                                     TODAY</h6>
-                                <h2 class="fw-bold kpi-value mb-0">{{ number_format($cards['sales_today'], 2) }}</h2>
+                                <h2 class="fw-bold kpi-value mb-0">৳{{ number_format($cards['sales_today'], 2) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -190,7 +190,7 @@
                                             </td>
                                             <td>{{ \Carbon\Carbon::parse($s->sale_date ?? $s->created_at)->format('M d, Y') }}
                                             </td>
-                                            <td>{{ number_format($s->total_amount, 2) }}</td>
+                                            <td>৳{{ number_format($s->total_amount, 2) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

@@ -70,7 +70,7 @@
                         <div class="col-md-6">
                             <x-input-label for="price" :value="__('Unit Price')" />
                             <div class="input-group mt-1">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">৳</span>
                                 <x-text-input id="price" class="form-control" type="number" step="0.01"
                                     name="price" :value="old('price', $medicine->price ?? '')" required />
                             </div>

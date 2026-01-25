@@ -375,7 +375,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TOTAL
                                     REVENUE</h6>
-                                <h2 class="fw-bold kpi-value mb-0">${{ number_format($invoicesTotal, 0) }}</h2>
+                                <h2 class="fw-bold kpi-value mb-0">৳{{ number_format($invoicesTotal, 0) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -441,7 +441,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">
                                     PAYMENTS RECEIVED</h6>
-                                <h2 class="fw-bold kpi-value mb-0">${{ number_format($paymentsTotal, 0) }}</h2>
+                                <h2 class="fw-bold kpi-value mb-0">৳{{ number_format($paymentsTotal, 0) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -567,24 +567,51 @@
                     type: 'area',
                     height: 350,
                     toolbar: {
-                        show: false
-                    }
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                        }
+                    },
+                    fontFamily: 'inherit',
+                    background: 'transparent'
+                },
+                theme: {
+                    mode: document.documentElement.getAttribute('data-bs-theme') || 'light'
+                },
+                grid: {
+                    borderColor: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#333' : '#e0e0e0',
+                    strokeDashArray: 4,
                 },
                 dataLabels: {
                     enabled: false
                 },
                 stroke: {
                     curve: 'smooth',
-                    width: 2
+                    width: 3
                 },
                 xaxis: {
                     categories: @json($incomeTrend->pluck('date')),
-                    type: 'category'
+                    type: 'category',
+                    labels: {
+                        style: {
+                            colors: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#adb5bd' :
+                                '#6c757d',
+                        }
+                    }
                 },
                 yaxis: {
                     labels: {
+                        style: {
+                            colors: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#adb5bd' :
+                                '#6c757d',
+                        },
                         formatter: function(value) {
-                            return "$" + value.toFixed(0);
+                            return "৳" + value.toFixed(2);
                         }
                     }
                 },
@@ -593,9 +620,17 @@
                     type: 'gradient',
                     gradient: {
                         shadeIntensity: 1,
-                        opacityFrom: 0.7,
-                        opacityTo: 0.9,
+                        opacityFrom: 0.4,
+                        opacityTo: 0.1,
                         stops: [0, 90, 100]
+                    }
+                },
+                tooltip: {
+                    theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
+                    y: {
+                        formatter: function(val) {
+                            return "৳ " + val.toFixed(2)
+                        }
                     }
                 }
             };
@@ -606,7 +641,12 @@
                 series: @json($appointmentStats->values()),
                 chart: {
                     type: 'donut',
-                    height: 350
+                    height: 350,
+                    fontFamily: 'inherit',
+                    background: 'transparent'
+                },
+                theme: {
+                    mode: document.documentElement.getAttribute('data-bs-theme') || 'light'
                 },
                 labels: @json($appointmentStats->keys()->map(fn($k) => ucfirst($k))),
                 colors: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d'],
@@ -625,6 +665,21 @@
                             }
                         }
                     }
+                },
+                legend: {
+                    labels: {
+                        colors: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#adb5bd' : '#6c757d',
+                    }
+                },
+                dataLabels: {
+                    style: {
+                        fontSize: '14px',
+                        fontFamily: 'inherit',
+                        fontWeight: 400,
+                    }
+                },
+                tooltip: {
+                    theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
                 }
             };
             new ApexCharts(document.querySelector("#appointmentStatusChart"), statusOptions).render();

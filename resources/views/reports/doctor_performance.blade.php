@@ -131,7 +131,7 @@
                                     <td>{{ $row['department'] }}</td>
                                     <td class="text-center">{{ $row['consults'] }}</td>
                                     <td class="text-center">{{ $row['admissions'] }}</td>
-                                    <td class="text-end">${{ number_format($row['revenue'], 2) }}</td>
+                                    <td class="text-end">৳{{ number_format($row['revenue'], 2) }}</td>
                                     <td class="text-center">
                                         <span class="badge bg-primary rounded-pill">{{ $row['score'] }}</span>
                                     </td>
@@ -156,8 +156,17 @@
                 chart: {
                     type: 'bar',
                     height: 350,
+                    fontFamily: 'inherit',
                     toolbar: {
-                        show: false
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                        }
                     }
                 },
                 plotOptions: {
@@ -173,11 +182,27 @@
                     categories: @json($names),
                     labels: {
                         formatter: function(val) {
-                            return "$" + val;
+                            return "৳" + val;
                         }
+                    },
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
                     }
                 },
-                colors: ['#198754']
+                colors: ['#198754'],
+                grid: {
+                    borderColor: '#f1f1f1',
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(val) {
+                            return "৳" + val.toFixed(2)
+                        }
+                    }
+                }
             };
             new ApexCharts(document.querySelector("#revenueChart"), revenueOptions).render();
 
@@ -194,17 +219,33 @@
                     type: 'bar',
                     height: 350,
                     stacked: true,
+                    fontFamily: 'inherit',
                     toolbar: {
-                        show: false
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                        }
                     }
                 },
                 plotOptions: {
                     bar: {
                         horizontal: false,
+                        borderRadius: 4
                     },
                 },
                 xaxis: {
                     categories: @json($names),
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    }
                 },
                 legend: {
                     position: 'top',
@@ -212,7 +253,10 @@
                 fill: {
                     opacity: 1
                 },
-                colors: ['#0d6efd', '#ffc107']
+                colors: ['#0d6efd', '#ffc107'],
+                grid: {
+                    borderColor: '#f1f1f1',
+                }
             };
             new ApexCharts(document.querySelector("#workloadChart"), workloadOptions).render();
         </script>

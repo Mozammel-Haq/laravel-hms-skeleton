@@ -129,7 +129,7 @@
                 </div>
             </div>
 
-            <!-- Settings Card -->
+            <!-- System Patients Card -->
             <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary" data-bs-theme="light,dark">
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
@@ -150,19 +150,19 @@
                     <div class="card-body position-relative z-1 p-4">
                         <div class="d-flex align-items-start justify-content-between mb-3">
                             <div>
-                                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TOTAL
+                                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TOTAL PATIENTS
                                 </h6>
                                 <h2 class="fw-bold kpi-value mb-0">{{ $stats['patients_total'] }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                                        stroke="var(--primary-color)" stroke-width="1.5" stroke-linecap="round"
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" 
+                                        stroke="var(--primary-color)" stroke-width="1.5" stroke-linecap="round" 
                                         stroke-linejoin="round" />
-                                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="var(--primary-color)"
-                                        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                    <circle cx="12" cy="7" r="4" 
+                                        stroke="var(--primary-color)" stroke-width="1.5" stroke-linecap="round" 
+                                        stroke-linejoin="round" />
                                 </svg>
                             </div>
                         </div>

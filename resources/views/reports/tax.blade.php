@@ -524,24 +524,51 @@
                     type: 'area',
                     height: 350,
                     toolbar: {
-                        show: false
-                    }
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                        }
+                    },
+                    fontFamily: 'inherit',
+                    background: 'transparent'
+                },
+                theme: {
+                    mode: document.documentElement.getAttribute('data-bs-theme') || 'light'
+                },
+                grid: {
+                    borderColor: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#333' : '#e0e0e0',
+                    strokeDashArray: 4,
                 },
                 dataLabels: {
                     enabled: false
                 },
                 stroke: {
-                    curve: 'straight',
-                    width: 2
+                    curve: 'smooth',
+                    width: 3
                 },
                 xaxis: {
                     categories: @json($taxTrend->pluck('date')),
-                    type: 'category'
+                    type: 'category',
+                    labels: {
+                        style: {
+                            colors: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#adb5bd' :
+                                '#6c757d',
+                        }
+                    }
                 },
                 yaxis: {
                     labels: {
+                        style: {
+                            colors: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? '#adb5bd' :
+                                '#6c757d',
+                        },
                         formatter: function(value) {
-                            return "$" + value.toFixed(0);
+                            return "৳" + value.toFixed(2);
                         }
                     }
                 },
@@ -550,9 +577,17 @@
                     type: 'gradient',
                     gradient: {
                         shadeIntensity: 1,
-                        opacityFrom: 0.7,
-                        opacityTo: 0.9,
+                        opacityFrom: 0.4,
+                        opacityTo: 0.1,
                         stops: [0, 90, 100]
+                    }
+                },
+                tooltip: {
+                    theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
+                    y: {
+                        formatter: function(val) {
+                            return "৳ " + val.toFixed(2)
+                        }
                     }
                 }
             };

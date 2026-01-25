@@ -27,10 +27,11 @@
                         <div class="col-md-10">
                             <label class="form-label">Clinics</label>
                             <div class="row">
-                                @foreach($clinics as $clinic)
+                                @foreach ($clinics as $clinic)
                                     <div class="col-md-3">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="clinics[]" value="{{ $clinic->id }}" id="clinic_{{ $clinic->id }}" 
+                                            <input class="form-check-input" type="checkbox" name="clinics[]"
+                                                value="{{ $clinic->id }}" id="clinic_{{ $clinic->id }}"
                                                 {{ in_array($clinic->id, $clinicIds) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="clinic_{{ $clinic->id }}">
                                                 {{ $clinic->name }}
@@ -48,7 +49,7 @@
             </div>
         </div>
 
-        @if($selectedClinics->isNotEmpty())
+        @if ($selectedClinics->isNotEmpty())
             @php
                 $clinicNames = $selectedClinics->pluck('name');
                 $revenueData = $selectedClinics->map(fn($c) => $stats[$c->id]['revenue']);
@@ -103,7 +104,8 @@
                                 <tr>
                                     <td class="text-start fw-bold">Revenue</td>
                                     @foreach ($selectedClinics as $clinic)
-                                        <td class="text-success fw-bold">${{ number_format($stats[$clinic->id]['revenue'], 2) }}</td>
+                                        <td class="text-success fw-bold">
+                                            ৳{{ number_format($stats[$clinic->id]['revenue'], 2) }}</td>
                                     @endforeach
                                 </tr>
                                 <tr>
@@ -131,84 +133,148 @@
             </div>
 
             @push('scripts')
-            <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-            <script>
-                // Revenue Chart
-                var revenueOptions = {
-                    series: [{
-                        name: 'Revenue',
-                        data: @json($revenueData)
-                    }],
-                    chart: {
-                        type: 'bar',
-                        height: 350,
-                        toolbar: { show: false }
-                    },
-                    plotOptions: {
-                        bar: {
-                            borderRadius: 4,
-                            distributed: true,
-                            horizontal: false,
-                        }
-                    },
-                    dataLabels: { enabled: false },
-                    xaxis: {
-                        categories: @json($clinicNames),
-                    },
-                    yaxis: {
-                        labels: {
-                            formatter: function (val) {
-                                return "$" + val;
+                <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+                <script>
+                    // Revenue Chart
+                    var revenueOptions = {
+                        series: [{
+                            name: 'Revenue',
+                            data: @json($revenueData)
+                        }],
+                        chart: {
+                            type: 'bar',
+                            height: 350,
+                            toolbar: {
+                                show: true,
+                                tools: {
+                                    download: true,
+                                    selection: true,
+                                    zoom: true,
+                                    zoomin: true,
+                                    zoomout: true,
+                                    pan: true,
+                                }
                             }
-                        }
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function (val) {
-                                return "$" + val;
-                            }
-                        }
-                    }
-                };
-                new ApexCharts(document.querySelector("#revenueChart"), revenueOptions).render();
-
-                // Volume Chart
-                var volumeOptions = {
-                    series: [{
-                        name: 'Patients',
-                        data: @json($patientData)
-                    }, {
-                        name: 'Appointments',
-                        data: @json($appointmentData)
-                    }],
-                    chart: {
-                        type: 'bar',
-                        height: 350,
-                        toolbar: { show: false }
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
                         },
-                    },
-                    dataLabels: { enabled: false },
-                    stroke: {
-                        show: true,
-                        width: 2,
-                        colors: ['transparent']
-                    },
-                    xaxis: {
-                        categories: @json($clinicNames),
-                    },
-                    fill: {
-                        opacity: 1
-                    },
-                    colors: ['#0d6efd', '#ffc107']
-                };
-                new ApexCharts(document.querySelector("#volumeChart"), volumeOptions).render();
-            </script>
+                        plotOptions: {
+                            bar: {
+                                borderRadius: 4,
+                                distributed: true,
+                                horizontal: false,
+                                columnWidth: '55%',
+                            }
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        grid: {
+                            borderColor: '#f1f1f1',
+                            padding: {
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                left: 10
+                            }
+                        },
+                        xaxis: {
+                            categories: @json($clinicNames),
+                            labels: {
+                                style: {
+                                    fontSize: '12px'
+                                }
+                            }
+                        },
+                        yaxis: {
+                            labels: {
+                                formatter: function(val) {
+                                    return "৳" + val.toFixed(2);
+                                }
+                            }
+                        },
+                        tooltip: {
+                            theme: 'light',
+                            y: {
+                                formatter: function(val) {
+                                    return "৳" + val.toFixed(2);
+                                }
+                            }
+                        },
+                        fill: {
+                            opacity: 0.9
+                        }
+                    };
+                    new ApexCharts(document.querySelector("#revenueChart"), revenueOptions).render();
+
+                    // Volume Chart
+                    var volumeOptions = {
+                        series: [{
+                            name: 'Patients',
+                            data: @json($patientData)
+                        }, {
+                            name: 'Appointments',
+                            data: @json($appointmentData)
+                        }],
+                        chart: {
+                            type: 'bar',
+                            height: 350,
+                            toolbar: {
+                                show: true,
+                                tools: {
+                                    download: true,
+                                    selection: true,
+                                    zoom: true,
+                                    zoomin: true,
+                                    zoomout: true,
+                                    pan: true,
+                                }
+                            }
+                        },
+                        plotOptions: {
+                            bar: {
+                                horizontal: false,
+                                columnWidth: '55%',
+                                borderRadius: 4
+                            },
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            show: true,
+                            width: 2,
+                            colors: ['transparent']
+                        },
+                        grid: {
+                            borderColor: '#f1f1f1',
+                            padding: {
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                left: 10
+                            }
+                        },
+                        xaxis: {
+                            categories: @json($clinicNames),
+                        },
+                        yaxis: {
+                            title: {
+                                text: 'Count'
+                            }
+                        },
+                        fill: {
+                            opacity: 1
+                        },
+                        colors: ['#0d6efd', '#ffc107'],
+                        tooltip: {
+                            y: {
+                                formatter: function(val) {
+                                    return val
+                                }
+                            }
+                        }
+                    };
+                    new ApexCharts(document.querySelector("#volumeChart"), volumeOptions).render();
+                </script>
             @endpush
         @else
             <div class="alert alert-info">

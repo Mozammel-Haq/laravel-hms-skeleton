@@ -204,7 +204,8 @@
                         </p>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{{ request()->fullUrlWithQuery(['export' => 'true']) }}" class="btn btn-success d-print-none">
+                        <a href="{{ request()->fullUrlWithQuery(['export' => 'true']) }}"
+                            class="btn btn-success d-print-none">
                             <i class="ti ti-file-spreadsheet me-1"></i> Export Excel
                         </a>
                         <button onclick="window.print()" class="btn btn-outline-secondary d-print-none">
@@ -232,10 +233,14 @@
                         </div>
                         <div class="col-md-2">
                             <select name="status" class="form-select">
-                                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status</option>
-                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                                <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
-                                <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Partial</option>
+                                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status
+                                </option>
+                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid
+                                </option>
+                                <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid
+                                </option>
+                                <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Partial
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -285,7 +290,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TOTAL
                                     REVENUE</h6>
-                                <h2 class="fw-bold kpi-value mb-0">${{ number_format($revenue, 2) }}</h2>
+                                <h2 class="fw-bold kpi-value mb-0">৳{{ number_format($revenue, 2) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -348,7 +353,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">
                                     COLLECTED (PAID)</h6>
-                                <h2 class="fw-bold kpi-value text-success mb-0">${{ number_format($paid, 2) }}</h2>
+                                <h2 class="fw-bold kpi-value text-success mb-0">৳{{ number_format($paid, 2) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -410,7 +415,8 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">PENDING
                                     (UNPAID)</h6>
-                                <h2 class="fw-bold kpi-value text-warning mb-0">${{ number_format($pending, 2) }}</h2>
+                                <h2 class="fw-bold kpi-value text-warning mb-0">৳ {{ number_format($pending, 2) }}
+                                </h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -576,12 +582,12 @@
                                     @forelse($daily as $day)
                                         <tr>
                                             <td>{{ $day->date }}</td>
-                                            <td class="text-end fw-semibold">$ {{ number_format($day->total, 2) }}
+                                            <td class="text-end fw-semibold">৳ {{ number_format($day->total, 2) }}
                                             </td>
                                             <td class="text-end text-success">
-                                                $ {{ number_format($day->paid_amount, 2) }}</td>
+                                                ৳ {{ number_format($day->paid_amount, 2) }}</td>
                                             <td class="text-end text-danger">
-                                                $ {{ number_format($day->total - $day->paid_amount, 2) }}</td>
+                                                ৳ {{ number_format($day->total - $day->paid_amount, 2) }}</td>
                                         </tr>
                                     @empty
                                         <tr>
@@ -613,8 +619,17 @@
                     chart: {
                         type: 'area',
                         height: 350,
+                        fontFamily: 'inherit',
                         toolbar: {
-                            show: false
+                            show: true,
+                            tools: {
+                                download: true,
+                                selection: true,
+                                zoom: true,
+                                zoomin: true,
+                                zoomout: true,
+                                pan: true,
+                            }
                         }
                     },
                     dataLabels: {
@@ -626,12 +641,18 @@
                     },
                     xaxis: {
                         categories: @json($daily->pluck('date')),
-                        type: 'category'
+                        type: 'category',
+                        axisBorder: {
+                            show: false
+                        },
+                        axisTicks: {
+                            show: false
+                        }
                     },
                     yaxis: {
                         labels: {
                             formatter: function(value) {
-                                return "$" + value.toFixed(0);
+                                return "৳" + value.toFixed(0);
                             }
                         }
                     },
@@ -641,8 +662,18 @@
                         gradient: {
                             shadeIntensity: 1,
                             opacityFrom: 0.7,
-                            opacityTo: 0.9,
+                            opacityTo: 0.3,
                             stops: [0, 90, 100]
+                        }
+                    },
+                    grid: {
+                        borderColor: '#f1f1f1',
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function(val) {
+                                return "৳" + val.toFixed(2)
+                            }
                         }
                     }
                 };
@@ -654,12 +685,36 @@
                     labels: @json($byType->keys()),
                     chart: {
                         type: 'donut',
-                        height: 300
+                        height: 300,
+                        fontFamily: 'inherit',
+                        toolbar: {
+                            show: true
+                        }
                     },
                     plotOptions: {
                         pie: {
                             donut: {
-                                size: '65%'
+                                size: '65%',
+                                labels: {
+                                    show: true,
+                                    name: {
+                                        show: true
+                                    },
+                                    value: {
+                                        formatter: function(val) {
+                                            return "৳" + parseFloat(val).toFixed(2);
+                                        }
+                                    },
+                                    total: {
+                                        show: true,
+                                        label: 'Total',
+                                        formatter: function(w) {
+                                            return "৳" + w.globals.seriesTotals.reduce((a, b) => {
+                                                return a + b
+                                            }, 0).toFixed(2)
+                                        }
+                                    }
+                                }
                             }
                         }
                     },
@@ -669,7 +724,14 @@
                     legend: {
                         position: 'bottom'
                     },
-                    colors: ['#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545', '#fd7e14']
+                    colors: ['#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545', '#fd7e14'],
+                    tooltip: {
+                        y: {
+                            formatter: function(val) {
+                                return "৳" + val.toFixed(2)
+                            }
+                        }
+                    }
                 };
                 new ApexCharts(document.querySelector("#revenueSourceChart"), sourceOptions).render();
 
@@ -679,12 +741,23 @@
                     labels: @json($paymentMethods->keys()),
                     chart: {
                         type: 'pie',
-                        height: 300
+                        height: 300,
+                        fontFamily: 'inherit',
+                        toolbar: {
+                            show: true
+                        }
                     },
                     legend: {
                         position: 'bottom'
                     },
-                    colors: ['#198754', '#0dcaf0', '#ffc107', '#0d6efd']
+                    colors: ['#198754', '#0dcaf0', '#ffc107', '#0d6efd'],
+                    tooltip: {
+                        y: {
+                            formatter: function(val) {
+                                return "৳" + val.toFixed(2)
+                            }
+                        }
+                    }
                 };
                 new ApexCharts(document.querySelector("#paymentMethodsChart"), paymentOptions).render();
             });

@@ -25,8 +25,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">REVENUE
                                     TODAY</h6>
-                                <h2 class="fw-bold kpi-value mb-0">$ {{ number_format($cards['revenue_today'], 2) }}
-                                </h2>
+                                <h2 class="fw-bold kpi-value mb-0">৳ {{ number_format($cards['revenue_today'], 2) }}
                                 </h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
@@ -79,7 +78,8 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">REVENUE
                                     THIS MONTH</h6>
-                                <h2 class="fw-bold kpi-value mb-0">{{ number_format($cards['revenue_month'], 2) }}</h2>
+                                <h2 class="fw-bold kpi-value mb-0">৳ {{ number_format($cards['revenue_month'], 2) }}
+                                </h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"

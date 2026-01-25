@@ -350,8 +350,17 @@
                 chart: {
                     type: 'area',
                     height: 350,
+                    fontFamily: 'inherit',
                     toolbar: {
-                        show: false
+                        show: true,
+                         tools: {
+                             download: true,
+                             selection: true,
+                             zoom: true,
+                             zoomin: true,
+                             zoomout: true,
+                             pan: true,
+                         }
                     }
                 },
                 dataLabels: {
@@ -367,7 +376,9 @@
                     labels: {
                         rotate: -45,
                         rotateAlways: false
-                    }
+                    },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
                 },
                 yaxis: {
                     title: {
@@ -380,9 +391,12 @@
                     gradient: {
                         shadeIntensity: 1,
                         opacityFrom: 0.7,
-                        opacityTo: 0.9,
+                        opacityTo: 0.3,
                         stops: [0, 90, 100]
                     }
+                },
+                grid: {
+                    borderColor: '#f1f1f1',
                 }
             };
             new ApexCharts(document.querySelector("#registrationTrendChart"), trendOptions).render();
@@ -392,7 +406,11 @@
                 series: @json($genderStats->values()),
                 chart: {
                     type: 'donut',
-                    height: 350
+                    height: 350,
+                    fontFamily: 'inherit',
+                    toolbar: {
+                        show: true
+                    }
                 },
                 labels: @json($genderStats->keys()->map(fn($k) => ucfirst($k))),
                 colors: ['#0d6efd', '#d63384', '#ffc107'],
@@ -401,6 +419,8 @@
                         donut: {
                             labels: {
                                 show: true,
+                                name: { show: true },
+                                value: { show: true },
                                 total: {
                                     show: true,
                                     label: 'Total',
@@ -411,6 +431,12 @@
                             }
                         }
                     }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                legend: {
+                    position: 'bottom'
                 }
             };
             new ApexCharts(document.querySelector("#genderPieChart"), genderOptions).render();
@@ -424,8 +450,17 @@
                 chart: {
                     type: 'bar',
                     height: 350,
+                    fontFamily: 'inherit',
                     toolbar: {
-                        show: false
+                        show: true,
+                         tools: {
+                             download: true,
+                             selection: true,
+                             zoom: true,
+                             zoomin: true,
+                             zoomout: true,
+                             pan: true,
+                         }
                     }
                 },
                 plotOptions: {
@@ -442,14 +477,19 @@
                     categories: @json(array_keys($ageGroups)),
                     title: {
                         text: 'Age Range'
-                    }
+                    },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
                 },
                 yaxis: {
                     title: {
                         text: 'Count'
                     }
                 },
-                colors: ['#198754']
+                colors: ['#198754'],
+                grid: {
+                    borderColor: '#f1f1f1',
+                }
             };
             new ApexCharts(document.querySelector("#ageGroupChart"), ageOptions).render();
         </script>
