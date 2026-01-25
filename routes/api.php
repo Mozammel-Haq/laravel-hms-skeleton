@@ -11,3 +11,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('public/doctors', [DoctorsApiController::class, 'index']);
 Route::get('public/clinics', [ClinicApiController::class, 'index']);
+Route::get('public/clinics/{clinic}', [ClinicApiController::class, 'show']);

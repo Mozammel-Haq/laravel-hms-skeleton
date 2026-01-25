@@ -13,7 +13,12 @@ class ClinicApiController extends Controller
      */
     public function index()
     {
-        $clinics = Clinic::all();
+        $clinics = Clinic::with('images')->get();
         return response()->json(compact('clinics'));
+    }
+    public function show(Clinic $clinic)
+    {
+        $clinic->load('images');
+        return response()->json(compact('clinic'));
     }
 }

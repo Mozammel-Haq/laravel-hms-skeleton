@@ -183,7 +183,7 @@
                                                     {{ $p->name }}
                                                 </a>
                                             </td>
-                                            <td>{{ $p->created_at->format('M d, Y') }}</td>
+                                            <td>{{ $p->created_at }}</td>
                                             <td><span class="badge bg-secondary">{{ $p->status ?? 'active' }}</span>
                                             </td>
                                         </tr>
