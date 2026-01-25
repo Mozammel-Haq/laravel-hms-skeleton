@@ -70,7 +70,7 @@ class DoctorAssignmentController extends Controller
             'clinic_ids.*' => 'exists:clinics,id',
         ]);
 
-        if ($user->hasRole('Super Admin')) {
+        if ($user->hasRole('Super Admin') || $user->can('manage_doctor_clinic_assignments')) {
             $doctor->clinics()->sync($validated['clinic_ids'] ?? []);
         } elseif ($user->hasRole('Clinic Admin')) {
             $clinicId = $user->clinic_id;

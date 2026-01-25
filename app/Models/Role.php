@@ -26,4 +26,7 @@ class Role extends Model
 
         $this->permissions()->syncWithoutDetaching($permission);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

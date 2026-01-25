@@ -69,23 +69,32 @@
                         <!-- Clinic & Doctor -->
                         <div
                             class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3 flex-wrap gap-3">
-                            <div class="d-flex gap-3">
-                                <div class="avatar avatar-xxl rounded bg-light border p-2">
-                                    <img src="{{ asset('assets/img/icons/trust-care.svg') }}" class="img-fluid">
-                                </div>
+                            <div class="col-sm-6 text-start mb-3 mb-lg-0">
+                                <div class="d-flex gap-3 align-items-center">
+                                    @if (data_get($prescription, 'clinic.logo_path'))
+                                        <img src="{{ Storage::url($prescription->clinic->logo_path) }}"
+                                            class="rounded border bg-light"
+                                            style="width: 80px; height: 80px; object-fit: contain; padding: 5px;">
+                                    @else
+                                        <div class="rounded bg-light border d-flex align-items-center justify-content-center"
+                                            style="width: 80px; height: 80px;">
+                                            <i class="ti ti-building-hospital fs-2 text-muted"></i>
+                                        </div>
+                                    @endif
 
-                                <div>
-                                    <h6 class="fw-semibold mb-1">
-                                        {{ data_get($prescription, 'clinic.name', 'Clinic') }}
-                                    </h6>
+                                    <div>
+                                        <h6 class="fw-semibold mb-1">
+                                            {{ data_get($prescription, 'clinic.name', 'Clinic') }}
+                                        </h6>
 
-                                    <p class="mb-1">
-                                        Dr. {{ data_get($prescription, 'doctor.user.name', 'Doctor') }}
-                                    </p>
+                                        <p class="mb-1">
+                                            Dr. {{ data_get($prescription, 'doctor.user.name', 'Doctor') }}
+                                        </p>
 
-                                    <p class="mb-0">
-                                        {{ data_get($prescription, 'doctor.department.name', 'Department') }}
-                                    </p>
+                                        <p class="mb-0">
+                                            {{ data_get($prescription, 'doctor.department.name', 'Department') }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 

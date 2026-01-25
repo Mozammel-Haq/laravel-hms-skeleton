@@ -73,32 +73,52 @@
                         <div class="col-md-6">
                             <div class="p-3 bg-light rounded">
                                 <h6 class="text-muted mb-3">Patient Details</h6>
-                                <a href="{{ route('patients.show', $appointment->patient) }}"
-                                    class="d-flex align-items-center mb-3 text-decoration-none text-body">
-                                    <div class="avatar me-3">
-                                        @if ($appointment->patient->profile_photo)
-                                            <img src="{{ asset($appointment->patient->profile_photo) }}"
-                                                alt="{{ $appointment->patient->name }}" class="rounded-circle"
-                                                style="width:40px;height:40px;object-fit:cover;">
-                                        @else
-                                            <span class="avatar-title rounded-circle bg-primary text-white">
-                                                {{ substr($appointment->patient->name, 0, 1) }}
-                                            </span>
-                                        @endif
+                                @if ($appointment->patient)
+                                    <a href="{{ route('patients.show', $appointment->patient) }}"
+                                        class="d-flex align-items-center mb-3 text-decoration-none text-body">
+                                        <div class="avatar me-3">
+                                            @if ($appointment->patient->profile_photo)
+                                                <img src="{{ asset($appointment->patient->profile_photo) }}"
+                                                    alt="{{ $appointment->patient->name }}" class="rounded-circle"
+                                                    style="width:40px;height:40px;object-fit:cover;">
+                                            @else
+                                                <span class="avatar-title rounded-circle bg-primary text-white">
+                                                    {{ substr($appointment->patient->name, 0, 1) }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ $appointment->patient->name }}</div>
+                                            <div class="text-muted small">{{ $appointment->patient->patient_code }}</div>
+                                        </div>
+                                    </a>
+                                    <div class="mb-2">
+                                        <i class="ti ti-phone me-2 text-muted"></i>
+                                        {{ $appointment->patient->phone ?? 'N/A' }}
                                     </div>
                                     <div>
-                                        <div class="fw-bold">{{ $appointment->patient->name }}</div>
-                                        <div class="text-muted small">{{ $appointment->patient->patient_code }}</div>
+                                        <i class="ti ti-mail me-2 text-muted"></i>
+                                        {{ $appointment->patient->email ?? 'N/A' }}
                                     </div>
-                                </a>
-                                <div class="mb-2">
-                                    <i class="ti ti-phone me-2 text-muted"></i>
-                                    {{ $appointment->patient->phone ?? 'N/A' }}
-                                </div>
-                                <div>
-                                    <i class="ti ti-mail me-2 text-muted"></i>
-                                    {{ $appointment->patient->email ?? 'N/A' }}
-                                </div>
+                                @else
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="avatar me-3">
+                                            <span class="avatar-title rounded-circle bg-secondary text-white">
+                                                ?
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Unknown Patient</div>
+                                            <div class="text-muted small">N/A</div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <i class="ti ti-phone me-2 text-muted"></i> N/A
+                                    </div>
+                                    <div>
+                                        <i class="ti ti-mail me-2 text-muted"></i> N/A
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="col-md-6">

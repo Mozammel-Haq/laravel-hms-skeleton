@@ -2,7 +2,7 @@
 
 
     <div class="card border-0 mt-3 mx-2 py-3">
-        <div class="d-flex justify-content-between align-items-center px-3">
+        <div class="d-flex justify-content-between align-items-center px-3 mb-4">
             <h3 class="page-title mb-0">Doctors</h3>
             <div class="d-flex gap-2">
                 <a href="{{ route('doctors.create') }}" class="btn btn-primary">
@@ -47,6 +47,7 @@
                     <tr>
                         <th>Doctor</th>
                         <th>Department</th>
+                        <th>Location</th>
                         <th>Specialization</th>
                         <th>Status</th>
                         <th class="text-end">Actions</th>
@@ -83,6 +84,20 @@
                                 @endif
                             </td>
                             <td>{{ $doctor->department->name ?? 'N/A' }}</td>
+                            <td>
+                                @if ($doctor->consultation_room_number || $doctor->consultation_floor)
+                                    <div class="small">
+                                        @if ($doctor->consultation_room_number)
+                                            <div>Room: {{ $doctor->consultation_room_number }}</div>
+                                        @endif
+                                        @if ($doctor->consultation_floor)
+                                            <div class="text-muted">Floor: {{ $doctor->consultation_floor }}</div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td>{{ $doctor->specialization }}</td>
                             <td>
                                 <span class="badge bg-{{ $doctor->status === 'active' ? 'success' : 'secondary' }}">

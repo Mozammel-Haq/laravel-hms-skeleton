@@ -28,8 +28,13 @@
                         <!-- Clinics -->
                         <div class="mb-3 text-center">
                             @foreach ($doctor->clinics as $clinic)
-                                <span class="badge bg-light text-muted me-1 mb-1">
-                                    <i class="fa fa-map-marker me-1"></i>{{ $clinic->name }}
+                                <span class="badge bg-light text-muted me-1 mb-1 d-inline-flex align-items-center gap-1">
+                                    @if($clinic->logo_path)
+                                        <img src="{{ Storage::url($clinic->logo_path) }}" class="rounded-circle" style="width: 16px; height: 16px; object-fit: cover;">
+                                    @else
+                                        <i class="fa fa-map-marker"></i>
+                                    @endif
+                                    {{ $clinic->name }}
                                 </span>
                             @endforeach
                         </div>

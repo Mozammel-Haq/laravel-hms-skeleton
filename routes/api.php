@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ClinicApiController;
 use App\Http\Controllers\Api\DoctorsApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -9,3 +10,4 @@ use Illuminate\Support\Facades\Route;
 // })->middleware('auth:sanctum');
 
 Route::get('public/doctors', [DoctorsApiController::class, 'index']);
+Route::get('public/clinics', [ClinicApiController::class, 'index']);

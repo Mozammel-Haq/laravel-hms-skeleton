@@ -129,7 +129,7 @@
                                     @foreach ($prescriptions as $p)
                                         <tr>
                                             <td>
-                                                @if ($p->consultation->patient)
+                                                @if ($p->consultation?->patient)
                                                     <a href="{{ route('patients.show', $p->consultation->patient) }}"
                                                         class="text-decoration-none text-body">
                                                         {{ $p->consultation->patient->name }}
@@ -188,7 +188,8 @@
                                                     Patient
                                                 @endif
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($s->sale_date ?? $s->created_at)->format('M d, Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($s->sale_date ?? $s->created_at)->format('M d, Y') }}
+                                            </td>
                                             <td>{{ number_format($s->total_amount, 2) }}</td>
                                         </tr>
                                     @endforeach

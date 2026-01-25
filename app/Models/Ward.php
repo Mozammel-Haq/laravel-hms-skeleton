@@ -10,4 +10,7 @@ class Ward extends BaseTenantModel
     {
         return $this->hasMany(Room::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

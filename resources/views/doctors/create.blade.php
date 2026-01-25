@@ -143,6 +143,18 @@
 
 
                             <div class="col-md-3">
+                                <label class="form-label">Consultation Room</label>
+                                <input type="text" name="consultation_room_number" class="form-control form-control-sm"
+                                    value="{{ old('consultation_room_number') }}">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label">Consultation Floor</label>
+                                <input type="text" name="consultation_floor" class="form-control form-control-sm"
+                                    value="{{ old('consultation_floor') }}">
+                            </div>
+
+                            <div class="col-md-3">
                                 <label class="form-label">Photo</label>
                                 <input type="file" name="profile_photo" class="form-control form-control-sm"
                                     accept="image/*" onchange="previewDoctorPhoto(event)">

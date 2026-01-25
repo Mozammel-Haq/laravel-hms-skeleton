@@ -18,4 +18,7 @@ class PharmacySaleItem extends Model
     {
         return $this->belongsTo(Medicine::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

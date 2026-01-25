@@ -55,11 +55,18 @@
                             <td>#{{ $sale->id }}</td>
                             <td>{{ $sale->created_at }}</td>
                             <td>
-                                <a href="{{ route('patients.show', $sale->patient) }}"
-                                    class="text-decoration-none text-body">
-                                    <div class="fw-semibold">{{ $sale->patient->name }}</div>
-                                    <div class="small text-muted">{{ $sale->patient->patient_code }}</div>
-                                </a>
+                                @if ($sale->patient)
+                                    <a href="{{ route('patients.show', $sale->patient) }}"
+                                        class="text-decoration-none text-body">
+                                        <div class="fw-semibold">{{ $sale->patient->name }}</div>
+                                        <div class="small text-muted">{{ $sale->patient->patient_code }}</div>
+                                    </a>
+                                @else
+                                    <div class="text-muted">
+                                        <div class="fw-semibold">Walk-in Customer</div>
+                                        <div class="small text-muted">N/A</div>
+                                    </div>
+                                @endif
                             </td>
                             <td>{{ number_format($sale->total_amount, 2) }}</td>
                             <td><span class="badge bg-success">Completed</span></td>

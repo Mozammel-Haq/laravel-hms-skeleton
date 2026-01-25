@@ -177,7 +177,10 @@ class AdminUsersController extends Controller
         }
 
         if ($request->hasFile('profile_photo')) {
-            $path = $request->file('profile_photo')->store('profile-photos', 'public');
+            $file = $request->file('profile_photo');
+            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
+            $path = $file->storeAs('profile-photos', $filename, 'public');
+            
             // Delete old photo if exists
             if ($user->profile_photo_path) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);

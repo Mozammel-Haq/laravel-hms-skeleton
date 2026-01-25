@@ -12,4 +12,7 @@ class LabTest extends Model
     {
         return $this->hasOne(InvoiceItem::class, 'reference_id')->where('item_type', $this->getTable());
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

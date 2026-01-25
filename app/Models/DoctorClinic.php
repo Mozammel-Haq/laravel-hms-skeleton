@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+
 class DoctorClinic extends BaseTenantModel
 {
     public function doctor()
@@ -14,4 +15,7 @@ class DoctorClinic extends BaseTenantModel
     {
         return $this->belongsTo(Clinic::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

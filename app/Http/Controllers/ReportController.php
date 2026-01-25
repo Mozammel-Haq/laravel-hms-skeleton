@@ -78,8 +78,22 @@ class ReportController extends Controller
 
         // KPIs
         $revenue = (clone $query)->sum('total_amount');
-        $paid = (clone $query)->where('status', 'paid')->sum('total_amount');
-        $pending = (clone $query)->where('status', 'unpaid')->sum('total_amount');
+
+        // Collected (Paid) - Based on actual payments received in the date range
+        $paidQuery = Payment::whereBetween('paid_at', [$startDate, $endDate]);
+        
+        if ($request->filled('status') && $request->status !== 'all') {
+            $paidQuery->whereHas('invoice', function($q) use ($request) {
+                $q->where('status', $request->status);
+            });
+        }
+        $paid = $paidQuery->sum('amount');
+
+        // Pending (Unpaid) - Remaining balance of invoices created in this period
+        $pending = (clone $query)->withSum('payments', 'amount')->get()->sum(function($invoice) {
+            return max(0, $invoice->total_amount - $invoice->payments_sum_amount);
+        });
+        
         $invoiceCount = (clone $query)->count();
 
         // Revenue by Type (Pie Chart)

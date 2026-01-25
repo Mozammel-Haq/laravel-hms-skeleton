@@ -12,5 +12,7 @@ class DoctorAward extends Model
     {
         return $this->belongsTo(Doctor::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }
-

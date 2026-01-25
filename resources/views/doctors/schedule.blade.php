@@ -6,18 +6,19 @@
             <div class="col-lg-12">
                 <div class="card border-0 mt-2">
                     <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 w-100">
                             <div>
                                 <h3 class="page-title mb-0">Manage Schedule</h3>
                                 <div class="text-muted">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}
                                     ({{ $doctor->specialization }})</div>
                             </div>
                             <a href="{{ $mode === 'self' ? route('doctor.schedule.index') : route('doctors.index') }}"
-                                class="btn btn-outline-secondary">
+                                class="btn btn-outline-primary">
                                 <i class="ti ti-arrow-left me-1"></i> Back
                             </a>
-                            <hr>
+
                         </div>
+                        <hr>
                         {{-- @if ($errors->any())
                             <div class="alert alert-danger mb-4">
                                 <ul class="mb-0">
@@ -100,12 +101,11 @@
                                                                 Saturday</option>
                                                         </select>
                                                     </div>
-                                        <div class="date-field"
+                                                    <div class="date-field"
                                                         style="display: {{ $type == 'date' ? 'block' : 'none' }}">
                                                         <input type="date"
                                                             name="schedules[{{ $index }}][schedule_date]"
-                                                            class="form-control"
-                                                            value="{{ $schedule->schedule_date }}"
+                                                            class="form-control" value="{{ $schedule->schedule_date }}"
                                                             min="{{ now()->toDateString() }}"
                                                             {{ $type == 'date' ? 'required' : '' }}>
                                                     </div>
@@ -187,7 +187,7 @@
 
             function addSlotRow() {
                 const index = container.children
-                .length; // Simple index logic, might need timestamp for unique keys if deleting
+                    .length; // Simple index logic, might need timestamp for unique keys if deleting
                 // Better to use a counter that only increments to avoid index collisions if we delete rows
                 const uniqueIndex = Date.now();
 

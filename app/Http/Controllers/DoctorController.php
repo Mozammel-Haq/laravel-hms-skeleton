@@ -39,7 +39,8 @@ class DoctorController extends Controller
                 })->orWhereHas('department', function ($sub) use ($search) {
                     $sub->where('name', 'like', '%' . $search . '%');
                 })->orWhere('specialization', 'like', '%' . $search . '%')
-                    ->orWhere('status', 'like', '%' . $search . '%');
+                    ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhere('consultation_room_number', 'like', '%' . $search . '%');
             });
         }
 
@@ -84,6 +85,8 @@ class DoctorController extends Controller
             'follow_up_fee' => 'nullable|numeric|min:0',
             'biography' => 'nullable|string',
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'consultation_room_number' => 'nullable|string|max:50',
+            'consultation_floor' => 'nullable|string|max:50',
             'is_featured' => 'sometimes|boolean',
         ]);
 
@@ -129,6 +132,8 @@ class DoctorController extends Controller
                 'follow_up_fee' => $request->follow_up_fee,
                 'biography' => $request->biography,
                 'profile_photo' => $photoPath,
+                'consultation_room_number' => $request->consultation_room_number,
+                'consultation_floor' => $request->consultation_floor,
                 'is_featured' => $request->boolean('is_featured', false),
                 'status' => 'active',
             ]);
@@ -179,6 +184,8 @@ class DoctorController extends Controller
             'follow_up_fee' => 'nullable|numeric|min:0',
             'biography' => 'nullable|string',
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'consultation_room_number' => 'nullable|string|max:50',
+            'consultation_floor' => 'nullable|string|max:50',
             'is_featured' => 'sometimes|boolean',
             'status' => 'required|in:active,inactive',
         ]);
@@ -218,6 +225,8 @@ class DoctorController extends Controller
             'follow_up_fee' => $request->follow_up_fee,
             'biography' => $request->biography,
             'profile_photo' => $photoPath,
+            'consultation_room_number' => $request->consultation_room_number,
+            'consultation_floor' => $request->consultation_floor,
             'is_featured' => $request->boolean('is_featured', $doctor->is_featured),
             'status' => $request->status,
         ]);

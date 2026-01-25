@@ -59,4 +59,7 @@ class Doctor extends Model
     {
         return $this->hasMany(DoctorCertification::class)->orderByDesc('issued_date');
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

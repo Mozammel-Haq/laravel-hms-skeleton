@@ -90,6 +90,12 @@ class ConsultationController extends Controller
             return redirect()->route('appointments.index')
                 ->with('warning', 'You are not authorized to start a consultation for this appointment.');
         }
+
+        if ($appointment->appointment_date->isFuture()) {
+            return redirect()->route('appointments.index')
+                ->with('warning', 'You cannot start a consultation for a future appointment.');
+        }
+
         $consultationInvoice = \App\Models\Invoice::where('appointment_id', $appointment->id)
             ->where('invoice_type', 'consultation')
             ->latest()
@@ -136,6 +142,10 @@ class ConsultationController extends Controller
         if (!$doctor || $appointment->doctor_id !== $doctor->id) {
             return redirect()->route('appointments.index')
                 ->with('warning', 'You are not authorized to start a consultation for this appointment.');
+        }
+        if ($appointment->appointment_date->isFuture()) {
+            return redirect()->route('appointments.index')
+                ->with('warning', 'You cannot start a consultation for a future appointment.');
         }
         if (!in_array($appointment->status, ['confirmed', 'arrived'], true)) {
             return redirect()->route('appointments.index')

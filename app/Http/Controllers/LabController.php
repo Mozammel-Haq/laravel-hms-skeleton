@@ -61,6 +61,14 @@ class LabController extends Controller
     {
         Gate::authorize('create', LabTestOrder::class);
         $patients = collect(); // Use AJAX search
+
+        // Context Data
+        $appointmentId = $request->input('appointment_id');
+        $doctor = null;
+        if (auth()->user()->hasRole('Doctor')) {
+            $doctor = auth()->user()->doctor;
+        }
+
         if ($request->has('patient_id') || old('patient_id')) {
             $patientId = $request->input('patient_id') ?? old('patient_id');
             $patient = Patient::find($patientId);
@@ -70,7 +78,7 @@ class LabController extends Controller
         }
         $tests = LabTest::all();
         $doctors = Doctor::with('user')->get();
-        return view('lab.create', compact('patients', 'tests', 'doctors'));
+        return view('lab.create', compact('patients', 'tests', 'doctors', 'doctor', 'appointmentId'));
     }
 
     public function store(Request $request)
@@ -81,9 +89,60 @@ class LabController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'lab_test_id' => 'required|exists:lab_tests,id',
             'doctor_id' => 'nullable|exists:doctors,id',
+            'appointment_id' => 'nullable|exists:appointments,id',
         ]);
 
-        $order = LabTestOrder::create($request->all() + [
+        $data = $request->all();
+
+        // Auto-assign doctor if logged in user is a doctor
+        if (auth()->user()->hasRole('Doctor') && empty($data['doctor_id'])) {
+            $doctor = auth()->user()->doctor;
+            if ($doctor) {
+                $data['doctor_id'] = $doctor->id;
+            }
+        }
+
+        // Eligibility Check (OPD Completed or IPD Admitted)
+        $patient = Patient::findOrFail($data['patient_id']);
+        $isEligible = false;
+
+        // 1. Check specific appointment context
+        if (!empty($data['appointment_id'])) {
+            $appt = Appointment::find($data['appointment_id']);
+            if ($appt && $appt->patient_id == $patient->id && $appt->status == 'completed') {
+                $isEligible = true;
+            }
+        }
+
+        // 2. Check admission status
+        if (!$isEligible) {
+            $isAdmitted = \App\Models\Admission::where('patient_id', $patient->id)
+                ->where('status', 'admitted')
+                ->exists();
+            if ($isAdmitted) {
+                $isEligible = true;
+            }
+        }
+
+        // 3. Fallback: Check if patient has ANY completed appointment (OPD)
+        // If no specific appointment ID was passed, we link to the latest completed one.
+        if (!$isEligible) {
+            $latestAppt = $patient->appointments()
+                ->where('status', 'completed')
+                ->latest()
+                ->first();
+
+            if ($latestAppt) {
+                $data['appointment_id'] = $latestAppt->id;
+                $isEligible = true;
+            }
+        }
+
+        if (!$isEligible) {
+            return back()->with('error', 'Lab orders can only be created for admitted patients or patients with completed consultations.');
+        }
+
+        $order = LabTestOrder::create($data + [
             'clinic_id' => auth()->user()->clinic_id,
             'status' => 'pending',
             'order_date' => now(),
@@ -98,7 +157,7 @@ class LabController extends Controller
             $tech->notify(new \App\Notifications\NewLabOrderNotification($order));
         }
 
-        return redirect()->route('lab.index')->with('success', 'Lab test ordered successfully.');
+        return redirect()->route('lab.index')->with('success', 'Lab test order created successfully.');
     }
 
     public function generateInvoice(LabTestOrder $order)
@@ -175,8 +234,9 @@ class LabController extends Controller
         LabTestResult::create([
             'clinic_id' => $order->clinic_id,
             'lab_test_order_id' => $order->id,
+            'lab_test_id' => $order->lab_test_id,
             'result_value' => $request->result_value,
-            'notes' => $request->notes,
+            'remarks' => $request->notes,
             'reported_at' => now(),
             'reported_by' => auth()->id(),
             'pdf_path' => $pdfPath,

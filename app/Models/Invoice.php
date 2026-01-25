@@ -33,4 +33,7 @@ class Invoice extends BaseTenantModel
     {
         return $this->belongsTo(Admission::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

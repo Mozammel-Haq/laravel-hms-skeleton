@@ -12,4 +12,7 @@ class InvoiceItem extends BaseTenantModel
     {
         return $this->belongsTo(Invoice::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

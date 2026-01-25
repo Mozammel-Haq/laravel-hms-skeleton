@@ -41,8 +41,25 @@
                                 (auth()->user()->hasRole('Doctor') && isset($doctorClinics) && $doctorClinics->count() > 1))) data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-offset="0,22" aria-haspopup="false" aria-expanded="false" @endif>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <span class="avatar rounded-circle flex-shrink-0 p-2"><img
-                                    src="{{ asset('assets') }}/img/icons/trustcare.svg" alt="img"></span>
+                            <span
+                                class="avatar rounded-circle flex-shrink-0 p-0 border bg-white overflow-hidden d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                @php
+                                    $sidebarClinicLogo = null;
+                                    if (isset($currentClinic) && $currentClinic) {
+                                        $sidebarClinicLogo = $currentClinic->logo_path;
+                                    } elseif (auth()->check() && auth()->user()->clinic) {
+                                        $sidebarClinicLogo = auth()->user()->clinic->logo_path;
+                                    }
+                                @endphp
+                                @if ($sidebarClinicLogo)
+                                    <img src="{{ Storage::url($sidebarClinicLogo) }}" alt="Clinic Logo"
+                                        class="w-100 h-100 object-fit-contain p-1">
+                                @else
+                                    <img src="{{ asset('assets') }}/img/icons/trustcare.svg" alt="Default Logo"
+                                        class="w-100 h-100 object-fit-contain p-2">
+                                @endif
+                            </span>
                             <div class="ms-2">
                                 <h6 class="fs-14 fw-semibold mb-0">
                                     {{ optional($currentClinic)->name ?? (auth()->user()->clinic->name ?? 'Trustcare Clinic') }}
@@ -328,7 +345,8 @@
                         <a href="#" class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-calendar"></i><span>Appointments</span><span class="menu-arrow"></span>
                         </a>
-                        <ul style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul
+                            style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('appointments.index') }}">Today</a></li>
                             <li><a href="{{ route('appointments.index') }}">Upcoming</a></li>
                         </ul>

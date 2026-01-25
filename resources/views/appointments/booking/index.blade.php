@@ -112,10 +112,36 @@
                                                 {{ $doctor->department->name ?? 'General' }}
                                             </small>
 
+                                            <!-- Location -->
+                                            @if ($doctor->consultation_room_number || $doctor->consultation_floor)
+                                                <div class="mb-2 fs-13 text-muted">
+                                                    @if ($doctor->consultation_room_number)
+                                                        <i class="ti ti-door me-1"></i>Rm:
+                                                        {{ $doctor->consultation_room_number }}
+                                                    @endif
+                                                    @if ($doctor->consultation_floor)
+                                                        <span class="ms-2"><i class="ti ti-stairs-up me-1"></i>Flr:
+                                                            {{ $doctor->consultation_floor }}</span>
+                                                    @endif
+                                                </div>
+                                            @endif
+
                                             <!-- Clinics -->
-                                            <div class="fs-13 text-muted mb-2">
-                                                <i class="fa fa-map-marker me-1"></i>
-                                                {{ $doctor->clinics->pluck('name')->join(', ') }}
+                                            <div class="d-flex flex-wrap gap-2 mb-2 justify-content-center">
+                                                @foreach ($doctor->clinics as $clinic)
+                                                    <div class="d-flex align-items-center gap-1 fs-13 text-muted"
+                                                        title="{{ $clinic->name }}">
+                                                        @if ($clinic->logo_path)
+                                                            <img src="{{ Storage::url($clinic->logo_path) }}"
+                                                                class="rounded-circle border"
+                                                                style="width: 16px; height: 16px; object-fit: cover;">
+                                                        @else
+                                                            <i class="fa fa-map-marker"></i>
+                                                        @endif
+                                                        <span class="text-truncate"
+                                                            style="max-width: 100px;">{{ $clinic->name }}</span>
+                                                    </div>
+                                                @endforeach
                                             </div>
 
                                         </div>

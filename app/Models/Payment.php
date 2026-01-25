@@ -17,4 +17,7 @@ class Payment extends BaseTenantModel
     {
         return $this->belongsTo(User::class, 'received_by');
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

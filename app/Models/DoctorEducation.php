@@ -14,5 +14,7 @@ class DoctorEducation extends Model
     {
         return $this->belongsTo(Doctor::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }
-

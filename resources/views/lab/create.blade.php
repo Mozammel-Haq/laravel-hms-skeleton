@@ -10,6 +10,7 @@
                 <hr>
                 <form method="post" action="{{ route('lab.store') }}">
                     @csrf
+                    <input type="hidden" name="appointment_id" value="{{ $appointmentId ?? '' }}">
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Patient</label>
@@ -33,17 +34,28 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Doctor (optional)</label>
-                            <select name="doctor_id" class="form-select">
-                                <option value="">Select doctor</option>
-                                @if(isset($doctors))
-                                    @foreach($doctors as $doctor)
-                                        <option value="{{ $doctor->id }}">{{ $doctor->user->name ?? $doctor->id }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
+
+                        @if (isset($doctor) && $doctor)
+                            <input type="hidden" name="doctor_id" value="{{ $doctor->id }}">
+                            <div class="col-md-6">
+                                <label class="form-label">Doctor</label>
+                                <input type="text" class="form-control" value="{{ $doctor->user->name }}" disabled>
+                            </div>
+                        @else
+                            <div class="col-md-6">
+                                <label class="form-label">Doctor (optional)</label>
+                                <select name="doctor_id" class="form-select">
+                                    <option value="">Select doctor</option>
+                                    @if (isset($doctors))
+                                        @foreach ($doctors as $d)
+                                            <option value="{{ $d->id }}">{{ $d->user->name ?? $d->id }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        @endif
+
                         <div class="col-md-12">
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </div>
@@ -64,7 +76,8 @@
                         data: function(params) {
                             return {
                                 term: params.term,
-                                page: params.page
+                                page: params.page,
+                                type: 'lab_eligible'
                             };
                         },
                         processResults: function(data, params) {

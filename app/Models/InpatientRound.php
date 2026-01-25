@@ -23,4 +23,7 @@ class InpatientRound extends BaseTenantModel
     {
         return $this->hasMany(PatientVital::class, 'inpatient_round_id');
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

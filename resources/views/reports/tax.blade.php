@@ -275,7 +275,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TAXABLE
                                     AMOUNT</h6>
-                                <h2 class="fw-bold kpi-value mb-0">${{ number_format($taxableAmount, 2) }}</h2>
+                                <h2 class="fw-bold kpi-value mb-0">৳ {{ number_format($taxableAmount, 2) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -341,7 +341,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TAX
                                     COLLECTED (10%)</h6>
-                                <h2 class="fw-bold kpi-value mb-0">${{ number_format($taxAmount, 2) }}</h2>
+                                <h2 class="fw-bold kpi-value mb-0">৳ {{ number_format($taxAmount, 2) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -409,7 +409,7 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TOTAL
                                     REVENUE</h6>
-                                <h2 class="fw-bold kpi-value mb-0">${{ number_format($grandTotal, 2) }}</h2>
+                                <h2 class="fw-bold kpi-value mb-0">৳ {{ number_format($grandTotal, 2) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -491,9 +491,9 @@
                                         <div class="small text-muted">{{ ucfirst($invoice->status) }}</div>
                                     </td>
                                     <td>{{ $invoice->created_at }}</td>
-                                    <td class="text-end">${{ number_format($subtotal, 2) }}</td>
-                                    <td class="text-end text-danger">+ ${{ number_format($vat, 2) }}</td>
-                                    <td class="text-end fw-bold">${{ number_format($total, 2) }}</td>
+                                    <td class="text-end">৳{{ number_format($subtotal, 2) }}</td>
+                                    <td class="text-end text-danger">+ ৳{{ number_format($vat, 2) }}</td>
+                                    <td class="text-end fw-bold">৳{{ number_format($total, 2) }}</td>
                                 </tr>
                             @empty
                                 <tr>
