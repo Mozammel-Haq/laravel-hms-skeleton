@@ -76,7 +76,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Currency</label>
-                            <input name="currency" class="form-control" value="{{ old('currency', 'USD') }}" required>
+                            <input name="currency" class="form-control" value="{{ old('currency', 'BDT') }}" required>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Opening Time</label>

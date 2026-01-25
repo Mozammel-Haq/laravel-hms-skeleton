@@ -31,7 +31,7 @@ class DefaultClinicUserSeeder extends Seeder
                 'website' => 'https://citycare.com',
                 'logo_path' => 'dh-cc.png',
                 'timezone' => 'UTC +6',
-                'currency' => 'TK',
+                'currency' => 'BDT',
                 'opening_time' => '08:00:00',
                 'closing_time' => '01:30:00',
                 'status' => 'active',

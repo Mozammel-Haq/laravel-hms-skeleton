@@ -190,7 +190,7 @@
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">REVENUE
                                     (7 DAYS)</h6>
                                 <h2 class="fw-bold kpi-value mb-0">
-                                    {{ number_format($stats['revenue']['last_7_days'], 2) }}</h2>
+                                    ৳{{ number_format($stats['revenue']['last_7_days'], 2) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -337,7 +337,7 @@
                                                 {{ $doctor->user?->name ?? 'Deleted Doctor' }}
                                             </div>
                                             <div class="small text-muted">
-                                                @if(is_array($doctor->specialization))
+                                                @if (is_array($doctor->specialization))
                                                     {{ implode(', ', $doctor->specialization) }}
                                                 @else
                                                     {{ $doctor->specialization }}
@@ -403,7 +403,7 @@
                                     <tr>
                                         <td>#{{ $invoice->invoice_number }}</td>
                                         <td>{{ $invoice->patient->name }}</td>
-                                        <td>{{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td>৳{{ number_format($invoice->total_amount, 2) }}</td>
                                         <td>
                                             <span
                                                 class="badge bg-{{ $invoice->status === 'paid' ? 'success' : 'warning' }}">

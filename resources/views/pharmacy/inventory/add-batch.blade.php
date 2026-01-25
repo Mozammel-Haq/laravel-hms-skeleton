@@ -63,7 +63,7 @@
                             <x-input-label for="purchase_price" :value="__('Purchase Price (Total or Unit?)')" />
                             <!-- Note: Controller validation says numeric|min:0. Usually this is unit price or total batch price. Assuming Unit Price based on model structure usually, but let's label it simply Purchase Price -->
                             <div class="input-group mt-1">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">৳</span>
                                 <x-text-input id="purchase_price" class="form-control" type="number" step="0.01"
                                     name="purchase_price" :value="old('purchase_price')" required />
                             </div>
