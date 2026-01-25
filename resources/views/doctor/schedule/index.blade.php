@@ -52,7 +52,13 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
                                 <div class="fw-semibold">{{ auth()->user()->name }}</div>
-                                <div class="text-muted">{{ optional($doctor)->specialization }}</div>
+                                <div class="text-muted">
+                                    @if(is_array(optional($doctor)->specialization))
+                                        {{ implode(', ', optional($doctor)->specialization) }}
+                                    @else
+                                        {{ optional($doctor)->specialization }}
+                                    @endif
+                                </div>
                             </div>
                             @if ($doctor)
                                 <a href="{{ route('doctor.schedule.manage') }}" class="btn btn-primary">Manage

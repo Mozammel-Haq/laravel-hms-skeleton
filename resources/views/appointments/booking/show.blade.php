@@ -45,7 +45,13 @@
                         <div class="small">
                             <div class="mb-2 d-flex align-items-center">
                                 <i class="fa fa-stethoscope me-2 text-muted"></i>
-                                <span>{{ $doctor->specialization ?? 'Specialization not set' }}</span>
+                                <span>
+                                @if(is_array($doctor->specialization))
+                                    {{ implode(', ', $doctor->specialization) }}
+                                @else
+                                    {{ $doctor->specialization ?? 'Specialization not set' }}
+                                @endif
+                            </span>
                             </div>
 
                             <div class="mb-2 d-flex align-items-center">

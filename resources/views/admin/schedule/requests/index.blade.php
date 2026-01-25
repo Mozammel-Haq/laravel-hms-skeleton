@@ -73,7 +73,11 @@
                                                         {{ $request->doctor->user?->name ?? 'Deleted Doctor' }}
                                                     </div>
                                                     <div class="text-muted small">
-                                                        {{ $request->doctor->specialization ?? '' }}
+                                                        @if(is_array($request->doctor->specialization))
+                                                            {{ implode(', ', $request->doctor->specialization) }}
+                                                        @else
+                                                            {{ $request->doctor->specialization ?? '' }}
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </a>

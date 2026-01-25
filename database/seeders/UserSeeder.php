@@ -59,27 +59,27 @@ class UserSeeder extends Seeder
                 'role' => 'Doctor',
             ],
             [
-                'name' => 'Sarah Nurse',
+                'name' => 'Default Nurse',
                 'email' => 'nurse@hospital.com',
                 'role' => 'Nurse',
             ],
             [
-                'name' => 'Rachel Receptionist',
+                'name' => 'Default Receptionist',
                 'email' => 'receptionist@hospital.com',
                 'role' => 'Receptionist',
             ],
             [
-                'name' => 'Tom LabTech',
-                'email' => 'labtechnician@hospital.com',
+                'name' => 'Default LabTech',
+                'email' => 'lab@hospital.com',
                 'role' => 'Lab Technician',
             ],
             [
-                'name' => 'Peter Pharmacist',
+                'name' => 'Default Pharmacist',
                 'email' => 'pharmacist@hospital.com',
                 'role' => 'Pharmacist',
             ],
             [
-                'name' => 'Alice Accountant',
+                'name' => 'Default Accountant',
                 'email' => 'accountant@hospital.com',
                 'role' => 'Accountant',
             ],
@@ -122,7 +122,7 @@ class UserSeeder extends Seeder
                         'status' => 'active'
                     ]
                 );
-                
+
                 if (!$doctor->clinics()->where('clinic_id', $clinic->id)->exists()) {
                     $doctor->clinics()->attach($clinic->id);
                 }

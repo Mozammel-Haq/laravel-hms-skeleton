@@ -109,7 +109,13 @@
                                         <td>
                                             <div class="fw-semibold">{{ $doctor->user?->name ?? 'Deleted Doctor' }}
                                             </div>
-                                            <div class="text-muted small">{{ $doctor->specialization }}</div>
+                                            <div class="text-muted small">
+                                                @if(is_array($doctor->specialization))
+                                                    {{ implode(', ', $doctor->specialization) }}
+                                                @else
+                                                    {{ $doctor->specialization }}
+                                                @endif
+                                            </div>
                                         </td>
                                         <td>
                                             @php

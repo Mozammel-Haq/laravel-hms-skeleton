@@ -10,7 +10,11 @@
                             <div>
                                 <h3 class="page-title mb-0">Manage Schedule</h3>
                                 <div class="text-muted">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}
-                                    ({{ $doctor->specialization }})</div>
+                                    (@if(is_array($doctor->specialization))
+                                        {{ implode(', ', $doctor->specialization) }}
+                                    @else
+                                        {{ $doctor->specialization }}
+                                    @endif)</div>
                             </div>
                             <a href="{{ $mode === 'self' ? route('doctor.schedule.index') : route('doctors.index') }}"
                                 class="btn btn-outline-primary">

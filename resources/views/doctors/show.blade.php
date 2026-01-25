@@ -5,117 +5,118 @@
         <div class="row g-3">
             <!-- Left Summary -->
             <div class="col-lg-4">
-                <div class="card mt-2">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="page-title mb-0">Doctor Profile</h4>
-                            <a href="{{ route('doctors.index') }}" class="btn btn-sm btn-outline-primary">Back</a>
-                        </div>
-                        <hr>
-                        <!-- Identity -->
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="rounded-circle border flex-shrink-0"
-                                style="width:64px;height:64px;overflow:hidden;">
-                                <img src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
-                                    class="w-100 h-100" style="object-fit:cover;">
+                <div class="card border-0 shadow-sm mt-2">
+                    <div class="card-body p-4">
+                        <!-- Header Profile -->
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block mb-3">
+                                <div class="rounded-circle border border-3 border-light shadow-sm"
+                                    style="width:120px;height:120px;overflow:hidden;">
+                                    <img src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                                        class="w-100 h-100" style="object-fit:cover;">
+                                </div>
+                                <span
+                                    class="position-absolute bottom-0 end-0 badge rounded-pill bg-{{ $doctor->status === 'active' ? 'success' : 'secondary' }} border border-2 border-white">
+                                    {{ ucfirst($doctor->status ?? 'inactive') }}
+                                </span>
                             </div>
 
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold">
-                                    {{ optional($doctor->user)->name ?? 'Doctor' }}
-                                </div>
-                                <div class="text-muted fs-13">
-                                    {{ optional($doctor->department)->name ?? 'Department' }}
-                                </div>
+                            <h4 class="mb-1">{{ optional($doctor->user)->name ?? 'Doctor' }}</h4>
+                            <p class="text-primary fw-medium mb-2">
+                                {{ optional($doctor->department)->name ?? 'Department' }}
+                            </p>
 
-                                <!-- Contact (secondary) -->
-                                <div class="d-flex flex-wrap mt-1 fs-13 text-muted">
-                                    @if (optional($doctor->user)->phone)
-                                        <span>
-                                            <i class="ti ti-phone me-1"></i>
-                                            {{ optional($doctor->user)->phone }}
-                                        </span>
-                                    @endif
-                                    @if (optional($doctor->user)->email)
-                                        <span>
-                                            <i class="ti ti-mail me-1"></i>
-                                            {{ optional($doctor->user)->email }}
-                                        </span>
-                                    @endif
-                                </div>
+                            <!-- Social/Contact Actions -->
+                            <div class="d-flex justify-content-center gap-2 mb-4">
+                                @if (optional($doctor->user)->phone)
+                                    <a href="tel:{{ optional($doctor->user)->phone }}"
+                                        class="btn btn-sm btn-outline-light text-dark" title="Call">
+                                        <i class="ti ti-phone"></i>
+                                    </a>
+                                @endif
+                                @if (optional($doctor->user)->email)
+                                    <a href="mailto:{{ optional($doctor->user)->email }}"
+                                        class="btn btn-sm btn-outline-light text-dark" title="Email">
+                                        <i class="ti ti-mail"></i>
+                                    </a>
+                                @endif
                             </div>
                         </div>
 
-                        <!-- Key Facts -->
-                        <div class="row g-3 fs-13 mb-3">
+                        <!-- Info Grid -->
+                        <div class="row g-3 mb-4">
+                            <!-- Specializations -->
+                            <div class="col-12">
+                                <label class="text-muted small text-uppercase fw-bold mb-2">Specializations</label>
+                                <div class="d-flex flex-wrap gap-1">
+                                    @if (is_array($doctor->specialization))
+                                        @foreach ($doctor->specialization as $spec)
+                                            <span
+                                                class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                                {{ $spec }}
+                                            </span>
+                                        @endforeach
+                                    @elseif($doctor->specialization)
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                            {{ $doctor->specialization }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted small">N/A</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- Professional Info -->
                             <div class="col-6">
-                                <div class="text-muted">Specialization</div>
-                                <div class="fw-semibold">{{ $doctor->specialization ?? 'N/A' }}</div>
+                                <label class="text-muted small text-uppercase fw-bold">Experience</label>
+                                <div class="fw-semibold">{{ $doctor->experience_years ?? 0 }} Years</div>
                             </div>
                             <div class="col-6">
-                                <div class="text-muted">License No</div>
+                                <label class="text-muted small text-uppercase fw-bold">License</label>
                                 <div class="fw-semibold">{{ $doctor->license_number ?? 'N/A' }}</div>
                             </div>
+
+                            <!-- Personal Info -->
                             <div class="col-6">
-                                <div class="text-muted">Gender</div>
-                                <div class="fw-semibold">{{ ucfirst($doctor->gender ?? 'N/A') }}</div>
+                                <label class="text-muted small text-uppercase fw-bold">Gender</label>
+                                <div>{{ ucfirst($doctor->gender ?? '-') }}</div>
                             </div>
                             <div class="col-6">
-                                <div class="text-muted">Blood Group</div>
-                                <div class="fw-semibold">{{ $doctor->blood_group ?? 'N/A' }}</div>
+                                <label class="text-muted small text-uppercase fw-bold">Blood Group</label>
+                                <div>{{ $doctor->blood_group ?? '-' }}</div>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="col-6">
+                                <label class="text-muted small text-uppercase fw-bold">Room</label>
+                                <div>{{ $doctor->consultation_room_number ?? '-' }}</div>
                             </div>
                             <div class="col-6">
-                                <div class="text-muted">Experience</div>
-                                <div class="fw-semibold">{{ $doctor->experience_years ?? 0 }} yrs</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-muted">Status</div>
-                                @php
-                                    $status = $doctor->status ?? 'inactive';
-                                    $color = match($status) {
-                                        'active' => 'success',
-                                        'inactive' => 'warning',
-                                        default => 'primary',
-                                    };
-                                @endphp
-                                <span class="badge bg-{{ $color }}">
-                                    {{ ucfirst($status) }}
-                                </span>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-muted">Room No</div>
-                                <div class="fw-semibold">{{ $doctor->consultation_room_number ?? 'N/A' }}</div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-muted">Floor No</div>
-                                <div class="fw-semibold">{{ $doctor->consultation_floor ?? 'N/A' }}</div>
+                                <label class="text-muted small text-uppercase fw-bold">Floor</label>
+                                <div>{{ $doctor->consultation_floor ?? '-' }}</div>
                             </div>
                         </div>
 
-                        <!-- Fees -->
-                        <div class="border-top pt-2 mb-2 fs-13">
-                            <div class="d-flex justify-content-between">
-                                <span class="text-muted">Consultation Fee</span>
-                                <span class="fw-semibold">
-                                    {{ $doctor->consultation_fee !== null ? number_format($doctor->consultation_fee, 2) : 'N/A' }}
+                        <!-- Fees Card -->
+                        <div class="bg-light rounded p-3">
+                            <h6 class="mb-3 text-secondary">Consultation Fees</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>First Visit</span>
+                                <span class="fw-bold text-dark">
+                                    {{ $doctor->consultation_fee !== null ? 'TK ' . number_format($doctor->consultation_fee, 2) : 'N/A' }}
                                 </span>
                             </div>
                             <div class="d-flex justify-content-between">
-                                <span class="text-muted">Follow-up Fee</span>
-                                <span class="fw-semibold">
-                                    {{ $doctor->follow_up_fee !== null ? number_format($doctor->follow_up_fee, 2) : 'N/A' }}
+                                <span>Follow-up</span>
+                                <span class="fw-bold text-dark">
+                                    {{ $doctor->follow_up_fee !== null ? 'TK ' . number_format($doctor->follow_up_fee, 2) : 'N/A' }}
                                 </span>
                             </div>
                         </div>
 
-                        <!-- Bio -->
-                        <div class="border-top pt-2">
-                            <div class="text-muted fs-13 mb-1">Biography</div>
-                            <div class="fs-13">
-                                {{ $doctor->biography ?: 'No biography available.' }}
-                            </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <a href="{{ route('doctors.index') }}" class="btn btn-outline-secondary">Back to List</a>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -124,8 +125,18 @@
             <!-- Right Content -->
             <div class="col-lg-8">
 
+                <!-- Biography -->
+                @if ($doctor->biography)
+                    <div class="card border-0 shadow-sm mb-3 mt-2">
+                        <div class="card-body p-4">
+                            <h5 class="card-title text-primary mb-3">Biography</h5>
+                            <p class="card-text text-secondary">{{ $doctor->biography }}</p>
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Schedule -->
-                <div class="card shadow-sm mb-3 mt-2">
+                <div class="card border-0 shadow-sm mb-3 {{ $doctor->biography ? '' : 'mt-2' }}">
                     <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
                         <span class="fw-semibold">Schedules</span>
                         <a href="{{ route('doctors.schedule', $doctor) }}"

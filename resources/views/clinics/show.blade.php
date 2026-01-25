@@ -21,13 +21,17 @@
                         </div>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('clinics.edit', $clinic) }}" class="btn btn-outline-primary">Edit</a>
-                        <form method="POST" action="{{ route('clinics.destroy', $clinic) }}"
-                            onsubmit="return confirm('Delete this clinic?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger">Delete</button>
-                        </form>
+                        @can('update', $clinic)
+                            <a href="{{ route('clinics.edit', $clinic) }}" class="btn btn-outline-primary">Edit</a>
+                        @endcan
+                        @can('delete', $clinic)
+                            <form method="POST" action="{{ route('clinics.destroy', $clinic) }}"
+                                onsubmit="return confirm('Delete this clinic?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger">Delete</button>
+                            </form>
+                        @endcan
                     </div>
                 </div>
                 <div class="row g-3">
@@ -106,7 +110,8 @@
                         @if (!empty($services))
                             <div class="d-flex flex-wrap gap-2">
                                 @foreach ($services as $service)
-                                    <span class="badge bg-primary-subtle text-primary border">{{ $service }}</span>
+                                    <span
+                                        class="badge bg-primary-subtle text-primary border">{{ $service }}</span>
                                 @endforeach
                             </div>
                         @else
@@ -132,7 +137,11 @@
                 @endif
             </div>
             <div class="card-footer">
-                <a href="{{ route('clinics.index') }}" class="btn btn-secondary">Back</a>
+                @can('viewAny', App\Models\Clinic::class)
+                    <a href="{{ route('clinics.index') }}" class="btn btn-secondary">Back</a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+                @endcan
             </div>
         </div>
     </div>

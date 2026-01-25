@@ -65,8 +65,14 @@
 
                             <div class="col-md-4">
                                 <label class="form-label">Specialization *</label>
-                                <input type="text" name="specialization" class="form-control form-control-sm"
-                                    value="{{ old('specialization') }}" required>
+                                <select name="specialization[]" class="form-select form-select-sm select2-tags"
+                                    multiple="multiple" required>
+                                    @if (old('specialization'))
+                                        @foreach (old('specialization') as $spec)
+                                            <option value="{{ $spec }}" selected>{{ $spec }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
                             </div>
 
                             <div class="col-md-4">
@@ -93,9 +99,12 @@
                                 <label class="form-label">Gender</label>
                                 <select name="gender" class="form-select form-select-sm">
                                     <option value="">Select</option>
-                                    <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male</option>
-                                    <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female</option>
-                                    <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other</option>
+                                    <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>Male
+                                    </option>
+                                    <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>Female
+                                    </option>
+                                    <option value="other" {{ old('gender') == 'other' ? 'selected' : '' }}>Other
+                                    </option>
                                 </select>
                             </div>
 
@@ -144,7 +153,8 @@
 
                             <div class="col-md-3">
                                 <label class="form-label">Consultation Room</label>
-                                <input type="text" name="consultation_room_number" class="form-control form-control-sm"
+                                <input type="text" name="consultation_room_number"
+                                    class="form-control form-control-sm"
                                     value="{{ old('consultation_room_number') }}">
                             </div>
 
@@ -194,12 +204,24 @@
         </div>
     </div>
 
-    <script>
-        function previewDoctorPhoto(event) {
-            const img = document.querySelector('#doctor-photo-preview img');
-            if (event.target.files[0]) {
-                img.src = URL.createObjectURL(event.target.files[0]);
+    @push('scripts')
+        <script>
+            function previewDoctorPhoto(event) {
+                const img = document.querySelector('#doctor-photo-preview img');
+                if (event.target.files[0]) {
+                    img.src = URL.createObjectURL(event.target.files[0]);
+                }
             }
-        }
-    </script>
+
+            $(document).ready(function() {
+                $('.select2-tags').select2({
+                    tags: true,
+                    tokenSeparators: [','],
+                    placeholder: "Select or type specializations",
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>

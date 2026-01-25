@@ -25,9 +25,9 @@ class StorePatientRequest extends FormRequest
             'emergency_contact_name' => ['nullable', 'string', 'max:255'],
             'emergency_contact_phone' => ['nullable', 'string', 'max:20'],
             'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
-            'nid_number' => ['nullable', 'regex:/^[0-9]{10,17}$/', 'required_without_all:birth_certificate_number,passport_number'],
-            'birth_certificate_number' => ['nullable', 'regex:/^[0-9]{10,20}$/', 'required_without_all:nid_number,passport_number'],
-            'passport_number' => ['nullable', 'alpha_num', 'min:6', 'max:20', 'required_without_all:nid_number,birth_certificate_number'],
+            'nid_number' => ['nullable', 'regex:/^[0-9]{10,17}$/', 'required_without_all:birth_certificate_number,passport_number', 'unique:patients,nid_number'],
+            'birth_certificate_number' => ['nullable', 'regex:/^[0-9]{10,20}$/', 'required_without_all:nid_number,passport_number', 'unique:patients,birth_certificate_number'],
+            'passport_number' => ['nullable', 'alpha_num', 'min:6', 'max:20', 'required_without_all:nid_number,birth_certificate_number', 'unique:patients,passport_number'],
         ];
     }
 }

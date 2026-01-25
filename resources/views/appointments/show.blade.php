@@ -148,7 +148,12 @@
                                             @endif
                                         </div>
                                         <div class="text-muted small">
-                                            {{ $appointment->doctor?->specialization ?? 'N/A' }}</div>
+                                            @if(is_array($appointment->doctor?->specialization))
+                                                {{ implode(', ', $appointment->doctor->specialization) }}
+                                            @else
+                                                {{ $appointment->doctor?->specialization ?? 'N/A' }}
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="mb-2">

@@ -220,7 +220,11 @@
                     </div>
                     <div class="mt-3">
                         <button class="btn btn-primary" type="submit">Update</button>
-                        <a class="btn btn-secondary" href="{{ route('clinics.index') }}">Cancel</a>
+                        @can('viewAny', App\Models\Clinic::class)
+                            <a class="btn btn-secondary" href="{{ route('clinics.index') }}">Cancel</a>
+                        @else
+                            <a class="btn btn-secondary" href="{{ route('clinics.profile') }}">Cancel</a>
+                        @endcan
                     </div>
                 </form>
             </div>

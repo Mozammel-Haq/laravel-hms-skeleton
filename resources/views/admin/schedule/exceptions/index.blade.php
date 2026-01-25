@@ -77,7 +77,11 @@
                                                         {{ $exception->doctor->user?->name ?? 'Deleted Doctor' }}
                                                     </div>
                                                     <div class="text-muted small">
-                                                        {{ $exception->doctor->specialization ?? '' }}
+                                                        @if(is_array($exception->doctor->specialization))
+                                                            {{ implode(', ', $exception->doctor->specialization) }}
+                                                        @else
+                                                            {{ $exception->doctor->specialization ?? '' }}
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </a>

@@ -107,7 +107,17 @@
                                         @endif
                                     </td>
 
-                                    <td>{{ $doctor->specialization }}</td>
+                                    <td>
+                                        @if(is_array($doctor->specialization))
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach($doctor->specialization as $spec)
+                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-10">{{ $spec }}</span>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            {{ $doctor->specialization }}
+                                        @endif
+                                    </td>
 
                                     <td>{{ $doctor->primaryDepartment?->name ?? '—' }}</td>
 

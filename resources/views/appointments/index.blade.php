@@ -91,7 +91,8 @@
                                                 <div class="avatar avatar-sm me-2">
                                                     @if ($appointment->patient->profile_photo)
                                                         <img src="{{ asset($appointment->patient->profile_photo) }}"
-                                                            alt="{{ $appointment->patient->name }}" class="rounded-circle"
+                                                            alt="{{ $appointment->patient->name }}"
+                                                            class="rounded-circle"
                                                             style="width:32px;height:32px;object-fit:cover;">
                                                     @else
                                                         <span
@@ -120,7 +121,11 @@
                                                 class="text-decoration-none text-body">
                                                 <div>{{ $appointment->doctor->user?->name ?? 'Deleted Doctor' }}</div>
                                                 <div class="text-muted small">
-                                                    {{ $appointment->doctor->specialization ?? 'N/A' }}
+                                                    @if (is_array($appointment->doctor->specialization))
+                                                        {{ implode(', ', $appointment->doctor->specialization) }}
+                                                    @else
+                                                        {{ $appointment->doctor->specialization ?? 'N/A' }}
+                                                    @endif
                                                 </div>
                                             </a>
                                         @else

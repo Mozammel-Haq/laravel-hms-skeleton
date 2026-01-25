@@ -47,8 +47,21 @@
                         <div class="row g-2">
                             <div class="col-md-4">
                                 <label class="form-label">Specialization *</label>
-                                <input type="text" name="specialization" class="form-control form-control-sm"
-                                    value="{{ old('specialization', $doctor->specialization) }}" required>
+                                <select name="specialization[]" class="form-select form-select-sm select2-tags"
+                                    multiple="multiple" required>
+                                    @if (old('specialization'))
+                                        @foreach (old('specialization') as $spec)
+                                            <option value="{{ $spec }}" selected>{{ $spec }}</option>
+                                        @endforeach
+                                    @elseif(is_array($doctor->specialization))
+                                        @foreach ($doctor->specialization as $spec)
+                                            <option value="{{ $spec }}" selected>{{ $spec }}</option>
+                                        @endforeach
+                                    @elseif($doctor->specialization)
+                                        <option value="{{ $doctor->specialization }}" selected>
+                                            {{ $doctor->specialization }}</option>
+                                    @endif
+                                </select>
                             </div>
 
                             <div class="col-md-4">
@@ -75,11 +88,14 @@
                                 <label class="form-label">Gender</label>
                                 <select name="gender" class="form-select form-select-sm">
                                     <option value="">Select</option>
-                                    <option value="male" {{ old('gender', $doctor->gender) == 'male' ? 'selected' : '' }}>
+                                    <option value="male"
+                                        {{ old('gender', $doctor->gender) == 'male' ? 'selected' : '' }}>
                                         Male</option>
-                                    <option value="female" {{ old('gender', $doctor->gender) == 'female' ? 'selected' : '' }}>
+                                    <option value="female"
+                                        {{ old('gender', $doctor->gender) == 'female' ? 'selected' : '' }}>
                                         Female</option>
-                                    <option value="other" {{ old('gender', $doctor->gender) == 'other' ? 'selected' : '' }}>
+                                    <option value="other"
+                                        {{ old('gender', $doctor->gender) == 'other' ? 'selected' : '' }}>
                                         Other</option>
                                 </select>
                             </div>
@@ -131,7 +147,8 @@
 
                             <div class="col-md-3">
                                 <label class="form-label">Consultation Room</label>
-                                <input type="text" name="consultation_room_number" class="form-control form-control-sm"
+                                <input type="text" name="consultation_room_number"
+                                    class="form-control form-control-sm"
                                     value="{{ old('consultation_room_number', $doctor->consultation_room_number) }}">
                             </div>
 
@@ -151,9 +168,11 @@
                                 <label class="form-label">Status</label>
                                 <select name="status" class="form-select form-select-sm">
                                     <option value="active"
-                                        {{ old('status', $doctor->status) == 'active' ? 'selected' : '' }}>Active</option>
+                                        {{ old('status', $doctor->status) == 'active' ? 'selected' : '' }}>Active
+                                    </option>
                                     <option value="inactive"
-                                        {{ old('status', $doctor->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                        {{ old('status', $doctor->status) == 'inactive' ? 'selected' : '' }}>Inactive
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -191,12 +210,24 @@
         </div>
     </div>
 
-    <script>
-        function previewDoctorPhoto(event) {
-            const img = document.querySelector('#doctor-photo-preview img');
-            if (event.target.files[0]) {
-                img.src = URL.createObjectURL(event.target.files[0]);
+    @push('scripts')
+        <script>
+            function previewDoctorPhoto(event) {
+                const img = document.querySelector('#doctor-photo-preview img');
+                if (event.target.files[0]) {
+                    img.src = URL.createObjectURL(event.target.files[0]);
+                }
             }
-        }
-    </script>
+
+            $(document).ready(function() {
+                $('.select2-tags').select2({
+                    tags: true,
+                    tokenSeparators: [','],
+                    placeholder: "Select or type specializations",
+                    allowClear: true,
+                    width: '100%'
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>

@@ -288,8 +288,7 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     // System Clinics (Super Admin only via policy)
     Route::delete('/clinics/images/{image}', [ClinicController::class, 'destroyImage'])->name('clinics.images.destroy');
     Route::post('/clinics/{id}/restore', [ClinicController::class, 'restore'])->name('clinics.restore');
-    Route::resource('clinics', ClinicController::class)
-        ->middleware('can:viewAny,can:create,can:update,can:delete');
+    Route::resource('clinics', ClinicController::class);
 
     // Doctors Management
     Route::get('/doctors/assignment', [\App\Http\Controllers\Extras\DoctorsExtrasController::class, 'assignment'])->name('doctors.assignment')->middleware('can:edit_doctors');

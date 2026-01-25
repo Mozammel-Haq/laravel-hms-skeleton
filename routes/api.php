@@ -10,5 +10,7 @@ use Illuminate\Support\Facades\Route;
 // })->middleware('auth:sanctum');
 
 Route::get('public/doctors', [DoctorsApiController::class, 'index']);
+Route::get('public/doctors/{doctor}', [DoctorsApiController::class, 'show']);
+
 Route::get('public/clinics', [ClinicApiController::class, 'index']);
 Route::get('public/clinics/{clinic}', [ClinicApiController::class, 'show']);
