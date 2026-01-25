@@ -156,6 +156,45 @@
                                 @enderror
                             </div>
 
+                            <div class="col-12">
+                                <hr>
+                                <h6 class="fw-semibold">Identity Information</h6>
+                                <p class="text-muted mb-2">Provide NID if available, otherwise Birth Certificate or Passport.</p>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">NID Number</label>
+                                <input type="text"
+                                       name="nid_number"
+                                       value="{{ old('nid_number') }}"
+                                       class="form-control @error('nid_number') is-invalid @enderror">
+                                @error('nid_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Birth Certificate Number</label>
+                                <input type="text"
+                                       name="birth_certificate_number"
+                                       value="{{ old('birth_certificate_number') }}"
+                                       class="form-control @error('birth_certificate_number') is-invalid @enderror">
+                                @error('birth_certificate_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Passport Number</label>
+                                <input type="text"
+                                       name="passport_number"
+                                       value="{{ old('passport_number') }}"
+                                       class="form-control @error('passport_number') is-invalid @enderror">
+                                @error('passport_number')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                         </div>
 
                         <!-- Actions -->

@@ -152,6 +152,25 @@
                         <div class="col-sm-12">
                             <div class="d-flex align-items-center mb-3">
                                 <span class="avatar rounded-circle bg-light text-dark flex-shrink-0 me-2">
+                                    <i class="ti ti-id text-body fs-16"></i>
+                                </span>
+                                <div>
+                                    <h6 class="fs-13 fw-bold mb-1">Identity</h6>
+                                    <p class="mb-0">
+                                        NID: {{ $patient->nid_number ?: 'N/A' }}
+                                        @if ($patient->birth_certificate_number)
+                                            , Birth Certificate: {{ $patient->birth_certificate_number }}
+                                        @endif
+                                        @if ($patient->passport_number)
+                                            , Passport: {{ $patient->passport_number }}
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="avatar rounded-circle bg-light text-dark flex-shrink-0 me-2">
                                     <i class="ti ti-alert-circle text-body fs-16"></i>
                                 </span>
                                 <div>

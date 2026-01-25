@@ -102,6 +102,25 @@
                         </div>
 
                         <div class="col-12 mt-4">
+                            <h5 class="mb-3">About & Services</h5>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">About Clinic</label>
+                            <textarea name="about" class="form-control" rows="4" placeholder="Describe the clinic, mission, facilities...">{{ old('about') }}</textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Services</label>
+                            <div id="servicesList">
+                                <div class="input-group mb-2">
+                                    <input type="text" name="services[]" class="form-control" placeholder="e.g., General Consultation" value="{{ old('services.0') }}">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="removeService(this)">Remove</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addService()">Add Service</button>
+                            <div class="form-text">Add each service offered by the clinic.</div>
+                        </div>
+
+                        <div class="col-12 mt-4">
                             <h5 class="mb-3">Branding & Images</h5>
                         </div>
                         <div class="col-md-6">
@@ -256,6 +275,24 @@
                 }
                 reader.readAsDataURL(file);
             });
+        }
+
+        // Services add/remove
+        function addService() {
+            const list = document.getElementById('servicesList');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'input-group mb-2';
+            wrapper.innerHTML = `
+                <input type="text" name="services[]" class="form-control" placeholder="e.g., General Consultation">
+                <button type="button" class="btn btn-outline-secondary" onclick="removeService(this)">Remove</button>
+            `;
+            list.appendChild(wrapper);
+        }
+        function removeService(btn) {
+            const item = btn.closest('.input-group');
+            if (item && item.parentNode) {
+                item.parentNode.removeChild(item);
+            }
         }
     </script>
 </x-app-layout>

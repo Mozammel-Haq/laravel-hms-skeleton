@@ -11,6 +11,7 @@ class Clinic extends Model
     use SoftDeletes;
     protected $casts = [
         'created_at' => 'date',
+        'services' => 'array',
     ];
     protected $guarded = ['id'];
 

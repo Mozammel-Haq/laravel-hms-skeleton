@@ -92,6 +92,29 @@
                     </div>
                 </div>
 
+                <hr class="my-4">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <h5 class="mb-2">About</h5>
+                        <div class="border rounded p-3 bg-light">
+                            {!! nl2br(e($clinic->about ?? 'No description provided')) !!}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="mb-2">Services</h5>
+                        @php $services = $clinic->services ?? []; @endphp
+                        @if (!empty($services))
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach ($services as $service)
+                                    <span class="badge bg-primary-subtle text-primary border">{{ $service }}</span>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-muted">No services listed</div>
+                        @endif
+                    </div>
+                </div>
+
                 @if ($clinic->images->count() > 0)
                     <hr class="my-4">
                     <h5 class="mb-3">Gallery</h5>
