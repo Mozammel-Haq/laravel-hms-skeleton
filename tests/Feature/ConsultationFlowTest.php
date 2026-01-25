@@ -92,7 +92,7 @@ class ConsultationFlowTest extends TestCase
             'doctor_id' => $doctor->id,
             'patient_id' => $patient->id,
             'department_id' => $department->id,
-            'appointment_date' => now()->addDay()->toDateString(),
+            'appointment_date' => now()->toDateString(),
             'start_time' => '09:00:00',
             'end_time' => '09:30:00',
             'appointment_type' => 'in_person',
@@ -144,7 +144,7 @@ class ConsultationFlowTest extends TestCase
             'doctor_id' => $doctor->id,
             'patient_id' => $patient->id,
             'department_id' => $department->id,
-            'appointment_date' => now()->addDays(2)->toDateString(),
+            'appointment_date' => now()->toDateString(),
             'start_time' => '09:00:00',
             'end_time' => '09:30:00',
             'appointment_type' => 'in_person',
@@ -169,5 +169,85 @@ class ConsultationFlowTest extends TestCase
 
         // Ensure consultation2 is linked to appointment2
         $this->assertEquals($visit2->id, $consultation2->visit_id);
+    }
+
+    public function test_cannot_consult_future_appointment()
+    {
+        // Setup data
+        $clinic = Clinic::create([
+            'name' => 'Test Clinic',
+            'code' => 'TEST02',
+            'address_line_1' => 'Test Address',
+            'city' => 'Test City',
+            'country' => 'Test Country',
+            'timezone' => 'UTC',
+            'currency' => 'USD',
+            'phone' => '1234',
+            'email' => 'test2@clinic.com'
+        ]);
+
+        $role = \App\Models\Role::create(['name' => 'Doctor', 'description' => 'Doctor Role']);
+        $permissionCreateConsultation = \App\Models\Permission::create(['name' => 'create']);
+        $role->permissions()->attach([$permissionCreateConsultation->id]);
+
+        $user = User::factory()->create([
+            'clinic_id' => $clinic->id,
+            'name' => 'Dr. Future',
+            'email' => 'doctor.future@test.com',
+            'password' => bcrypt('password')
+        ]);
+        $user->roles()->attach($role->id);
+
+        $department = \App\Models\Department::create([
+            'name' => 'General',
+            'clinic_id' => $clinic->id,
+            'description' => 'General Department'
+        ]);
+
+        $doctor = Doctor::create([
+            'user_id' => $user->id,
+            'specialization' => 'General',
+            'license_number' => '1234',
+            'primary_department_id' => $department->id
+        ]);
+        $doctor->clinics()->attach($clinic->id);
+
+        $patient = Patient::create([
+            'name' => 'Future Patient',
+            'clinic_id' => $clinic->id,
+            'patient_code' => 'PAT002',
+            'gender' => 'Male',
+            'date_of_birth' => '2000-01-01',
+            'phone' => '1234'
+        ]);
+
+        // Create FUTURE Appointment
+        $appointment = Appointment::create([
+            'clinic_id' => $clinic->id,
+            'doctor_id' => $doctor->id,
+            'patient_id' => $patient->id,
+            'department_id' => $department->id,
+            'appointment_date' => now()->addDay()->toDateString(), // Tomorrow
+            'start_time' => '09:00:00',
+            'end_time' => '09:30:00',
+            'appointment_type' => 'in_person',
+            'booking_source' => 'reception',
+            'status' => 'confirmed',
+            'created_by' => $user->id,
+        ]);
+
+        $this->actingAs($user);
+
+        // Try to start consultation
+        $response = $this->post(route('clinical.consultations.store', $appointment), [
+            'doctor_notes' => 'Initial notes',
+            'diagnosis' => 'Flu',
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('warning', 'You cannot start a consultation for a future appointment.');
+
+        $appointment->refresh();
+        $this->assertEquals('confirmed', $appointment->status); // Status should NOT change
     }
 }

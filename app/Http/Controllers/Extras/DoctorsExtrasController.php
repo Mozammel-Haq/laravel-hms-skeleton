@@ -20,7 +20,7 @@ class DoctorsExtrasController extends Controller
 
         $query = Doctor::with(['user', 'clinics', 'department']);
 
-        if ($user->hasRole('Super Admin')) {
+        if ($user->hasRole('Super Admin') || $user->can('manage_doctor_clinic_assignments')) {
             $clinics = Clinic::orderBy('name')->get();
             if (request()->filled('clinic_id')) {
                 $query->whereHas('clinics', function ($q) {

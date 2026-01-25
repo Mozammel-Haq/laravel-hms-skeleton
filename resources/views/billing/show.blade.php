@@ -183,7 +183,7 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     {{ \Carbon\Carbon::parse($p->paid_at)->format('Y-m-d H:i') }}
                                     ({{ $p->payment_method }})
-                                    <span>{{ number_format($p->amount, 2) }}</span>
+                                    <span>৳ {{ number_format($p->amount, 2) }}</span>
                                 </li>
                             @empty
                                 <li class="list-group-item">No payments yet.</li>
@@ -213,6 +213,12 @@
 
     <!-- POS Receipt Layout -->
     <div class="pos-receipt">
+        @if ($invoice->clinic?->logo_path)
+            <div style="text-align: center; margin-bottom: 10px;">
+                <img src="{{ Storage::url($invoice->clinic->logo_path) }}"
+                    style="max-height: 60px; max-width: 100%; object-fit: contain;">
+            </div>
+        @endif
         <h4>{{ $invoice->clinic?->name ?? 'Clinic Name' }}</h4>
         <p>
             {{ $invoice->clinic?->address_line_1 ?? '' }}

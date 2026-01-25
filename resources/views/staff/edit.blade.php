@@ -24,7 +24,7 @@
                                     <img id="photo-preview" src="{{ $user->profile_photo_url }}"
                                         class="rounded-circle object-fit-cover" width="80" height="80"
                                         alt="Preview">
-                                    <input type="file" name="profile_photo" class="form-control" accept="image/*"
+                                    <input type="file" name="profile_photo" class="form-control" accept="image/*,.svg"
                                         onchange="previewPhoto(this)">
                                 </div>
                                 <div class="form-text">Allowed: jpg, jpeg, png. Max: 2MB</div>

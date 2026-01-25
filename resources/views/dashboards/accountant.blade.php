@@ -25,12 +25,15 @@
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">REVENUE
                                     TODAY</h6>
-                                <h2 class="fw-bold kpi-value mb-0">{{ number_format($cards['revenue_today'], 2) }}</h2>
+                                <h2 class="fw-bold kpi-value mb-0">$ {{ number_format($cards['revenue_today'], 2) }}
+                                </h2>
+                                </h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 6V18M12 6C14.2091 6 16 7.79086 16 10C16 12.2091 14.2091 14 12 14M12 6C9.79086 6 8 7.79086 8 10C8 12.2091 9.79086 14 12 14M12 18C9.79086 18 8 16.2091 8 14M12 18C14.2091 18 16 16.2091 16 14"
+                                    <path
+                                        d="M12 6V18M12 6C14.2091 6 16 7.79086 16 10C16 12.2091 14.2091 14 12 14M12 6C9.79086 6 8 7.79086 8 10C8 12.2091 9.79086 14 12 14M12 18C9.79086 18 8 16.2091 8 14M12 18C14.2091 18 16 16.2091 16 14"
                                         stroke="var(--primary-color)" stroke-width="1.5" stroke-linecap="round"
                                         stroke-linejoin="round" />
                                 </svg>
@@ -130,7 +133,8 @@
                     <div class="card-body position-relative z-1 p-4">
                         <div class="d-flex align-items-start justify-content-between mb-3">
                             <div>
-                                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TOTAL REVENUE</h6>
+                                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">TOTAL
+                                    REVENUE</h6>
                                 <h2 class="fw-bold kpi-value mb-0">{{ number_format($cards['revenue_total'], 2) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
@@ -138,7 +142,8 @@
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path d="M12 1V23" stroke="var(--primary-color)" stroke-width="1.5"
                                         stroke-linecap="round" stroke-linejoin="round" />
-                                    <path d="M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6"
+                                    <path
+                                        d="M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6"
                                         stroke="var(--primary-color)" stroke-width="1.5" stroke-linecap="round"
                                         stroke-linejoin="round" />
                                 </svg>
@@ -164,7 +169,8 @@
         <div class="row g-4 mb-4">
             <!-- Unpaid Invoices KPI Card -->
             <div class="col-md-6">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary" data-bs-theme="light,dark">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary"
+                    data-bs-theme="light,dark">
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                             <defs>
@@ -215,7 +221,8 @@
 
             <!-- Paid Invoices KPI Card -->
             <div class="col-md-6">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success" data-bs-theme="light,dark">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success"
+                    data-bs-theme="light,dark">
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                             <defs>
@@ -280,7 +287,8 @@
                         <select name="status" class="form-select form-select-sm">
                             <option value="">All Statuses</option>
                             <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                            <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                            <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid
+                            </option>
                             <option value="partial" {{ request('status') == 'partial' ? 'selected' : '' }}>Partial
                             </option>
                             <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Overdue
@@ -338,12 +346,14 @@
                                     <td>{{ $inv->created_at }}</td>
                                     <td class="text-end">
                                         <div class="dropdown">
-                                            <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
                                                 <i class="ti ti-dots-vertical"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('billing.show', $inv) }}">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('billing.show', $inv) }}">
                                                         <i class="ti ti-eye me-1"></i> View
                                                     </a>
                                                 </li>

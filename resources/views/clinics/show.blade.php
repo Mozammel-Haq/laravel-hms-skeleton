@@ -4,8 +4,22 @@
             <div class="card-body">
                 <h2 class="h4">Clinic Details</h2>
                 <hr>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title mb-0">{{ $clinic->name }}</h5>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        @if ($clinic->logo_path)
+                            <img src="{{ Storage::url($clinic->logo_path) }}" class="rounded me-3 border" width="80"
+                                height="80" style="object-fit: cover;">
+                        @else
+                            <div class="rounded me-3 bg-light border d-flex align-items-center justify-content-center text-secondary"
+                                style="width: 80px; height: 80px;">
+                                <i class="ti ti-building-hospital fs-1"></i>
+                            </div>
+                        @endif
+                        <div>
+                            <h5 class="card-title mb-1 fs-3">{{ $clinic->name }}</h5>
+                            <div class="text-muted">{{ $clinic->city }}, {{ $clinic->country }}</div>
+                        </div>
+                    </div>
                     <div class="d-flex gap-2">
                         <a href="{{ route('clinics.edit', $clinic) }}" class="btn btn-outline-primary">Edit</a>
                         <form method="POST" action="{{ route('clinics.destroy', $clinic) }}"
@@ -30,7 +44,7 @@
                         <div>
                             @php
                                 $status = $clinic->status;
-                                $color = match($status) {
+                                $color = match ($status) {
                                     'active' => 'success',
                                     'inactive' => 'warning',
                                     default => 'secondary',
@@ -77,6 +91,22 @@
                         <div>{{ $clinic->closing_time ?: '-' }}</div>
                     </div>
                 </div>
+
+                @if ($clinic->images->count() > 0)
+                    <hr class="my-4">
+                    <h5 class="mb-3">Gallery</h5>
+                    <div class="row g-3">
+                        @foreach ($clinic->images as $image)
+                            <div class="col-md-3 col-6">
+                                <a href="{{ Storage::url($image->image_path) }}" target="_blank">
+                                    <img src="{{ Storage::url($image->image_path) }}"
+                                        class="img-fluid rounded shadow-sm w-100 border"
+                                        style="height: 200px; object-fit: cover;">
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
             <div class="card-footer">
                 <a href="{{ route('clinics.index') }}" class="btn btn-secondary">Back</a>

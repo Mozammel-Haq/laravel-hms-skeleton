@@ -45,24 +45,38 @@
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Patient Information</h5>
-                        <a href="{{ route('patients.show', $admission->patient) }}"
-                            class="d-flex align-items-center mb-3 text-decoration-none text-body">
-                            <div class="avatar avatar-lg me-3">
-                                @if ($admission->patient->profile_photo)
-                                    <img src="{{ asset($admission->patient->profile_photo) }}"
-                                        alt="{{ $admission->patient->name }}"
-                                        class="rounded-circle w-100 h-100 object-fit-cover">
-                                @else
-                                    <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
-                                        {{ substr($admission->patient->name, 0, 1) }}
+                        @if ($admission->patient)
+                            <a href="{{ route('patients.show', $admission->patient) }}"
+                                class="d-flex align-items-center mb-3 text-decoration-none text-body">
+                                <div class="avatar avatar-lg me-3">
+                                    @if ($admission->patient->profile_photo)
+                                        <img src="{{ asset($admission->patient->profile_photo) }}"
+                                            alt="{{ $admission->patient->name }}"
+                                            class="rounded-circle w-100 h-100 object-fit-cover">
+                                    @else
+                                        <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
+                                            {{ substr($admission->patient->name, 0, 1) }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">{{ $admission->patient->name }}</h6>
+                                    <div class="text-muted small">{{ $admission->patient->patient_code }}</div>
+                                </div>
+                            </a>
+                        @else
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar avatar-lg me-3">
+                                    <span class="avatar-title rounded-circle bg-secondary-subtle text-secondary fs-3">
+                                        ?
                                     </span>
-                                @endif
+                                </div>
+                                <div>
+                                    <h6 class="mb-0">Unknown Patient</h6>
+                                    <div class="text-muted small">N/A</div>
+                                </div>
                             </div>
-                            <div>
-                                <h6 class="mb-0">{{ $admission->patient->name }}</h6>
-                                <div class="text-muted small">{{ $admission->patient->patient_code }}</div>
-                            </div>
-                        </a>
+                        @endif
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item d-flex justify-content-between px-0">
                                 <span class="text-muted">Gender</span>

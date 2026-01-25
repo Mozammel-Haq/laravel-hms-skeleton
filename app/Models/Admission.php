@@ -32,4 +32,7 @@ class Admission extends BaseTenantModel
     {
         return $this->hasMany(PatientVital::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

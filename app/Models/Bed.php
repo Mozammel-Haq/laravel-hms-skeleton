@@ -16,4 +16,7 @@ class Bed extends BaseTenantModel
     {
         return $this->hasMany(BedAssignment::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

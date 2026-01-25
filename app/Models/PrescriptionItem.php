@@ -10,4 +10,7 @@ class PrescriptionItem extends BaseTenantModel
     {
         return $this->belongsTo(Medicine::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

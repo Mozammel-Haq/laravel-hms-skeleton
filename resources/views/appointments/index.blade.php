@@ -85,27 +85,34 @@
                                         </a>
                                     </td>
                                     <td>
-                                        <a href="{{ route('patients.show', $appointment->patient) }}"
-                                            class="d-flex align-items-center text-decoration-none text-body">
-                                            <div class="avatar avatar-sm me-2">
-                                                @if ($appointment->patient->profile_photo)
-                                                    <img src="{{ asset($appointment->patient->profile_photo) }}"
-                                                        alt="{{ $appointment->patient->name }}" class="rounded-circle"
-                                                        style="width:32px;height:32px;object-fit:cover;">
-                                                @else
-                                                    <span
-                                                        class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                                        {{ substr($appointment->patient->name, 0, 1) }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold">{{ $appointment->patient->name }}</div>
-                                                <div class="text-muted small">
-                                                    {{ $appointment->patient->patient_code }}
+                                        @if ($appointment->patient)
+                                            <a href="{{ route('patients.show', $appointment->patient) }}"
+                                                class="d-flex align-items-center text-decoration-none text-body">
+                                                <div class="avatar avatar-sm me-2">
+                                                    @if ($appointment->patient->profile_photo)
+                                                        <img src="{{ asset($appointment->patient->profile_photo) }}"
+                                                            alt="{{ $appointment->patient->name }}" class="rounded-circle"
+                                                            style="width:32px;height:32px;object-fit:cover;">
+                                                    @else
+                                                        <span
+                                                            class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                                            {{ substr($appointment->patient->name, 0, 1) }}
+                                                        </span>
+                                                    @endif
                                                 </div>
-                                            </div>
-                                        </a>
+                                                <div>
+                                                    <div class="fw-bold">{{ $appointment->patient->name }}</div>
+                                                    <div class="text-muted small">
+                                                        {{ $appointment->patient->patient_code }}
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        @else
+                                            <span class="text-muted">
+                                                <i class="ti ti-alert-circle me-1"></i>
+                                                Unknown Patient
+                                            </span>
+                                        @endif
                                     </td>
                                     <td>
                                         @if ($appointment->doctor)

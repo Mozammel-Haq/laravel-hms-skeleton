@@ -25,6 +25,15 @@
                         </select>
                     </div>
                     <div class="col-md-2">
+                        <select name="trashed" class="form-select">
+                            <option value="">No Trashed</option>
+                            <option value="with" {{ request('trashed') == 'with' ? 'selected' : '' }}>With Trashed
+                            </option>
+                            <option value="only" {{ request('trashed') == 'only' ? 'selected' : '' }}>Only Trashed
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <input type="date" name="from" class="form-control" placeholder="From Date"
                             value="{{ request('from') }}">
                     </div>
@@ -55,24 +64,44 @@
                         @forelse ($clinics as $clinic)
                             <tr>
                                 <td>
-                                    <a href="{{ route('clinics.show', $clinic) }}"
-                                        class="text-decoration-none text-body fw-medium">
-                                        {{ $clinic->name }}
-                                    </a>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if ($clinic->logo_path)
+                                            <img src="{{ Storage::url($clinic->logo_path) }}"
+                                                class="rounded-circle border" width="32" height="32"
+                                                style="object-fit: cover;">
+                                        @else
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center border"
+                                                style="width: 32px; height: 32px;">
+                                                <i class="ti ti-building-hospital text-muted"
+                                                    style="font-size: 16px;"></i>
+                                            </div>
+                                        @endif
+                                        <a href="{{ route('clinics.show', $clinic) }}"
+                                            class="text-decoration-none text-body fw-medium">
+                                            {{ $clinic->name }}
+                                            @if ($clinic->trashed())
+                                                <small class="text-danger ms-1">(Deleted)</small>
+                                            @endif
+                                        </a>
+                                    </div>
                                 </td>
                                 <td>{{ $clinic->code }}</td>
                                 <td>{{ $clinic->city }}</td>
                                 <td>{{ $clinic->country }}</td>
                                 <td>
-                                    @php
-                                        $status = $clinic->status;
-                                        $color = match ($status) {
-                                            'active' => 'success',
-                                            'inactive' => 'warning',
-                                            default => 'secondary',
-                                        };
-                                    @endphp
-                                    <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
+                                    @if ($clinic->trashed())
+                                        <span class="badge bg-danger">Deleted</span>
+                                    @else
+                                        @php
+                                            $status = $clinic->status;
+                                            $color = match ($status) {
+                                                'active' => 'success',
+                                                'inactive' => 'warning',
+                                                default => 'secondary',
+                                            };
+                                        @endphp
+                                        <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
+                                    @endif
                                 </td>
                                 <td class="text-end">
                                     <div class="dropdown">
@@ -81,29 +110,45 @@
                                             <i class="ti ti-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="{{ route('clinics.show', $clinic) }}">
-                                                    <i class="ti ti-eye me-1"></i> View
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="{{ route('clinics.edit', $clinic) }}">
-                                                    <i class="ti ti-edit me-1"></i> Edit
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <hr class="dropdown-divider">
-                                            </li>
-                                            <li>
-                                                <form method="POST" action="{{ route('clinics.destroy', $clinic) }}"
-                                                    onsubmit="return confirm('Delete this clinic?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="dropdown-item text-danger">
-                                                        <i class="ti ti-trash me-1"></i> Delete
-                                                    </button>
-                                                </form>
-                                            </li>
+                                            @if ($clinic->trashed())
+                                                <li>
+                                                    <form method="POST"
+                                                        action="{{ route('clinics.restore', $clinic->id) }}"
+                                                        onsubmit="return confirm('Restore this clinic?')">
+                                                        @csrf
+                                                        <button type="submit" class="dropdown-item text-success">
+                                                            <i class="ti ti-rotate me-1"></i> Restore
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            @else
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('clinics.show', $clinic) }}">
+                                                        <i class="ti ti-eye me-1"></i> View
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('clinics.edit', $clinic) }}">
+                                                        <i class="ti ti-edit me-1"></i> Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+                                                <li>
+                                                    <form method="POST"
+                                                        action="{{ route('clinics.destroy', $clinic) }}"
+                                                        onsubmit="return confirm('Delete this clinic?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="dropdown-item text-danger">
+                                                            <i class="ti ti-trash me-1"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </li>
+                                            @endif
                                         </ul>
                                     </div>
                                 </td>

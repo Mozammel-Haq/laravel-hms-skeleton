@@ -4,9 +4,14 @@ namespace App\Models;
 
 // use App\Models\Base\BaseTenantModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Clinic extends Model
 {
+    use SoftDeletes;
+    protected $casts = [
+        'created_at' => 'date',
+    ];
     protected $guarded = ['id'];
 
     public function departments()
@@ -36,5 +41,10 @@ class Clinic extends Model
     public function doctors()
     {
         return $this->belongsToMany(Doctor::class, 'doctor_clinic');
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ClinicImage::class)->orderBy('sort_order');
     }
 }

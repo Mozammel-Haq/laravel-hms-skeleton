@@ -17,4 +17,7 @@ class DoctorScheduleException extends BaseTenantModel
     {
         return $this->belongsTo(Clinic::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

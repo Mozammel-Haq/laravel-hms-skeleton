@@ -21,4 +21,7 @@ class PharmacySale extends BaseTenantModel
     {
         return $this->belongsTo(Prescription::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

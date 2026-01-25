@@ -57,6 +57,7 @@ class RolePermissionSeeder extends Seeder
             'edit_doctors',
             'delete_doctors',
             'manage_doctor_schedule',
+            'manage_doctor_clinic_assignments',
 
             // Staff Management
             'view_staff',

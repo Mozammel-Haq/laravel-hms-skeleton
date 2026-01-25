@@ -18,6 +18,17 @@ class PatientSearchController extends Controller
 
         $query = Patient::query();
 
+        // Filter for Lab Eligibility
+        if ($request->input('type') === 'lab_eligible') {
+            $query->where(function($q) {
+                $q->whereHas('appointments', function($sub) {
+                    $sub->where('status', 'completed');
+                })->orWhereHas('admissions', function($sub) {
+                    $sub->where('status', 'admitted');
+                });
+            });
+        }
+
         if ($term) {
             $query->where(function ($q) use ($term) {
                 $q->where('name', 'like', "%{$term}%")

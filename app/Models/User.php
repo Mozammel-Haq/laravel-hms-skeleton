@@ -9,7 +9,9 @@ use App\Models\Role;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,9 +20,9 @@ use Illuminate\Support\Facades\Hash;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class User extends BaseTenantModel implements AuthenticatableContract, MustVerifyEmailContract, CanResetPasswordContract
+class User extends BaseTenantModel implements AuthenticatableContract, MustVerifyEmailContract, CanResetPasswordContract, AuthorizableContract
 {
-    use HasFactory, Notifiable, AuthenticatableTrait, MustVerifyEmailTrait, CanResetPasswordTrait, SoftDeletes;
+    use HasFactory, Notifiable, AuthenticatableTrait, MustVerifyEmailTrait, CanResetPasswordTrait, SoftDeletes, Authorizable;
 
     /**
      * Fillable attributes

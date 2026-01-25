@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\LabTestResult;
+use Illuminate\Support\Facades\Storage;
 
 class LabResultsController extends Controller
 {
@@ -41,5 +42,23 @@ class LabResultsController extends Controller
         $results = $query->latest('reported_at')->paginate(20)->withQueryString();
 
         return view('lab.results.index', compact('results'));
+    }
+
+    public function download(LabTestResult $result)
+    {
+        if (!$result->pdf_path || !Storage::disk('public')->exists($result->pdf_path)) {
+            return back()->with('error', 'No result file attached.');
+        }
+
+        return Storage::disk('public')->download($result->pdf_path);
+    }
+
+    public function viewFile(LabTestResult $result)
+    {
+        if (!$result->pdf_path || !Storage::disk('public')->exists($result->pdf_path)) {
+            return back()->with('error', 'No result file attached.');
+        }
+
+        return response()->file(Storage::disk('public')->path($result->pdf_path));
     }
 }

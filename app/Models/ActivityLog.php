@@ -12,4 +12,7 @@ class ActivityLog extends BaseTenantModel
     {
         return $this->belongsTo(User::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

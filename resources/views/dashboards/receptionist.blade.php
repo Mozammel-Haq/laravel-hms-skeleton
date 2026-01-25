@@ -139,7 +139,7 @@
                                             <td>
                                                 @php
                                                     $aStatus = $a->status ?? 'pending';
-                                                    $aColor = match($aStatus) {
+                                                    $aColor = match ($aStatus) {
                                                         'completed' => 'success',
                                                         'confirmed' => 'primary',
                                                         'pending' => 'warning',
@@ -147,7 +147,8 @@
                                                         default => 'secondary',
                                                     };
                                                 @endphp
-                                                <span class="badge bg-{{ $aColor }}">{{ ucfirst($aStatus) }}</span>
+                                                <span
+                                                    class="badge bg-{{ $aColor }}">{{ ucfirst($aStatus) }}</span>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -182,7 +183,7 @@
                                                     {{ $p->name }}
                                                 </a>
                                             </td>
-                                            <td>{{ $p->created_at?->format('d M') }}</td>
+                                            <td>{{ $p->created_at->format('M d, Y') }}</td>
                                             <td><span class="badge bg-secondary">{{ $p->status ?? 'active' }}</span>
                                             </td>
                                         </tr>

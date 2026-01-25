@@ -265,6 +265,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
 
         // Results
         Route::get('/results', [LabResultsController::class, 'index'])->name('results.index');
+        Route::get('/results/{result}/download', [LabResultsController::class, 'download'])->name('results.download');
+        Route::get('/results/{result}/view', [LabResultsController::class, 'viewFile'])->name('results.view');
         Route::get('/order/{order}/result', [LabController::class, 'addResult'])->name('result.add');
         Route::post('/order/{order}/result', [LabController::class, 'storeResult'])->name('result.store');
         Route::post('/order/{order}/invoice', [LabController::class, 'generateInvoice'])->name('invoice.generate');
@@ -284,6 +286,8 @@ Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(funct
     // --- Admin & Settings ---
 
     // System Clinics (Super Admin only via policy)
+    Route::delete('/clinics/images/{image}', [ClinicController::class, 'destroyImage'])->name('clinics.images.destroy');
+    Route::post('/clinics/{id}/restore', [ClinicController::class, 'restore'])->name('clinics.restore');
     Route::resource('clinics', ClinicController::class)
         ->middleware('can:viewAny,can:create,can:update,can:delete');
 

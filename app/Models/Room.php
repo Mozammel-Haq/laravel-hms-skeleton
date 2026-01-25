@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+
 class Room extends BaseTenantModel
 {
     public function ward()
@@ -14,4 +15,7 @@ class Room extends BaseTenantModel
     {
         return $this->hasMany(Bed::class);
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

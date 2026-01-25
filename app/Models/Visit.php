@@ -24,4 +24,7 @@ class Visit extends BaseTenantModel
     {
         return $this->hasMany(PatientVital::class, 'visit_id');
     }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }

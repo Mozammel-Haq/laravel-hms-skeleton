@@ -115,7 +115,8 @@
 
             <!-- Appointments KPI Card -->
             <div class="col-xl-3 col-md-6">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info" data-bs-theme="light,dark">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info"
+                    data-bs-theme="light,dark">
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                             <defs>
@@ -166,7 +167,8 @@
 
             <!-- Revenue KPI Card -->
             <div class="col-xl-3 col-md-6">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success" data-bs-theme="light,dark">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success"
+                    data-bs-theme="light,dark">
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                             <defs>
@@ -243,13 +245,17 @@
                                 @forelse($latestAppointments as $appointment)
                                     <tr>
                                         <td>
-                                            <a href="{{ route('patients.show', $appointment->patient) }}"
-                                                class="text-decoration-none text-body">
-                                                <div class="fw-semibold">{{ $appointment->patient->name }}</div>
-                                                <div class="small text-muted">
-                                                    {{ $appointment->patient->patient_code }}
-                                                </div>
-                                            </a>
+                                            @if ($appointment->patient)
+                                                <a href="{{ route('patients.show', $appointment->patient) }}"
+                                                    class="text-decoration-none text-body">
+                                                    <div class="fw-semibold">{{ $appointment->patient->name }}</div>
+                                                    <div class="small text-muted">
+                                                        {{ $appointment->patient->patient_code }}
+                                                    </div>
+                                                </a>
+                                            @else
+                                                <div class="fw-semibold text-muted">Unknown Patient</div>
+                                            @endif
                                         </td>
                                         <td>
                                             @if ($appointment->doctor)
@@ -264,7 +270,9 @@
                                         <td>
                                             <a href="{{ route('appointments.show', $appointment) }}"
                                                 class="text-decoration-none text-body">
-                                                <div>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y') }}</div>
+                                                <div>
+                                                    {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y') }}
+                                                </div>
                                                 <div class="small text-muted">{{ $appointment->start_time }}</div>
                                             </a>
                                         </td>

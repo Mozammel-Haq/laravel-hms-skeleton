@@ -170,7 +170,7 @@
                                                         Select the clinics where this doctor practices.
                                                     </p>
 
-                                                    @role('Super Admin')
+                                                    @if (auth()->user()->hasRole('Super Admin') || auth()->user()->can('manage_doctor_clinic_assignments'))
                                                         @foreach ($clinics as $clinic)
                                                             <div class="form-check mb-2">
                                                                 <input class="form-check-input" type="checkbox"
@@ -199,7 +199,7 @@
                                                                 </label>
                                                             </div>
                                                         @endforeach
-                                                    @endrole
+                                                    @endif
                                                 </div>
 
                                                 <div class="modal-footer">

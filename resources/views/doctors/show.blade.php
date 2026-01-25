@@ -82,6 +82,14 @@
                                     {{ ucfirst($status) }}
                                 </span>
                             </div>
+                            <div class="col-6">
+                                <div class="text-muted">Room No</div>
+                                <div class="fw-semibold">{{ $doctor->consultation_room_number ?? 'N/A' }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-muted">Floor No</div>
+                                <div class="fw-semibold">{{ $doctor->consultation_floor ?? 'N/A' }}</div>
+                            </div>
                         </div>
 
                         <!-- Fees -->

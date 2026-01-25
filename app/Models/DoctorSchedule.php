@@ -19,6 +19,15 @@ class DoctorSchedule extends BaseTenantModel
         'status',
     ];
 
-    public function doctor() { return $this->belongsTo(Doctor::class); }
-    public function exceptions() { return $this->hasMany(DoctorScheduleException::class); }
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
+    }
+    public function exceptions()
+    {
+        return $this->hasMany(DoctorScheduleException::class);
+    }
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }
