@@ -14,7 +14,7 @@ class ClinicPolicy
 
     public function view(User $user, Clinic $clinic): bool
     {
-        return $user->hasRole('Super Admin');
+        return $user->hasRole('Super Admin') || $user->clinic_id === $clinic->id;
     }
 
     public function create(User $user): bool
@@ -24,7 +24,7 @@ class ClinicPolicy
 
     public function update(User $user, Clinic $clinic): bool
     {
-        return $user->hasRole('Super Admin');
+        return $user->hasRole('Super Admin') || $user->clinic_id === $clinic->id;
     }
 
     public function delete(User $user, Clinic $clinic): bool

@@ -42,7 +42,13 @@
                         </div>
                         <div class="mb-3">
                             <div class="text-muted">Specialization</div>
-                            <div class="fw-semibold">{{ $doctor->specialization ?? 'N/A' }}</div>
+                            <div class="fw-semibold">
+                                @if(is_array($doctor->specialization))
+                                    {{ implode(', ', $doctor->specialization) }}
+                                @else
+                                    {{ $doctor->specialization ?? 'N/A' }}
+                                @endif
+                            </div>
                         </div>
                         <div class="mb-3">
                             <div class="text-muted">Consultation Fee</div>

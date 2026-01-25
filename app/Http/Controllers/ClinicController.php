@@ -59,7 +59,7 @@ class ClinicController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:clinics,code',
-            'registration_number' => 'nullable|string|max:100',
+            'registration_number' => 'nullable|string|max:100|unique:clinics,registration_number',
             'about' => 'nullable|string',
             'services' => 'nullable|array',
             'services.*' => 'nullable|string|max:255',
@@ -122,7 +122,7 @@ class ClinicController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:clinics,code,' . $clinic->id,
-            'registration_number' => 'nullable|string|max:100',
+            'registration_number' => 'nullable|string|max:100|unique:clinics,registration_number,' . $clinic->id,
             'about' => 'nullable|string',
             'services' => 'nullable|array',
             'services.*' => 'nullable|string|max:255',

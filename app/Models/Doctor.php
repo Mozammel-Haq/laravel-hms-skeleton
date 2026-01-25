@@ -61,5 +61,6 @@ class Doctor extends Model
     }
     protected $casts = [
         'created_at' => 'date',
+        'specialization' => 'array',
     ];
 }

@@ -336,7 +336,13 @@
                                             <div class="fw-semibold">
                                                 {{ $doctor->user?->name ?? 'Deleted Doctor' }}
                                             </div>
-                                            <div class="small text-muted">{{ $doctor->specialization }}</div>
+                                            <div class="small text-muted">
+                                                @if(is_array($doctor->specialization))
+                                                    {{ implode(', ', $doctor->specialization) }}
+                                                @else
+                                                    {{ $doctor->specialization }}
+                                                @endif
+                                            </div>
                                         </div>
                                     </a>
                                     <span class="badge bg-light text-dark">

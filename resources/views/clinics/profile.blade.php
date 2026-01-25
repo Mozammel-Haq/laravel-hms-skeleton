@@ -2,119 +2,146 @@
     @php
         $clinic = optional(auth()->user())->clinic;
     @endphp
+
     <div class="container-fluid">
-
-<div class="row g-4">
-
-    {{-- CLINIC PROFILE --}}
-    <div class="col-lg-8">
-        <div class="card mt-2 mx-2">
-            <div class="card-body">
-
-                {{-- Header --}}
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="page-title mb-0">Clinic Profile</h3>
-                    <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-primary">
-                        Dashboard
-                    </a>
-                </div>
-                <hr>
-                <hr class="my-4">
-
-                {{-- Profile Grid --}}
-                <div class="row g-4">
-
-                    {{-- Identity --}}
-                    <div class="col-md-6">
-                        <div class="border rounded-2 p-3 h-100">
-                            <div class="text-muted small mb-1">Clinic Name</div>
-                            <div class="fw-semibold">
-                                {{ optional($clinic)->name ?? 'Clinic' }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="border rounded-2 p-3 h-100">
-                            <div class="text-muted small mb-1">Clinic Code</div>
-                            <div class="fw-semibold">
-                                {{ optional($clinic)->code ?? '—' }}
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Location --}}
-                    <div class="col-md-6">
-                        <div class="border rounded-2 p-3 h-100">
-                            <div class="text-muted small mb-1">City</div>
-                            <div class="fw-semibold">
-                                {{ optional($clinic)->city ?? '—' }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="border rounded-2 p-3 h-100">
-                            <div class="text-muted small mb-1">Country</div>
-                            <div class="fw-semibold">
-                                {{ optional($clinic)->country ?? '—' }}
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Settings --}}
-                    <div class="col-md-6">
-                        <div class="border rounded-2 p-3 h-100">
-                            <div class="text-muted small mb-1">Timezone</div>
-                            <div class="fw-semibold">
-                                {{ optional($clinic)->timezone ?? '—' }}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="border rounded-2 p-3 h-100">
-                            <div class="text-muted small mb-1">Currency</div>
-                            <div class="fw-semibold">
-                                {{ optional($clinic)->currency ?? '—' }}
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- QUICK ACTIONS --}}
-    <div class="col-lg-4">
+        @if($clinic)
         <div class="card mt-2">
             <div class="card-body">
-
-                <div class="fw-semibold mb-3">Quick Actions</div>
-
-                <div class="d-grid gap-2">
-                    <a href="{{ route('departments.index') }}"
-                       class="btn btn-outline-primary">
-                        Manage Departments
-                    </a>
-
-                    <a href="{{ route('staff.index') }}"
-                       class="btn btn-outline-primary">
-                        Manage Staff
-                    </a>
-
-                    <a href="{{ route('doctors.index') }}"
-                       class="btn btn-outline-primary">
-                        Manage Doctors
-                    </a>
+                <h2 class="h4">Clinic Profile</h2>
+                <hr>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="d-flex align-items-center">
+                        @if ($clinic->logo_path)
+                            <img src="{{ Storage::url($clinic->logo_path) }}" class="rounded me-3 border" width="80"
+                                height="80" style="object-fit: cover;">
+                        @else
+                            <div class="rounded me-3 bg-light border d-flex align-items-center justify-content-center text-secondary"
+                                style="width: 80px; height: 80px;">
+                                <i class="ti ti-building-hospital fs-1"></i>
+                            </div>
+                        @endif
+                        <div>
+                            <h5 class="card-title mb-1 fs-3">{{ $clinic->name }}</h5>
+                            <div class="text-muted">{{ $clinic->city }}, {{ $clinic->country }}</div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('clinics.edit', $clinic) }}" class="btn btn-outline-primary">
+                            <i class="ti ti-edit me-1"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Code</div>
+                        <div>{{ $clinic->code }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Registration No.</div>
+                        <div>{{ $clinic->registration_number ?: '-' }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Status</div>
+                        <div>
+                            @php
+                                $status = $clinic->status;
+                                $color = match ($status) {
+                                    'active' => 'success',
+                                    'inactive' => 'warning',
+                                    default => 'secondary',
+                                };
+                            @endphp
+                            <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Timezone</div>
+                        <div>{{ $clinic->timezone }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fw-semibold text-muted">Address</div>
+                        <div>
+                            {{ $clinic->address_line_1 }}<br>
+                            @if($clinic->address_line_2)
+                                {{ $clinic->address_line_2 }}<br>
+                            @endif
+                            {{ $clinic->city }}, {{ $clinic->state }}<br>
+                            {{ $clinic->country }} {{ $clinic->postal_code }}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Phone</div>
+                        <div>{{ $clinic->phone ?: '-' }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Email</div>
+                        <div>{{ $clinic->email ?: '-' }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Website</div>
+                        <div>{{ $clinic->website ?: '-' }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Currency</div>
+                        <div>{{ $clinic->currency }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Opening Time</div>
+                        <div>{{ $clinic->opening_time ? \Carbon\Carbon::parse($clinic->opening_time)->format('h:i A') : '-' }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="fw-semibold text-muted">Closing Time</div>
+                        <div>{{ $clinic->closing_time ? \Carbon\Carbon::parse($clinic->closing_time)->format('h:i A') : '-' }}</div>
+                    </div>
                 </div>
 
+                <hr class="my-4">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <h5 class="mb-2">About</h5>
+                        <div class="border rounded p-3 bg-light">
+                            {!! nl2br(e($clinic->about ?? 'No description provided')) !!}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h5 class="mb-2">Services</h5>
+                        @php $services = $clinic->services ?? []; @endphp
+                        @if (!empty($services))
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach ($services as $service)
+                                    <span class="badge bg-primary-subtle text-primary border">{{ $service }}</span>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-muted">No services listed</div>
+                        @endif
+                    </div>
+                </div>
+
+                @if ($clinic->images->count() > 0)
+                    <hr class="my-4">
+                    <h5 class="mb-3">Gallery</h5>
+                    <div class="row g-3">
+                        @foreach ($clinic->images as $image)
+                            <div class="col-md-3 col-6">
+                                <a href="{{ Storage::url($image->image_path) }}" target="_blank">
+                                    <img src="{{ Storage::url($image->image_path) }}"
+                                        class="img-fluid rounded shadow-sm w-100 border"
+                                        style="height: 200px; object-fit: cover;">
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+            <div class="card-footer">
+                <a href="{{ route('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
             </div>
         </div>
-    </div>
-
-</div>
-
+        @else
+            <div class="alert alert-warning">
+                No clinic profile found for your account. Please contact super admin.
+            </div>
+        @endif
     </div>
 </x-app-layout>
