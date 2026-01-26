@@ -18,6 +18,19 @@ class Patient extends BaseTenantModel implements AuthenticatableContract
         'last_login_at' => 'datetime',
         'password' => 'hashed',
     ];
+    protected $fillable = [
+        'clinic_id',
+        'name',
+        'email',
+        'password',
+        'profile_photo',
+        'date_of_birth',
+        'phone',
+        'blood_group',
+        'nid_number',
+        'birth_certificate_number',
+        'passport_number',
+    ];
 
     protected $hidden = [
         'password',

@@ -338,7 +338,7 @@
                                             </div>
                                             <div class="small text-muted">
                                                 @if (is_array($doctor->specialization))
-                                                    {{ implode(', ', $doctor->specialization) }}
+                                                    {{ implode(', ', \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($doctor->specialization))) }}
                                                 @else
                                                     {{ $doctor->specialization }}
                                                 @endif

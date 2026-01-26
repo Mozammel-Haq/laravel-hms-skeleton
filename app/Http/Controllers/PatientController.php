@@ -77,31 +77,30 @@ class PatientController extends Controller
     {
         Gate::authorize('create', Patient::class);
 
-        \Illuminate\Support\Facades\Log::info('Patient Store Request Data:', $request->all());
-        \Illuminate\Support\Facades\Log::info('Has File profile_photo:', ['has' => $request->hasFile('profile_photo')]);
-        if ($request->hasFile('profile_photo')) {
-            \Illuminate\Support\Facades\Log::info('File details:', [
-                'name' => $request->file('profile_photo')->getClientOriginalName(),
-                'valid' => $request->file('profile_photo')->isValid(),
-            ]);
-        }
-
         $data = $request->validated();
 
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $destination = public_path('assets/img/patients');
 
-            if (!is_dir($destination)) {
-                mkdir($destination, 0755, true);
+            if ($file->isValid()) {
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $destination = public_path('assets/img/patients');
+
+                if (!is_dir($destination)) {
+                    mkdir($destination, 0755, true);
+                }
+
+                try {
+                    $file->move($destination, $filename);
+                    $data['profile_photo'] = 'assets/img/patients/' . $filename;
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('File upload failed: ' . $e->getMessage());
+                    // Continue without the file or return error
+                }
             }
-
-            $file->move($destination, $filename);
-            $data['profile_photo'] = 'assets/img/patients/' . $filename;
         }
 
-        $defaultPassword = env('PATIENT_DEFAULT_PASSWORD', 'Default123!');
+        $defaultPassword = env('PATIENT_DEFAULT_PASSWORD', 'PT1234');
         $data['password'] = Hash::make($defaultPassword);
         $data['must_change_password'] = true;
 
@@ -158,15 +157,27 @@ class PatientController extends Controller
 
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $destination = public_path('assets/img/patients');
 
-            if (!is_dir($destination)) {
-                mkdir($destination, 0755, true);
+            if ($file->isValid()) {
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $destination = public_path('assets/img/patients');
+
+                if (!is_dir($destination)) {
+                    mkdir($destination, 0755, true);
+                }
+
+                try {
+                    // Delete old photo if exists
+                    if ($patient->profile_photo && file_exists(public_path($patient->profile_photo))) {
+                        unlink(public_path($patient->profile_photo));
+                    }
+
+                    $file->move($destination, $filename);
+                    $data['profile_photo'] = 'assets/img/patients/' . $filename;
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('File upload failed: ' . $e->getMessage());
+                }
             }
-
-            $file->move($destination, $filename);
-            $data['profile_photo'] = 'assets/img/patients/' . $filename;
         }
 
         $patient->update($data);

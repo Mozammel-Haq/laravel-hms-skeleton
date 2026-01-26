@@ -141,6 +141,49 @@
                             @enderror
                         </div>
 
+                        <!-- Identity Information -->
+                        <div class="col-12">
+                            <hr>
+                            <h6 class="fw-semibold">Identity Information</h6>
+                            <p class="text-muted mb-2">Provide at least one identification number.</p>
+                        </div>
+
+                        <!-- NID Number -->
+                        <div class="col-md-4">
+                            <label for="nid_number" class="form-label">NID Number</label>
+                            <input type="text"
+                                class="form-control @error('nid_number') is-invalid @enderror"
+                                id="nid_number" name="nid_number"
+                                value="{{ old('nid_number', $patient->nid_number) }}">
+                            @error('nid_number')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Birth Certificate Number -->
+                        <div class="col-md-4">
+                            <label for="birth_certificate_number" class="form-label">Birth Certificate Number</label>
+                            <input type="text"
+                                class="form-control @error('birth_certificate_number') is-invalid @enderror"
+                                id="birth_certificate_number" name="birth_certificate_number"
+                                value="{{ old('birth_certificate_number', $patient->birth_certificate_number) }}">
+                            @error('birth_certificate_number')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Passport Number -->
+                        <div class="col-md-4">
+                            <label for="passport_number" class="form-label">Passport Number</label>
+                            <input type="text"
+                                class="form-control @error('passport_number') is-invalid @enderror"
+                                id="passport_number" name="passport_number"
+                                value="{{ old('passport_number', $patient->passport_number) }}">
+                            @error('passport_number')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                     </div>
 
                     <!-- Actions -->

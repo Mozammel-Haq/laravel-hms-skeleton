@@ -43,11 +43,11 @@
                         <div class="mb-3">
                             <div class="text-muted">Specialization</div>
                             <div class="fw-semibold">
-                                @if(is_array($doctor->specialization))
-                                    {{ implode(', ', $doctor->specialization) }}
-                                @else
-                                    {{ $doctor->specialization ?? 'N/A' }}
-                                @endif
+                                @php
+                                    $spec = $doctor->specialization;
+                                    $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                @endphp
+                                {{ empty($spec) ? 'N/A' : implode(', ', $spec) }}
                             </div>
                         </div>
                         <div class="mb-3">

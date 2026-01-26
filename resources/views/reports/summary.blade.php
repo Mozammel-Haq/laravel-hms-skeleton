@@ -643,7 +643,10 @@
                     type: 'donut',
                     height: 350,
                     fontFamily: 'inherit',
-                    background: 'transparent'
+                    background: 'transparent',
+                    toolbar: {
+                        show: true
+                    }
                 },
                 theme: {
                     mode: document.documentElement.getAttribute('data-bs-theme') || 'light'

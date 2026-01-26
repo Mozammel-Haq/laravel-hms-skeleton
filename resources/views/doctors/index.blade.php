@@ -99,14 +99,26 @@
                                 @endif
                             </td>
                             <td>
-                                @if(is_array($doctor->specialization))
+                                @php
+                                    $specData = $doctor->specialization;
+                                    if (is_string($specData)) {
+                                        $decoded = json_decode($specData, true);
+                                        if (json_last_error() === JSON_ERROR_NONE) {
+                                            $specData = $decoded;
+                                        }
+                                    }
+                                    $specData = \Illuminate\Support\Arr::wrap($specData);
+                                    $flatSpecs = \Illuminate\Support\Arr::flatten($specData);
+                                    $flatSpecs = array_filter($flatSpecs, fn($item) => is_string($item) || is_numeric($item));
+                                @endphp
+                                @if(count($flatSpecs) > 0)
                                     <div class="d-flex flex-wrap gap-1">
-                                        @foreach($doctor->specialization as $spec)
+                                        @foreach($flatSpecs as $spec)
                                             <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-10">{{ $spec }}</span>
                                         @endforeach
                                     </div>
                                 @else
-                                    {{ $doctor->specialization }}
+                                    <span class="text-muted small">—</span>
                                 @endif
                             </td>
                             <td>

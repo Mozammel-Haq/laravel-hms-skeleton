@@ -46,11 +46,11 @@
                             <div class="mb-2 d-flex align-items-center">
                                 <i class="fa fa-stethoscope me-2 text-muted"></i>
                                 <span>
-                                @if(is_array($doctor->specialization))
-                                    {{ implode(', ', $doctor->specialization) }}
-                                @else
-                                    {{ $doctor->specialization ?? 'Specialization not set' }}
-                                @endif
+                                @php
+                                    $spec = $doctor->specialization;
+                                    $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                @endphp
+                                {{ empty($spec) ? 'Specialization not set' : implode(', ', $spec) }}
                             </span>
                             </div>
 

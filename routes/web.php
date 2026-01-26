@@ -36,8 +36,8 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'auth.login');
 require __DIR__ . '/auth.php';
 
-
-Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(function () {
+// Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(function () {
+Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

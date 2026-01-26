@@ -73,11 +73,11 @@
                                                         {{ $request->doctor->user?->name ?? 'Deleted Doctor' }}
                                                     </div>
                                                     <div class="text-muted small">
-                                                        @if(is_array($request->doctor->specialization))
-                                                            {{ implode(', ', $request->doctor->specialization) }}
-                                                        @else
-                                                            {{ $request->doctor->specialization ?? '' }}
-                                                        @endif
+                                                        @php
+                                                            $spec = $request->doctor->specialization;
+                                                            $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                                        @endphp
+                                                        {{ empty($spec) ? '' : implode(', ', $spec) }}
                                                     </div>
                                                 </div>
                                             </a>

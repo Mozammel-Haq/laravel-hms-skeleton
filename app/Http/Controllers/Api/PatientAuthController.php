@@ -76,7 +76,7 @@ class PatientAuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'patient' => $validPatient,
+            'user' => $validPatient,
         ]);
     }
 

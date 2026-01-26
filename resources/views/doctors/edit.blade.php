@@ -53,13 +53,23 @@
                                         @foreach (old('specialization') as $spec)
                                             <option value="{{ $spec }}" selected>{{ $spec }}</option>
                                         @endforeach
-                                    @elseif(is_array($doctor->specialization))
-                                        @foreach ($doctor->specialization as $spec)
+                                    @else
+                                        @php
+                                            $specData = $doctor->specialization;
+                                            // Handle potential JSON string
+                                            if (is_string($specData)) {
+                                                $decoded = json_decode($specData, true);
+                                                if (json_last_error() === JSON_ERROR_NONE) {
+                                                    $specData = $decoded;
+                                                }
+                                            }
+                                            $specData = \Illuminate\Support\Arr::wrap($specData);
+                                            $flatSpecs = \Illuminate\Support\Arr::flatten($specData);
+                                            $flatSpecs = array_filter($flatSpecs, fn($item) => is_string($item) || is_numeric($item));
+                                        @endphp
+                                        @foreach ($flatSpecs as $spec)
                                             <option value="{{ $spec }}" selected>{{ $spec }}</option>
                                         @endforeach
-                                    @elseif($doctor->specialization)
-                                        <option value="{{ $doctor->specialization }}" selected>
-                                            {{ $doctor->specialization }}</option>
                                     @endif
                                 </select>
                             </div>

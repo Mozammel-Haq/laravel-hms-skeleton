@@ -26,11 +26,11 @@
                             <x-input-label :value="__('Doctor')" />
                             <div class="p-2 bg-gray-100 rounded mt-1">
                                 {{ $appointment->doctor?->user?->name ?? 'Deleted Doctor' }} -
-                                @if(is_array($appointment->doctor?->specialization))
-                                    {{ implode(', ', $appointment->doctor->specialization) }}
-                                @else
-                                    {{ $appointment->doctor?->specialization ?? '' }}
-                                @endif
+                                @php
+                                    $spec = $appointment->doctor?->specialization;
+                                    $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                @endphp
+                                {{ implode(', ', $spec) }}
                             </div>
                         </div>
 
