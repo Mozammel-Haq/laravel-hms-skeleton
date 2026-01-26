@@ -148,11 +148,11 @@
                                             @endif
                                         </div>
                                         <div class="text-muted small">
-                                            @if(is_array($appointment->doctor?->specialization))
-                                                {{ implode(', ', $appointment->doctor->specialization) }}
-                                            @else
-                                                {{ $appointment->doctor?->specialization ?? 'N/A' }}
-                                            @endif
+                                            @php
+                                                $spec = $appointment->doctor?->specialization;
+                                                $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                            @endphp
+                                            {{ empty($spec) ? 'N/A' : implode(', ', $spec) }}
                                         </div>
                                     </div>
                                 </div>

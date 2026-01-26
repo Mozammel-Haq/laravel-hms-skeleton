@@ -110,11 +110,11 @@
                                             <div class="fw-semibold">{{ $doctor->user?->name ?? 'Deleted Doctor' }}
                                             </div>
                                             <div class="text-muted small">
-                                                @if(is_array($doctor->specialization))
-                                                    {{ implode(', ', $doctor->specialization) }}
-                                                @else
-                                                    {{ $doctor->specialization }}
-                                                @endif
+                                                @php
+                                                    $spec = $doctor->specialization;
+                                                    $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                                @endphp
+                                                {{ empty($spec) ? '' : implode(', ', $spec) }}
                                             </div>
                                         </td>
                                         <td>

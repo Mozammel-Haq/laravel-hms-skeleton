@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\ClinicApiController;
 use App\Http\Controllers\Api\DoctorsApiController;
 use App\Http\Controllers\Api\PatientAuthController;
+use App\Http\Controllers\Api\PatientClinicsController;
+use App\Http\Controllers\Api\PatientProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +23,8 @@ Route::prefix('patient')->group(function () {
     Route::middleware(['auth:sanctum', 'api.tenant'])->group(function () {
         Route::post('logout', [PatientAuthController::class, 'logout']);
         Route::get('me', [PatientAuthController::class, 'me']);
+        Route::get('clinics', [PatientClinicsController::class, 'index']);
         Route::post('change-password', [PatientAuthController::class, 'changePassword']);
+        Route::put('profile/update/{id}', [PatientProfileController::class, 'update']);
     });
 });

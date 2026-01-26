@@ -49,17 +49,25 @@
                             <div class="col-12">
                                 <label class="text-muted small text-uppercase fw-bold mb-2">Specializations</label>
                                 <div class="d-flex flex-wrap gap-1">
-                                    @if (is_array($doctor->specialization))
-                                        @foreach ($doctor->specialization as $spec)
+                                    @php
+                                        $specData = $doctor->specialization;
+                                        if (is_string($specData)) {
+                                            $decoded = json_decode($specData, true);
+                                            if (json_last_error() === JSON_ERROR_NONE) {
+                                                $specData = $decoded;
+                                            }
+                                        }
+                                        $specData = \Illuminate\Support\Arr::wrap($specData);
+                                        $flatSpecs = \Illuminate\Support\Arr::flatten($specData);
+                                        $flatSpecs = array_filter($flatSpecs, fn($item) => is_string($item) || is_numeric($item));
+                                    @endphp
+                                    @if(count($flatSpecs) > 0)
+                                        @foreach ($flatSpecs as $spec)
                                             <span
                                                 class="badge bg-primary-subtle text-primary border border-primary-subtle">
                                                 {{ $spec }}
                                             </span>
                                         @endforeach
-                                    @elseif($doctor->specialization)
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                            {{ $doctor->specialization }}
-                                        </span>
                                     @else
                                         <span class="text-muted small">N/A</span>
                                     @endif

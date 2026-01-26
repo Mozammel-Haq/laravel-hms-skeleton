@@ -77,11 +77,11 @@
                                                         {{ $exception->doctor->user?->name ?? 'Deleted Doctor' }}
                                                     </div>
                                                     <div class="text-muted small">
-                                                        @if(is_array($exception->doctor->specialization))
-                                                            {{ implode(', ', $exception->doctor->specialization) }}
-                                                        @else
-                                                            {{ $exception->doctor->specialization ?? '' }}
-                                                        @endif
+                                                        @php
+                                                            $spec = $exception->doctor->specialization;
+                                                            $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                                        @endphp
+                                                        {{ empty($spec) ? '' : implode(', ', $spec) }}
                                                     </div>
                                                 </div>
                                             </a>

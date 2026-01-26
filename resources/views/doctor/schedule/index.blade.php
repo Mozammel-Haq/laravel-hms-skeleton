@@ -53,11 +53,22 @@
                             <div>
                                 <div class="fw-semibold">{{ auth()->user()->name }}</div>
                                 <div class="text-muted">
-                                    @if(is_array(optional($doctor)->specialization))
-                                        {{ implode(', ', optional($doctor)->specialization) }}
-                                    @else
-                                        {{ optional($doctor)->specialization }}
-                                    @endif
+                                    @php
+                                        $specData = optional($doctor)->specialization;
+                                        if (is_string($specData)) {
+                                            $decoded = json_decode($specData, true);
+                                            if (json_last_error() === JSON_ERROR_NONE) {
+                                                $specData = $decoded;
+                                            }
+                                        }
+                                        $specData = \Illuminate\Support\Arr::wrap($specData);
+                                        $flatSpecs = \Illuminate\Support\Arr::flatten($specData);
+                                        $flatSpecs = array_filter(
+                                            $flatSpecs,
+                                            fn($item) => is_string($item) || is_numeric($item),
+                                        );
+                                    @endphp
+                                    {{ implode(', ', $flatSpecs) }}
                                 </div>
                             </div>
                             @if ($doctor)
