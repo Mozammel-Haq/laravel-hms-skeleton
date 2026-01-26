@@ -7,6 +7,9 @@ use App\Http\Requests\UpdatePatientRequest;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\PatientWelcomeMail;
 
 class PatientController extends Controller
 {
@@ -98,10 +101,18 @@ class PatientController extends Controller
             $data['profile_photo'] = 'assets/img/patients/' . $filename;
         }
 
+        $defaultPassword = env('PATIENT_DEFAULT_PASSWORD', 'Default123!');
+        $data['password'] = Hash::make($defaultPassword);
+        $data['must_change_password'] = true;
+
         $patient = Patient::create($data + [
             'clinic_id'    => auth()->user()->clinic_id,
             'patient_code' => 'TEST',
         ]);
+
+        if (!empty($patient->email)) {
+            Mail::to($patient->email)->send(new PatientWelcomeMail($patient, $defaultPassword));
+        }
 
         return redirect()
             ->route('patients.show', $patient)
