@@ -3,15 +3,25 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Sanctum\HasApiTokens;
 
-class Patient extends BaseTenantModel
+class Patient extends BaseTenantModel implements AuthenticatableContract
 {
-    use SoftDeletes;
+    use SoftDeletes, HasApiTokens, AuthenticatableTrait;
 
     protected $casts = [
         'date_of_birth' => 'date',
+        'last_login_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     public function getAgeAttribute($value)
