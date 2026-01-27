@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\ApoointmentsApiController;
+use App\Http\Controllers\Api\BookingApiController;
 use App\Http\Controllers\Api\ClinicApiController;
 use App\Http\Controllers\Api\DoctorsApiController;
 use App\Http\Controllers\Api\PatientAuthController;
@@ -26,7 +27,13 @@ Route::prefix('patient')->group(function () {
         Route::get('me', [PatientAuthController::class, 'me']);
         Route::get('clinics', [PatientClinicsController::class, 'index']);
 
-Route::post('appointments', [ApoointmentsApiController::class, 'index']);
+        // Get Appointments List
+        Route::get('appointments', [ApoointmentsApiController::class, 'index']);
+        Route::post('appointments', [ApoointmentsApiController::class, 'store']);
+        Route::get('appointments/slots', [ApoointmentsApiController::class, 'slots']);
+
+        // Get Doctors + Departments List
+        Route::get('doctors', [BookingApiController::class, 'index']);
 
         Route::post('change-password', [PatientAuthController::class, 'changePassword']);
         Route::put('profile/update/{id}', [PatientProfileController::class, 'update']);

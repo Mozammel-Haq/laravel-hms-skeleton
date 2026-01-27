@@ -202,7 +202,7 @@ class AppointmentController extends Controller
         $validated = $request->validate([
             'appointment_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required',
-            'status' => 'required|in:pending,confirmed,cancelled,completed,arrived',
+            'status' => 'required|in:pending,confirmed,cancelled,completed,arrived,noshow',
         ]);
 
         $appointment->update($validated);
@@ -228,7 +228,7 @@ class AppointmentController extends Controller
         Gate::authorize('update', $appointment);
 
         $request->validate([
-            'status' => 'required|in:pending,confirmed,cancelled,completed,arrived',
+            'status' => 'required|in:pending,confirmed,cancelled,completed,arrived,noshow',
         ]);
 
         $appointment->update(['status' => $request->status]);

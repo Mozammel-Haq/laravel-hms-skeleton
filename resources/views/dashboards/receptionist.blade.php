@@ -142,8 +142,10 @@
                                                     $aColor = match ($aStatus) {
                                                         'completed' => 'success',
                                                         'confirmed' => 'primary',
+                                                        'arrived' => 'info',
                                                         'pending' => 'warning',
                                                         'cancelled' => 'danger',
+                                                        'noshow' => 'dark',
                                                         default => 'secondary',
                                                     };
                                                 @endphp
