@@ -70,7 +70,7 @@
                         <div class="row g-3">
                             @forelse($doctors as $doctor)
                                 <div class="col-xl-3 col-lg-4 col-md-6">
-                                    <div class="card shadow-sm border border-light doctor-card">
+                                    <div class="card shadow-sm border border-secondary doctor-card ">
 
                                         <!-- Card Body -->
                                         <div class="card-body text-center p-3">

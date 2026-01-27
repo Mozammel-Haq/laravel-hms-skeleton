@@ -282,13 +282,14 @@
                                                     'completed' => 'success',
                                                     'cancelled' => 'danger',
                                                     'confirmed' => 'primary',
-                                                    'arrived' => 'primary',
+                                                    'arrived' => 'info',
                                                     'pending' => 'warning',
+                                                    'noshow' => 'dark',
                                                 ];
                                             @endphp
 
                                             <span
-                                                class="badge bg-{{ $statusColors[$appointment->status] ?? 'primary' }}">
+                                                class="badge bg-{{ $statusColors[$appointment->status] ?? 'secondary' }}">
                                                 {{ ucfirst($appointment->status) }}
                                             </span>
 

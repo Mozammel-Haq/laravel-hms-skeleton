@@ -111,12 +111,18 @@
                                 <option value="confirmed"
                                     {{ old('status', $appointment->status) == 'confirmed' ? 'selected' : '' }}>Confirmed
                                 </option>
+                                <option value="arrived"
+                                    {{ old('status', $appointment->status) == 'arrived' ? 'selected' : '' }}>Arrived
+                                </option>
                                 <option value="cancelled"
                                     {{ old('status', $appointment->status) == 'cancelled' ? 'selected' : '' }}>
                                     Cancelled</option>
                                 <option value="completed"
                                     {{ old('status', $appointment->status) == 'completed' ? 'selected' : '' }}>
                                     Completed</option>
+                                <option value="noshow"
+                                    {{ old('status', $appointment->status) == 'noshow' ? 'selected' : '' }}>No Show
+                                </option>
                             </select>
                             <x-input-error :messages="$errors->get('status')" class="mt-2" />
                         </div>
