@@ -17,11 +17,17 @@ class Doctor extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withoutGlobalScope('clinic');
     }
+
     public function department()
     {
-        return $this->belongsTo(Department::class, 'primary_department_id');
+        return $this->belongsTo(Department::class, 'primary_department_id')->withoutGlobalScope('clinic');
+    }
+
+    public function primaryDepartment()
+    {
+        return $this->belongsTo(Department::class, 'primary_department_id')->withoutGlobalScope('clinic');
     }
     public function schedules()
     {

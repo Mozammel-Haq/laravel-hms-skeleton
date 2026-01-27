@@ -30,6 +30,7 @@ class Patient extends BaseTenantModel implements AuthenticatableContract
         'nid_number',
         'birth_certificate_number',
         'passport_number',
+        'patient_code',
     ];
 
     protected $hidden = [

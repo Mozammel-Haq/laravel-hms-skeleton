@@ -149,10 +149,24 @@
                                         </div>
                                         <div class="text-muted small">
                                             @php
-                                                $spec = $appointment->doctor?->specialization;
-                                                $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                                $rawSpec = $appointment->doctor?->specialization;
+                                                $rawSpec = \Illuminate\Support\Arr::wrap($rawSpec);
+                                                $flat = \Illuminate\Support\Arr::flatten($rawSpec);
+                                                $pieces = [];
+                                                foreach ($flat as $item) {
+                                                    if (!is_string($item) && !is_numeric($item)) {
+                                                        continue;
+                                                    }
+                                                    foreach (explode(',', (string) $item) as $part) {
+                                                        $part = trim($part);
+                                                        if ($part !== '') {
+                                                            $pieces[] = $part;
+                                                        }
+                                                    }
+                                                }
+                                                $pieces = array_slice($pieces, 0, 2);
                                             @endphp
-                                            {{ empty($spec) ? 'N/A' : implode(', ', $spec) }}
+                                            {{ empty($pieces) ? 'N/A' : implode(', ', $pieces) }}
                                         </div>
                                     </div>
                                 </div>
