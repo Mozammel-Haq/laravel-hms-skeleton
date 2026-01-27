@@ -51,18 +51,41 @@
                                 <div class="d-flex flex-wrap gap-1">
                                     @php
                                         $specData = $doctor->specialization;
-                                        if (is_string($specData)) {
-                                            $decoded = json_decode($specData, true);
-                                            if (json_last_error() === JSON_ERROR_NONE) {
-                                                $specData = $decoded;
+                                        $specData = \Illuminate\Support\Arr::wrap($specData);
+                                        $finalSpecs = [];
+                                        foreach ($specData as $item) {
+                                            if (is_string($item)) {
+                                                $decoded = json_decode($item, true);
+                                                if (json_last_error() === JSON_ERROR_NONE) {
+                                                    if (is_array($decoded)) {
+                                                        foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                            $finalSpecs[] = $sub;
+                                                        }
+                                                    } else {
+                                                        $finalSpecs[] = $decoded;
+                                                    }
+                                                } else {
+                                                    $finalSpecs[] = $item;
+                                                }
+                                            } else {
+                                                $finalSpecs[] = $item;
                                             }
                                         }
-                                        $specData = \Illuminate\Support\Arr::wrap($specData);
-                                        $flatSpecs = \Illuminate\Support\Arr::flatten($specData);
-                                        $flatSpecs = array_filter($flatSpecs, fn($item) => is_string($item) || is_numeric($item));
+                                        $pieces = [];
+                                        foreach (\Illuminate\Support\Arr::flatten($finalSpecs) as $s) {
+                                            if (is_string($s)) {
+                                                foreach (explode(',', $s) as $part) {
+                                                    $t = trim($part, " \t\n\r\0\x0B\"'[]");
+                                                    if ($t !== '') {
+                                                        $pieces[] = $t;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        $pieces = array_slice($pieces, 0, 2);
                                     @endphp
-                                    @if(count($flatSpecs) > 0)
-                                        @foreach ($flatSpecs as $spec)
+                                    @if(count($pieces) > 0)
+                                        @foreach ($pieces as $spec)
                                             <span
                                                 class="badge bg-primary-subtle text-primary border border-primary-subtle">
                                                 {{ $spec }}
@@ -107,7 +130,7 @@
 
                         <!-- Fees Card -->
                         <div class="bg-light rounded p-3">
-                            <h6 class="mb-3 text-secondary">Consultation Fees</h6>
+                            <h6 class="mb-3 text-primary">Consultation Fees</h6>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>First Visit</span>
                                 <span class="fw-bold text-dark">
@@ -123,7 +146,7 @@
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <a href="{{ route('doctors.index') }}" class="btn btn-outline-secondary">Back to List</a>
+                            <a href="{{ route('doctors.index') }}" class="btn btn-outline-primary">Back to List</a>
                         </div>
                     </div>
                 </div>
@@ -138,7 +161,7 @@
                     <div class="card border-0 shadow-sm mb-3 mt-2">
                         <div class="card-body p-4">
                             <h5 class="card-title text-primary mb-3">Biography</h5>
-                            <p class="card-text text-secondary">{{ $doctor->biography }}</p>
+                            <p class="card-text text-grey">{{ $doctor->biography }}</p>
                         </div>
                     </div>
                 @endif

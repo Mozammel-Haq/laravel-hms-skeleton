@@ -46,6 +46,19 @@
 
                         <div class="row g-2">
                             <div class="col-md-4">
+                                <label class="form-label">Department *</label>
+                                <select name="primary_department_id" class="form-select form-select-sm" required>
+                                    <option value="">Select</option>
+                                    @foreach ($departments as $department)
+                                        <option value="{{ $department->id }}"
+                                            {{ old('primary_department_id', $doctor->primary_department_id) == $department->id ? 'selected' : '' }}>
+                                            {{ $department->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
                                 <label class="form-label">Specialization *</label>
                                 <select name="specialization[]" class="form-select form-select-sm select2-tags"
                                     multiple="multiple" required>
@@ -56,18 +69,40 @@
                                     @else
                                         @php
                                             $specData = $doctor->specialization;
-                                            // Handle potential JSON string
-                                            if (is_string($specData)) {
-                                                $decoded = json_decode($specData, true);
-                                                if (json_last_error() === JSON_ERROR_NONE) {
-                                                    $specData = $decoded;
+                                            $specData = \Illuminate\Support\Arr::wrap($specData);
+                                            $finalSpecs = [];
+                                            foreach ($specData as $item) {
+                                                if (is_string($item)) {
+                                                    $decoded = json_decode($item, true);
+                                                    if (json_last_error() === JSON_ERROR_NONE) {
+                                                        if (is_array($decoded)) {
+                                                            foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                                $finalSpecs[] = $sub;
+                                                            }
+                                                        } else {
+                                                            $finalSpecs[] = $decoded;
+                                                        }
+                                                    } else {
+                                                        $finalSpecs[] = $item;
+                                                    }
+                                                } else {
+                                                    $finalSpecs[] = $item;
                                                 }
                                             }
-                                            $specData = \Illuminate\Support\Arr::wrap($specData);
-                                            $flatSpecs = \Illuminate\Support\Arr::flatten($specData);
-                                            $flatSpecs = array_filter($flatSpecs, fn($item) => is_string($item) || is_numeric($item));
+                                            $cleanedSpecs = [];
+                                            foreach (\Illuminate\Support\Arr::flatten($finalSpecs) as $s) {
+                                                if (is_string($s)) {
+                                                    foreach (explode(',', $s) as $part) {
+                                                        $t = trim($part, " \t\n\r\0\x0B\"'[]");
+                                                        if ($t !== '') {
+                                                            $cleanedSpecs[] = $t;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            $cleanedSpecs = array_unique($cleanedSpecs);
                                         @endphp
-                                        @foreach ($flatSpecs as $spec)
+                                        @foreach ($cleanedSpecs as $spec)
                                             <option value="{{ $spec }}" selected>{{ $spec }}</option>
                                         @endforeach
                                     @endif

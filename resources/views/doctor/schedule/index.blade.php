@@ -63,12 +63,21 @@
                                         }
                                         $specData = \Illuminate\Support\Arr::wrap($specData);
                                         $flatSpecs = \Illuminate\Support\Arr::flatten($specData);
-                                        $flatSpecs = array_filter(
-                                            $flatSpecs,
-                                            fn($item) => is_string($item) || is_numeric($item),
-                                        );
+                                        $pieces = [];
+                                        foreach ($flatSpecs as $item) {
+                                            if (!is_string($item) && !is_numeric($item)) {
+                                                continue;
+                                            }
+                                            foreach (explode(',', (string) $item) as $part) {
+                                                $part = trim($part);
+                                                if ($part !== '') {
+                                                    $pieces[] = $part;
+                                                }
+                                            }
+                                        }
+                                        $pieces = array_slice($pieces, 0, 2);
                                     @endphp
-                                    {{ implode(', ', $flatSpecs) }}
+                                    {{ implode(', ', $pieces) }}
                                 </div>
                             </div>
                             @if ($doctor)

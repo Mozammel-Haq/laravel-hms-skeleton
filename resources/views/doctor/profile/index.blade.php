@@ -44,10 +44,41 @@
                             <div class="text-muted">Specialization</div>
                             <div class="fw-semibold">
                                 @php
-                                    $spec = $doctor->specialization;
-                                    $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                    $specData = $doctor->specialization;
+                                    $specData = \Illuminate\Support\Arr::wrap($specData);
+                                    $finalSpecs = [];
+                                    foreach ($specData as $item) {
+                                        if (is_string($item)) {
+                                            $decoded = json_decode($item, true);
+                                            if (json_last_error() === JSON_ERROR_NONE) {
+                                                if (is_array($decoded)) {
+                                                    foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                        $finalSpecs[] = $sub;
+                                                    }
+                                                } else {
+                                                    $finalSpecs[] = $decoded;
+                                                }
+                                            } else {
+                                                $finalSpecs[] = $item;
+                                            }
+                                        } else {
+                                            $finalSpecs[] = $item;
+                                        }
+                                    }
+                                    $pieces = [];
+                                    foreach (\Illuminate\Support\Arr::flatten($finalSpecs) as $s) {
+                                        if (is_string($s)) {
+                                            foreach (explode(',', $s) as $part) {
+                                                $t = trim($part, " \t\n\r\0\x0B\"'[]");
+                                                if ($t !== '') {
+                                                    $pieces[] = $t;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    $pieces = array_slice($pieces, 0, 2);
                                 @endphp
-                                {{ empty($spec) ? 'N/A' : implode(', ', $spec) }}
+                                {{ empty($pieces) ? 'N/A' : implode(', ', $pieces) }}
                             </div>
                         </div>
                         <div class="mb-3">

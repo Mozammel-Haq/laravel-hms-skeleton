@@ -27,10 +27,41 @@
                             <div class="p-2 bg-gray-100 rounded mt-1">
                                 {{ $appointment->doctor?->user?->name ?? 'Deleted Doctor' }} -
                                 @php
-                                    $spec = $appointment->doctor?->specialization;
-                                    $spec = \Illuminate\Support\Arr::flatten(\Illuminate\Support\Arr::wrap($spec));
+                                    $specData = $appointment->doctor?->specialization;
+                                    $specData = \Illuminate\Support\Arr::wrap($specData);
+                                    $finalSpecs = [];
+                                    foreach ($specData as $item) {
+                                        if (is_string($item)) {
+                                            $decoded = json_decode($item, true);
+                                            if (json_last_error() === JSON_ERROR_NONE) {
+                                                if (is_array($decoded)) {
+                                                    foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                        $finalSpecs[] = $sub;
+                                                    }
+                                                } else {
+                                                    $finalSpecs[] = $decoded;
+                                                }
+                                            } else {
+                                                $finalSpecs[] = $item;
+                                            }
+                                        } else {
+                                            $finalSpecs[] = $item;
+                                        }
+                                    }
+                                    $pieces = [];
+                                    foreach (\Illuminate\Support\Arr::flatten($finalSpecs) as $s) {
+                                        if (is_string($s)) {
+                                            foreach (explode(',', $s) as $part) {
+                                                $t = trim($part, " \t\n\r\0\x0B\"'[]");
+                                                if ($t !== '') {
+                                                    $pieces[] = $t;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    $pieces = array_slice($pieces, 0, 2);
                                 @endphp
-                                {{ implode(', ', $spec) }}
+                                {{ implode(', ', $pieces) }}
                             </div>
                         </div>
 

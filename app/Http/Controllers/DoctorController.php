@@ -174,6 +174,7 @@ class DoctorController extends Controller
 
         $request->validate([
             'phone' => 'nullable|string|max:30',
+            'primary_department_id' => 'required|exists:departments,id',
             'specialization' => 'required|array',
             'specialization.*' => 'string',
             'license_number' => 'required|string|unique:doctors,license_number,' . $doctor->id,
@@ -216,6 +217,7 @@ class DoctorController extends Controller
         }
 
         $doctor->update([
+            'primary_department_id' => $request->primary_department_id,
             'specialization' => $request->specialization,
             'license_number' => $request->license_number,
             'registration_number' => $request->registration_number,
