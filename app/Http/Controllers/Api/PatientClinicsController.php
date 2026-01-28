@@ -24,7 +24,7 @@ class PatientClinicsController extends Controller
 
         // Find all patient records with the same email or phone across all clinics
         $patients = Patient::withoutTenant()
-            ->with('clinic')
+            ->with(['clinic', 'clinics'])
             ->where(function ($query) use ($user) {
                 if ($user->email) {
                     $query->where('email', $user->email);
@@ -35,11 +35,16 @@ class PatientClinicsController extends Controller
             })
             ->get();
 
-        // Extract unique clinics
-        $clinics = $patients->pluck('clinic')
-            ->filter() // Remove nulls if any
-            ->unique('id')
-            ->values();
+        // Extract unique clinics from both legacy column and new pivot table
+        $clinics = $patients->flatMap(function ($patient) {
+            $list = $patient->clinics; // Collection from pivot table
+            if ($patient->clinic) {
+                $list->push($patient->clinic); // Add legacy clinic
+            }
+            return $list;
+        })
+        ->unique('id')
+        ->values();
 
         return response()->json([
             'clinics' => $clinics,

@@ -22,7 +22,7 @@ class PatientProfileController extends Controller
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('patients')->ignore($patient->id)->where('clinic_id', $patient->clinic_id),
+                Rule::unique('patients')->ignore($patient->id),
             ],
             'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'date_of_birth' => 'nullable|date_format:Y-m-d',

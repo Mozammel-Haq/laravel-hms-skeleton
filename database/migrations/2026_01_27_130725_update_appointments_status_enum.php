@@ -16,7 +16,9 @@ return new class extends Migration
         // Since Laravel's Schema builder doesn't support changing enum values directly easily in all DB drivers without raw SQL or doctrine/dbal,
         // and assuming MySQL/MariaDB which is common:
 
-        DB::statement("ALTER TABLE lara_appointments MODIFY COLUMN status ENUM('pending', 'arrived', 'confirmed', 'completed', 'cancelled', 'noshow') DEFAULT 'pending'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE lara_appointments MODIFY COLUMN status ENUM('pending', 'arrived', 'confirmed', 'completed', 'cancelled', 'noshow') DEFAULT 'pending'");
+        }
     }
 
     /**

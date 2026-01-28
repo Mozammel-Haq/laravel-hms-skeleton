@@ -288,7 +288,7 @@ class DoctorController extends Controller
 
         // Only fetch schedules for the current clinic context
         $schedules = $doctor->schedules()
-            ->where('clinic_id', auth()->user()->clinic_id)
+            ->where('doctor_schedules.clinic_id', auth()->user()->clinic_id)
             ->orderBy('day_of_week')
             ->orderBy('start_time')
             ->get();

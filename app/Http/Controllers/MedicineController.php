@@ -147,15 +147,15 @@ class MedicineController extends Controller
             $query = Medicine::query()
                 ->where('status', 'active')
                 ->whereHas('batches', function ($q) use ($clinicId, $quantityColumn) {
-                    $q->where('clinic_id', $clinicId);
+                    $q->where('medicine_batches.clinic_id', $clinicId);
                     if ($quantityColumn) {
-                        $q->where($quantityColumn, '>', 0);
+                        $q->where("medicine_batches.$quantityColumn", '>', 0);
                     }
                 });
 
             if ($quantityColumn) {
                 $query->withSum(['batches as stock' => function ($q) use ($clinicId, $quantityColumn) {
-                    $q->where('clinic_id', $clinicId);
+                    $q->where('medicine_batches.clinic_id', $clinicId);
                 }], $quantityColumn);
             }
 

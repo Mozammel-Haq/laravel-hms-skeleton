@@ -23,7 +23,7 @@ class DoctorSelfScheduleController extends Controller
         $clinicId = auth()->user()->clinic_id;
 
         $schedules = $doctor->schedules()
-            ->where('clinic_id', $clinicId)
+            ->where('doctor_schedules.clinic_id', $clinicId)
             ->whereNull('schedule_date')
             ->orderBy('day_of_week')
             ->orderBy('start_time')
@@ -31,7 +31,7 @@ class DoctorSelfScheduleController extends Controller
             ->groupBy('day_of_week');
 
         $appointmentsQuery = Appointment::where('doctor_id', $doctor->id)
-            ->where('clinic_id', $clinicId)
+            ->where('appointments.clinic_id', $clinicId)
             ->with(['patient']);
 
         if (request()->filled('search')) {
@@ -75,7 +75,7 @@ class DoctorSelfScheduleController extends Controller
         $clinicId = auth()->user()->clinic_id;
 
         $schedules = $doctor->schedules()
-            ->where('clinic_id', $clinicId)
+            ->where('doctor_schedules.clinic_id', $clinicId)
             ->orderBy('day_of_week')
             ->orderBy('start_time')
             ->get();

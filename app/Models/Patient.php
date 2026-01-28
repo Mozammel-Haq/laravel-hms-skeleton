@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-use App\Models\Base\BaseTenantModel;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Concerns\LogsActivity;
 
-class Patient extends BaseTenantModel implements AuthenticatableContract
+class Patient extends Model implements AuthenticatableContract
 {
-    use SoftDeletes, HasApiTokens, AuthenticatableTrait;
+    use SoftDeletes, HasApiTokens, AuthenticatableTrait, LogsActivity;
 
     protected $casts = [
         'date_of_birth' => 'date',
@@ -19,7 +20,7 @@ class Patient extends BaseTenantModel implements AuthenticatableContract
         'password' => 'hashed',
     ];
     protected $fillable = [
-        'clinic_id',
+        'clinic_id', // Kept for legacy compatibility if needed, but nullable now
         'name',
         'email',
         'password',
@@ -31,6 +32,7 @@ class Patient extends BaseTenantModel implements AuthenticatableContract
         'birth_certificate_number',
         'passport_number',
         'patient_code',
+        'must_change_password', // Added based on recent migration usage
     ];
 
     protected $hidden = [
@@ -52,15 +54,45 @@ class Patient extends BaseTenantModel implements AuthenticatableContract
     protected static function booted()
     {
         static::created(function ($patient) {
-            $patient->update([
-                'patient_code' => 'P-' . str_pad($patient->id, 4, '0', STR_PAD_LEFT),
-            ]);
+            if (empty($patient->patient_code)) {
+                $patient->update([
+                    'patient_code' => 'P-' . str_pad($patient->id, 4, '0', STR_PAD_LEFT),
+                ]);
+            }
+        });
+
+        // Global Scope to filter patients by the current user's clinic
+        static::addGlobalScope('clinic_access', function (Builder $builder) {
+            if (auth()->check() && auth()->user()->clinic_id) {
+                // Filter patients that belong to the current user's clinic
+                // OR patients created by this clinic (legacy clinic_id)
+                $builder->where(function ($q) use ($builder) {
+                    $q->whereHas('clinics', function ($q2) {
+                        $q2->where($q2->qualifyColumn('id'), auth()->user()->clinic_id);
+                    })
+                    ->orWhere($builder->qualifyColumn('clinic_id'), auth()->user()->clinic_id);
+                });
+            }
         });
     }
+
+    // Helper to bypass the scope (naming convention from BaseTenantModel)
+    public static function withoutTenant()
+    {
+        return static::withoutGlobalScope('clinic_access');
+    }
+
+    public function clinics()
+    {
+        return $this->belongsToMany(Clinic::class, 'clinic_patient');
+    }
+
+    // Deprecated but kept for backward compatibility if code uses $patient->clinic
     public function clinic()
     {
         return $this->belongsTo(Clinic::class);
     }
+
     public function appointments()
     {
         return $this->hasMany(Appointment::class);

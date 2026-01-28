@@ -144,8 +144,10 @@ class ReportController extends Controller
 
             foreach ($selectedClinics as $clinic) {
                 $stats[$clinic->id] = [
-                    'patients' => Patient::withoutGlobalScope('clinic')
-                        ->where('clinic_id', $clinic->id)
+                    'patients' => Patient::withoutGlobalScope('clinic_access')
+                        ->whereHas('clinics', function ($q) use ($clinic) {
+                            $q->where('clinics.id', $clinic->id);
+                        })
                         ->whereBetween('created_at', [$startDate, $endDate])
                         ->count(),
                     'appointments' => Appointment::withoutGlobalScope('clinic')
