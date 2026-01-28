@@ -28,8 +28,14 @@ class IpdService
      */
     public function admitPatient(Patient $patient, int $doctorId, string $admissionDate, string $reason)
     {
+        $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
+        
+        if (!$clinicId) {
+            throw new Exception("Clinic context is required to admit patient.");
+        }
+
         return Admission::create([
-            'clinic_id' => $patient->clinic_id,
+            'clinic_id' => $clinicId,
             'patient_id' => $patient->id,
             'admitting_doctor_id' => $doctorId,
             'admission_date' => $admissionDate,

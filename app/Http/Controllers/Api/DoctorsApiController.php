@@ -21,7 +21,7 @@ class DoctorsApiController extends Controller
         if (TenantContext::hasClinic()) {
             $clinicId = TenantContext::getClinicId();
             $query->withCount(['appointments' => function ($q) use ($clinicId) {
-                $q->where('clinic_id', $clinicId);
+                $q->where('appointments.clinic_id', $clinicId);
             }]);
         } else {
             $query->withCount('appointments');

@@ -33,13 +33,11 @@ class StorePatientRequest extends FormRequest
                 'nullable', 
                 'regex:/^[0-9]{10,17}$/', 
                 'required_without_all:birth_certificate_number,passport_number', 
-                Rule::unique('patients')->where('clinic_id', $clinicId)
             ],
             'birth_certificate_number' => [
                 'nullable', 
                 'regex:/^[0-9]{10,20}$/', 
                 'required_without_all:nid_number,passport_number', 
-                Rule::unique('patients')->where('clinic_id', $clinicId)
             ],
             'passport_number' => [
                 'nullable', 
@@ -47,7 +45,6 @@ class StorePatientRequest extends FormRequest
                 'min:6', 
                 'max:20', 
                 'required_without_all:nid_number,birth_certificate_number', 
-                Rule::unique('patients')->where('clinic_id', $clinicId)
             ],
         ];
     }

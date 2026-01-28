@@ -23,19 +23,22 @@ class ApoointmentsApiController extends Controller
         // We use withoutGlobalScopes() to disable BaseTenantModel's automatic filtering
         $patient = Patient::withoutGlobalScopes()
             ->where('email', $userEmail)
-            ->where('clinic_id', $selectedClinicId)
+            ->where(function ($query) use ($selectedClinicId) {
+                $query->where('clinic_id', $selectedClinicId)
+                      ->orWhereHas('clinics', function ($q) use ($selectedClinicId) {
+                          $q->where('clinics.id', $selectedClinicId);
+                      });
+            })
             ->first();
-
         if (!$patient) {
             return response()->json(['appointments' => []]);
         }
 
         // 2. Fetch Appointments
-        // Also disable scopes here just in case Appointment also extends BaseTenantModel
         $appointments = Appointment::withoutGlobalScopes()
             ->with(['doctor', 'doctor.user:id,name,email'])
-            ->where('clinic_id', $selectedClinicId)
-            ->where('patient_id', $patient->id)
+            ->where('appointments.clinic_id', $selectedClinicId)
+            ->where('appointments.patient_id', $patient->id)
             ->get();
 
         return response()->json([
@@ -63,7 +66,7 @@ class ApoointmentsApiController extends Controller
             ->where('doctor_id', $doctorId)
             ->where('day_of_week', $dayOfWeek)
             ->where('status', 'active')
-            ->when($clinicId, fn($q) => $q->where('clinic_id', $clinicId))
+            ->when($clinicId, fn($q) => $q->where('doctor_schedules.clinic_id', $clinicId))
             ->first();
 
         if (!$schedule) {

@@ -29,7 +29,7 @@ class PatientAuthController extends Controller
                     'clinic_code' => ['Invalid clinic code'],
                 ]);
             }
-            $query->where('clinic_id', $clinic->id);
+            $query->where('patients.clinic_id', $clinic->id);
         }
 
         // Get all matching patients (could be multiple if same email across clinics and no clinic_code provided)

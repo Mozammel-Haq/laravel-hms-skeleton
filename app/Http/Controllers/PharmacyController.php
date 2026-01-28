@@ -60,7 +60,7 @@ class PharmacyController extends Controller
         Gate::authorize('create', PharmacySale::class);
         $patients = collect(); // Use AJAX search
         $medicines = Medicine::whereHas('batches', function ($q) {
-            $q->where('clinic_id', auth()->user()->clinic_id)
+            $q->where('medicine_batches.clinic_id', auth()->user()->clinic_id)
                 ->where('quantity_in_stock', '>', 0);
         })->orderBy('name')->get();
         $prescription = null;

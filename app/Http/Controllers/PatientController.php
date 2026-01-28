@@ -78,6 +78,48 @@ class PatientController extends Controller
         Gate::authorize('create', Patient::class);
 
         $data = $request->validated();
+        $clinicId = auth()->user()->clinic_id;
+
+        // 1. Check for existing patient globally
+        $query = Patient::withoutTenant();
+
+        $matchFound = false;
+        $conditions = [];
+        if (!empty($data['nid_number'])) $conditions[] = ['nid_number', $data['nid_number']];
+        if (!empty($data['birth_certificate_number'])) $conditions[] = ['birth_certificate_number', $data['birth_certificate_number']];
+        if (!empty($data['passport_number'])) $conditions[] = ['passport_number', $data['passport_number']];
+        if (!empty($data['email'])) $conditions[] = ['email', $data['email']];
+        if (!empty($data['phone'])) $conditions[] = ['phone', $data['phone']];
+
+        $existingPatient = null;
+        if (count($conditions) > 0) {
+             $existingPatient = $query->where(function($q) use ($conditions) {
+                foreach ($conditions as $cond) {
+                    $q->orWhere($cond[0], $cond[1]);
+                }
+             })->first();
+        }
+
+        if ($existingPatient) {
+            // Check if already in THIS clinic
+            $alreadyLinked = $existingPatient->clinics()->whereKey($clinicId)->exists();
+
+            // Legacy check
+            if (!$alreadyLinked && $existingPatient->clinic_id == $clinicId) {
+                $alreadyLinked = true;
+            }
+
+            if ($alreadyLinked) {
+                return redirect()->route('patients.show', $existingPatient)
+                    ->with('info', 'Patient is already registered in this clinic.');
+            }
+
+            // Link to clinic
+            $existingPatient->clinics()->syncWithoutDetaching([$clinicId]);
+
+            return redirect()->route('patients.show', $existingPatient)
+                ->with('success', 'Existing patient record found and successfully registered to your clinic.');
+        }
 
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
@@ -104,10 +146,21 @@ class PatientController extends Controller
         $data['password'] = Hash::make($defaultPassword);
         $data['must_change_password'] = true;
 
+        // Remove clinic_id from data to rely on pivot
+        if (isset($data['clinic_id'])) unset($data['clinic_id']);
+
         $patient = Patient::create($data + [
-            'clinic_id'    => auth()->user()->clinic_id,
-            'patient_code' => 'TEST',
+            'clinic_id'    => null, // Global patient
+            'patient_code' => 'TEMP-' . uniqid(),
         ]);
+
+        // Update with correct code format based on ID
+        $patient->update([
+            'patient_code' => 'P-' . str_pad($patient->id, 4, '0', STR_PAD_LEFT)
+        ]);
+
+        // Attach to clinic
+        $patient->clinics()->attach($clinicId);
 
         if (!empty($patient->email)) {
             Mail::to($patient->email)->send(new PatientWelcomeMail($patient, $defaultPassword));

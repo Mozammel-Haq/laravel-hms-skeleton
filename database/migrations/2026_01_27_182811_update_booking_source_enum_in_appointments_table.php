@@ -13,7 +13,9 @@ return new class extends Migration
     public function up(): void
     {
         // Add 'online' and 'in_person' to the booking_source enum
-        DB::statement("ALTER TABLE lara_appointments MODIFY COLUMN booking_source ENUM('reception', 'patient_portal', 'online', 'in_person') DEFAULT 'reception'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE lara_appointments MODIFY COLUMN booking_source ENUM('reception', 'patient_portal', 'online', 'in_person') DEFAULT 'reception'");
+        }
     }
 
     /**

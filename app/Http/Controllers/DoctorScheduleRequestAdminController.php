@@ -69,7 +69,7 @@ class DoctorScheduleRequestAdminController extends Controller
             $end = $item['end_time'];
             $type = $item['type'];
 
-            $conflicts = DoctorSchedule::withoutTenant()
+            $conflicts = DoctorSchedule::withoutGlobalScopes()
                 ->where('doctor_id', $doctor->id)
                 ->where('clinic_id', '!=', $clinicId)
                 ->where(function ($q) use ($start, $end) {

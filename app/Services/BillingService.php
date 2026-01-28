@@ -23,7 +23,13 @@ class BillingService
      */
     public function createInvoice($patient, array $items, ?int $appointmentId = null, float $discount = 0, float $tax = 0, ?int $visitId = null, ?string $invoiceType = null, ?int $createdBy = null, bool $finalize = true)
     {
-        return DB::transaction(function () use ($patient, $items, $appointmentId, $discount, $tax, $visitId, $invoiceType, $createdBy, $finalize) {
+        $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
+
+        if (!$clinicId) {
+             throw new Exception("Clinic context is required to create invoice.");
+        }
+
+        return DB::transaction(function () use ($patient, $items, $appointmentId, $discount, $tax, $visitId, $invoiceType, $createdBy, $finalize, $clinicId) {
             $subtotal = collect($items)->sum(fn($item) => $item['quantity'] * $item['unit_price']);
 
             // Calculate tax amount (tax is passed as percentage)
@@ -35,7 +41,7 @@ class BillingService
             $invoiceNumber = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
             $invoice = Invoice::create([
-                'clinic_id' => $patient->clinic_id,
+                'clinic_id' => $clinicId,
                 'patient_id' => $patient->id,
                 'appointment_id' => $appointmentId,
                 'visit_id' => $visitId,

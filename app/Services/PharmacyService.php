@@ -21,7 +21,13 @@ class PharmacyService
      */
     public function processSale($patient, array $items, ?int $prescriptionId = null)
     {
-        return DB::transaction(function () use ($patient, $items, $prescriptionId) {
+        $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
+        
+        if (!$clinicId) {
+            throw new Exception("Clinic context is required to process sale.");
+        }
+
+        return DB::transaction(function () use ($patient, $items, $prescriptionId, $clinicId) {
             $totalAmount = 0;
             $saleItems = [];
 
@@ -34,7 +40,7 @@ class PharmacyService
 
                 // Get batches for this clinic, ordered by expiry (FIFO)
                 $batches = MedicineBatch::where('medicine_id', $medicine->id)
-                    ->where('clinic_id', $patient->clinic_id)
+                    ->where('clinic_id', $clinicId)
                     ->where('quantity_in_stock', '>', 0)
                     ->orderBy('expiry_date', 'asc')
                     ->lockForUpdate()
@@ -63,13 +69,13 @@ class PharmacyService
 
                 // Check for low stock after deduction
                 $newTotalStock = MedicineBatch::where('medicine_id', $medicine->id)
-                    ->where('clinic_id', $patient->clinic_id)
+                    ->where('clinic_id', $clinicId)
                     ->sum('quantity_in_stock');
 
                 if ($newTotalStock < 10) {
                     $pharmacists = \App\Models\User::whereHas('roles', function ($q) {
                         $q->where('name', 'Pharmacist');
-                    })->where('clinic_id', $patient->clinic_id)->get();
+                    })->where('clinic_id', $clinicId)->get();
 
                     foreach ($pharmacists as $pharmacist) {
                         $pharmacist->notify(new \App\Notifications\LowStockNotification($medicine, (int)$newTotalStock));
@@ -88,7 +94,7 @@ class PharmacyService
             }
 
             $sale = PharmacySale::create([
-                'clinic_id' => $patient->clinic_id,
+                'clinic_id' => $clinicId,
                 'prescription_id' => $prescriptionId,
                 'patient_id' => $patient->id,
                 'sale_date' => now(),
