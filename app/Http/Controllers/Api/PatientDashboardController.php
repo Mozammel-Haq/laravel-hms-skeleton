@@ -57,7 +57,9 @@ class PatientDashboardController extends Controller
             ->where('clinic_id', $scopeClinicId) // Explicitly filter by clinic
             ->where('appointment_date', '>=', now()->toDateString())
             ->whereIn('status', ['confirmed', 'pending', 'arrived']) // Corrected statuses
-            ->with(['doctor.user', 'doctor.primaryDepartment'])
+            ->with(['doctor.user', 'doctor.primaryDepartment', 'requests' => function($q) {
+                $q->where('status', 'pending');
+            }])
             ->orderBy('appointment_date')
             ->orderBy('start_time') // Corrected from appointment_time to start_time
             ->limit(5)
@@ -65,6 +67,9 @@ class PatientDashboardController extends Controller
             ->map(function ($apt) {
                 $doctorName = $apt->doctor && $apt->doctor->user ? $apt->doctor->user->name : ($apt->doctor->name ?? 'Unknown Doctor');
                 $specialty = $apt->doctor && $apt->doctor->primaryDepartment ? $apt->doctor->primaryDepartment->name : 'General';
+                
+                $pendingRequest = $apt->requests->first();
+                $requestStatus = $pendingRequest ? $pendingRequest->type : null;
 
                 return [
                     'id' => $apt->id,
@@ -73,6 +78,7 @@ class PatientDashboardController extends Controller
                     'date' => $apt->appointment_date->format('Y-m-d'),
                     'time' => $apt->start_time, // Corrected column
                     'status' => ucfirst($apt->status), // Capitalize for display
+                    'pending_request_type' => $requestStatus,
                 ];
             });
 

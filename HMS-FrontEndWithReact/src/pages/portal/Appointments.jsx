@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Calendar,
   Clock,
@@ -9,6 +9,7 @@ import {
   Plus,
   FileText,
   User,
+  X,
 } from "lucide-react";
 import Button from "../../components/common/Button";
 import { useAuth } from "../../context/AuthContext";
@@ -18,11 +19,22 @@ import { useClinic } from "../../context/ClinicContext";
 import MedicalLoader from "../../components/loaders/MedicalLoader";
 
 const Appointments = () => {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("upcoming");
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const {activeClinicId} = useClinic();
+
+  // Request Modal State
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [requestType, setRequestType] = useState(null); // 'cancel' or 'reschedule'
+  const [requestReason, setRequestReason] = useState("");
+  const [desiredDate, setDesiredDate] = useState("");
+  const [desiredTime, setDesiredTime] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   // console.log(user);
   const getAppointments = async () => {
     try {
@@ -95,6 +107,46 @@ const Appointments = () => {
     }
   };
 
+  const openRequestModal = (appointment, type) => {
+    setSelectedAppointment(appointment);
+    setRequestType(type);
+    setIsRequestModalOpen(true);
+    setRequestReason("");
+    setDesiredDate("");
+    setDesiredTime("");
+  };
+
+  const closeRequestModal = () => {
+    setIsRequestModalOpen(false);
+    setSelectedAppointment(null);
+    setRequestType(null);
+  };
+
+  const handleSubmitRequest = async (e) => {
+    e.preventDefault();
+    if (!selectedAppointment) return;
+
+    try {
+      setSubmitting(true);
+      await api.post(API_ENDPOINTS.PATIENT.APPOINTMENT_REQUESTS, {
+        appointment_id: selectedAppointment.id,
+        type: requestType,
+        reason: requestReason,
+        desired_date: requestType === 'reschedule' ? desiredDate : null,
+        desired_time: requestType === 'reschedule' ? desiredTime : null,
+      });
+
+      alert("Request submitted successfully");
+      closeRequestModal();
+      getAppointments();
+    } catch (error) {
+      console.error("Failed to submit request", error);
+      alert(error.response?.data?.message || "Failed to submit request");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -163,6 +215,8 @@ const Appointments = () => {
             const { year, month, day } = getDateParts(apt.appointment_date);
             const status = apt.status?.toLowerCase().trim();
             const isUpcoming = ["confirmed", "pending", "arrived"].includes(status);
+            const hasPendingRequest = apt.requests && apt.requests.length > 0;
+            const pendingRequestType = hasPendingRequest ? apt.requests[0].type : null;
 
             return (
               <div
@@ -219,6 +273,11 @@ const Appointments = () => {
                             <span className="inline-flex items-center px-3 py-1 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 font-medium border border-primary-200 dark:border-primary-700">
                               {apt.appointment_type}
                             </span>
+                            {hasPendingRequest && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-medium border border-amber-200 dark:border-amber-700">
+                                  {pendingRequestType === 'cancel' ? 'Cancellation Pending' : 'Reschedule Pending'}
+                                </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -258,22 +317,40 @@ const Appointments = () => {
                       <div className="flex flex-wrap gap-2 pt-3 border-t border-secondary-100 dark:border-secondary-800">
                         {isUpcoming ? (
                           <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 sm:flex-none min-w-[140px] font-semibold hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-700 dark:hover:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
-                            >
-                              <Calendar className="w-4 h-4 mr-2" />
-                              Reschedule
-                            </Button>
                             {status === 'pending' && (
-                              <Button
-                                variant="danger"
-                                size="sm"
-                                className="flex-1 sm:flex-none min-w-[140px] font-semibold"
-                              >
-                                Cancel
-                              </Button>
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex-1 sm:flex-none min-w-[140px] font-semibold hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-700 dark:hover:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
+                                  onClick={() => {
+                                    navigate('/portal/appointments/book', {
+                                      state: {
+                                        prefill: {
+                                          doctorId: apt?.doctor?.id || apt?.doctor_id,
+                                          departmentId: apt?.department_id || apt?.doctor?.primary_department_id,
+                                          date: apt.appointment_date,
+                                          time: apt.start_time,
+                                          visitMode: apt.appointment_type
+                                        }
+                                      }
+                                    });
+                                  }}
+                                  disabled={hasPendingRequest}
+                                >
+                                  <Calendar className="w-4 h-4 mr-2" />
+                                  Reschedule
+                                </Button>
+                                <Button
+                                  variant="danger"
+                                  size="sm"
+                                  className="flex-1 sm:flex-none min-w-[140px] font-semibold"
+                                  onClick={() => openRequestModal(apt, 'cancel')}
+                                  disabled={hasPendingRequest}
+                                >
+                                  Cancel
+                                </Button>
+                              </>
                             )}
                           </>
                         ) : (
@@ -306,6 +383,95 @@ const Appointments = () => {
           </div>
         )}
       </div>
+
+      {/* Request Modal */}
+      {isRequestModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-secondary-900 rounded-xl shadow-xl max-w-md w-full overflow-hidden border border-secondary-200 dark:border-secondary-700">
+            <div className="flex items-center justify-between p-4 border-b border-secondary-100 dark:border-secondary-800">
+              <h3 className="text-lg font-bold text-secondary-900 dark:text-white">
+                {requestType === 'cancel' ? 'Cancel Appointment' : 'Reschedule Appointment'}
+              </h3>
+              <button onClick={closeRequestModal} className="text-secondary-500 hover:text-secondary-700 dark:hover:text-secondary-300">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitRequest} className="p-4 space-y-4">
+              <div className="bg-secondary-50 dark:bg-secondary-800/50 p-3 rounded-lg text-sm">
+                <p className="font-medium text-secondary-900 dark:text-white">
+                  {selectedAppointment?.doctor?.user?.name}
+                </p>
+                <p className="text-secondary-500 dark:text-secondary-400">
+                  {selectedAppointment?.appointment_date} at {selectedAppointment?.start_time}
+                </p>
+              </div>
+
+              {requestType === 'reschedule' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-secondary-700 dark:text-secondary-300 mb-1">
+                      Desired Date
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      min={new Date().toISOString().split('T')[0]}
+                      value={desiredDate}
+                      onChange={(e) => setDesiredDate(e.target.value)}
+                      className="w-full rounded-lg border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-sm p-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-secondary-700 dark:text-secondary-300 mb-1">
+                      Desired Time
+                    </label>
+                    <input
+                      type="time"
+                      required
+                      value={desiredTime}
+                      onChange={(e) => setDesiredTime(e.target.value)}
+                      className="w-full rounded-lg border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-sm p-2"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-medium text-secondary-700 dark:text-secondary-300 mb-1">
+                  Reason for {requestType}
+                </label>
+                <textarea
+                  required
+                  value={requestReason}
+                  onChange={(e) => setRequestReason(e.target.value)}
+                  placeholder="Please explain why..."
+                  rows={3}
+                  className="w-full rounded-lg border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-sm p-2"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={closeRequestModal}
+                >
+                  Close
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={submitting}
+                >
+                  {submitting ? 'Submitting...' : 'Submit Request'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

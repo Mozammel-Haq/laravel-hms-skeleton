@@ -38,6 +38,10 @@ Route::prefix('patient')->group(function () {
         Route::post('appointments', [ApoointmentsApiController::class, 'store']);
         Route::get('appointments/slots', [ApoointmentsApiController::class, 'slots']);
 
+        // Appointment Requests (Cancel/Reschedule)
+        Route::get('appointment-requests', [PatientAppointmentRequestController::class, 'index']);
+        Route::post('appointment-requests', [PatientAppointmentRequestController::class, 'store']);
+
         Route::get('prescriptions', [PrescriptionApiController::class, 'index']);
         Route::get('lab-results', [LabResultApiController::class, 'index']);
         Route::get('vitals', [VitalsApiController::class, 'index']);
