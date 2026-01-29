@@ -44,6 +44,7 @@ export const API_ENDPOINTS = {
     APPOINTMENT_DETAILS: (id) => `/patient/appointments/${id}`,
     BOOK_APPOINTMENT: "/patient/appointments", // POST
     APPOINTMENT_SLOTS: "/patient/appointments/slots", // GET available slots
+    APPOINTMENT_REQUESTS: "/patient/appointment-requests", // POST create, GET list
     CANCEL_APPOINTMENT: (id) => `/patient/appointments/${id}/cancel`, // POST/PUT
 
     // Medical Records (Read Only)

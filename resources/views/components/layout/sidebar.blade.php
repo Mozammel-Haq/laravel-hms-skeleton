@@ -252,6 +252,9 @@
                             <li><a href="{{ route('appointments.index') }}"
                                     class="{{ request()->routeIs('appointments.*') ? 'active' : '' }}">Appointments</a>
                             </li>
+                            <li><a href="{{ route('appointments.requests.index') }}"
+                                    class="{{ request()->routeIs('appointments.requests.*') ? 'active' : '' }}">Requests</a>
+                            </li>
                             <li><a href="{{ route('patients.index') }}"
                                     class="{{ request()->routeIs('patients.*') ? 'active' : '' }}">Patients</a></li>
                             <li><a href="{{ route('visits.index') }}">Visits</a></li>

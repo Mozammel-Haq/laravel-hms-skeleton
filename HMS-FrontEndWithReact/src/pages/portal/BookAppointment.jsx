@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Calendar as CalendarIcon, Clock, User, Info, CheckCircle, AlertCircle } from 'lucide-react';
@@ -24,12 +24,15 @@ const bookingSchema = z.object({
 });
 
 const BookAppointment = () => {
+  const location = useLocation();
+  const prefill = location.state?.prefill;
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState(format(startOfToday(), 'yyyy-MM-dd'));
   const navigate = useNavigate();
   const { addToast } = useUI();
   const { activeClinic } = useClinic();
   const { user } = useAuth();
+  const prefAppliedRef = useRef(false);
   // Data States
   const [doctors, setDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -63,27 +66,21 @@ const BookAppointment = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       if (!activeClinic?.id) return;
-
       setIsLoadingDoctors(true);
       setFetchError(null);
       try {
         const response = await api.get(API_ENDPOINTS.PATIENT.DOCTORS);
-        // The endpoint returns { doctors: [...], departments: [...], clinics: [...] }
         const { departments: depts = [] } = response.data;
         const { doctors: docs = [] } = response.data.clinics?.[0] || {};
-
         setDoctors(docs);
         setDepartments(depts);
-
       } catch (error) {
-        console.error("Failed to fetch doctors:", error);
         setFetchError("Failed to load doctors. Please try again.");
         addToast('error', 'Could not load doctors list.');
       } finally {
         setIsLoadingDoctors(false);
       }
     };
-
     fetchDoctors();
   }, [activeClinic?.id, addToast]);
 
@@ -94,10 +91,7 @@ const BookAppointment = () => {
     return String(doc.department?.id) === String(selectedDepartment);
   });
 
-  // Reset doctor selection when department changes
-  useEffect(() => {
-    setValue('doctor', '');
-  }, [selectedDepartment, setValue]);
+  // Keep doctor selection if it belongs to the selected department; otherwise clear
 
 
   // --- 3. Fetch Time Slots ---
@@ -107,7 +101,6 @@ const BookAppointment = () => {
         setAvailableSlots([]);
         return;
       }
-
       setIsLoadingSlots(true);
       try {
         const response = await api.get(API_ENDPOINTS.PATIENT.APPOINTMENT_SLOTS, {
@@ -117,25 +110,18 @@ const BookAppointment = () => {
             clinic_id: activeClinic?.id
           }
         });
-        console.log(response)
         const slots = response.data.slots || response.data || [];
         setAvailableSlots(slots);
-
-        // Clear time selection if it's no longer available
         const slotExists = slots.some(s => s.start === selectedTime);
         if (selectedTime && !slotExists) {
           setValue('time', '');
         }
       } catch (error) {
-        console.error("Failed to fetch slots:", error);
-        // Fallback or empty
         setAvailableSlots([]);
-        // Don't show toast on every date change error, just log it.
       } finally {
         setIsLoadingSlots(false);
       }
     };
-
     fetchSlots();
   }, [selectedDoctor, selectedDate, setValue, selectedTime]);
 
@@ -143,44 +129,64 @@ const BookAppointment = () => {
   useEffect(() => {
     const checkHistory = async () => {
       if (!selectedDoctor) return;
-
       setIsCheckingHistory(true);
       try {
         const response = await api.get(API_ENDPOINTS.PATIENT.APPOINTMENTS);
         const appointments = response.data.appointments || response.data || [];
-
-        // Logic: Find appointment with this doctor in last 14 days
         const twoWeeksAgo = subDays(new Date(), 14);
-
         const recentVisit = appointments.find(apt => {
           const aptDate = parseISO(apt.appointment_date || apt.date);
           const aptDoctorId = apt.doctor_id || apt.doctor?.id;
-
           return (
             String(aptDoctorId) === String(selectedDoctor) &&
             isAfter(aptDate, twoWeeksAgo) &&
-            apt.status !== 'cancelled' // Ignore cancelled appointments
+            apt.status !== 'cancelled'
           );
         });
-
         if (recentVisit) {
           setValue('type', 'follow_up');
-          // Optional: You could store the recent visit date to show to the user
         } else {
           setValue('type', 'new');
         }
-
       } catch (error) {
-        console.error("Failed to check history:", error);
-        // Default to new visit on error to be safe
         setValue('type', 'new');
       } finally {
         setIsCheckingHistory(false);
       }
     };
-
     checkHistory();
   }, [selectedDoctor, setValue]);
+
+  useEffect(() => {
+    if (!prefill || prefAppliedRef.current) return;
+    if (!departments.length || !doctors.length) return;
+    if (prefill.departmentId) setValue('department', String(prefill.departmentId));
+    if (prefill.doctorId) setValue('doctor', String(prefill.doctorId));
+    if (prefill.date) {
+      setSelectedDate(prefill.date);
+      setValue('date', prefill.date);
+    }
+    if (prefill.visitMode) setValue('visitMode', prefill.visitMode);
+    prefAppliedRef.current = true;
+    setStep(2);
+  }, [prefill, departments, doctors, setValue]);
+
+  useEffect(() => {
+    if (!prefill || !availableSlots.length) return;
+    const exists = availableSlots.some(s => s.start === prefill.time);
+    if (exists) setValue('time', prefill.time);
+  }, [availableSlots, prefill, setValue]);
+
+  useEffect(() => {
+    const doc = getDoctorDetails(watch('doctor'));
+    if (!doc) {
+      setValue('doctor', '');
+      return;
+    }
+    if (String(doc.department?.id) !== String(selectedDepartment)) {
+      setValue('doctor', '');
+    }
+  }, [selectedDepartment, setValue, selectedDepartment]);
 
 
   // --- 5. Submit Appointment ---

@@ -142,6 +142,11 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-3">
+                      {apt.pending_request_type && (
+                         <span className="px-2 py-1 text-xs font-medium rounded-full border bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-700">
+                           {apt.pending_request_type === 'cancel' ? 'Cancellation Pending' : 'Reschedule Pending'}
+                         </span>
+                      )}
                       <span className={`px-2 py-1 text-xs font-medium rounded-full border ${
                         apt.status === 'Confirmed'
                           ? 'bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-500/20'

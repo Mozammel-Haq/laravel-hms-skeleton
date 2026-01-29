@@ -76,6 +76,9 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
     Route::post('patients/{id}/restore', [PatientController::class, 'restore'])->name('patients.restore')->middleware('can:delete_patients');
 
     // Appointments
+    Route::get('appointments/requests', [\App\Http\Controllers\AdminAppointmentRequestController::class, 'index'])->name('appointments.requests.index');
+    Route::patch('appointments/requests/{appointmentRequest}', [\App\Http\Controllers\AdminAppointmentRequestController::class, 'update'])->name('appointments.requests.update');
+
     Route::resource('appointments', AppointmentController::class)->middleware('can:view_appointments');
     Route::post('appointments/{id}/restore', [AppointmentController::class, 'restore'])->name('appointments.restore')->middleware('can:delete_appointments');
     Route::patch('appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('appointments.status.update');

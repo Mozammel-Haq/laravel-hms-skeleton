@@ -36,7 +36,9 @@ class ApoointmentsApiController extends Controller
 
         // 2. Fetch Appointments
         $appointments = Appointment::withoutGlobalScopes()
-            ->with(['doctor', 'doctor.user:id,name,email'])
+            ->with(['doctor', 'doctor.user:id,name,email', 'requests' => function($q) {
+                $q->where('status', 'pending');
+            }])
             ->where('appointments.clinic_id', $selectedClinicId)
             ->where('appointments.patient_id', $patient->id)
             ->get();
