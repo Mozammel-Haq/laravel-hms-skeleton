@@ -1,7 +1,7 @@
 import React from 'react';
 import { HeartPulse } from 'lucide-react';
 
-const MedicalLoader = ({ text = 'Loading doctors...' }) => {
+const MedicalLoader = ({ text = 'Loading...' }) => {
   return (
     <div className="flex flex-col items-center justify-center py-24">
       {/* Icon */}
