@@ -172,24 +172,39 @@
 
                 // Construct URL: /api/doctors/{doctor}/slots?date={date}
                 // We use a placeholder '000' to generate the route, then replace it with the actual ID
-                const urlTemplate = "{{ route('api.doctors.slots', '000') }}";
+                // Use relative path (third argument false) to avoid mixed content issues (HTTP vs HTTPS)
+                const urlTemplate = "{{ route('api.doctors.slots', '000', false) }}";
                 const url = urlTemplate.replace('000', doctorId) + `?date=${date}`;
 
                 fetch(url)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         slotsList.innerHTML = '';
-                        if (data.length === 0) {
+                        // API returns array or { slots: [] } depending on controller
+                        // AppointmentController returns direct array
+                        const slots = Array.isArray(data) ? data : (data.slots || []);
+                        
+                        if (slots.length === 0) {
                             noSlotsMsg.classList.remove('d-none');
                         } else {
-                            data.forEach(slot => {
+                            slots.forEach(slot => {
+                                // AppointmentService returns start_time/end_time
+                                // Fallback to start/end if those exist (compatibility)
+                                const start = slot.start_time || slot.start;
+                                const end = slot.end_time || slot.end;
+
                                 const btn = document.createElement('button');
                                 btn.type = 'button';
                                 btn.className = 'btn btn-sm btn-outline-primary';
-                                btn.textContent = `${slot.start} - ${slot.end}`;
+                                btn.textContent = `${start} - ${end}`;
 
                                 // Highlight logic
-                                if (startTimeInput.value && slot.start.startsWith(startTimeInput.value
+                                if (startTimeInput.value && start.startsWith(startTimeInput.value
                                         .substring(0, 5))) {
                                     btn.classList.remove('btn-outline-primary');
                                     btn.classList.add('btn-primary');
@@ -197,7 +212,7 @@
 
                                 btn.addEventListener('click', function() {
                                     // Set time
-                                    startTimeInput.value = slot.start;
+                                    startTimeInput.value = start;
                                     // Update visual selection
                                     Array.from(slotsList.children).forEach(child => {
                                         child.classList.remove('btn-primary');
