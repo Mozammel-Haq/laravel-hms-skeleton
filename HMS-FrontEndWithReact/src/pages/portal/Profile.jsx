@@ -64,7 +64,7 @@ const Profile = () => {
   const handleSave = async () => {
     try {
       const formData = new FormData();
-      
+
       // Append all fields (Laravel will handle empty values)
       formData.append('name', user.name || '');
       formData.append('email', user.email || '');
@@ -72,7 +72,7 @@ const Profile = () => {
       formData.append('address', user.address || '');
       formData.append('date_of_birth', user.dob || '');
       formData.append('blood_group', user.bloodGroup || '');
-      
+
       // Append password fields only if they are filled
       if (passwordData.current_password) {
         formData.append('current_password', passwordData.current_password);
@@ -83,7 +83,7 @@ const Profile = () => {
       if (passwordData.new_password_confirmation) {
         formData.append('new_password_confirmation', passwordData.new_password_confirmation);
       }
-      
+
       if (avatarFile) {
         formData.append('profile_photo', avatarFile);
       }
@@ -107,8 +107,6 @@ const Profile = () => {
         setAvatarFile(null);
         setAvatarPreview(null); // Clear preview after save
         setPasswordData({ current_password: '', new_password: '', new_password_confirmation: '' }); // Reset password fields
-
-        console.log('Profile updated successfully');
       }
     } catch (error) {
       addToast('error', 'Failed to update profile');

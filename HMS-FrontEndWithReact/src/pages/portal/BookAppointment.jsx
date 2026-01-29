@@ -19,6 +19,7 @@ const bookingSchema = z.object({
   date: z.string().min(1, 'Please select a date'),
   time: z.string().min(1, 'Please select a time slot'),
   type: z.enum(['new', 'follow_up'], { required_error: "Please select appointment type" }),
+  visitMode: z.enum(['in_person', 'online'], { required_error: "Please select visit mode" }),
   reason: z.string().min(5, 'Please provide a brief reason for visit'),
 });
 
@@ -50,6 +51,7 @@ const BookAppointment = () => {
     defaultValues: {
       date: format(startOfToday(), 'yyyy-MM-dd'),
       type: 'new',
+      visitMode: 'in_person',
     }
   });
 
@@ -183,7 +185,6 @@ const BookAppointment = () => {
 
   // --- 5. Submit Appointment ---
   const onSubmit = async (data) => {
-    console.log('FORM DATA:', data);
     try {
       // Find the selected slot object to get the end time
       const selectedSlot = availableSlots.find(s => s.start === data.time);
@@ -194,8 +195,8 @@ const BookAppointment = () => {
         appointment_date: data.date,
         start_time: data.time,
         end_time: selectedSlot?.end,
-        appointment_type: data.type, // 'new' or 'follow_up'
-        reason_for_visit: data.reason,
+        appointment_type: data.visitMode, // 'in_person' or 'online'
+        reason_for_visit: `[${data.type === 'new' ? 'New Consultation' : 'Follow-up Visit'}] ${data.reason}`,
         department_id: data.department,
         clinic_id: activeClinic?.id,
         booking_source: 'online'

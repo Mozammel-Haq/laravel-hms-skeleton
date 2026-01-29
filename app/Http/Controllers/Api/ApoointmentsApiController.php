@@ -148,6 +148,8 @@ class ApoointmentsApiController extends Controller
             'clinic_id' => 'nullable|integer',
             'status' => 'nullable|string|in:pending,arrived,confirmed,cancelled',
             'booking_source' => 'nullable|string|in:in_person,online',
+            'appointment_type' => 'nullable|string',
+            'reason_for_visit' => 'nullable|string',
         ]);
         $appointment = new Appointment();
         $appointment->doctor_id = $request->doctor_id;
@@ -159,6 +161,21 @@ class ApoointmentsApiController extends Controller
         $appointment->clinic_id = $request->clinic_id;
         $appointment->status = $request->status ?? 'pending';
         $appointment->booking_source = $request->booking_source ?? 'in_person';
+
+        // Fix: Frontend sends 'new'/'follow_up' as appointment_type, but DB expects 'online'/'in_person'
+        // We'll default to 'in_person' and append the visit type to the reason
+        $visitType = $request->appointment_type; // 'new' or 'follow_up'
+        $reason = $request->reason_for_visit;
+
+        if ($visitType && !in_array($visitType, ['online', 'in_person'])) {
+            $appointment->appointment_type = 'in_person';
+            $formattedType = ucfirst(str_replace('_', ' ', $visitType));
+            $appointment->reason_for_visit = "[$formattedType] " . $reason;
+        } else {
+            $appointment->appointment_type = $visitType ?? 'in_person';
+            $appointment->reason_for_visit = $reason;
+        }
+
         $appointment->save();
 
 
