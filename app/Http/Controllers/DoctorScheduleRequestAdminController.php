@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\DoctorSchedule;
 use App\Models\DoctorScheduleRequest;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -54,69 +53,6 @@ class DoctorScheduleRequestAdminController extends Controller
     public function approve(Request $request, DoctorScheduleRequest $scheduleRequest)
     {
         Gate::authorize('manage_doctor_schedule');
-
-        $doctor = $scheduleRequest->doctor;
-        $clinicId = $scheduleRequest->clinic_id;
-        $schedules = $scheduleRequest->schedules ?? [];
-
-        // Check for conflicts before approving
-        foreach ($schedules as $item) {
-            if (!isset($item['start_time']) || !isset($item['end_time']) || !isset($item['type'])) {
-                continue;
-            }
-
-            $start = $item['start_time'];
-            $end = $item['end_time'];
-            $type = $item['type'];
-
-            $conflicts = DoctorSchedule::withoutGlobalScopes()
-                ->where('doctor_id', $doctor->id)
-                ->where('clinic_id', '!=', $clinicId)
-                ->where(function ($q) use ($start, $end) {
-                    $q->where('start_time', '<', $end)
-                        ->where('end_time', '>', $start);
-                })
-                ->with('clinic')
-                ->get();
-
-            foreach ($conflicts as $conflict) {
-                $isConflict = false;
-
-                if ($type === 'weekly') {
-                    if (!isset($item['day_of_week'])) continue;
-                    $myDay = $item['day_of_week'];
-
-                    if ($conflict->schedule_date) {
-                        if (Carbon::parse($conflict->schedule_date)->dayOfWeek == $myDay) {
-                            $isConflict = true;
-                        }
-                    } else {
-                        if ($conflict->day_of_week == $myDay) {
-                            $isConflict = true;
-                        }
-                    }
-                } else {
-                    if (!isset($item['schedule_date'])) continue;
-                    $myDate = $item['schedule_date'];
-
-                    if ($conflict->schedule_date) {
-                        if ($conflict->schedule_date == $myDate) {
-                            $isConflict = true;
-                        }
-                    } else {
-                        if (Carbon::parse($myDate)->dayOfWeek == $conflict->day_of_week) {
-                            $isConflict = true;
-                        }
-                    }
-                }
-
-                if ($isConflict) {
-                    $clinicName = $conflict->clinic->name ?? 'another clinic';
-                    $conflictDesc = $conflict->schedule_date ? $conflict->schedule_date : "Weekly (Day {$conflict->day_of_week})";
-                    return back()->with('error', "Cannot approve: Schedule overlaps with {$clinicName} ({$conflictDesc} {$conflict->start_time}-{$conflict->end_time}).");
-                }
-            }
-        }
 
         DB::transaction(function () use ($scheduleRequest) {
             $doctor = $scheduleRequest->doctor;

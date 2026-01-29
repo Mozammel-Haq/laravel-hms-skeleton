@@ -6,7 +6,12 @@ use App\Http\Controllers\Api\ClinicApiController;
 use App\Http\Controllers\Api\DoctorsApiController;
 use App\Http\Controllers\Api\PatientAuthController;
 use App\Http\Controllers\Api\PatientClinicsController;
+use App\Http\Controllers\Api\PatientDashboardController;
 use App\Http\Controllers\Api\PatientProfileController;
+use App\Http\Controllers\Api\LabResultApiController;
+use App\Http\Controllers\Api\MedicalHistoryApiController;
+use App\Http\Controllers\Api\PrescriptionApiController;
+use App\Http\Controllers\Api\VitalsApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,12 +30,18 @@ Route::prefix('patient')->group(function () {
     Route::middleware(['auth:sanctum', 'api.tenant'])->group(function () {
         Route::post('logout', [PatientAuthController::class, 'logout']);
         Route::get('me', [PatientAuthController::class, 'me']);
+        Route::get('dashboard/stats', [PatientDashboardController::class, 'stats']);
         Route::get('clinics', [PatientClinicsController::class, 'index']);
 
         // Get Appointments List
         Route::get('appointments', [ApoointmentsApiController::class, 'index']);
         Route::post('appointments', [ApoointmentsApiController::class, 'store']);
         Route::get('appointments/slots', [ApoointmentsApiController::class, 'slots']);
+
+        Route::get('prescriptions', [PrescriptionApiController::class, 'index']);
+        Route::get('lab-results', [LabResultApiController::class, 'index']);
+        Route::get('vitals', [VitalsApiController::class, 'index']);
+        Route::get('medical-history', [MedicalHistoryApiController::class, 'index']);
 
         // Get Doctors + Departments List
         Route::get('doctors', [BookingApiController::class, 'index']);

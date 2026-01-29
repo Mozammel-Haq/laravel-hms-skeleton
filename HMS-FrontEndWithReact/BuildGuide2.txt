@@ -1,0 +1,2102 @@
+ADDENDUM TO MASTER INSTRUCTION DOCUMENT
+PUBLIC-FACING LANDING WEBSITE & MARKETING PAGES
+
+NOTE: The original Master Instruction Document (Sections 0-23) focused exclusively on the authenticated patient portal. This addendum adds a complete specification for the public-facing landing website that serves as the entry point to the patient portal.
+
+SECTION 24: LANDING WEBSITE OVERVIEW
+24.1 Purpose & Scope
+The Landing Website Serves To:
+
+Introduce the hospital/clinic system to potential patients
+Build trust and credibility
+Provide essential information (services, doctors, locations)
+Enable patient login access to the portal
+Facilitate appointment booking inquiries
+Display public health information
+Showcase hospital achievements and facilities
+
+The Landing Website is NOT:
+
+A generic hospital template
+An overly animated "startup" website
+A flashy marketing site with gimmicks
+A social media-style platform
+
+The Landing Website IS:
+
+A calm, professional medical information hub
+A trust-building first impression
+A gateway to the authenticated patient portal
+A resource for potential and existing patients
+
+
+24.2 Relationship to Patient Portal
+Two Distinct Applications:
+
+Public Landing Website (this section)
+
+URL: www.hospital.com
+Accessible to everyone (no login required)
+Built with React (same tech stack)
+Can be deployed separately or as part of main app with public routes
+Shares design system with patient portal
+
+
+Authenticated Patient Portal (Sections 0-23)
+
+URL: portal.hospital.com or www.hospital.com/portal
+Requires login
+Clinic-scoped data access
+Previously specified in full detail
+
+
+
+Navigation Flow:
+Public Website → Login → Clinic Selection → Patient Dashboard
+                   ↑
+            (CTA buttons throughout public site)
+
+24.3 Technology Continuity
+Shared Elements:
+
+React framework
+Design system (Serenity in Blue palette)
+Typography system
+Spacing scale
+Component patterns
+Accessibility standards
+
+Different Elements:
+
+More visual/illustrative content (hero sections, testimonials, galleries)
+SEO optimization critical
+Public API endpoints (no auth required)
+Static content management
+
+
+SECTION 25: VISUAL DESIGN SYSTEM FOR LANDING PAGES
+25.1 Design Philosophy: "Medical Trust & Warmth"
+The landing website must balance:
+
+Professionalism - Medical credibility
+Warmth - Human-centered care
+Modernity - Current medical standards
+Clarity - Easy to understand
+
+Avoid:
+
+Stock photo overload (generic doctor images)
+Overly corporate/cold aesthetic
+Trendy web design fads (glassmorphism, neumorphism, extreme gradients)
+Aggressive animations
+Auto-playing videos
+Chatbot popups that obscure content
+Cookie banners that cover half the screen
+"Scroll-jacking" or parallax overuse
+
+
+25.2 Color System Extension
+Primary Palette (Same as Portal):
+
+Primary Blue: #2C5F8D
+Secondary Blue: #5B8FB9
+Tertiary Blue: #A8C5DA
+Background: #F8FAFB
+Text: #1A2B3C
+
+Landing Page Accent Colors (NEW):
+
+Warm Accent (for humanity/care): #7A9D9E (Muted teal)
+
+Use for: Testimonials, human stories, care messaging
+
+
+Highlight Gold (for achievements/trust): #C5A572 (Desaturated gold)
+
+Use for: Awards, certifications, statistics
+Use sparingly (less than 5% of page)
+
+
+
+Photography/Imagery Overlay:
+
+Dark overlay on hero images: rgba(26, 43, 60, 0.7) (dark blue-black)
+Light overlay for bright images: rgba(248, 250, 251, 0.85)
+
+
+25.3 Typography for Landing Pages
+Display Typography (Hero Headlines):
+
+Hero H1: 56px (desktop), 36px (mobile), Weight 700, Line Height 1.1
+Hero Subheadline: 24px (desktop), 18px (mobile), Weight 400
+
+Section Headlines:
+
+H2: 40px (desktop), 28px (mobile), Weight 600
+H3: 32px (desktop), 24px (mobile), Weight 600
+
+Body Text (Same as Portal):
+
+Body: 16px, Line Height 1.6
+Large Body: 18px (for introductory paragraphs)
+
+Special Typography:
+
+Statistics: 48px, Weight 700, Color: #2C5F8D
+
+Example: "500+" (number of doctors)
+Label below: 14px, Weight 400, Color: #4A5D6F
+
+
+
+
+25.4 Spacing & Layout for Landing
+Section Padding:
+
+Desktop: 80px vertical, 48px horizontal
+Tablet: 60px vertical, 32px horizontal
+Mobile: 48px vertical, 20px horizontal
+
+Section Max Width:
+
+Content sections: 1200px
+Full-width sections (hero, galleries): 100%
+
+Grid System (12-column):
+
+Same as portal, but more flexible layouts
+Asymmetric grids allowed (e.g., 7-5 split for content-image)
+
+
+25.5 Imagery Guidelines (CRITICAL - Avoid Generic)
+Photography Style:
+
+Real Photos Preferred: Actual hospital facilities, real staff (with permission)
+Diverse Representation: Age, ethnicity, gender diversity
+Natural Lighting: Avoid overly staged or studio-lit photos
+Context: Show medical environment naturally (not models in lab coats)
+
+What to AVOID:
+
+Stock photos of models in white coats pointing at tablets
+Overly happy/smiling doctors (unrealistic)
+Perfect families in waiting rooms (staged)
+Generic medical equipment close-ups
+Blue-tinted everything
+
+What to USE:
+
+Real hospital corridors, waiting areas (clean, well-lit)
+Actual medical equipment in use (appropriately)
+Genuine patient-doctor interactions (with consent)
+Architectural shots of facilities
+Close-ups of caring gestures (hand-holding, reassurance)
+Abstract medical patterns (subtle backgrounds)
+
+Illustration Style (if used):
+
+Minimal line art
+Medical iconography (anatomical, diagnostic)
+Muted colors matching palette
+Not cartoonish or playful
+
+
+25.6 Animation Principles for Landing
+Allowed Animations:
+
+Scroll-triggered Fade-ins:
+
+Elements fade in as user scrolls to section
+Duration: 400ms
+Easing: Ease-out
+Offset: Start animation 100px before element in view
+NO bounce, NO elastic, NO overshoot
+
+
+Hover Effects:
+
+Subtle scale (1.02 max)
+Color transitions
+Border color changes
+Duration: 200ms
+
+
+Parallax (VERY SUBTLE):
+
+Background images move slower than foreground
+Max speed differential: 0.5x
+Only on hero section
+
+
+Number Counting Animation:
+
+For statistics (e.g., "500+" counts from 0 to 500)
+Duration: 1.5s
+Triggered once on scroll into view
+
+
+Image Zoom on Hover (Galleries):
+
+Image scales to 1.05 within container (overflow hidden)
+Duration: 300ms
+
+
+
+FORBIDDEN Animations:
+
+Auto-playing carousels
+Infinite scrolling animations
+Shake/wiggle effects
+Typing effects
+Confetti/celebrations
+3D transforms
+Rotate/flip cards (unless user-triggered)
+
+Respect prefers-reduced-motion (same as portal)
+
+SECTION 26: LANDING WEBSITE STRUCTURE
+26.1 Site Map
+Public Pages:
+
+Home (/)
+About Us (/about)
+Services (/services)
+
+Service Detail Pages (/services/cardiology, /services/orthopedics, etc.)
+
+
+Doctors (/doctors)
+
+Doctor Profile Pages (/doctors/dr-john-smith)
+
+
+Locations (/locations)
+
+Location Detail Pages (/locations/dhanmondi-citycare)
+
+
+Contact Us (/contact)
+Patient Portal Login (/login) - Bridge to authenticated portal
+Privacy Policy (/privacy)
+Terms of Service (/terms)
+
+Optional Pages:
+10. Health Library (/health-library) - Educational articles
+11. News & Events (/news)
+12. Careers (/careers)
+
+26.2 Global Navigation (Public Site)
+Header (Desktop):
+Layout:
+
+Background: #FFFFFF
+Height: 80px
+Border-bottom: 1px solid #D4DFE8
+Position: Sticky (stays at top on scroll)
+Shadow: NONE
+
+Header Elements:
+
+Left: Hospital Logo (height 48px)
+Center: Navigation Menu
+
+Links: Home, About, Services, Doctors, Locations, Contact
+Typography: 16px, Weight 500, Color: #4A5D6F
+Hover: Color #2C5F8D, Underline
+Active: Color #2C5F8D, Bold
+
+
+Right: CTA Buttons
+
+"Patient Portal" (Secondary button)
+
+Border: 1px solid #2C5F8D
+Color: #2C5F8D
+Padding: 10px 20px
+Border Radius: 8px
+Hover: Background #E8F1F8
+
+
+"Book Appointment" (Primary button)
+
+Background: #2C5F8D
+Color: #FFFFFF
+Padding: 10px 24px
+Border Radius: 8px
+Hover: Background #1E4766
+
+
+
+
+
+Header (Mobile):
+
+Logo (left)
+Hamburger menu (right)
+Drawer navigation (slides from right)
+Same links as desktop (stacked)
+
+
+26.3 Footer (Public Site)
+Layout:
+
+Background: #1A2B3C (dark blue-black)
+Color: #FFFFFF
+Padding: 60px 48px (desktop), 40px 20px (mobile)
+
+Footer Sections (4-column grid on desktop):
+Column 1: About
+
+Hospital logo (white version)
+Brief description (2-3 sentences)
+Social media icons (if applicable)
+
+Column 2: Quick Links
+
+About Us
+Services
+Doctors
+Locations
+Contact
+Careers
+
+Column 3: Patient Resources
+
+Patient Portal Login
+Book Appointment
+Health Library
+FAQs
+Insurance Information
+
+Column 4: Contact Info
+
+Main hospital address
+Phone: +123-456-7890
+Email: info@hospital.com
+Emergency: +123-456-0000 (highlighted in red)
+
+Bottom Bar:
+
+Copyright notice
+Privacy Policy | Terms of Service
+Designed by [Agency/Team]
+
+Typography:
+
+Section headings: 14px, Weight 600, Letter spacing 0.05em, Uppercase
+Links: 14px, Weight 400, Color: #A3B5C7
+Hover: Color: #FFFFFF
+
+
+SECTION 27: HOME PAGE (Landing Page)
+27.1 Hero Section
+Purpose: First impression, immediately communicate trust and clarity
+Layout:
+
+Full viewport height (min 600px)
+Background: Large hero image with dark overlay
+Content: Centered or left-aligned
+
+Hero Image:
+
+Real hospital exterior or welcoming interior
+High quality (1920px width minimum)
+Overlay: rgba(26, 43, 60, 0.7)
+
+Hero Content:
+
+Main Headline:
+
+Text: "Compassionate Care, Advanced Medicine"
+
+(Or similar: "Your Health, Our Priority" / "Excellence in Healthcare")
+
+
+Typography: 56px (desktop), 36px (mobile), Weight 700, Color: #FFFFFF
+Max width: 700px
+Line height: 1.1
+
+
+Subheadline:
+
+Text: "Providing comprehensive medical services across [City Name] with a commitment to patient-centered care"
+Typography: 24px (desktop), 18px (mobile), Weight 400, Color: #FFFFFF
+Max width: 600px
+Margin top: 24px
+
+
+CTA Buttons (Dual):
+
+Primary: "Find a Doctor"
+
+Background: #2C5F8D
+Color: #FFFFFF
+Size: 18px text, 56px height, 32px horizontal padding
+Icon: Stethoscope (right side)
+
+
+Secondary: "Book Appointment"
+
+Background: Transparent
+Border: 2px solid #FFFFFF
+Color: #FFFFFF
+Same size as primary
+
+
+Layout: Inline, 16px gap
+Margin top: 40px
+
+
+Trust Indicators (Bottom of hero):
+
+Small badges/icons
+Examples:
+
+"JCI Accredited"
+"24/7 Emergency Care"
+"500+ Doctors"
+"15+ Specialties"
+
+
+Layout: Horizontal row, 32px gap
+Icon + Text (12px)
+Semi-transparent background: rgba(255, 255, 255, 0.1)
+Padding: 12px 20px
+Border-radius: 8px
+
+
+
+Animation:
+
+Headline fades in from bottom (400ms delay after page load)
+Subheadline fades in (600ms delay)
+Buttons fade in (800ms delay)
+Subtle parallax on scroll (background moves at 0.5x speed)
+
+
+27.2 Statistics Section
+Purpose: Build credibility with numbers
+Layout:
+
+Background: #FFFFFF
+Padding: 80px vertical
+Max width: 1200px
+Centered
+
+Section Header:
+
+Headline: "Healthcare Excellence by the Numbers"
+Typography: H2, 40px, Weight 600, Color: #1A2B3C
+Centered
+Margin bottom: 60px
+
+Statistics Grid:
+
+4 columns (desktop), 2 columns (tablet), 1 column (mobile)
+Gap: 48px
+
+Each Statistic Card:
+
+Centered content
+No background or border
+
+Card Elements:
+
+Number:
+
+Text: "500+" or "15+" or "50,000+"
+Typography: 56px, Weight 700, Color: #2C5F8D
+Counting animation on scroll into view
+
+
+Label:
+
+Text: "Expert Doctors" / "Medical Specialties" / "Patients Treated Annually"
+Typography: 16px, Weight 500, Color: #4A5D6F
+Margin top: 12px
+
+
+Icon (Optional):
+
+Above number
+Size: 48px
+Color: #A8C5DA (light blue)
+
+
+
+Example Statistics:
+
+500+ Expert Doctors
+15+ Medical Specialties
+50,000+ Patients Treated Annually
+3 State-of-the-Art Facilities
+
+
+27.3 Services Overview Section
+Purpose: Showcase key medical services
+Layout:
+
+Background: #F0F4F7 (light blue-gray)
+Padding: 80px vertical
+
+Section Header:
+
+Headline: "Comprehensive Medical Services"
+Subheadline: "From preventive care to advanced treatments, we're here for every stage of your health journey"
+Centered
+Margin bottom: 60px
+
+Services Grid:
+
+3 columns (desktop), 2 (tablet), 1 (mobile)
+Gap: 32px
+Max width: 1200px
+
+Service Card Design:
+Card Container:
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Border-radius: 12px
+Padding: 32px
+Hover: Border color #2C5F8D, subtle lift (translateY: -4px)
+Transition: 200ms ease
+Cursor: pointer
+Click: Navigate to service detail page
+
+Card Content:
+
+Icon:
+
+Medical specialty icon (64px)
+Color: #2C5F8D
+Margin bottom: 20px
+
+
+Service Name:
+
+Text: "Cardiology" / "Orthopedics" / "Pediatrics"
+Typography: H4, 22px, Weight 600, Color: #1A2B3C
+
+
+Short Description:
+
+Text: 2-3 sentences describing service
+Typography: 14px, Weight 400, Color: #4A5D6F, Line height 1.6
+Margin top: 12px
+
+
+CTA Link:
+
+Text: "Learn More →"
+Typography: 14px, Weight 500, Color: #2C5F8D
+Margin top: 16px
+Hover: Underline
+
+
+
+Featured Services (Example - adapt to actual hospital):
+
+Cardiology
+Orthopedics
+Neurology
+Pediatrics
+Obstetrics & Gynecology
+General Surgery
+Internal Medicine
+Emergency Medicine
+(Show 6-9 services, link to full list)
+
+View All Link:
+
+Below grid
+Text: "View All Services →"
+Typography: 18px, Weight 500, Color: #2C5F8D
+Centered
+Navigate to /services page
+
+
+27.4 Featured Doctors Section
+Purpose: Build trust through doctor profiles
+Layout:
+
+Background: #FFFFFF
+Padding: 80px vertical
+
+Section Header:
+
+Headline: "Meet Our Expert Physicians"
+Subheadline: "Board-certified specialists committed to your health"
+Centered
+Margin bottom: 60px
+
+Doctors Display:
+Option A: Carousel (Controlled by User - NO Auto-play)
+
+Show 3 doctors at a time (desktop)
+Navigation arrows (left/right)
+Dot indicators below
+Swipe-enabled (mobile)
+
+Option B: Static Grid (Recommended to avoid carousel)
+
+Show 4 featured doctors
+4 columns (desktop), 2 (tablet), 1 (mobile)
+
+Doctor Card Design:
+Card Container:
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Border-radius: 12px
+Padding: 24px
+Text-align: Center
+Hover: Border #2C5F8D, subtle scale (1.02)
+Cursor: pointer
+Click: Navigate to doctor profile page
+
+Card Content:
+
+Doctor Photo:
+
+Circular image (150px diameter)
+Professional headshot
+Border: 3px solid #E8F1F8
+Grayscale filter: 30% (subtle desaturation)
+Hover: Grayscale 0% (full color)
+
+
+Doctor Name:
+
+Text: "Dr. [Full Name]"
+Typography: H4, 20px, Weight 600, Color: #1A2B3C
+Margin top: 16px
+
+
+Specialization:
+
+Text: "Cardiologist" / "Orthopedic Surgeon"
+Typography: 14px, Weight 500, Color: #2C5F8D
+Margin top: 4px
+
+
+Credentials (Brief):
+
+Text: "MBBS, MD, FACC"
+Typography: 12px, Weight 400, Color: #768A9E
+Margin top: 4px
+
+
+Experience:
+
+Text: "15+ Years Experience"
+Typography: 12px, Weight 400, Color: #4A5D6F
+Icon: Award icon (12px)
+Margin top: 8px
+
+
+View Profile Button:
+
+Text: "View Profile"
+Full-width button
+Background: Transparent
+Border: 1px solid #D4DFE8
+Color: #2C5F8D
+Padding: 10px
+Border-radius: 8px
+Hover: Background #E8F1F8
+Margin top: 20px
+
+
+
+View All Link:
+
+Below cards/carousel
+Text: "View All Doctors →"
+Navigate to /doctors page
+
+
+27.5 Why Choose Us Section
+Purpose: Differentiation and trust-building
+Layout:
+
+Background: #F8FAFB
+Padding: 80px vertical
+Max width: 1200px
+
+Section Header:
+
+Headline: "Why Choose [Hospital Name]"
+Centered
+Margin bottom: 60px
+
+Features Grid:
+
+2 columns (desktop), 1 column (mobile)
+Gap: 40px
+
+Feature Item Design:
+Layout: Horizontal (icon + content)
+Components:
+
+Icon Container:
+
+Size: 64px square
+Background: #E8F1F8
+Border-radius: 12px
+Centered icon (32px, color #2C5F8D)
+Float left or flex
+
+
+Content:
+
+Margin left: 24px (if float)
+
+
+Feature Headline:
+
+Text: "Advanced Technology" / "Patient-Centered Care" / "24/7 Emergency Services"
+Typography: H5, 20px, Weight 600, Color: #1A2B3C
+
+
+Feature Description:
+
+Text: 2-3 sentences
+Typography: 14px, Weight 400, Color: #4A5D6F, Line height 1.6
+Margin top: 8px
+
+
+
+Example Features:
+
+Advanced Medical Technology
+
+"State-of-the-art diagnostic equipment and treatment facilities"
+
+
+Experienced Specialists
+
+"Board-certified doctors with years of expertise"
+
+
+Patient-Centered Care
+
+"Compassionate, individualized treatment plans"
+
+
+Comprehensive Services
+
+"Full spectrum of medical specialties under one roof"
+
+
+Convenient Locations
+
+"Multiple facilities across the city"
+
+
+24/7 Emergency Care
+
+"Round-the-clock emergency services"
+
+
+
+
+27.6 Patient Testimonials Section
+Purpose: Social proof and emotional connection
+Layout:
+
+Background: #FFFFFF
+Padding: 80px vertical
+
+Section Header:
+
+Headline: "What Our Patients Say"
+Centered
+Margin bottom: 60px
+
+Testimonials Display:
+Layout: 3-column grid (desktop), 1 column (mobile)
+
+Gap: 32px
+Max width: 1200px
+
+Testimonial Card Design:
+Card Container:
+
+Background: #F8FAFB
+Border: NONE (no border for softer look)
+Border-radius: 12px
+Padding: 32px
+Position relative (for quote icon)
+
+Card Content:
+
+Quote Icon:
+
+Large quotation mark icon
+Size: 48px
+Color: #D4DFE8 (very subtle)
+Position: Top-left corner (absolute or in-flow)
+
+
+Testimonial Text:
+
+Text: 3-5 sentences
+Typography: 16px, Weight 400, Color: #1A2B3C, Line height 1.7, Italic
+Margin bottom: 24px
+
+
+Patient Info:
+
+Name: "[First Name] [Last Initial]." (e.g., "Sarah M.")
+
+Typography: 14px, Weight 600, Color: #2C5F8D
+
+
+Context: "Cardiology Patient" (or age/service received)
+
+Typography: 12px, Weight 400, Color: #768A9E
+Margin top: 4px
+
+
+
+
+Star Rating (Optional):
+
+5 stars (visual only, not interactive)
+Color: #C5A572 (gold accent)
+Size: 16px
+Position: Above testimonial text or below patient info
+
+
+
+Example Testimonial:
+
+"The care I received was exceptional. Dr. Smith took the time to explain everything and made me feel comfortable throughout my treatment. The staff was professional and compassionate. I'm grateful for their expertise."
+Sarah M.
+Cardiology Patient
+
+Privacy Note:
+
+All testimonials must be real and used with permission
+If using photos, get consent
+Option: Use only initials + service type (no photos)
+
+
+27.7 Locations/Facilities Section
+Purpose: Show physical presence and accessibility
+Layout:
+
+Background: #F0F4F7
+Padding: 80px vertical
+
+Section Header:
+
+Headline: "Our Locations"
+Subheadline: "Conveniently located to serve you"
+Centered
+Margin bottom: 60px
+
+Locations Display:
+Layout: 3-column grid (desktop)
+
+Show 3 main locations (if more, link to locations page)
+
+Location Card Design:
+Card Container:
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Border-radius: 12px
+Overflow: hidden (for image)
+Hover: Border #2C5F8D
+Cursor: pointer
+Click: Navigate to location detail page
+
+Card Content:
+
+Location Image:
+
+Building exterior photo
+Height: 200px
+Width: 100%
+Object-fit: Cover
+Overlay on hover: rgba(44, 95, 141, 0.1)
+
+
+Content Area (Padding: 24px):
+Location Name:
+
+Text: "[Clinic Name]"
+Typography: H4, 20px, Weight 600, Color: #1A2B3C
+
+
+Address:
+
+Text: Full address
+Typography: 14px, Weight 400, Color: #4A5D6F, Line height 1.5
+Icon: Location pin (14px)
+Margin top: 12px
+
+
+Phone:
+
+Text: Phone number
+Typography: 14px, Weight 400, Color: #4A5D6F
+Icon: Phone (14px)
+Margin top: 8px
+Clickable: tel: link (mobile)
+
+
+Services Offered (Brief):
+
+Text: "Emergency Care, Outpatient Services, Surgery"
+Typography: 12px, Weight 400, Color: #768A9E
+Margin top: 12px
+Max 2 lines, truncate
+
+
+CTA Links:
+
+"Get Directions" (opens map)
+"View Details"
+Layout: Inline, separated by |
+Typography: 14px, Weight 500, Color: #2C5F8D
+Margin top: 16px
+
+
+
+
+27.8 CTA Section (Before Footer)
+Purpose: Final conversion push
+Layout:
+
+Background: Gradient (linear-gradient(135deg, #2C5F8D 0%, #1E4766 100%))
+Padding: 80px vertical
+Centered content
+Max width: 800px
+
+Content:
+
+Headline:
+
+Text: "Ready to Take Control of Your Health?"
+Typography: H2, 40px, Weight 600, Color: #FFFFFF
+Centered
+
+
+Subheadline:
+
+Text: "Access your medical records, book appointments, and communicate with your care team"
+Typography: 18px, Weight 400, Color: #FFFFFF, Opacity 0.9
+Centered
+Margin top: 16px
+
+
+CTA Buttons:
+
+Primary: "Patient Portal Login"
+
+Background: #FFFFFF
+Color: #2C5F8D
+Size: Large (56px height)
+
+
+Secondary: "Book Appointment"
+
+Background: Transparent
+Border: 2px solid #FFFFFF
+Color: #FFFFFF
+
+
+Layout: Inline, 16px gap
+Margin top: 40px
+
+
+Subtext:
+
+Text: "New patient? Contact us to register"
+Typography: 14px, Color: #FFFFFF, Opacity 0.8
+Link: "Contact Us →"
+Margin top: 24px
+
+
+
+
+SECTION 28: ABOUT US PAGE
+28.1 Page Purpose
+Communicate:
+
+Hospital history and mission
+Values and philosophy
+Leadership team
+Accreditations and achievements
+
+
+28.2 Page Sections
+28.2.1 Hero Section (About)
+Layout:
+
+Similar to home hero, but less tall (400px height)
+Background image: Hospital building or staff team photo
+
+Content:
+
+Headline: "About [Hospital Name]"
+Subheadline: "Committed to Excellence in Healthcare Since [Year]"
+
+
+28.2.2 Our Story Section
+Layout:
+
+2-column (desktop): Text (60%) + Image (40%)
+1-column (mobile)
+Background: #FFFFFF
+Padding: 80px vertical
+
+Content:
+
+Headline: "Our Story"
+Body: 3-4 paragraphs about hospital history, founding, growth
+Image: Historical photo or timeline graphic
+
+
+28.2.3 Mission & Values Section
+Layout:
+
+Background: #F8FAFB
+Padding: 80px vertical
+Centered content
+
+Content:
+Mission Statement:
+
+Display in large quote format
+Typography: 24px, Italic, Weight 400, Color: #1A2B3C
+Centered
+Max width: 800px
+Quote marks visual
+
+Values Grid:
+
+4 columns (icons + text)
+Values: Compassion, Excellence, Integrity, Innovation (example)
+Each value:
+
+Icon (48px)
+Value name (H5, 18px, Weight 600)
+Description (14px, 2 sentences)
+
+
+
+
+28.2.4 Leadership Team Section
+Layout:
+
+Background: #FFFFFF
+Padding: 80px vertical
+
+Content:
+
+Headline: "Our Leadership"
+Grid: 3-4 leadership profiles (CEO, Medical Director, etc.)
+
+Profile Card:
+
+Photo (circular, 150px)
+Name
+Title
+Brief bio (3 sentences)
+LinkedIn icon (optional)
+
+
+28.2.5 Accreditations & Awards Section
+Layout:
+
+Background: #F0F4F7
+Padding: 60px vertical
+
+Content:
+
+Headline: "Accredited & Recognized"
+Logo grid: Show accreditation logos (JCI, ISO, etc.)
+Typography below: Brief description of each
+
+
+SECTION 29: SERVICES PAGE
+29.1 Page Layout
+Hero:
+
+Headline: "Medical Services & Specialties"
+Subheadline: "Comprehensive care across all medical disciplines"
+
+Services List:
+
+Alphabetical or by category
+Card grid (same design as home page service cards)
+Each card links to service detail page
+
+Categories (If Using):
+
+Surgical Services
+Medical Services
+Diagnostic Services
+Emergency Services
+
+
+29.2 Service Detail Page Template
+**For Each Service (e.g., /services/cardiology):**
+Hero Section:
+
+Service name: "Cardiology"
+Brief tagline: "Expert heart and vascular care"
+Background: Relevant medical image
+
+Overview Section:
+
+What is this service
+Conditions treated
+Treatments offered
+
+Our Specialists Section:
+
+List of doctors in this specialty
+Link to doctor profiles
+
+Procedures & Treatments:
+
+Bullet list or cards
+Common procedures (e.g., "Angioplasty", "Pacemaker Implantation")
+
+When to See a Specialist:
+
+Symptoms that warrant visit
+Preventive care recommendations
+
+CTA:
+
+"Find a Cardiologist"
+"Book Consultation"
+
+
+SECTION 30: DOCTORS PAGE
+30.1 Doctors Directory
+Page Layout:
+Search & Filter Section:
+
+Search bar: "Search by name or specialty"
+Filters:
+
+Specialty (dropdown)
+Location (dropdown)
+Gender (if appropriate)
+Language (if multilingual doctors)
+
+
+
+Doctors Grid:
+
+Same card design as featured doctors on home
+Show all matching doctors
+Pagination or infinite scroll
+
+
+30.2 Doctor Profile Page Template
+For Each Doctor (e.g., /doctors/dr-john-smith):
+Profile Header:
+
+Large photo (left or top)
+Name, credentials
+Specialty
+Languages spoken
+Years of experience
+Patient rating (if available)
+CTA: "Book Appointment"
+
+About Section:
+
+Biography (3-5 paragraphs)
+Medical philosophy
+
+Education & Training:
+
+Medical degree
+Residency
+Fellowships
+Certifications
+
+Specializations:
+
+List of sub-specialties or areas of expertise
+
+Awards & Recognition:
+
+List of awards (if applicable)
+
+Publications (Optional):
+
+Research publications (if academic)
+
+Office Locations:
+
+Where doctor practices
+Schedule (days/times)
+
+Patient Reviews (Optional):
+
+If backend supports, show testimonials
+Star rating
+
+CTA:
+
+"Book an Appointment with Dr. [Name]"
+
+
+SECTION 31: LOCATIONS PAGE
+31.1 Locations Overview
+Page Layout:
+Map View (Top):
+
+Interactive map showing all locations
+Markers for each clinic
+Click marker: Show location card popup
+
+Locations List (Below Map):
+
+Detailed cards for each location
+Filters: By service offered, by region
+
+Location Card (Expanded):
+
+Name
+Full address
+Phone
+Email
+Hours of operation
+Services offered
+Facilities (parking, wheelchair access, etc.)
+CTA: "Get Directions" / "View Details"
+
+
+31.2 Location Detail Page Template
+For Each Location (e.g., /locations/dhanmondi-citycare):
+Hero:
+
+Location name
+Main photo of building
+
+Overview:
+
+Description of facility
+Services available at this location
+
+Contact Information:
+
+Address, phone, email
+Hours
+
+Doctors at This Location:
+
+List of doctors who practice here
+Link to their profiles
+
+Facilities & Amenities:
+
+Parking information
+Accessibility features
+Patient amenities (cafe, pharmacy, etc.)
+
+Directions:
+
+Embedded map
+Written directions
+
+CTA:
+
+"Book Appointment at This Location"
+
+
+SECTION 32: CONTACT PAGE
+32.1 Page Layout
+Hero:
+
+Headline: "Contact Us"
+Subheadline: "We're here to help"
+
+Contact Methods Section:
+Three Columns:
+
+Phone:
+
+Main number
+Emergency number
+Appointment booking number
+
+
+Email:
+
+General inquiries
+Billing questions
+Feedback
+
+
+Address:
+
+Main hospital address
+Map link
+
+
+
+Contact Form:
+Form Fields:
+
+Name (required)
+Email (required)
+Phone
+Subject (dropdown: General Inquiry, Appointment Request, Billing Question, Feedback, Other)
+Message (textarea, required)
+Submit button
+
+Form Styling:
+
+Same as portal forms
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Max width: 600px
+Centered
+
+On Submit:
+
+API call to backend
+Success message: "Thank you! We'll respond within 24 hours."
+Clear form
+
+FAQ Section (Optional):
+
+Common questions about appointments, insurance, etc.
+Accordion format
+
+
+SECTION 33: ADDITIONAL PUBLIC PAGES
+33.1 Health Library (Optional)
+Purpose: Educational content on health topics
+Page Layout:
+
+List of articles by category
+Categories: Diseases & Conditions, Treatments, Preventive Care, Nutrition, etc.
+Search functionality
+
+Article Page Template:
+
+Title
+Author (doctor) and review date
+Content (rich text, images)
+Related articles
+CTA: "Consult a Specialist"
+
+
+33.2 News & Events (Optional)
+Page Layout:
+
+Latest news articles (hospital updates, health tips, events)
+Card grid
+Each card:
+
+Featured image
+Headline
+Date
+Excerpt
+"Read More" link
+
+
+
+Article/Event Detail Page:
+
+Full content
+Author/date
+Share buttons (social media)
+
+
+33.3 Careers (Optional)
+Page Layout:
+
+Hero: "Join Our Team"
+Why work here section
+Current openings (job listings)
+Application process
+CTA: Link to job application portal or email
+
+
+33.4 Privacy Policy & Terms
+Standard legal pages:
+
+Simple, clean typography
+Table of contents (anchor links)
+Last updated date
+Contact info for questions
+
+
+SECTION 34: PATIENT PORTAL LOGIN PAGE (PUBLIC ACCESS)
+34.1 Purpose
+This is the bridge between public site and authenticated portal
+URL: /login (on public domain) or /portal/login
+
+34.2 Page Design
+Layout: Same as Section 4.1 (Login Page) from main document
+Left Side:
+
+Hospital branding
+Headline: "Patient Portal"
+Subheadline: "Access your medical records, appointments, and more"
+Trust indicators
+
+Right Side:
+
+Login form (email/phone + password)
+"Forgot Password" link
+"Login" button
+
+Below Form:
+
+Link: "New patient? Contact us to register"
+
+Links to contact page or registration flow (if backend supports)
+
+
+
+
+34.3 Flow
+
+User on public site clicks "Patient Portal" button
+Redirected to /login
+User enters credentials
+On success: Redirect to /portal/clinic-selection (or auto-select if one clinic)
+Then to authenticated dashboard
+
+
+SECTION 35: RESPONSIVE DESIGN FOR LANDING PAGES
+35.1 Breakpoints
+Desktop: 1280px+
+Tablet: 768px - 1279px
+Mobile: < 768px
+
+35.2 Mobile-Specific Adjustments
+Hero Section:
+
+Reduce font sizes (56px → 36px for H1)
+Stack buttons vertically (full width)
+Reduce vertical padding (100px → 60px)
+
+Navigation:
+
+Hamburger menu
+Full-screen drawer
+
+Grids:
+
+3-column → 1-column
+Increase gap on mobile (better tap targets)
+
+Images:
+
+Ensure images scale responsively
+Use srcset for different resolutions
+
+Typography:
+
+Increase line height on mobile (easier reading)
+Reduce font sizes proportionally
+
+
+SECTION 36: SEO OPTIMIZATION
+36.1 Technical SEO
+Page Titles:
+
+Unique for each page
+Format: "[Page Name] | [Hospital Name]"
+Example: "Cardiology Services | Dhanmondi CityCare Hospital"
+Max 60 characters
+
+Meta Descriptions:
+
+Unique for each page
+150-160 characters
+Include primary keyword
+Example: "Expert cardiology services in Dhaka. Our board-certified cardiologists provide advanced heart care with compassion. Book an appointment today."
+
+Heading Structure:
+
+One H1 per page
+Proper hierarchy (H1 → H2 → H3)
+Include keywords naturally
+
+Image Alt Text:
+
+Descriptive alt text for all images
+Include keywords where relevant
+Example: "Cardiologist Dr. John Smith examining patient at Dhanmondi CityCare"
+
+URL Structure:
+
+Clean, descriptive URLs
+Use hyphens for spaces
+Lowercase
+Example: /services/cardiology, /doctors/dr-john-smith
+
+Canonical Tags:
+
+Specify canonical URL for each page
+Avoid duplicate content
+
+
+36.2 Performance SEO
+Page Speed:
+
+Optimize images (WebP, compression)
+Minify CSS/JS
+Lazy load images below fold
+Use CDN for static assets
+
+Core Web Vitals:
+
+LCP (Largest Contentful Paint): < 2.5s
+FID (First Input Delay): < 100ms
+CLS (Cumulative Layout Shift): < 0.1
+
+Mobile-First:
+
+Ensure mobile version loads fast
+Touch-friendly elements
+No intrusive interstitials
+
+
+36.3 Schema Markup
+Hospital Organization Schema:
+json{
+  "@context": "https://schema.org",
+  "@type": "Hospital",
+  "name": "Dhanmondi CityCare Hospital",
+  "url": "https://www.hospital.com",
+  "logo": "https://www.hospital.com/logo.png",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "72 Satmasjid Road",
+    "addressLocality": "Dhaka",
+    "postalCode": "1209",
+    "addressCountry": "BD"
+  },
+  "telephone": "+11110000",
+  "openingHours": "Mo-Su 00:00-23:59"
+}
+Doctor Schema (on doctor pages):
+json{
+  "@context": "https://schema.org",
+  "@type": "Physician",
+  "name": "Dr. John Smith",
+  "medicalSpecialty": "Cardiology",
+  "worksFor": {
+    "@type": "Hospital",
+    "name": "Dhanmondi CityCare Hospital"
+  }
+}
+Service Schema:
+json{
+  "@context": "https://schema.org",
+  "@type": "MedicalBusiness",
+  "name": "Cardiology Department",
+  "medicalSpecialty": "Cardiology"
+}
+
+SECTION 37: ACCESSIBILITY FOR LANDING PAGES
+37.1 Same Standards as Portal
+All accessibility requirements from Section 17 apply to public landing pages
+Additional Landing Page Considerations:
+Hero Images:
+
+Must have proper alt text
+Ensure text contrast over images (use overlays)
+
+Carousels (If Used):
+
+Pause button
+Keyboard navigation (arrow keys)
+Announce slide changes to screen readers
+No auto-play
+
+Forms:
+
+All labels properly associated
+Error messages accessible
+Required fields marked
+
+Videos (If Used):
+
+Captions
+Transcripts
+Audio descriptions
+Play/pause controls
+
+
+SECTION 38: ANALYTICS & TRACKING
+38.1 Google Analytics Setup
+Track:
+
+Page views
+User flow (public site → login → portal)
+Button clicks (CTA conversions)
+Form submissions
+Scroll depth
+Exit pages
+
+Events:
+
+"Book Appointment" clicks
+"Patient Portal" clicks
+"Find a Doctor" clicks
+Contact form submissions
+Doctor profile views
+
+
+38.2 Conversion Goals
+Primary Goals:
+
+User registers/logs into patient portal
+Appointment booking request submitted
+Contact form submitted
+
+Secondary Goals:
+
+Doctor profile viewed
+Service page viewed
+Phone number clicked (mobile)
+
+
+SECTION 39: CONTENT MANAGEMENT
+39.1 CMS Integration (Optional)
+If using headless CMS (e.g., Contentful, Strapi):
+Content Types:
+
+Pages (About, Services, etc.)
+Doctors
+Services
+Locations
+News articles
+Health library articles
+Testimonials
+
+Benefits:
+
+Non-technical staff can update content
+Version control
+Scheduled publishing
+Preview mode
+
+
+39.2 Static Content (If No CMS)
+Store content in:
+
+JSON files
+Markdown files
+Hard-coded in components (less flexible)
+
+Update Process:
+
+Update files in codebase
+Redeploy
+
+
+SECTION 40: SECURITY FOR PUBLIC SITE
+40.1 Public Site Security
+HTTPS:
+
+Enforce HTTPS everywhere
+HTTP → HTTPS redirect
+
+Form Validation:
+
+Client-side validation for UX
+Server-side validation (backend responsibility)
+CAPTCHA on contact form (prevent spam)
+
+Rate Limiting:
+
+Prevent form spam
+Backend rate limits API calls
+
+Content Security Policy:
+
+Restrict script sources
+Prevent XSS
+
+No Sensitive Data:
+
+Public pages contain no patient data
+No authentication required
+Exception: Login page (uses POST to backend)
+
+
+SECTION 41: INTEGRATION BETWEEN PUBLIC SITE & PATIENT PORTAL
+41.1 Unified Design System
+Both applications share:
+
+Color palette (Serenity in Blue)
+Typography
+Spacing scale
+Component patterns
+Animation principles
+
+Result:
+
+Seamless visual transition from public site to portal
+Consistent brand experience
+
+
+41.2 Navigation Flow
+Public Site CTAs → Portal:
+
+User on home page clicks "Patient Portal Login"
+Navigates to /login
+Logs in
+Redirects to portal dashboard
+
+Portal → Public Site:
+
+User in portal clicks "About the Hospital" (if link provided)
+Opens public site in new tab
+Or, footer links in portal to public pages
+
+
+41.3 Shared Components (Optional)
+If public site and portal are in same codebase:
+Shared:
+
+Header component (with different navigation)
+Footer component
+Button components
+Form input components
+Typography components
+
+Separate:
+
+Page-specific components
+Authentication logic
+API endpoints
+
+
+SECTION 42: DEPLOYMENT STRATEGY
+42.1 Deployment Options
+Option A: Separate Deployments
+
+Public site: www.hospital.com
+Patient portal: portal.hospital.com
+Two separate builds/deployments
+
+Option B: Single Deployment (Monorepo)
+
+Single React app with public and private routes
+Auth middleware determines access
+Single domain, different paths
+
+Recommended: Option A for clear separation
+
+42.2 CI/CD for Landing Site
+Same as portal (Section 21.4):
+
+Lint → Test → Build → Deploy
+Automatic deployment on merge to main branch
+
+
+SECTION 43: LANDING PAGE PERFORMANCE CHECKLIST
+43.1 Pre-Launch Checklist
+Design & UX:
+
+ Follows Serenity in Blue color system
+ No AI-generated visual clichés
+ All animations subtle and purposeful
+ Mobile responsive
+ Touch targets minimum 44x44px
+
+Content:
+
+ All text proofread
+ All images optimized (WebP, compressed)
+ Alt text for all images
+ No placeholder/lorem ipsum text
+
+Functionality:
+
+ All links work
+ Forms submit correctly
+ Contact form has spam protection
+ Login redirects to portal correctly
+
+SEO:
+
+ Unique page titles
+ Meta descriptions
+ Schema markup
+ Sitemap.xml
+ Robots.txt
+ Google Analytics installed
+
+Accessibility:
+
+ WCAG 2.1 AA compliance
+ Keyboard navigation works
+ Screen reader tested
+ Color contrast verified
+
+Performance:
+
+ PageSpeed Insights score >90
+ All images lazy loaded
+ Core Web Vitals passing
+ Bundle size optimized
+
+Security:
+
+ HTTPS enforced
+ No hardcoded secrets
+ CSP headers configured
+ Rate limiting on forms
+
+Legal:
+
+ Privacy policy published
+ Terms of service published
+ Cookie consent (if using cookies)
+ HIPAA/GDPR compliance (if applicable)
+
+
+SECTION 44: FINAL AI AGENT INSTRUCTIONS FOR LANDING PAGES
+44.1 Additional Requirements for Landing Implementation
+As an AI Agent implementing the public landing website, you MUST:
+
+Follow the same design rigor as the patient portal
+Use the Serenity in Blue palette consistently
+Avoid generic medical stock photos - prefer real facility images or subtle illustrations
+No auto-playing carousels - user-controlled only
+Respect the animation restrictions - subtle and purposeful only
+Build trust through professionalism - not flashy marketing
+Ensure seamless transition to patient portal
+Optimize for SEO - proper meta tags, schema, performance
+Implement full accessibility - same standards as portal
+Never invent content - use placeholder text marked as "[CONTENT NEEDED]" for client to fill
+
+
+44.2 Landing Pages Implementation Checklist
+Phase 1: Setup
+
+ Set up public routes in React app
+ Configure Tailwind with same palette
+ Create shared component library (if unified codebase)
+
+Phase 2: Core Pages
+
+ Build Home page (with all sections: hero, stats, services, doctors, testimonials, locations, CTA)
+ Build About page
+ Build Services overview page
+ Build Doctors directory page
+ Build Locations page
+ Build Contact page
+
+Phase 3: Detail Pages
+
+ Service detail page template
+ Doctor profile page template
+ Location detail page template
+
+Phase 4: Supporting Pages
+
+ Privacy Policy page
+ Terms of Service page
+ Health Library (if applicable)
+ News/Events (if applicable)
+
+Phase 5: Navigation & Integration
+
+ Build public site header
+ Build public site footer
+ Ensure login page transitions to portal
+ Test navigation flow: Public → Login → Portal
+
+Phase 6: Polish & Optimization
+
+ Image optimization
+ SEO implementation
+ Schema markup
+ Performance testing
+ Accessibility audit
+ Mobile responsiveness
+ Cross-browser testing
+
+
+SECTION 45: CONTENT GUIDELINES
+45.1 Writing Tone for Landing Pages
+Voice Characteristics:
+
+Professional yet approachable
+Confident without arrogance
+Compassionate without being patronizing
+Clear without oversimplification
+
+Avoid:
+
+Medical jargon (unless explained)
+Fear-based messaging ("Don't risk your health!")
+Superlatives ("Best hospital in the world!")
+Excessive exclamation marks
+Marketing buzzwords ("synergy", "leverage", "cutting-edge")
+
+Use:
+
+Simple, direct language
+Active voice
+Patient-centered language ("your health", "we're here for you")
+Specifics over generalities ("15+ board-certified specialists" vs. "many doctors")
+
+
+45.2 Sample Content Patterns
+Headlines:
+
+✅ "Expert Care When You Need It Most"
+✅ "Comprehensive Medical Services for Your Entire Family"
+❌ "The Ultimate Healthcare Experience!"
+❌ "Revolutionizing Medicine with Cutting-Edge Technology!"
+
+Body Copy:
+
+✅ "Our team of board-certified specialists provides personalized care tailored to your unique health needs."
+❌ "We leverage synergistic healthcare solutions to optimize patient outcomes through innovative paradigms."
+
+
+SECTION 46: VISUAL ASSETS REQUIREMENTS
+46.1 Photography Guidelines
+Required Photos:
+
+Hospital exterior (main building) - multiple angles
+Reception/waiting areas
+Examination rooms (unoccupied or with consent)
+Medical equipment (where appropriate)
+Doctor headshots (professional, consistent style)
+Staff photos (nurses, technicians)
+Facility amenities (parking, cafe, etc.)
+
+Photo Specifications:
+
+Format: JPEG (converted to WebP for web)
+Resolution: Minimum 1920px width for hero images
+Quality: 80% compression
+Color profile: sRGB
+Consistent lighting and color grading across sets
+
+Avoid:
+
+Generic stock photos
+Overly posed scenarios
+Watermarked images
+Low-resolution images
+Inconsistent visual styles
+
+
+46.2 Iconography
+Icon Style:
+
+Line icons (consistent stroke width)
+Color: #2C5F8D (primary blue)
+Size: 24px, 32px, 48px, 64px (use scale)
+Library: Lucide React or similar
+Consistent style throughout site
+
+Icon Usage:
+
+Services: Medical specialty icons
+Features: Checkmark, award, clock, etc.
+Navigation: Arrow, chevron, menu
+Contact: Phone, email, location pin
+Social: Platform logos (if applicable)
+
+
+SECTION 47: BROWSER & DEVICE SUPPORT
+47.1 Supported Browsers
+Desktop:
+
+Chrome (latest 2 versions)
+Firefox (latest 2 versions)
+Safari (latest 2 versions)
+Edge (latest 2 versions)
+
+Mobile:
+
+iOS Safari (latest 2 versions)
+Chrome Mobile (latest 2 versions)
+Samsung Internet (latest version)
+
+Testing:
+
+Test on actual devices when possible
+Use BrowserStack or similar for comprehensive testing
+
+
+47.2 Graceful Degradation
+If JavaScript disabled:
+
+Display message: "Please enable JavaScript for full functionality"
+Basic HTML content still accessible
+
+If CSS fails to load:
+
+Semantic HTML ensures content is readable
+
+
+SECTION 48: MAINTENANCE & UPDATES
+48.1 Content Update Frequency
+Regular Updates:
+
+News/blog: Weekly or as events occur
+Doctor profiles: When new doctors join
+Services: When new services launched
+Locations: When new facilities open
+
+Periodic Reviews:
+
+Every 6 months: Review all content for accuracy
+Annually: Update statistics, photos, testimonials
+
+
+48.2 Design Refresh
+Minor Updates:
+
+Seasonal adjustments to hero images
+Updated testimonials
+New doctor/staff photos
+
+Major Updates:
+
+Every 2-3 years: Consider design refresh
+Maintain core brand identity
+Improve based on analytics and user feedback
+
+
+CONCLUSION OF ADDENDUM
+This addendum provides complete specifications for a professional, trust-building public-facing landing website that serves as the gateway to the authenticated patient portal.
+Key Differentiators from Generic Hospital Websites:
+
+Serenity in Blue design system (not generic medical blues/greens)
+Subtle, purposeful animations (not flashy)
+Real photography over stock images (where possible)
+Professional yet warm tone
+Seamless integration with patient portal
+Medical credibility without coldness
+
+The Landing Website + Patient Portal Together Create:
+
+A complete patient engagement ecosystem
+Trust from first impression to ongoing care management
+Consistent brand experience
+Accessible, inclusive healthcare information
+Professional medical presence
+
+Build the landing website exactly as specified in this addendum, following the same rigorous standards as the patient portal, and you will have a complete, production-ready hospital digital presence.
+
+END OF ADDENDUM

@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 
 class DoctorController extends Controller
 {
@@ -308,7 +307,7 @@ class DoctorController extends Controller
             'user_id' => auth()->id()
         ]);
 
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'schedules' => 'nullable|array',
             'schedules.*.type' => 'required|in:weekly,date',
             'schedules.*.day_of_week' => 'nullable|required_if:schedules.*.type,weekly|integer|between:0,6',
@@ -342,83 +341,6 @@ class DoctorController extends Controller
             ],
             'schedules.*.slot_duration_minutes' => 'required|integer|min:5',
         ]);
-
-        $validator->after(function ($validator) use ($request, $doctor) {
-            $schedules = $request->input('schedules', []);
-            $currentClinicId = auth()->user()->clinic_id;
-
-            foreach ($schedules as $index => $schedule) {
-                if (!isset($schedule['start_time']) || !isset($schedule['end_time']) || !isset($schedule['type'])) {
-                    continue;
-                }
-
-                $start = $schedule['start_time'];
-                $end = $schedule['end_time'];
-                $type = $schedule['type'];
-
-                // Query potential conflicts in other clinics
-                $conflicts = DoctorSchedule::withoutTenant()
-                    ->where('doctor_id', $doctor->id)
-                    ->where('clinic_id', '!=', $currentClinicId)
-                    ->where(function ($q) use ($start, $end) {
-                        $q->where('start_time', '<', $end)
-                            ->where('end_time', '>', $start);
-                    })
-                    ->with('clinic')
-                    ->get();
-
-                foreach ($conflicts as $conflict) {
-                    $isConflict = false;
-
-                    if ($type === 'weekly') {
-                        if (!isset($schedule['day_of_week'])) continue;
-                        $myDay = $schedule['day_of_week'];
-
-                        if ($conflict->schedule_date) {
-                            // Conflict is Date. Check if that date is on myDay
-                            if (Carbon::parse($conflict->schedule_date)->dayOfWeek == $myDay) {
-                                $isConflict = true;
-                            }
-                        } else {
-                            // Conflict is Weekly. Check day match.
-                            if ($conflict->day_of_week == $myDay) {
-                                $isConflict = true;
-                            }
-                        }
-                    } else {
-                        // Type is Date
-                        if (!isset($schedule['schedule_date'])) continue;
-                        $myDate = $schedule['schedule_date'];
-
-                        if ($conflict->schedule_date) {
-                            // Conflict is Date. Exact match.
-                            if ($conflict->schedule_date == $myDate) {
-                                $isConflict = true;
-                            }
-                        } else {
-                            // Conflict is Weekly. Check if myDate is on conflict day.
-                            if (Carbon::parse($myDate)->dayOfWeek == $conflict->day_of_week) {
-                                $isConflict = true;
-                            }
-                        }
-                    }
-
-                    if ($isConflict) {
-                        $clinicName = $conflict->clinic->name ?? 'another clinic';
-                        $conflictDesc = $conflict->schedule_date ? $conflict->schedule_date : "Weekly (Day {$conflict->day_of_week})";
-                        $validator->errors()->add(
-                            "schedules.{$index}.start_time",
-                            "Schedule overlaps with {$clinicName} ({$conflictDesc} {$conflict->start_time}-{$conflict->end_time})."
-                        );
-                        break;
-                    }
-                }
-            }
-        });
-
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
 
         try {
             DB::transaction(function () use ($request, $doctor) {

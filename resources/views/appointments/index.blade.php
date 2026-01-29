@@ -130,7 +130,10 @@
                                                                 $decoded = json_decode($item, true);
                                                                 if (json_last_error() === JSON_ERROR_NONE) {
                                                                     if (is_array($decoded)) {
-                                                                        foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                                        foreach (
+                                                                            \Illuminate\Support\Arr::flatten($decoded)
+                                                                            as $sub
+                                                                        ) {
                                                                             $finalSpecs[] = $sub;
                                                                         }
                                                                     } else {
@@ -166,7 +169,7 @@
                                     </td>
                                     <td>
                                         @if ($appointment->appointment_type === 'online')
-                                            <span class="badge bg-info-subtle text-">Online</span>
+                                            <span class="badge bg-info-subtle text-info">Online</span>
                                         @else
                                             <span class="badge bg-primary-subtle text-primary">In Person</span>
                                         @endif

@@ -25,9 +25,9 @@ class ApoointmentsApiController extends Controller
             ->where('email', $userEmail)
             ->where(function ($query) use ($selectedClinicId) {
                 $query->where('clinic_id', $selectedClinicId)
-                      ->orWhereHas('clinics', function ($q) use ($selectedClinicId) {
-                          $q->where('clinics.id', $selectedClinicId);
-                      });
+                    ->orWhereHas('clinics', function ($q) use ($selectedClinicId) {
+                        $q->where('clinics.id', $selectedClinicId);
+                    });
             })
             ->first();
         if (!$patient) {
@@ -152,7 +152,7 @@ class ApoointmentsApiController extends Controller
         $appointment = new Appointment();
         $appointment->doctor_id = $request->doctor_id;
         $appointment->department_id = $request->department_id;
-        $appointment->patient_id = $request->patient_id;
+        $appointment->patient_id = $request->user()->id;
         $appointment->appointment_date = $request->appointment_date;
         $appointment->start_time = $request->start_time;
         $appointment->end_time = $request->end_time;
@@ -165,7 +165,8 @@ class ApoointmentsApiController extends Controller
 
         return response()->json([
             'message' => 'Appointment booked successfully',
-            'appointment' => $appointment
+            'appointment' => $appointment,
+            'patient_id' => $request->patient_id,
         ], 201);
     }
 

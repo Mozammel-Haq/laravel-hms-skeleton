@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-body: #f8fafc; /* slate-50 */
+    --text-body: #1e293b; /* slate-800 */
+  }
+
+  /* Target html.dark or body.dark directly */
+  :root.dark,
+  body.dark {
+    --bg-body: #020617; /* slate-950 */
+    --text-body: #ffffff;
+  }
+
+  body {
+    background-color: theme("colors.secondary.50");
+    color: theme("colors.secondary.900");
+    @apply transition-colors duration-300;
+  }
+
+  :root.dark body,
+  body.dark {
+    background-color: theme("colors.secondary.950");
+    color: theme("colors.white");
+  }
+}
+
+@layer components {
+  /* Custom scrollbar for dark mode */
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-slate-900;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-slate-700 rounded-full hover:bg-slate-600;
+  }
+}
