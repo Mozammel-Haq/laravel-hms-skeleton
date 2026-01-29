@@ -1,0 +1,4677 @@
+COMPREHENSIVE MASTER INSTRUCTION DOCUMENT
+Patient-Only React Frontend for Multi-Clinic Hospital Management System (HMS)
+
+SECTION 0: ABSOLUTE CONTEXT & CRITICAL UNDERSTANDING
+0.1 System Architecture Overview
+You are designing and implementing a pure React frontend UI that serves EXCLUSIVELY PATIENT USERS of a sophisticated multi-clinic Hospital Management System (HMS).
+Critical Facts You Must Internalize:
+
+Backend Reality: A fully functional Laravel backend exists with a complete relational database schema (MySQL/MariaDB)
+Separation of Concerns: All administrative, clinical staff (doctors, nurses, lab technicians, pharmacists, receptionists, accountants), and internal management dashboards are already built using Laravel Blade templates on a separate domain
+This Frontend's Purpose: This React application is a patient-facing portal ONLY, deployed independently, and communicates with the Laravel backend exclusively through RESTful APIs
+Your Boundaries: You must NOT redesign backend logic, invent new workflows, assume administrative permissions, replicate internal staff functionality, or expose write access to protected medical data
+
+The Laravel Backend is the Single Source of Truth. You are building a view layer only.
+0.2 Database Schema Understanding (Critical)
+The backend database uses the prefix lara_ for all tables. Key tables you must understand:
+Core Identity & Access:
+
+lara_users - User accounts (includes patients, doctors, staff)
+lara_patients - Patient-specific data and demographics
+lara_clinics - Multiple clinic/branch locations
+lara_roles / lara_permissions - Role-based access control
+
+Clinical Operations:
+
+lara_appointments - Appointment scheduling
+lara_visits - Actual patient visits (linked to appointments)
+lara_consultations - Doctor consultation records
+lara_admissions - Inpatient admission records
+lara_beds / lara_bed_assignments - Bed management
+lara_prescriptions / lara_prescription_items - Medication prescriptions
+lara_lab_test_orders / lara_lab_test_results - Laboratory tests
+lara_patient_vitals - Vital signs recordings
+lara_patient_medical_history - Historical medical conditions
+lara_patient_allergies - Allergy records
+
+Supporting Systems:
+
+lara_departments - Hospital departments
+lara_doctors - Doctor profiles and specializations
+lara_medicines - Medicine catalog
+lara_invoices / lara_invoice_items / lara_payments - Billing
+lara_pharmacy_sales - Pharmacy transactions
+
+0.3 Multi-Clinic Architecture (CRITICAL)
+Understanding Clinic Context:
+
+Multiple Clinic Reality: Patients can be registered at multiple clinic locations
+Single Active Context: Patients access data from ONE clinic at a time
+Clinic-Scoped Data: Nearly every table has a clinic_id foreign key
+Data Isolation: Backend APIs MUST filter all queries by the active clinic context
+Context Switching: Changing clinics requires clearing cached data and refetching
+
+Schema Evidence:
+
+lara_patients.clinic_id - Primary clinic association
+lara_doctor_clinic - Many-to-many doctor-clinic relationships
+lara_appointments.clinic_id - Clinic-scoped appointments
+lara_admissions.clinic_id - Clinic-scoped admissions
+All major transactional tables include clinic_id
+
+0.4 Data Access Philosophy
+Read-Only Medical Data:
+Patients can VIEW but NOT EDIT:
+
+Diagnoses
+Prescriptions
+Lab results
+Doctor notes
+Vital signs
+Medical history
+
+Limited Write Access:
+Patients can potentially:
+
+Book appointments
+Cancel appointments (within constraints)
+Update personal contact information
+Change password
+
+Zero Access:
+
+Doctor schedules (except availability)
+Billing calculations
+Staff operations
+Administrative functions
+Cross-patient data
+
+
+SECTION 1: PHILOSOPHICAL DESIGN FOUNDATION
+1.1 What This Application Is NOT
+This is NOT:
+
+A SaaS dashboard with metrics and analytics
+An administrative control panel
+A consumer-grade mobile app
+A social media interface
+A marketing-driven platform
+A gamified health tracker
+
+1.2 What This Application IS
+This IS:
+
+A medical interface requiring absolute trust
+A patient empowerment tool providing transparent health information access
+A clinical-grade UI with professional restraint
+A privacy-first application with zero data exposure risks
+A multi-clinic navigator managing complex healthcare relationships
+
+1.3 Design Psychology Principles
+Trust Building:
+
+Visual consistency signals reliability
+Predictable interactions reduce anxiety
+Clear information hierarchy prevents confusion
+Professional aesthetics inspire confidence
+
+Emotional Safety:
+
+Calm color palettes reduce stress
+Generous spacing prevents overwhelm
+Clear status indicators manage expectations
+Compassionate language in empty states
+
+Cognitive Load Reduction:
+
+One primary action per screen
+Progressive disclosure of complex information
+Familiar medical terminology (not dumbed down)
+Visual cues for urgency/importance
+
+Accessibility as Standard:
+
+WCAG 2.1 AA minimum compliance
+High contrast ratios
+Keyboard navigation support
+Screen reader optimization
+Touch-friendly targets (minimum 44x44px)
+
+
+SECTION 2: VISUAL DESIGN SYSTEM (SERENITY IN BLUE)
+2.1 Overall Visual Philosophy: "Medical Serenity"
+The entire visual language must evoke:
+
+Serenity: Calm blues reminiscent of healthcare scrubs, trust, and cleanliness
+Professionalism: Clinical precision without coldness
+Warmth: Human-centered design that feels caring
+Clarity: Information hierarchy that guides without shouting
+
+Avoid Aesthetics That Suggest:
+
+"Generic admin template"
+"AI-generated gradient explosion"
+"Startup growth dashboard"
+"Consumer social app"
+"Corporate enterprise software"
+"Gamified health tracker"
+
+2.2 Color System: "Serenity in Blue" Palette
+2.2.1 Primary Blue Spectrum
+Primary Action Blue (Main CTAs, Active States)
+
+Base: #2C5F8D (Muted Navy Blue)
+Light: #4A7BA7 (Hover state)
+Dark: #1E4766 (Pressed state)
+Tint: #E8F1F8 (Background highlights)
+
+Secondary Accent Blue (Supporting Actions, Borders)
+
+Base: #5B8FB9 (Calm Sky Blue)
+Light: #7BA8C7 (Hover)
+Tint: #EBF4F9 (Subtle backgrounds)
+
+Tertiary Soft Blue (Section Backgrounds, Cards)
+
+Base: #A8C5DA (Powder Blue)
+Tint: #F2F7FA (Page backgrounds)
+
+2.2.2 Neutral Grays (Blue-Tinted)
+Text Colors:
+
+Primary Text: #1A2B3C (Deep blue-black)
+Secondary Text: #4A5D6F (Blue-gray)
+Tertiary Text: #768A9E (Light blue-gray)
+Disabled Text: #A3B5C7 (Very light blue-gray)
+
+Background Colors:
+
+Main Background: #F8FAFB (Soft blue-white)
+Card Background: #FFFFFF (Pure white for contrast)
+Section Background: #F0F4F7 (Light blue-gray)
+Hover Background: #E6EDF2 (Slightly darker blue-gray)
+
+Border Colors:
+
+Default Border: #D4DFE8 (Subtle blue-gray)
+Focus Border: #2C5F8D (Primary blue)
+Divider: #E8EEF3 (Very light blue-gray)
+
+2.2.3 Status & Semantic Colors (Desaturated)
+Success States (Confirmations, Completed Actions)
+
+Base: #3D7A5C (Muted teal-green)
+Background: #E8F5EF (Pale mint)
+Border: #B8D9C9 (Soft sage)
+
+Warning States (Attention Needed, Pending)
+
+Base: #8B7442 (Olive-amber)
+Background: #F9F5E8 (Cream)
+Border: #E0D4B5 (Tan)
+
+Error States (Failures, Critical Issues)
+
+Base: #A84C4C (Clay red - NOT bright red)
+Background: #F9EBEB (Pale rose)
+Border: #E3C5C5 (Dusty pink)
+
+Info States (Information, Neutral Alerts)
+
+Base: #4A7BA7 (Desaturated blue)
+Background: #E8F1F8 (Ice blue)
+Border: #B8D4E8 (Soft periwinkle)
+
+2.2.4 Absolute Color Rules
+FORBIDDEN:
+
+Pure white (#FFFFFF) as main background - use #F8FAFB
+Pure black (#000000) anywhere - use #1A2B3C
+Neon or highly saturated colors
+Rainbow gradients
+Drop shadow colors (use borders instead)
+More than 3 colors on a single component
+
+REQUIRED:
+
+All colors must pass WCAG AA contrast ratios
+Interactive elements must have clear hover/focus states
+Status colors must be distinguishable by shape/icon, not color alone (accessibility)
+Consistent color usage - same color = same meaning everywhere
+
+2.3 Typography System
+2.3.1 Font Families
+Primary Font (All UI Text)
+
+Family: Inter or system fallback (-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial)
+Rationale: Neutral, highly legible, professional without being corporate
+Weights Available: 400 (Regular), 500 (Medium), 600 (Semi-Bold), 700 (Bold)
+
+Monospace Font (IDs, Codes, Timestamps)
+
+Family: SF Mono, Monaco, Consolas, Courier New
+Usage: Patient IDs, Invoice numbers, Reference codes, Timestamps, Technical data
+Weight: 400 only
+
+NO Decorative Fonts Allowed
+2.3.2 Type Scale
+Headings:
+
+H1 (Page Titles): 32px / 2rem, Weight 600, Line Height 1.2, Letter Spacing -0.02em
+H2 (Section Titles): 24px / 1.5rem, Weight 600, Line Height 1.3, Letter Spacing -0.01em
+H3 (Subsection Titles): 20px / 1.25rem, Weight 600, Line Height 1.4
+H4 (Card Titles): 18px / 1.125rem, Weight 600, Line Height 1.4
+H5 (Small Headings): 16px / 1rem, Weight 600, Line Height 1.5
+H6 (Micro Headings): 14px / 0.875rem, Weight 600, Line Height 1.5
+
+Body Text:
+
+Large Body: 18px / 1.125rem, Weight 400, Line Height 1.6
+Body (Default): 16px / 1rem, Weight 400, Line Height 1.6
+Small Body: 14px / 0.875rem, Weight 400, Line Height 1.5
+Caption: 12px / 0.75rem, Weight 400, Line Height 1.4
+
+Special Purpose:
+
+Button Text: 16px, Weight 500, Uppercase tracking 0.05em (for primary), Sentence case (for secondary)
+Labels: 14px, Weight 500, Line Height 1.4
+Helper Text: 12px, Weight 400, Line Height 1.4, Color: Secondary Text
+
+2.3.3 Typography Rules
+Hierarchy Rules:
+
+Size + Weight creates hierarchy (never color alone)
+Maximum 3 text sizes per view
+Headings never exceed 2 levels deep on one screen
+Line length: 45-75 characters for body text
+
+Readability Rules:
+
+Line height minimum 1.5 for body text
+No justified text
+Left-aligned text (RTL support if needed)
+Minimum font size: 12px
+No text over images unless guaranteed contrast
+
+Accessibility Rules:
+
+All text must meet WCAG AA contrast (4.5:1 for normal, 3:1 for large)
+No color-only semantic meaning
+Link text must be descriptive
+Interactive text minimum 16px
+
+2.4 Spacing & Layout System
+2.4.1 Spacing Scale (8px Base Unit)
+Standard Scale:
+
+--space-1: 4px (0.25rem) - Micro spacing, icon gaps
+--space-2: 8px (0.5rem) - Tight spacing, input padding
+--space-3: 12px (0.75rem) - Compact spacing
+--space-4: 16px (1rem) - Base unit, default gaps
+--space-5: 20px (1.25rem) - Comfortable spacing
+--space-6: 24px (1.5rem) - Section spacing
+--space-8: 32px (2rem) - Large section gaps
+--space-10: 40px (2.5rem) - Major section separators
+--space-12: 48px (3rem) - Page section gaps
+--space-16: 64px (4rem) - Hero spacing, major breaks
+
+Application Rules:
+
+Always use scale values (never arbitrary spacing)
+Component internal spacing: --space-3 to --space-4
+Component external margins: --space-4 to --space-6
+Section gaps: --space-8 to --space-12
+Page margins: --space-6 to --space-8
+
+2.4.2 Grid System
+Desktop Grid (1280px+ viewport):
+
+Columns: 12
+Gutter: 24px
+Margin: 48px
+Max Width: 1440px
+
+Tablet Grid (768px - 1279px):
+
+Columns: 8
+Gutter: 20px
+Margin: 32px
+
+Mobile Grid (< 768px):
+
+Columns: 4
+Gutter: 16px
+Margin: 16px
+
+Layout Principles:
+
+Content-first responsive (not device-first)
+Never exceed 1200px for text-heavy content
+Dashboards may use full width (1440px max)
+Generous whitespace is REQUIRED, not optional
+
+2.4.3 Vertical Rhythm
+Baseline Grid: 8px
+Rhythm Rules:
+
+All element heights must align to 8px grid
+Line heights must produce 8px multiples
+Vertical spacing between sections: minimum 32px
+Consistent spacing within component groups
+Never compress medical data to "fit more" - scroll is acceptable
+
+2.4.4 Container Design Philosophy
+Card Containers:
+
+Background: White
+Border: 1px solid #D4DFE8
+Border Radius: 12px
+Padding: 24px (desktop), 16px (mobile)
+Shadow: NONE (use border instead)
+
+Section Containers:
+
+Background: #F0F4F7 or transparent
+Border: Optional subtle top/bottom
+Padding: 32px (desktop), 20px (mobile)
+Margin: 48px between major sections
+
+Page Containers:
+
+Max Width: 1200px (content), 1440px (dashboards)
+Horizontal Padding: 48px (desktop), 16px (mobile)
+Vertical Padding: 32px (desktop), 24px (mobile)
+
+2.5 Elevation & Depth (NO SHADOWS)
+2.5.1 Elevation Strategy
+Instead of Shadows, Use:
+
+Subtle Borders: 1px solid borders with blue-gray tints
+Background Layering: Slight background color changes (#F8FAFB → #FFFFFF)
+Border Thickness: Increase border to 2px for "elevated" state
+Border Color Intensity: Darker border color for emphasis
+
+Forbidden:
+
+Drop shadows
+Box shadows
+Text shadows
+Glow effects
+Glassmorphism
+Neumorphism
+
+2.5.2 Visual Hierarchy Without Shadows
+Hierarchy Levels:
+Level 1 (Page Background):
+
+Background: #F8FAFB
+Border: None
+
+Level 2 (Main Content Cards):
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Position: Above page background
+
+Level 3 (Highlighted/Active Cards):
+
+Background: #FFFFFF
+Border: 2px solid #2C5F8D (Primary blue)
+Optional: Background tint #F8FAFB
+
+Level 4 (Modal/Overlay Content):
+
+Background: #FFFFFF
+Border: 2px solid #2C5F8D
+Backdrop: rgba(26, 43, 60, 0.4) (dark blue overlay)
+
+2.6 Corner Radius System
+Radius Scale:
+
+--radius-sm: 4px - Small elements (tags, badges)
+--radius-md: 8px - Buttons, inputs
+--radius-lg: 12px - Cards, containers
+--radius-xl: 16px - Large modals, hero sections
+--radius-full: 9999px - Pills, avatars, circular elements
+
+Application:
+
+Buttons: --radius-md
+Input fields: --radius-md
+Cards: --radius-lg
+Modals: --radius-lg
+Status badges: --radius-sm or --radius-full
+
+2.7 Motion & Animation Principles
+2.7.1 Animation Philosophy
+Purpose: Animations should:
+
+Guide attention
+Provide feedback
+Maintain context during transitions
+Reduce cognitive load
+Never distract from medical information
+
+Characteristics:
+
+Slow and purposeful
+Subtle and respectful
+Consistent across application
+Skippable/reducible for accessibility
+
+2.7.2 Timing Functions
+Standard Easing:
+
+Ease Out (Deceleration): cubic-bezier(0.0, 0.0, 0.2, 1) - Use for entrances
+Ease In (Acceleration): cubic-bezier(0.4, 0.0, 1, 1) - Use for exits
+Ease In-Out (Smooth): cubic-bezier(0.4, 0.0, 0.2, 1) - Use for transitions
+
+Medical-Specific:
+
+Calm Ease: cubic-bezier(0.25, 0.1, 0.25, 1) - Gentle, non-aggressive
+Linear: Only for loaders and continuous animations
+
+2.7.3 Duration Standards
+Micro Interactions (Hovers, Focus):
+
+Duration: 150ms - 200ms
+Easing: Ease Out
+
+Component Transitions (Expand/Collapse, Show/Hide):
+
+Duration: 250ms - 300ms
+Easing: Ease In-Out
+
+Page Transitions (Route Changes):
+
+Duration: 300ms - 400ms
+Easing: Ease Out
+
+Loading States (Spinners, Progress):
+
+Duration: Continuous or 500ms minimum
+Easing: Linear or Ease In-Out
+
+2.7.4 Allowed Animations
+ALLOWED:
+
+Fade In/Out: Opacity transitions for modals, tooltips, overlays
+Slide Transitions: Vertical/horizontal slides for panels, drawers
+Expand/Collapse: Height animations for accordions, expandable sections
+Progress Indicators: Loading spinners, progress bars
+Status Changes: Color transitions for status badge updates
+Skeleton Screens: Subtle shimmer effects for loading states
+Gentle Scaling: scale(0.98) on button press for tactile feedback
+
+FORBIDDEN:
+
+Bounce effects
+Spring animations
+Overshoot/elastic easing
+Rotation (except loading spinners)
+3D transforms
+Parallax scrolling
+Confetti/celebration animations
+Shake/vibrate effects
+Any animation that could trigger motion sensitivity
+
+2.7.5 Accessibility Considerations
+Respect User Preferences:
+css@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+Focus Animations:
+
+Must be immediate (no delay)
+Must be clearly visible
+Must not rely on color alone
+
+
+SECTION 3: TECHNOLOGY STACK & ARCHITECTURE
+3.1 Frontend Technology Requirements
+3.1.1 Core Stack
+React Ecosystem:
+
+React: v18+ (using functional components and hooks exclusively)
+Build Tool: Vite (preferred) or Create React App
+Language: JavaScript (ES6+) or TypeScript (recommended for type safety)
+Routing: React Router v6+
+
+State Management:
+
+Global State: React Context API + useReducer (lightweight approach)
+Alternative: Zustand (if Context becomes unwieldy)
+NOT Allowed: Redux (too heavy for this use case)
+Server State: React Query / TanStack Query (for API data caching)
+
+API Communication:
+
+HTTP Client: Axios (preferred) or native Fetch API
+Configuration: Centralized API client with interceptors
+Error Handling: Global error boundaries + request interceptors
+
+Form Management:
+
+Library: React Hook Form (performance + less boilerplate)
+Validation: Yup or Zod schemas
+Approach: Controlled components with validation feedback
+
+UI Component Philosophy:
+
+NO Heavy UI Frameworks: Material-UI, Ant Design, Chakra UI are forbidden
+Reason: They produce generic, template-like interfaces
+Approach: Build custom components with Tailwind CSS or custom CSS modules
+Exception: Headless UI libraries (Radix UI, Headless UI) are ALLOWED for complex interactions (modals, dropdowns, popovers) but must be heavily customized
+
+3.1.2 Styling Approach
+Preferred: Tailwind CSS with custom configuration
+
+Custom color palette (Serenity in Blue)
+Custom spacing scale
+Custom component classes
+Purged for production
+
+Alternative: CSS Modules
+
+Component-scoped styles
+BEM naming convention
+Shared design tokens in variables
+
+NOT Allowed:
+
+Inline styles (except dynamic values)
+Global CSS pollution
+Pre-built theme libraries
+
+3.1.3 Additional Libraries
+Date/Time Handling:
+
+date-fns (lightweight) or dayjs (Moment.js alternative)
+For formatting appointment dates, admission dates, timestamps
+
+Icons:
+
+react-icons or lucide-react (clean, consistent icon sets)
+Use sparingly and consistently
+Primary: Outline style
+Size: 16px, 20px, 24px standard
+
+Charts/Visualizations (if needed for health metrics):
+
+recharts (declarative, React-friendly)
+Simple line charts, bar charts only
+Avoid complex dashboards
+
+Notifications/Toasts:
+
+react-hot-toast (minimal, customizable)
+Styled to match design system
+
+Accessibility:
+
+react-aria (Adobe's accessible component library)
+Focus management utilities
+
+3.2 Application Scope Definition
+3.2.1 What This Frontend Includes
+Authentication Flows:
+
+Patient login (email/phone + password)
+Password reset request
+Logout
+
+Clinic Selection:
+
+View available clinics
+Select active clinic
+Switch between clinics (with data clearing)
+
+Patient Dashboards:
+
+Overview dashboard (summary cards)
+Appointment management
+Medical history view
+Admission details
+Prescription access
+Lab results view
+Profile management
+Notifications center
+
+Read-Only Data Views:
+
+Appointments (upcoming, past, cancelled)
+Visits (timeline, detailed view)
+Consultations (doctor notes, diagnosis)
+Admissions (current, past)
+Prescriptions (medicines, dosages)
+Lab tests (orders, results)
+Vitals history
+Medical history
+Allergies
+Invoices (view, download)
+Payments (history)
+
+Limited Write Operations:
+
+Book appointment (if backend permits)
+Cancel appointment (with constraints)
+Update personal contact info
+Change password
+
+3.2.2 What This Frontend Does NOT Include
+Forbidden Functionality:
+
+Doctor/staff login
+Admin operations
+Clinical data entry (vitals, diagnoses)
+Prescription writing
+Lab result entry
+Billing calculations
+User management
+Clinic configuration
+Doctor schedule management
+Inventory management
+Pharmacy operations
+Direct messaging with doctors (unless backend provides)
+
+3.3 Global State Architecture (MANDATORY STRUCTURE)
+3.3.1 State Domains
+Authentication State (authContext):
+javascript{
+  token: string | null,           // JWT or session token
+  user: {                          // User object from API
+    id: number,
+    email: string,
+    name: string,
+    phone: string,
+    profile_photo_path: string,
+    status: 'active' | 'inactive'
+  } | null,
+  patient: {                       // Patient-specific data
+    id: number,
+    patient_code: string,
+    clinic_id: number,             // Primary clinic
+    name: string,
+    date_of_birth: string,
+    age: number,
+    gender: string,
+    blood_group: string,
+    phone: string,
+    email: string,
+    address: string,
+    emergency_contact_name: string,
+    emergency_contact_phone: string
+  } | null,
+  isAuthenticated: boolean,
+  isLoading: boolean
+}
+Clinic Context State (clinicContext):
+javascript{
+  availableClinics: [             // All clinics patient can access
+    {
+      id: number,
+      name: string,
+      code: string,
+      address_line_1: string,
+      city: string,
+      phone: string,
+      email: string
+    }
+  ],
+  activeClinic: {                 // Currently selected clinic
+    id: number,
+    name: string,
+    code: string,
+    address_line_1: string,
+    city: string,
+    phone: string,
+    timezone: string,
+    currency: string
+  } | null,
+  isLoading: boolean
+}
+UI State (uiContext):
+javascript{
+  loading: {
+    global: boolean,              // Full-page loader
+    appointments: boolean,        // Section-specific loaders
+    visits: boolean,
+    prescriptions: boolean,
+    // ... other sections
+  },
+  errors: {
+    global: string | null,        // Global error message
+    appointments: string | null,  // Section-specific errors
+    // ... other sections
+  },
+  modals: {
+    appointmentDetail: boolean,
+    prescriptionView: boolean,
+    // ... other modals
+  },
+  notifications: {
+    unreadCount: number,
+    items: []
+  },
+  theme: 'light' | 'dark'         // Future: dark mode support
+}
+3.3.2 State Management Rules
+Context Switching Rules:
+When user changes activeClinic:
+
+Clear all cached clinic-specific data
+Set global loading state
+Force refetch of dashboard data
+Reset all section-specific state
+Clear error states
+Close all open modals
+Redirect to dashboard
+
+Token Management:
+
+Store token in memory (state) + httpOnly cookie (if possible)
+Include token in all API requests via interceptor
+Refresh token before expiration (if backend supports)
+Clear token on logout or 401 response
+Redirect to login on authentication failure
+
+Error Handling:
+
+API errors populate errors state
+UI components read error state and display
+Errors auto-clear on successful refetch
+Global error boundary catches React errors
+
+
+SECTION 4: AUTHENTICATION FLOWS
+4.1 Login Page Design
+4.1.1 Layout Structure
+Screen Division:
+
+Left Side (40%): Branding and reassurance messaging
+Right Side (60%): Login form
+
+Responsive Behavior:
+
+Mobile: Single column, logo at top, form below
+Tablet/Desktop: Side-by-side layout
+
+4.1.2 Left Section Content
+Elements:
+
+Clinic System Logo (if multi-brand) or generic HMS logo
+
+Size: 48px height
+Position: Top-left or centered
+
+
+Headline: "Welcome Back"
+
+Typography: H1, 32px, Weight 600, Color: #1A2B3C
+
+
+Subheadline: "Access your medical information securely"
+
+Typography: Body, 16px, Weight 400, Color: #4A5D6F
+
+
+Background:
+
+Soft gradient: linear-gradient(135deg, #E8F1F8 0%, #F0F4F7 100%)
+Optional: Subtle abstract medical illustration (stethoscope, heartbeat line) in background
+
+
+Trust Indicators (optional):
+
+Small icons + text: "Secure" / "Private" / "HIPAA Compliant" (if applicable)
+
+
+
+4.1.3 Right Section: Login Form
+Form Container:
+
+Background: #FFFFFF
+Padding: 48px (desktop), 24px (mobile)
+Border Radius: 12px
+Border: 1px solid #D4DFE8
+Max Width: 400px
+Centered vertically and horizontally
+
+Form Elements:
+
+Form Title: "Sign In" or "Patient Login"
+
+Typography: H2, 24px, Weight 600
+Margin Bottom: 24px
+
+
+Email/Phone Input Field
+
+Label: "Email or Phone Number"
+
+Typography: 14px, Weight 500, Color: #1A2B3C
+Margin Bottom: 8px
+
+
+Input:
+
+Height: 48px
+Padding: 12px 16px
+Border: 1px solid #D4DFE8
+Border Radius: 8px
+Font Size: 16px
+Background: #F8FAFB (focus: #FFFFFF)
+Focus State: Border #2C5F8D, outline none
+
+
+Placeholder: "Enter your email or phone"
+Validation: Required, email or phone format
+Error State: Border #A84C4C, helper text below in red
+
+
+Password Input Field
+
+Label: "Password"
+
+Same styling as email label
+
+
+Input:
+
+Same dimensions as email
+Type: password
+Toggle visibility icon (eye icon) on right side
+
+
+Placeholder: "Enter your password"
+Validation: Required, minimum 8 characters
+Error State: Border #A84C4C, helper text below
+
+
+Forgot Password Link
+
+Text: "Forgot your password?"
+Position: Below password field, right-aligned
+Typography: 14px, Weight 400, Color: `#
+
+2C5F8D`
+
+Hover: Underline, Color: #1E4766
+Action: Navigate to password reset flow
+
+
+Login Button
+
+Text: "Sign In"
+Width: 100%
+Height: 48px
+Background: #2C5F8D
+Color: #FFFFFF
+Border: None
+Border Radius: 8px
+Typography: 16px, Weight 500, Letter Spacing: 0.02em
+Hover: Background #1E4766
+Active/Pressed: Scale 0.98
+Loading State:
+
+Text changes to "Signing in..."
+Spinner icon (circular, white) appears
+Button disabled
+
+
+Disabled State: Background #A3B5C7, Cursor not-allowed
+
+
+Error Message (if login fails)
+
+Position: Above button or below button
+Background: #F9EBEB
+Border: 1px solid #E3C5C5
+Border Radius: 8px
+Padding: 12px 16px
+Icon: Error icon (circle with X)
+Text: "Invalid email/phone or password. Please try again."
+Typography: 14px, Weight 400, Color: #A84C4C
+
+
+Additional Links (optional, below button)
+
+"Need help? Contact Support"
+Typography: 12px, Color: #768A9E
+Align: Center
+
+
+
+4.1.4 Login Flow Logic
+User Action Sequence:
+
+User enters email/phone
+User enters password
+User clicks "Sign In"
+Frontend validates input (client-side)
+If valid:
+
+Button shows loading state
+API call: POST /api/patient/login
+Request body: { email_or_phone, password }
+
+
+On Success:
+
+Receive: { token, user, patient }
+Store token in authContext and secure storage
+Fetch available clinics: GET /api/patient/clinics
+Redirect to Clinic Selection page
+
+
+On Failure:
+
+Display error message
+Clear password field
+Reset button to normal state
+Optionally: Rate limit attempts (3 attempts = temp lockout message)
+
+
+
+4.2 Clinic Selection Page
+4.2.1 Critical Importance
+Why This Page Exists:
+
+The database schema is clinic-scoped
+Every query requires a clinic_id context
+Patients may be registered at multiple clinics
+Backend API endpoints filter data by active clinic
+Without clinic selection, no data can be displayed
+
+When This Page Appears:
+
+Immediately after successful login (if patient has multiple clinics)
+When user clicks "Switch Clinic" in app header
+Skipped if patient has only one clinic (auto-select)
+
+4.2.2 Layout Design
+Page Structure:
+
+Header Section:
+
+Title: "Select a Clinic"
+Typography: H1, 32px, Weight 600
+Subtitle: "Choose where you'd like to access your records"
+Typography: Body, 16px, Color: #4A5D6F
+
+
+Clinic Cards Grid:
+
+Layout: CSS Grid
+Columns: 3 (desktop), 2 (tablet), 1 (mobile)
+Gap: 24px
+Max Width: 1200px
+Centered
+
+
+
+4.2.3 Clinic Card Design
+Card Container:
+
+Background: #FFFFFF
+Border: 2px solid #D4DFE8 (normal), #2C5F8D (hover)
+Border Radius: 12px
+Padding: 24px
+Cursor: pointer
+Transition: border-color 200ms ease
+
+Card Content:
+
+Clinic Icon (top)
+
+Icon: Hospital building or medical cross
+Size: 48px
+Color: #2C5F8D
+Background: #E8F1F8 (circular, 64px)
+
+
+Clinic Name
+
+Typography: H3, 20px, Weight 600
+Color: #1A2B3C
+Margin Top: 16px
+
+
+Clinic Address
+
+Typography: 14px, Weight 400
+Color: #4A5D6F
+Line Height: 1.5
+Margin Top: 8px
+Max Lines: 2 (truncate with ellipsis if longer)
+
+
+Clinic Contact (optional)
+
+Phone icon + phone number
+Typography: 12px, Weight 400, Color: #768A9E
+Margin Top: 12px
+
+
+Access Button
+
+Text: "Access Dashboard"
+Width: 100%
+Height: 40px
+Background: #2C5F8D
+Color: #FFFFFF
+Border Radius: 8px
+Typography: 14px, Weight 500
+Margin Top: 16px
+Hover: Background #1E4766
+
+
+
+Interaction States:
+
+Hover: Border becomes #2C5F8D, slight scale (1.02)
+Click:
+
+Card shows loading spinner overlay
+Other cards fade to 50% opacity
+API call to set active clinic
+Redirect to Dashboard
+
+
+
+4.2.4 Selection Flow Logic
+Data Loading:
+
+On page mount, fetch available clinics
+API: GET /api/patient/clinics
+Response: Array of clinic objects
+Display loading skeleton while fetching
+
+User Selection:
+
+User clicks on a clinic card
+Frontend sets activeClinic in clinicContext
+Store clinic selection in localStorage (for persistence)
+API call (if needed): POST /api/patient/set-active-clinic with { clinic_id }
+Redirect to /dashboard
+
+Edge Cases:
+
+Single Clinic: Auto-select and skip this page
+No Clinics: Display message: "No clinics found. Please contact support."
+API Error: Display error message with retry button
+
+4.3 Password Reset Flow
+4.3.1 Forgot Password Page
+Layout:
+
+Centered card (400px max width)
+Title: "Reset Password"
+Description: "Enter your email and we'll send you a link to reset your password."
+
+Form Elements:
+
+Email Input
+
+Label: "Email Address"
+Validation: Required, valid email format
+
+
+Submit Button
+
+Text: "Send Reset Link"
+Same styling as login button
+
+
+Back to Login Link
+
+Text: "← Back to Login"
+Position: Below button
+
+
+
+Flow:
+
+User enters email
+API: POST /api/patient/password/email
+On success: Show confirmation message
+Confirmation: "If an account exists with that email, you'll receive a password reset link shortly."
+User checks email for reset link (backend handles)
+
+4.3.2 Reset Password Page (from email link)
+Accessed via: /reset-password?token=XXX&email=user@example.com
+Form Elements:
+
+New Password Input
+
+Label: "New Password"
+Validation: Minimum 8 characters, complexity rules
+Show password strength indicator
+
+
+Confirm Password Input
+
+Label: "Confirm New Password"
+Validation: Must match new password
+
+
+Submit Button
+
+Text: "Reset Password"
+
+
+
+Flow:
+
+User enters new password twice
+API: POST /api/patient/password/reset
+Body: { token, email, password, password_confirmation }
+On success: Redirect to login with success message
+On error: Display error message
+
+
+SECTION 5: GLOBAL LAYOUT & NAVIGATION
+5.1 Persistent Header Component
+5.1.1 Header Structure
+Container:
+
+Height: 64px (desktop), 56px (mobile)
+Background: #FFFFFF
+Border Bottom: 1px solid #D4DFE8
+Position: Sticky (top: 0)
+Z-Index: 1000
+Box Shadow: NONE
+
+Layout Grid:
+
+Display: Flex
+Justify: Space-between
+Align: Center
+Padding: 0 48px (desktop), 0 16px (mobile)
+
+Three Sections:
+
+Left: Logo + Active Clinic Indicator
+Center: (Optional) Search bar (future feature)
+Right: Notifications + Profile Menu
+
+5.1.2 Left Section: Logo & Clinic
+Logo:
+
+HMS System Logo or Clinic Logo
+Height: 40px
+Clickable: Returns to dashboard
+Margin Right: 24px
+
+Active Clinic Indicator:
+
+Background: #E8F1F8
+Border Radius: 8px
+Padding: 8px 12px
+Display: Flex, Align: Center
+Gap: 8px
+Elements:
+
+Clinic Icon (16px, #2C5F8D)
+Clinic Name (14px, Weight 500, #1A2B3C)
+Dropdown Arrow (12px, #4A5D6F)
+
+
+Clickable: Opens clinic switcher dropdown
+
+Clinic Switcher Dropdown:
+
+Dropdown Menu (absolute positioned)
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Border Radius: 8px
+Shadow: NONE
+Padding: 8px
+List of available clinics:
+
+Each item:
+
+Padding: 12px 16px
+Border Radius: 6px
+Hover: Background #E8F1F8
+Active clinic: Background #E8F1F8, Checkmark icon
+
+
+
+
+Action: Clicking switches clinic, reloads data
+
+5.1.3 Right Section: Notifications & Profile
+Notifications Bell:
+
+Icon: Bell icon (20px)
+Color: #4A5D6F
+Hover: Color #2C5F8D
+Badge: Red dot if unread notifications
+
+Size: 8px circle
+Position: Top-right of icon
+Color: #A84C4C
+
+
+Clickable: Opens notifications dropdown (see Section 12)
+
+Profile Menu:
+
+Display: Flex, Align: Center
+Gap: 12px
+Elements:
+
+Patient Name (14px, Weight 500, #1A2B3C) - Desktop only
+Avatar (32px circle):
+
+Display: Initials or profile photo
+Background: #2C5F8D (if initials)
+Color: #FFFFFF
+Border: 2px solid #D4DFE8
+
+
+
+
+Clickable: Opens profile dropdown
+
+Profile Dropdown Menu:
+
+Items:
+
+"My Profile" → /profile
+"Settings" → /settings (if applicable)
+Divider
+"Logout" → Clears auth, redirects to login
+
+
+Styling: Same as clinic switcher dropdown
+
+5.2 Mobile Navigation
+5.2.1 Mobile Header Adjustments
+Elements:
+
+Logo (smaller, 32px)
+Active clinic name (truncated)
+Hamburger menu icon (right side)
+
+Hamburger Menu:
+
+Icon: Three horizontal lines (20px)
+Color: #1A2B3C
+Clickable: Opens mobile drawer
+
+5.2.2 Mobile Drawer Navigation
+Drawer:
+
+Slide from right
+Width: 80% of viewport (max 320px)
+Background: #FFFFFF
+Backdrop: rgba(26, 43, 60, 0.4)
+Animation: 300ms ease-out
+
+Drawer Content:
+
+Header Section:
+
+Patient name and avatar
+Patient code below name
+
+
+Navigation Links:
+
+Dashboard
+Appointments
+Medical History
+Admissions
+Prescriptions
+Lab Results
+Profile
+Logout
+
+
+Styling:
+
+Each link: Padding 16px, Border-bottom #E8EEF3
+Active: Background #E8F1F8, Bold text
+Icon + Text layout
+
+
+
+5.3 Breadcrumb Navigation (Desktop)
+When Used:
+
+Sub-pages only (e.g., Appointment Detail, Prescription View)
+
+Design:
+
+Position: Below header, within page container
+Typography: 14px, Weight 400, Color: #4A5D6F
+Separator: / or >
+Last item: Color #1A2B3C, Not clickable
+Previous items: Clickable, Hover: Color #2C5F8D, Underline
+
+Example:
+Dashboard > Appointments > Appointment Details
+
+SECTION 6: PATIENT DASHBOARD (HOME PAGE)
+6.1 Dashboard Purpose & Philosophy
+Purpose:
+
+Provide a summary view of patient's current health status
+Quick access to upcoming events and recent activities
+NOT a control panel or admin dashboard
+Focus on what's next and what's important now
+
+Design Philosophy:
+
+Card-based layout for scannable information
+Minimal density - generous whitespace
+Status-driven visibility - show only relevant cards
+No overwhelming data - links to detailed views
+
+6.2 Dashboard Layout Structure
+Page Container:
+
+Max Width: 1200px
+Padding: 32px (desktop), 16px (mobile)
+Background: #F8FAFB
+
+Layout Grid:
+
+Desktop: 3 columns (auto-flow)
+Tablet: 2 columns
+Mobile: 1 column
+Gap: 24px
+
+6.3 Dashboard Header Section
+Container:
+
+Margin Bottom: 32px
+No background, transparent
+
+Elements:
+
+Greeting Message
+
+Text: "Welcome back, [Patient First Name]"
+Typography: H1, 32px, Weight 600, Color: #1A2B3C
+Time-aware: "Good morning" / "Good afternoon" / "Good evening"
+
+
+Date & Time Display
+
+Text: "Thursday, January 22, 2026 • 3:45 PM"
+Typography: 16px, Weight 400, Color: #4A5D6F
+Margin Top: 8px
+Updates in real-time or on load
+
+
+Active Clinic Name
+
+Text: "Currently viewing: [Clinic Name]"
+Typography: 14px, Weight 400, Color: #768A9E
+Margin Top: 4px
+Optional: "Switch Clinic" link
+
+
+
+6.4 Dashboard Summary Cards
+All cards share common design:
+Card Base Styling:
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Border Radius: 12px
+Padding: 24px
+Hover: Border #2C5F8D, Cursor pointer (if clickable)
+Transition: border-color 200ms ease
+
+Card Header Pattern:
+
+Icon (24px) + Title (H4, 18px, Weight 600)
+Flex layout, aligned center
+Margin Bottom: 16px
+Icon color: #2C5F8D
+
+Card Content Pattern:
+
+Primary info: 20px, Weight 500
+Secondary info: 14px, Weight 400, Color: #4A5D6F
+Tertiary info: 12px, Weight 400, Color: #768A9E
+
+
+6.4.1 CARD: Next Appointment
+Data Source: lara_appointments (filter: status = 'scheduled', appointment_date >= today, order by date ASC, limit 1)
+Card Icon: Calendar icon
+Card Title: "Next Appointment"
+Content Elements:
+
+Date & Time (large, prominent)
+
+Text: "Tomorrow, Jan 23 • 10:30 AM"
+Typography: 20px, Weight 500, Color: #1A2B3C
+
+
+Doctor Name
+
+Text: "Dr. [Doctor Name]"
+Typography: 16px, Weight 500, Color: #2C5F8D
+Prefix icon: Stethoscope icon (16px)
+
+
+Department
+
+Text: "[Department Name]"
+Typography: 14px, Weight 400, Color: #4A5D6F
+
+
+Reason (if exists)
+
+Text: "Reason: [Reason for visit]"
+Typography: 14px, Weight 400, Color: #768A9E
+Max 2 lines, truncate
+
+
+Status Badge
+
+Text: "Confirmed" / "Pending"
+Background: #E8F5EF (success) or #F9F5E8 (warning)
+Color: #3D7A5C or #8B7442
+Padding: 4px 12px
+Border Radius: 4px
+Typography: 12px, Weight 500
+
+
+
+Action Button:
+
+Text: "View Details"
+Position: Bottom of card
+Width: 100%
+Height: 40px
+Background: Transparent
+Border: 1px solid #2C5F8D
+Color: #2C5F8D
+Border Radius: 8px
+Hover: Background #E8F1F8
+Action: Navigate to Appointment Detail page
+
+Empty State (if no upcoming appointment):
+
+Icon: Calendar with X (faded)
+Text: "No upcoming appointments"
+Typography: 16px, Color: #768A9E, Centered
+CTA Link: "Book an appointment" (if backend allows)
+
+
+6.4.2 CARD: Current Admission
+Data Source: lara_admissions (filter: status = 'admitted', patient_id = current_patient)
+Visibility: Only show if patient is currently admitted
+Card Icon: Bed icon
+Card Title: "Current Admission"
+Content Elements:
+
+Admission Status
+
+Text: "Admitted"
+Badge: Green background, bold
+Typography: 14px, Weight 600
+
+
+Admission Date
+
+Text: "Admitted on: Jan 18, 2026"
+Typography: 14px, Weight 400, Color: #4A5D6F
+
+
+Ward & Bed
+
+Text: "Ward: [Ward Name]"
+Typography: 14px, Weight 400
+Below: "Bed: [Bed Number]"
+Icon: Location pin (12px)
+
+
+Admitting Doctor
+
+Text: "Dr. [Doctor Name]"
+Typography: 14px, Weight 500, Color: #2C5F8D
+
+
+Admission Reason
+
+Text: "[Admission Reason]"
+Typography: 14px, Weight 400, Color: #768A9E
+Max 2 lines
+
+
+
+Action Button:
+
+Text: "View Admission Details"
+Same styling as appointment card button
+Action: Navigate to Admission Detail page
+
+Empty State (if not admitted):
+
+Do not display this card at all OR
+Display collapsed version: "No active admission"
+
+
+6.4.3 CARD: Latest Prescription
+Data Source: lara_prescriptions (join with lara_consultations, order by issued_at DESC, limit 1)
+Card Icon: Pill/Medicine icon
+Card Title: "Latest Prescription"
+Content Elements:
+
+Prescription Date
+
+Text: "Issued on: Jan 20, 2026"
+Typography: 16px, Weight 500, Color: #1A2B3C
+
+
+Prescribing Doctor
+
+Text: "Dr. [Doctor Name]"
+Typography: 14px, Weight 500, Color: #2C5F8D
+
+
+Medicine Count
+
+Text: "[Count] medicines prescribed"
+Typography: 14px, Weight 400, Color: #4A5D6F
+
+
+Top Medicines (first 2-3 medicines)
+
+List:
+
+"• Paracetamol 500mg"
+"• Amoxicillin 500mg"
+
+
+Typography: 12px, Weight 400, Color: #768A9E
+Max 3 lines
+
+
+
+Action Buttons:
+
+Primary: "View Prescription"
+
+Navigate to Prescription Detail
+
+
+Secondary: "Download PDF" (icon button)
+
+Download prescription as PDF
+
+
+
+Empty State:
+
+Text: "No prescriptions yet"
+Icon: Faded pill icon
+
+
+6.4.4 CARD: Upcoming Lab Tests
+Data Source: lara_lab_test_orders (filter: status = 'pending', order by order_date ASC)
+Card Icon: Test tube icon
+Card Title: "Upcoming Lab Tests"
+Content Elements:
+
+Test Count
+
+Text: "[Count] tests pending"
+Typography: 16px, Weight 500
+
+
+Test List (first 3)
+
+Bullet list of test names
+Typography: 14px, Color: #4A5D6F
+
+
+Order Date
+
+Text: "Ordered on: [Date]"
+Typography: 12px, Color: #768A9E
+
+
+
+Action Button:
+
+Text: "View All Lab Tests"
+Navigate to Lab Tests page
+
+Empty State:
+
+Text: "No pending lab tests"
+
+
+6.4.5 CARD: Recent Notifications/Alerts
+Data Source: lara_notifications (filter: unread, limit 3)
+Card Icon: Bell icon
+Card Title: "Recent Alerts"
+Content Elements:
+
+Notification Items (max 3)
+
+Each item:
+
+Dot indicator (8px, #2C5F8D if unread)
+Message: "[Notification text]"
+
+Typography: 14px, Weight 400
+Max 2 lines, truncate
+
+
+Time: "2 hours ago"
+
+Typography: 12px, Color: #768A9E
+
+
+
+
+Separator between items: Divider line
+
+
+
+Action Link:
+
+Text: "View all notifications"
+Typography: 14px, Color: #2C5F8D, Underline on hover
+Action: Navigate to Notifications page
+
+Empty State:
+
+Text: "No new notifications"
+Icon: Checkmark icon
+
+
+6.4.6 CARD: Health Summary (Optional Future)
+Card Icon: Heart icon
+Card Title: "Health Overview"
+Content Elements:
+
+Last Vitals
+
+Blood Pressure: "120/80 mmHg"
+Heart Rate: "72 bpm"
+Date: "Recorded Jan 15"
+
+
+BMI
+
+Value: "22.5"
+Category: "Normal"
+
+
+
+Action:
+
+"View Full Health Record"
+
+
+6.5 Dashboard Loading States
+On Initial Load:
+
+Display header skeleton (gray bars)
+Display card skeletons:
+
+Card shape with gray animated shimmer
+Placeholder for text lines
+
+
+Fetch dashboard data from API
+Replace skeletons with actual cards
+
+Skeleton Design:
+
+Background: #E8EEF3 with shimmer animation
+Border Radius: Same as cards
+Height: Approximate card height
+
+
+6.6 Dashboard Error States
+If API Call Fails:
+
+Display error message card:
+
+Icon: Alert triangle
+Text: "Unable to load dashboard data"
+Subtext: "Please try refreshing the page"
+Button: "Retry"
+
+
+Preserve header (patient name, date)
+On retry, repeat API call
+
+
+6.7 Dashboard Responsive Behavior
+Desktop (1280px+):
+
+3-column grid
+Cards span 1 column each
+Some cards may span 2 columns if content-heavy
+
+Tablet (768px - 1279px):
+
+2-column grid
+Cards adapt width
+
+Mobile (< 768px):
+
+Single column
+Cards stack vertically
+Reduce card padding to 16px
+
+
+SECTION 7: APPOINTMENTS PAGE
+7.1 Page Purpose
+Purpose:
+
+Display all patient appointments (past, upcoming, cancelled)
+Allow users to view appointment details
+Enable appointment cancellation (if backend permits)
+Show appointment status clearly
+
+Data Source:
+
+lara_appointments table
+Join with lara_doctors, lara_departments, lara_clinics
+Filter by patient_id and clinic_id
+
+7.2 Page Layout
+Page Container:
+
+Max Width: 1200px
+Padding: 32px (desktop), 16px (mobile)
+Background: #F8FAFB
+
+Page Header:
+
+Title: "My Appointments"
+
+Typography: H1, 32px, Weight 600
+
+
+Subtitle: "View and manage your appointments"
+
+Typography: 16px, Color: #4A5D6F
+
+
+Action Button (if backend allows booking):
+
+Text: "Book New Appointment"
+Position: Top-right (desktop), below subtitle (mobile)
+Styling: Primary button
+
+
+
+7.3 Appointments Filter Tabs
+Tab Bar:
+
+Position: Below page header
+Layout: Flex, Gap 16px
+Border Bottom: 1px solid #D4DFE8
+
+Tabs:
+
+Upcoming (default active)
+
+Filter: appointment_date >= today, status != 'cancelled'
+
+
+Past
+
+Filter: appointment_date < today
+
+
+Cancelled
+
+Filter: status = 'cancelled'
+
+
+
+Tab Styling:
+
+Inactive:
+
+Color: #4A5D6F
+Typography: 16px, Weight 500
+Padding: 12px 24px
+Border-bottom: 2px solid transparent
+
+
+Active:
+
+Color: #2C5F8D
+Border-bottom: 2px solid #2C5F8D
+
+
+Hover:
+
+Background: #E8F1F8
+
+
+
+7.4 Appointments List View
+Layout Options:
+Option A: Timeline View (Recommended)
+
+Vertical timeline with date markers
+Appointments grouped by date
+Visual line connecting appointments
+
+Option B: Card Grid
+
+Grid of appointment cards
+Grouped by status
+
+We'll use Option A (Timeline)
+
+7.4.1 Timeline Structure
+Date Marker:
+
+Display: Date label on left
+Typography: 14px, Weight 600, Color: #1A2B3C
+Format: "Today", "Tomorrow", "Mon, Jan 23", etc.
+Position: Sticky as user scrolls (optional)
+
+Timeline Line:
+
+Vertical line (2px, #D4DFE8)
+Runs down left side
+Connects all appointments
+
+Appointment Nodes:
+
+Circular node (12px) on timeline line
+Color: Matches appointment status
+
+Confirmed: #3D7A5C
+Pending: #8B7442
+Completed: #4A7BA7
+Cancelled: #A84C4C
+
+
+
+
+7.4.2 Appointment Card Design
+Card Container:
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Border Radius: 12px
+Padding: 20px
+Margin: 16px 0 16px 40px (left margin for timeline line)
+Hover: Border #2C5F8D, slight scale (1.01)
+Cursor: Pointer
+Click: Navigate to Appointment Detail page
+
+Card Header:
+
+Display: Flex, Space-between
+
+Left Side:
+
+Time
+
+Text: "10:30 AM - 11:00 AM"
+Typography: 18px, Weight 600, Color: #1A2B3C
+Icon: Clock (16px)
+
+
+Status Badge
+
+Text: "Confirmed" / "Pending" / "Completed" / "Cancelled"
+Background: Status color tint
+Color: Status color
+Padding: 4px 12px
+Border Radius: 4px
+Typography: 12px, Weight 500
+
+
+
+Right Side:
+
+Chevron icon (→) indicating clickable
+
+Card Body:
+
+Doctor Name
+
+Text: "Dr. [First Name Last Name]"
+Typography: 16px, Weight 600, Color: #2C5F8D
+Icon: Stethoscope (14px)
+
+
+Department
+
+Text: "[Department Name]"
+Typography: 14px, Weight 400, Color: #4A5D6F
+Icon: Building (12px)
+
+
+Appointment Type
+
+Text: "In-Person" / "Online"
+Typography: 14px, Weight 400, Color: #768A9E
+Icon: Video camera (for online) or Location pin (for in-person)
+
+
+Reason for Visit (if exists)
+
+Text: "[Reason]"
+Typography: 14px, Weight 400, Color: #4A5D6F
+Max 2 lines, truncate
+
+
+
+Card Footer (Quick Actions):
+
+Only for upcoming appointments
+Buttons:
+
+"View Details" (text link, #2C5F8D)
+"Cancel" (text link, #A84C4C, confirmation required)
+
+
+
+
+7.5 Appointment Detail Page (Modal or Dedicated Page)
+Access: Clicking on an appointment card
+Layout: Modal overlay (preferred) or full page
+Modal Design:
+
+Width: 600px (max)
+Background: #FFFFFF
+Border Radius: 12px
+Padding: 32px
+Backdrop: rgba(26, 43, 60, 0.6)
+
+Modal Header:
+
+Title: "Appointment Details"
+
+Typography: H2, 24px, Weight 600
+
+
+Close button (X icon, top-right)
+
+Modal Content Sections:
+7.5.1 Section: Appointment Information
+Date & Time:
+
+Label: "Date & Time"
+Value: "Monday, January 23, 2026 • 10:30 AM - 11:00 AM"
+Typography: 16px, Weight 500
+
+Status:
+
+Label: "Status"
+Value: Badge (same as card)
+
+Appointment Type:
+
+Label: "Type"
+Value: "In-Person" or "Online"
+If online: Display join link (if backend provides)
+
+Reason for Visit:
+
+Label: "Reason"
+Value: "[Reason text]"
+
+7.5.2 Section: Doctor Information
+Doctor Name:
+
+Label: "Doctor"
+Value: "Dr. [Full Name]"
+Avatar: Doctor's photo (if available)
+
+Department:
+
+Label: "Department"
+Value: "[Department Name]"
+
+Specialization:
+
+Label: "Specialization"
+Value: "[Specialization]" (from lara_doctors table)
+
+7.5.3 Section: Clinic Information
+Clinic Name:
+
+Value: "[Clinic Name]"
+
+Clinic Address:
+
+Value: Full address
+Icon: Location pin
+Link: "Get Directions" (opens maps)
+
+Clinic Phone:
+
+Value: Phone number
+Icon: Phone
+Link: Call action (mobile)
+7.5.4 Section: Fee Information (if applicable)
+Consultation Fee:
+
+Label: "Consultation Fee"
+Value: "[Currency] [Amount]"
+Typography: 18px, Weight 600
+
+Payment Status:
+
+If paid: Green badge "Paid"
+If unpaid: Yellow badge "Pending"
+
+7.5.5 Actions (Modal Footer)
+Buttons:
+
+"Cancel Appointment" (if status = scheduled/confirmed)
+
+Color: #A84C4C
+Confirmation dialog required
+API call: POST /api/patient/appointments/{id}/cancel
+
+
+"Download Receipt" (if payment made)
+
+Color: #2C5F8D
+
+
+"Close"
+
+Secondary button
+
+
+
+
+7.6 Appointment Cancellation Flow
+Trigger: User clicks "Cancel Appointment"
+Confirmation Modal:
+
+Title: "Cancel Appointment?"
+Message: "Are you sure you want to cancel this appointment? This action cannot be undone."
+Buttons:
+
+"Yes, Cancel" (red, #A84C4C)
+"No, Keep It" (secondary)
+
+
+
+On Confirmation:
+
+API call: POST /api/appointments/{id}/cancel
+Show loading spinner
+On success:
+
+Update appointment status to "Cancelled"
+Show success toast: "Appointment cancelled successfully"
+Refresh appointments list
+
+
+On error:
+
+Show error message
+Keep modal open
+
+
+
+
+7.7 Empty States
+No Upcoming Appointments:
+
+Icon: Calendar with X (large, faded)
+Text: "No upcoming appointments"
+Subtext: "You don't have any scheduled appointments"
+CTA Button: "Book an Appointment" (if allowed)
+
+No Past Appointments:
+
+Text: "No past appointments"
+Subtext: "Your appointment history will appear here"
+
+No Cancelled Appointments:
+
+Text: "No cancelled appointments"
+
+
+7.8 Loading & Error States
+Loading:
+
+Skeleton timeline view
+Animated shimmer on skeleton cards
+
+Error:
+
+Error message card
+Retry button
+
+
+7.9 Responsive Design
+Desktop:
+
+Timeline on left (40px space for line)
+Cards on right (full width minus timeline space)
+
+Mobile:
+
+Timeline line thinner (1px)
+Timeline nodes smaller (8px)
+Card padding reduced (16px)
+Buttons stack vertically
+
+
+SECTION 8: MEDICAL HISTORY (VISITS) PAGE
+8.1 Page Purpose
+Purpose:
+
+Display comprehensive medical history
+Show all past visits chronologically
+Provide access to diagnoses, consultations, vitals
+Timeline visualization of patient's health journey
+
+Data Sources:
+
+lara_visits (main)
+lara_consultations (linked)
+lara_patient_vitals (linked)
+lara_appointments (for visit context)
+lara_doctors (for provider info)
+
+8.2 Page Layout
+Page Container:
+
+Max Width: 1200px
+Padding: 32px (desktop), 16px (mobile)
+
+Page Header:
+
+Title: "Medical History"
+
+Typography: H1, 32px, Weight 600
+
+
+Subtitle: "Your complete visit history and records"
+
+Typography: 16px, Color: #4A5D6F
+
+
+
+8.3 Timeline View Structure
+Design Pattern: Vertical timeline (similar to appointments, but expandable)
+Timeline Elements:
+
+Date Markers: Year/Month grouping
+Visit Nodes: Circular indicators on timeline
+Visit Cards: Expandable/collapsible
+
+
+8.3.1 Visit Card (Collapsed State)
+Card Container:
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Border Radius: 12px
+Padding: 20px
+Margin: 16px 0 16px 40px
+Cursor: Pointer (to expand)
+
+Card Header (Collapsed):
+
+Visit Date
+
+Text: "Monday, June 20, 2025"
+Typography: 16px, Weight 600, Color: #1A2B3C
+Icon: Calendar (14px)
+
+
+Doctor Name
+
+Text: "Dr. [Doctor Name]"
+Typography: 14px, Weight 500, Color: #2C5F8D
+
+
+Department
+
+Text: "[Department Name]"
+Typography: 14px, Color: #4A5D6F
+
+
+Diagnosis Summary (if available)
+
+Text: "[Primary Diagnosis]"
+Typography: 14px, Weight 500, Color: #1A2B3C
+Max 1 line, truncate
+
+
+Expand Icon
+
+Chevron down (collapsed) / Chevron up (expanded)
+Position: Right side
+Color: #4A5D6F
+
+
+
+
+8.3.2 Visit Card (Expanded State)
+Additional Sections Revealed:
+Section: Consultation Details
+
+Chief Complaint / Symptoms
+
+Label: "Symptoms"
+Value: "[Symptoms JSON array displayed]"
+Typography: 14px, Color: #4A5D6F
+
+
+Diagnosis
+
+Label: "Diagnosis"
+Value: "[Diagnosis text]"
+Typography: 16px, Weight 500, Color: #1A2B3C
+
+
+Doctor's Notes
+
+Label: "Doctor's Notes"
+Value: "[Doctor notes text]"
+Typography: 14px, Color: #4A5D6F
+Background: #F0F4F7 (subtle highlight)
+Padding: 12px
+Border Radius: 8px
+
+
+Follow-up Required
+
+If follow_up_required = 1:
+
+Badge: "Follow-up Needed"
+Color: #8B7442 (warning)
+Follow-up Date: "[Date]"
+
+
+
+
+
+Section: Vital Signs (if recorded)
+
+Display as key-value grid:
+
+Blood Pressure: "120/80 mmHg"
+Heart Rate: "72 bpm"
+Temperature: "98.6°F"
+SpO2: "98%"
+Respiratory Rate: "16/min"
+Weight: "70 kg"
+Height: "170 cm"
+BMI: "24.2"
+
+
+Layout: 2-column grid (desktop), 1-column (mobile)
+Typography: 14px, Label weight 500, Value weight 400
+
+Section: Prescriptions (if any)
+
+Display: Linked list
+Each item:
+
+Text: "View Prescription from [Date]"
+Link: Navigate to Prescription Detail
+Icon: Pill icon (12px)
+Typography: 14px, Color: #2C5F8D, Underline on hover
+
+
+
+Section: Lab Tests (if ordered)
+
+Display: Linked list
+Each item:
+
+Text: "Lab Test: [Test Name]"
+Status: "Completed" / "Pending"
+Link: View results (if completed)
+
+
+
+Action Buttons (Expanded Footer):
+
+"View Full Consultation Record" (if more details available)
+"Download Visit Summary" (PDF)
+
+
+8.4 Filters & Search
+Filter Bar:
+
+Position: Below page header
+Elements:
+
+
+Date Range Filter
+
+Dropdown: "Last 6 months", "Last year", "All time", "Custom range"
+Default: "Last 6 months"
+
+
+Doctor Filter (optional)
+
+Dropdown: List of doctors patient has seen
+Option: "All Doctors"
+
+
+Search Box
+
+Placeholder: "Search by diagnosis, symptoms, or notes"
+Icon: Magnifying glass
+Real-time search or on submit
+
+
+
+Filter Application:
+
+Filter visits based on selected criteria
+Update timeline dynamically
+
+
+8.5 Empty States
+No Visit History:
+
+Icon: Document with X (large, faded)
+Text: "No medical history yet"
+Subtext: "Your visit history will appear here after consultations"
+
+No Search Results:
+
+Icon: Magnifying glass
+Text: "No visits found"
+Subtext: "Try adjusting your search or filters"
+
+
+8.6 Loading & Error States
+Loading:
+
+Skeleton timeline with placeholder cards
+Shimmer animation
+
+Error:
+
+Error message
+Retry button
+
+
+8.7 Responsive Design
+Desktop:
+
+Full timeline with all details
+2-column vital signs grid
+
+Mobile:
+
+Condensed timeline
+Single-column vitals
+Smaller card padding (16px)
+
+
+SECTION 9: ADMISSIONS PAGE
+9.1 Page Purpose
+Purpose:
+
+Display patient's admission history (inpatient stays)
+Show current admission status (if admitted)
+Provide access to admission details, rounds, services
+
+Data Sources:
+
+lara_admissions
+lara_bed_assignments
+lara_beds, lara_rooms, lara_wards
+lara_doctors (admitting doctor)
+lara_inpatient_rounds
+lara_inpatient_services
+lara_nursing_notes
+lara_admission_deposits
+
+9.2 Page Layout
+Page Container:
+
+Max Width: 1200px
+Padding: 32px (desktop), 16px (mobile)
+
+Page Header:
+
+Title: "Admissions"
+
+Typography: H1, 32px, Weight 600
+
+
+Subtitle: "Inpatient admission records"
+
+Typography: 16px, Color: #4A5D6F
+
+
+
+9.3 Current Admission Section (if exists)
+Visibility: Only if status = 'admitted' for patient
+Section Design:
+
+Background: #E8F5EF (success tint)
+Border: 2px solid #3D7A5C
+Border Radius: 12px
+Padding: 24px
+Margin Bottom: 32px
+
+Section Header:
+
+Icon: Bed icon (32px, #3D7A5C)
+Title: "Currently Admitted"
+
+Typography: H2, 24px, Weight 600
+
+
+Badge: "Active" (green)
+
+Admission Information:
+
+Admission Date
+
+Label: "Admitted on"
+Value: "[Date Time]"
+Typography: 16px
+
+
+Ward & Bed
+
+Label: "Current Location"
+Value: "Ward: [Ward Name] • Room: [Room Number] • Bed: [Bed Number]"
+Icon: Location pin
+
+
+Admitting Doctor
+
+Label: "Admitting Doctor"
+Value: "Dr. [Doctor Name]"
+Avatar: Doctor photo (if available)
+
+
+Admission Reason
+
+Label: "Reason for Admission"
+Value: "[Admission Reason]"
+Typography: 14px, Color: #4A5D6F
+
+
+Deposit Paid
+
+Label: "Deposit Amount"
+Value: "[Currency] [Amount]"
+Typography: 16px, Weight 600
+
+
+
+Expandable Sections (Accordion Style):
+9.3.1 Section: Doctor Rounds
+Trigger: "View Doctor Rounds" (expandable)
+Content:
+
+List of rounds (from lara_inpatient_rounds)
+Each round:
+
+Round Date: "[Date]"
+Doctor: "Dr. [Name]"
+Notes: "[Round notes]"
+Background: #F8FAFB
+Padding: 12px
+Border Radius: 8px
+Margin: 8px 0
+
+
+
+9.3.2 Section: Services & Charges
+Trigger: "View Services & Charges" (expandable)
+Content:
+
+List of services (from lara_inpatient_services)
+Table format:
+
+Service Name | Date | Quantity | Unit Price | Total
+
+
+Typography: 14px
+Table borders: Subtle #D4DFE8
+
+9.3.3 Section: Nursing Notes
+Trigger: "View Nursing Notes" (expandable)
+Content:
+
+List of nursing notes (from lara_nursing_notes)
+Each note:
+
+Recorded At: "[Date Time]"
+Nurse: "[Nurse Name]" (from lara_users)
+Notes: "[Notes text]"
+Style: Similar to doctor rounds
+
+
+
+Action Buttons:
+
+"View Full Admission Details" (navigate to dedicated page)
+"Download Admission Summary" (PDF)
+
+
+9.4 Past Admissions Section
+Section Header:
+
+Title: "Admission History"
+
+Typography: H3, 20px, Weight 600
+
+
+Divider below
+
+Layout: Timeline (similar to visits page)
+Admission Card (Collapsed):
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Padding: 20px
+Cursor: Pointer
+
+Card Header:
+
+Admission Dates
+
+Text: "Aug 7, 2025 - Aug 11, 2025"
+Typography: 16px, Weight 600
+Duration: "(4 days)"
+
+
+Status Badge
+
+Text: "Discharged"
+Background: #E8EEF3 (neutral)
+Color: #4A5D6F
+
+
+Admission Reason
+
+Text: "[Reason]"
+Typography: 14px, Color: #4A5D6F
+
+
+
+Card Expand Icon:
+
+Chevron down/up
+
+Card Expanded:
+Same sections as current admission:
+
+Doctor rounds
+Services & charges
+Nursing notes
+Discharge summary (if available)
+
+Discharge Information:
+
+Discharged on: "[Date]"
+Discharged by: "Dr. [Name]"
+Discharge Summary: "[Summary text]" (if available)
+
+
+9.5 Empty States
+No Current Admission:
+
+(Don't show current admission section)
+
+No Past Admissions:
+
+Icon: Bed with X
+Text: "No admission history"
+Subtext: "You have not been admitted to this clinic"
+
+
+9.6 Loading & Error States
+Loading:
+
+Skeleton cards
+
+Error:
+
+Error message with retry
+
+
+SECTION 10: PRESCRIPTIONS PAGE
+10.1 Page Purpose
+Purpose:
+
+Display all prescriptions issued to patient
+Provide detailed prescription view (medicines, dosages, instructions)
+Enable prescription download/print
+
+Data Sources:
+
+lara_prescriptions
+lara_prescription_items
+lara_medicines
+lara_consultations (for context)
+lara_doctors
+lara_prescription_complaint (patient complaints linked)
+
+10.2 Page Layout
+Page Container:
+
+Max Width: 1200px
+Padding: 32px (desktop), 16px (mobile)
+
+Page Header:
+
+Title: "My Prescriptions"
+
+Typography: H1, 32px, Weight 600
+
+
+Subtitle: "View and download your prescriptions"
+
+Typography: 16px, Color: #4A5D6F
+
+
+
+10.3 Prescriptions List View
+Layout: Grid of prescription cards
+Grid:
+
+Columns: 2 (desktop), 1 (mobile)
+Gap: 24px
+
+
+10.3.1 Prescription Card Design
+Card Container:
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Border Radius: 12px
+Padding: 24px
+Hover: Border #2C5F8D, slight scale
+Cursor: Pointer
+Click: Open prescription detail modal
+
+Card Header:
+
+Prescription Date
+
+Text: "Issued on: June 20, 2025"
+Typography: 16px, Weight 600, Color: #1A2B3C
+Icon: Calendar (14px)
+
+
+Prescribing Doctor
+
+Text: "Dr. [Doctor Name]"
+Typography: 14px, Weight 500, Color: #2C5F8D
+Icon: Stethoscope (12px)
+
+
+
+Card Body:
+
+Medicine Count
+
+Text: "[Count] medicines prescribed"
+Typography: 14px, Color: #4A5D6F
+
+
+Top Medicines (first 3)
+
+List:
+
+"• Paracetamol 500mg"
+"• Amoxicillin 500mg"
+"• Omeprazole 20mg"
+
+
+Typography: 12px, Color: #768A9E
+Max 3 items, "...and [X] more" if exceeds
+
+
+Linked Complaints (if any)
+
+Text: "For: [Complaint Name]" (e.g., "For: Fever")
+Typography: 12px, Color: #768A9E
+Background: #F0F4F7
+Padding: 4px 8px
+Border Radius: 4px
+
+
+
+Card Footer:
+
+Actions:
+
+"View Details" (text link)
+"Download" (icon button, download icon)
+
+
+
+
+10.4 Prescription Detail Modal/Page
+Access: Clicking on prescription card
+Modal Design:
+
+Width: 800px (max)
+Background: #FFFFFF
+Border Radius: 12px
+Padding: 32px
+
+Modal Header:
+
+Title: "Prescription Details"
+
+Typography: H2, 24px, Weight 600
+
+
+Close button (X icon)
+
+Prescription Information Section:
+
+Prescription ID (read-only, monospace)
+
+Label: "Prescription ID"
+Value: "#[ID]" (e.g., "#000123")
+Typography: Monospace, 14px
+
+
+Issued Date
+
+Label: "Issued on"
+Value: "[Full Date Time]"
+
+
+Doctor Information:
+
+Avatar + Name
+Department
+Specialization
+
+
+Clinic Information:
+
+Clinic name, address, phone
+
+
+Patient Complaints:
+
+List of complaints from lara_prescription_complaint
+Display as badges
+
+
+
+Medicines Table:
+Table Columns:
+
+Medicine Name (generic + brand)
+Dosage (e.g., "500mg")
+Frequency (e.g., "Twice daily")
+Duration (e.g., "7 days")
+Instructions (e.g., "After meals")
+
+Table Styling:
+
+Header: Background #F0F4F7, Typography 14px Weight 600
+Rows: Alternating background #FFFFFF / #F8FAFB
+Borders: #D4DFE8
+Padding: 12px per cell
+
+Example Row:
+| Paracetamol (Generic: Acetaminophen) | 500mg | 3x/day | 5 days | Take with water |
+Prescription Notes:
+
+Label: "Additional Instructions"
+Value: "[Notes text]" (from lara_prescriptions.notes)
+Background: #F0F4F7
+Padding: 16px
+Border Radius: 8px
+
+Action Buttons:
+
+"Download PDF" (primary button)
+"Print" (secondary button)
+"Close" (tertiary)
+
+
+10.5 Download/Print Functionality
+Download PDF:
+
+API call: GET /api/prescriptions/{id}/download
+Returns: PDF file
+Triggers browser download
+
+Print:
+
+Opens browser print dialog
+Styled print view (remove navigation, etc.)
+
+
+10.6 Empty States
+No Prescriptions:
+
+Icon: Prescription pad with X
+Text: "No prescriptions yet"
+Subtext: "Prescriptions from your consultations will appear here"
+
+
+10.7 Filters & Search
+Filter Bar:
+
+Date Range Filter
+
+Dropdown: "Last 3 months", "Last 6 months", "Last year", "All time"
+
+
+Doctor Filter
+
+Dropdown: List of prescribing doctors
+Option: "All Doctors"
+
+
+Search Box
+
+Placeholder: "Search by medicine name or complaint"
+Real-time filter
+
+
+
+
+SECTION 11: LAB RESULTS PAGE
+11.1 Page Purpose
+Purpose:
+
+Display all lab test orders and results
+Show pending tests and completed tests
+Provide detailed test result view
+
+Data Sources:
+
+lara_lab_test_orders
+lara_lab_test_results
+lara_lab_tests (test catalog)
+lara_doctors (ordering doctor)
+
+11.2 Page Layout
+Page Container:
+
+Max Width: 1200px
+Padding: 32px (desktop), 16px (mobile)
+
+Page Header:
+
+Title: "Lab Results"
+
+Typography: H1, 32px, Weight 600
+
+
+Subtitle: "View your laboratory test results"
+
+Typography: 16px, Color: #4A5D6F
+
+
+
+11.3 Lab Tests Filter Tabs
+Tabs:
+
+Pending (default)
+
+Filter: status = 'pending'
+
+
+Completed
+
+Filter: status = 'completed'
+
+
+All Tests
+
+No filter
+
+
+
+11.4 Lab Test Card (Pending Status)
+Card Design:
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Padding: 20px
+
+Card Header:
+
+Test Name
+
+Text: "[Lab Test Name]" (from lara_lab_tests.name)
+Typography: 18px, Weight 600, Color: #1A2B3C
+
+
+Status Badge
+
+Text: "Pending"
+Background: #F9F5E8 (warning tint)
+Color: #8B7442
+
+
+
+Card Body:
+
+Order Date
+
+Label: "Ordered on"
+Value: "[Date]"
+
+
+Ordered By
+
+Label: "Ordered by"
+Value: "Dr. [Doctor Name]"
+
+
+Test Category
+
+Label: "Category"
+Value: "[Category]" (e.g., "Pathology", "Radiology")
+
+
+
+Card Footer:
+
+Text: "Results will be available soon"
+Typography: 12px, Color: #768A9E, Italic
+
+
+11.5 Lab Test Card (Completed Status)
+Card Design: (same as pending, with additions)
+Additional Elements:
+
+Result Available Badge
+
+Text: "Results Ready"
+Background: #E8F5EF (success tint)
+Color: #3D7A5C
+
+
+Reported Date
+
+Label: "Reported on"
+Value: "[Date Time]"
+
+
+Reported By
+
+Label: "Reported by"
+Value: "[Lab Technician Name]" (from lara_users)
+
+
+
+Action Buttons:
+
+"View Results" (primary button)
+"Download Report" (if PDF available)
+
+
+11.6 Lab Test Result Detail Modal/Page
+Access: Clicking "View Results"
+Modal Design:
+
+Width: 900px
+Padding: 32px
+
+Modal Header:
+
+Title: "[Test Name] - Results"
+Test date
+
+Result Information Section:
+
+Patient Information:
+
+Name, Age, Gender, Patient Code
+
+
+Test Information:
+
+Test Name
+Category
+Ordering Doctor
+Sample Collection Date (if available)
+Report Date
+
+
+
+Results Table:
+For Tests with Multiple Parameters (e.g., CBC):
+Table Columns:
+
+Parameter Name
+Result Value
+Unit
+Reference Range
+Flag (Normal / High / Low)
+
+Table Styling:
+
+Highlight abnormal results:
+
+High: Background #F9EBEB (error tint), Color #A84C4C
+Low: Background #F9F5E8 (warning tint), Color #8B7442
+Normal: Default background
+
+
+
+Example Row:
+| Hemoglobin | 13.5 | g/dL | 12.0 - 16.0 | Normal |
+| WBC Count  | 12.5 | x10^3/µL | 4.0 - 11.0 | High ↑ |
+For Simple Tests:
+
+Display result value prominently
+Reference range below
+
+Remarks Section:
+
+Label: "Technician Remarks"
+Value: "[Remarks text]" (from lara_lab_test_results.remarks)
+Background: #F0F4F7
+Padding: 16px
+
+PDF Report:
+
+If pdf_path exists:
+
+Display PDF embed (iframe) or thumbnail
+"Download Full Report" button
+
+
+
+Action Buttons:
+
+"Download Report" (PDF)
+"Print"
+"Close"
+
+
+11.7 Empty States
+No Pending Tests:
+
+Text: "No pending lab tests"
+
+No Completed Tests:
+
+Text: "No completed lab tests yet"
+Subtext: "Your lab results will appear here"
+
+
+11.8 Filters & Search
+Filter Bar:
+
+Date Range
+Test Category (dropdown: Pathology, Radiology, etc.)
+Search Box (search by test name)
+
+
+SECTION 12: NOTIFICATIONS CENTER
+12.1 Page Purpose
+Purpose:
+
+Display system notifications and alerts
+Notify patients of:
+
+Appointment confirmations/changes
+Lab results availability
+Prescription updates
+Admission updates
+Payment reminders
+
+
+
+Data Source:
+
+lara_notifications table
+
+12.2 Page Layout (Dropdown or Dedicated Page)
+Option A: Dropdown from Header Bell Icon (Recommended)
+Dropdown Design:
+
+Width: 400px
+Max Height: 500px (scrollable)
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Border Radius: 12px
+Box Shadow: NONE (use border)
+Position: Absolute, aligned to bell icon
+
+Dropdown Header:
+
+Title: "Notifications"
+
+Typography: H4, 18px, Weight 600
+
+
+"Mark all as read" link (right-aligned)
+
+Notifications List:
+
+Scrollable area
+Max display: 10 recent notifications
+"View all" link at bottom (navigate to dedicated page)
+
+
+Option B: Dedicated Notifications Page
+Page Container:
+
+Max Width: 800px
+Padding: 32px (desktop), 16px (mobile)
+
+Page Header:
+
+Title: "Notifications"
+Filter tabs: "All", "Unread", "Read"
+
+
+12.3 Notification Item Design
+Item Container:
+
+Padding: 16px
+Border-bottom: 1px solid #E8EEF3
+Background: #FFFFFF (read), #E8F1F8 (unread)
+Cursor: Pointer
+Hover: Background #F0F4F7
+
+Item Content:
+
+Unread Indicator (if unread)
+
+Blue dot (8px circle, #2C5F8D)
+Position: Left side
+
+
+Notification Icon (based on type)
+
+Appointment: Calendar icon
+Lab Result: Test tube icon
+Prescription: Pill icon
+Payment: Credit card icon
+General: Info icon
+
+
+Notification Text
+
+Primary message
+Typography: 14px, Weight 500, Color: #1A2B3C
+Example: "Your lab results are ready"
+
+
+Notification Subtext (if applicable)
+
+Secondary message
+Typography: 12px, Color: #768A9E
+Example: "CBC Test - Ordered on Jan 15"
+
+
+Timestamp
+
+Relative time: "2 hours ago", "Yesterday", "Jan 20"
+Typography: 12px, Color: #A3B5C7
+Position: Bottom-right
+
+
+
+Click Action:
+
+Mark notification as read
+Navigate to related resource (appointment, lab result, etc.)
+
+
+12.4 Notification Types & Actions
+Notification Types:
+
+Appointment Confirmed:
+
+Message: "Your appointment with Dr. [Name] on [Date] has been confirmed"
+Action: Navigate to appointment detail
+
+
+Appointment Reminder:
+
+Message: "Reminder: You have an appointment tomorrow at [Time]"
+Action: Navigate to appointment detail
+
+
+Lab Results Ready:
+
+Message: "Your [Test Name] results are ready"
+Action: Navigate to lab result detail
+
+
+Prescription Issued:
+
+Message: "Dr. [Name] has issued a new prescription"
+Action: Navigate to prescription detail
+
+
+Admission Update:
+
+Message: "Your admission status has been updated"
+Action: Navigate to admission detail
+
+
+Payment Reminder:
+
+Message: "You have an outstanding invoice of [Amount]"
+Action: Navigate to invoice detail
+
+
+
+
+12.5 Empty State
+No Notifications:
+
+Icon: Bell with slash
+Text: "No notifications"
+Subtext: "You're all caught up!"
+
+
+SECTION 13: PROFILE PAGE
+13.1 Page Purpose
+Purpose:
+
+Display patient's personal information
+Allow limited profile updates
+Manage password change
+View linked clinics
+
+Data Sources:
+
+lara_users (user account data)
+lara_patients (patient-specific data)
+lara_patient_allergies
+lara_patient_medical_history
+
+13.2 Page Layout
+Page Container:
+
+Max Width: 900px
+Padding: 32px (desktop), 16px (mobile)
+
+Page Header:
+
+Title: "My Profile"
+
+Typography: H1, 32px, Weight 600
+
+
+
+Layout: Tabbed Sections
+Tabs:
+
+Personal Information (default)
+Medical Information
+Account Settings
+Linked Clinics
+
+
+13.3 Tab 1: Personal Information
+Section: Profile Photo
+
+Display: Large circular avatar (120px)
+Patient initials or uploaded photo
+Button: "Change Photo" (if backend allows upload)
+
+Section: Basic Details (Read-Only or Editable based on backend policy)
+Fields:
+
+Full Name
+
+Label: "Full Name"
+Value: "[Patient Name]"
+Read-only or Editable (text input)
+
+
+Patient Code
+
+Label: "Patient ID"
+Value: "[Patient Code]"
+Typography: Monospace
+Read-only
+
+
+Date of Birth
+
+Label: "Date of Birth"
+Value: "[DOB]" (e.g., "July 6, 1981")
+Age displayed: "(42 years)"
+Read-only
+
+
+Gender
+
+Label: "Gender"
+Value: "Male" / "Female" / "Other"
+Read-only or Dropdown
+
+
+Blood Group
+Label: "Blood Group"
+Value: "[Blood Group]" (e.g., "O-")
+Read-only or Dropdown
+
+Section: Contact Information
+Fields:
+
+Phone Number
+
+Label: "Phone"
+Value: "[Phone]"
+Editable (text input)
+
+
+Email Address
+
+Label: "Email"
+Value: "[Email]"
+Editable (text input)
+
+
+Address
+
+Label: "Address"
+Value: "[Full Address]"
+Editable (textarea)
+
+
+
+Section: Emergency Contact
+Fields:
+
+Emergency Contact Name
+
+Label: "Contact Name"
+Value: "[Name]"
+Editable
+
+
+Emergency Contact Phone
+
+Label: "Contact Phone"
+Value: "[Phone]"
+Editable
+
+
+
+Save Button:
+
+Text: "Save Changes"
+Position: Bottom of section
+API call: PUT /api/patient/profile
+On success: Show toast "Profile updated successfully"
+
+
+13.4 Tab 2: Medical Information (Read-Only)
+Section: Allergies
+
+Display: List of allergies from lara_patient_allergies
+Each item:
+
+Allergy Name: "[Name]"
+Severity: "[Mild/Moderate/Severe]"
+Notes: "[Notes]"
+
+
+Layout: Card list
+If empty: "No known allergies"
+
+Section: Medical History
+
+Display: List from lara_patient_medical_history
+Each item:
+
+Condition Name: "[Condition]"
+Diagnosed Date: "[Date]"
+Status: "Active" / "Resolved"
+Notes: "[Notes]"
+
+
+If empty: "No medical history recorded"
+
+Note:
+
+All medical information is read-only
+Display message: "Medical information can only be updated by healthcare providers"
+
+
+13.5 Tab 3: Account Settings
+Section: Change Password
+Form Fields:
+
+Current Password
+
+Label: "Current Password"
+Input type: password
+Validation: Required
+
+
+New Password
+
+Label: "New Password"
+Input type: password
+Validation: Min 8 characters, complexity rules
+Show password strength indicator
+
+
+Confirm New Password
+
+Label: "Confirm New Password"
+Input type: password
+Validation: Must match new password
+
+
+
+Submit Button:
+
+Text: "Change Password"
+API call: POST /api/patient/password/change
+On success: Show toast, clear form
+
+Section: Two-Factor Authentication (if backend supports)
+
+Status: "Enabled" / "Disabled"
+Toggle button to enable/disable
+If enabled: Show recovery codes
+
+Section: Account Status
+
+Display: Account status badge ("Active" / "Inactive")
+Read-only
+
+
+13.6 Tab 4: Linked Clinics
+Section: Registered Clinics
+
+Display: List of clinics from patient's availableClinics
+Each clinic card:
+
+Clinic Name
+Address
+Phone
+Registration Date (if available)
+Status Badge: "Active Clinic" (if currently selected)
+
+
+Read-only list
+No add/remove functionality (managed by admin)
+
+Active Clinic Indicator:
+
+Highlight active clinic with border
+
+
+13.7 Responsive Design
+Desktop:
+
+2-column layout for form fields
+Tabs horizontal
+
+Mobile:
+
+Single-column layout
+Tabs scrollable horizontal or stacked vertical
+
+
+SECTION 14: INVOICES & PAYMENTS (Optional Feature)
+14.1 Page Purpose
+Purpose:
+
+Display patient's invoices
+Show payment history
+Allow invoice download
+View payment details
+
+Data Sources:
+
+lara_invoices
+lara_invoice_items
+lara_payments
+
+14.2 Page Layout
+Page Container:
+
+Max Width: 1200px
+Padding: 32px (desktop), 16px (mobile)
+
+Page Header:
+
+Title: "Invoices & Payments"
+
+Typography: H1, 32px, Weight 600
+
+
+
+14.3 Invoices List
+Filter Tabs:
+
+Unpaid
+Paid
+All Invoices
+
+Invoice Card Design:
+Card Container:
+
+Background: #FFFFFF
+Border: 1px solid #D4DFE8
+Padding: 20px
+
+Card Header:
+
+Invoice Number
+
+Text: "[Invoice Number]"
+Typography: Monospace, 16px, Weight 600
+
+
+Status Badge
+
+"Paid" (green), "Unpaid" (yellow), "Partial" (orange), "Cancelled" (gray)
+
+
+Invoice Date
+
+Text: "Issued on: [Date]"
+
+
+
+Card Body:
+
+Invoice Type
+
+"Consultation" / "Admission" / "Lab Test" / "Pharmacy"
+
+
+Linked Reference
+
+E.g., "Appointment #123" or "Admission #45"
+
+
+Amount Details:
+
+Subtotal: "[Amount]"
+Discount: "[Amount]"
+Tax: "[Amount]"
+Total: "[Amount]" (large, bold)
+
+
+
+Card Footer:
+
+"View Details" button
+"Download Invoice" button
+
+
+14.4 Invoice Detail Modal
+Modal Header:
+
+Invoice number
+Issue date
+Status
+
+Invoice Details:
+Section: Billed To
+
+Patient name, address, phone
+
+Section: Invoice Items
+
+Table with:
+
+Description
+Quantity
+Unit Price
+Total
+
+
+
+Section: Summary
+
+Subtotal
+Discount
+Tax
+Grand Total
+
+Section: Payments Made
+
+List of payments (if any)
+Each payment:
+
+Amount
+Payment method
+Date
+Received by
+
+
+
+Action Buttons:
+
+"Download PDF"
+"Print"
+"Make Payment" (if unpaid and backend supports)
+
+
+14.5 Payment History
+Display: List or table of all payments
+Columns:
+
+Payment Date
+Invoice Number
+Amount
+Payment Method
+Transaction Reference
+
+
+SECTION 15: EMPTY STATES & ERROR HANDLING
+15.1 Empty State Design Principles
+Tone:
+
+Calm
+Reassuring
+Informative
+Never alarmist
+
+Visual Design:
+
+Icon: Large (64px), faded color (#A3B5C7)
+Primary Text: 18px, Weight 500, Color: #4A5D6F
+Secondary Text: 14px, Weight 400, Color: #768A9E
+Optional CTA button (if action available)
+
+Layout:
+
+Centered vertically and horizontally
+Padding: 48px
+
+
+15.2 Common Empty State Messages
+No Upcoming Appointments:
+
+Icon: Calendar with X
+Primary: "No upcoming appointments"
+Secondary: "You don't have any scheduled appointments at this time"
+CTA: "Book an Appointment" (if allowed)
+
+No Medical History:
+
+Icon: Document with heart
+Primary: "No medical history yet"
+Secondary: "Your consultation records will appear here after visits"
+
+No Admissions:
+
+Icon: Bed
+Primary: "No admission history"
+Secondary: "You have not been admitted to this clinic"
+
+No Prescriptions:
+
+Icon: Prescription pad
+Primary: "No prescriptions yet"
+Secondary: "Prescriptions from your consultations will appear here"
+
+No Lab Results:
+
+Icon: Test tube
+Primary: "No lab tests yet"
+Secondary: "Lab test results will be available here"
+
+No Notifications:
+
+Icon: Bell with checkmark
+Primary: "You're all caught up!"
+Secondary: "No new notifications"
+
+No Access to Clinic:
+
+Icon: Lock
+Primary: "Access Restricted"
+Secondary: "You no longer have access to this clinic. Please contact support."
+CTA: "Contact Support"
+
+
+15.3 Error State Design Principles
+Tone:
+
+Apologetic but not dramatic
+Offer clear next steps
+Avoid technical jargon
+
+Visual Design:
+
+Icon: Alert triangle or X circle (48px, #A84C4C)
+Primary Text: 18px, Weight 600, Color: #A84C4C
+Secondary Text: 14px, Weight 400, Color: #4A5D6F
+Retry button (primary styling)
+
+
+15.4 Common Error Messages
+Network Error:
+
+Icon: WiFi with X
+Primary: "Connection Error"
+Secondary: "Unable to connect to the server. Please check your internet connection."
+CTA: "Retry"
+
+API Error (500):
+
+Icon: Alert triangle
+Primary: "Something Went Wrong"
+Secondary: "We're experiencing technical difficulties. Please try again later."
+CTA: "Retry"
+
+Authentication Error (401):
+
+Icon: Lock
+Primary: "Session Expired"
+Secondary: "Your session has expired. Please log in again."
+CTA: "Go to Login"
+
+Permission Error (403):
+
+Icon: Shield with X
+Primary: "Access Denied"
+Secondary: "You don't have permission to view this resource."
+CTA: "Go to Dashboard"
+
+Not Found (404):
+
+Icon: Magnifying glass with X
+Primary: "Page Not Found"
+Secondary: "The page you're looking for doesn't exist."
+CTA: "Go to Dashboard"
+
+Data Load Error:
+
+Icon: Database with X
+Primary: "Unable to Load Data"
+Secondary: "We couldn't retrieve your information. Please try again."
+CTA: "Retry"
+
+
+15.5 Form Validation Errors
+Inline Field Errors:
+
+Border: #A84C4C
+Helper text below field: Red text, 12px
+Icon: X circle (small)
+
+Example:
+
+Field has red border
+Below field: "❌ Please enter a valid email address"
+
+Form-Level Errors:
+
+Display above form
+Background: #F9EBEB
+Border: 1px solid #E3C5C5
+Padding: 12px 16px
+Icon: Alert triangle
+Text: "[Error message]"
+
+
+15.6 Loading State Error Transitions
+Flow:
+
+Show loading skeleton/spinner
+If error: Replace with error state
+User clicks "Retry"
+Show loading again
+On success: Display data
+On repeated failure: Suggest contacting support
+
+
+SECTION 16: LOADING STATES & PERFORMANCE
+16.1 Loading State Principles
+Purpose:
+
+Inform users that data is being fetched
+Reduce perceived wait time
+Maintain UI structure during load
+
+Design Rules:
+
+Never block entire UI with full-page spinners (except auth actions)
+Use skeletons for content areas
+Use spinners for button actions
+Preserve layout (no shifting)
+
+
+16.2 Skeleton Screens
+When to Use:
+
+Initial page load
+Tab switching
+Filter application
+Pagination
+
+Design:
+
+Background: #E8EEF3
+Animation: Shimmer effect (subtle gradient sweep)
+Border Radius: Match actual content
+Height: Approximate final content height
+
+Skeleton Elements:
+
+Text Line Skeleton:
+
+Rectangle with rounded corners
+Width: Variable (full, 80%, 60% for varied look)
+Height: Based on text size
+
+
+Card Skeleton:
+
+Card-shaped rectangle
+Internal lines representing text
+Circular shapes for avatars/icons
+
+
+Image Skeleton:
+
+Square or rectangle with aspect ratio
+Optional: Icon in center
+
+
+
+Implementation:
+javascript// Example pseudo-structure
+<SkeletonCard>
+  <SkeletonCircle size={48} /> // Avatar
+  <SkeletonLine width="80%" /> // Title
+  <SkeletonLine width="60%" /> // Subtitle
+  <SkeletonLine width="40%" /> // Meta info
+</SkeletonCard>
+
+16.3 Loading Spinners
+When to Use:
+
+Button actions (login, save, submit)
+Small data refreshes
+Modal content loading
+
+Design:
+
+Circular Spinner:
+
+Circle with rotating border segment
+Size: 16px (small), 24px (medium), 32px (large)
+Color: Match context (white on colored buttons, #2C5F8D on white)
+Animation: Smooth 1s rotation, linear easing
+
+
+
+Button Loading State:
+
+Text changes: "Submit" → "Submitting..."
+Spinner appears left of text
+Button disabled during load
+Width remains constant (no layout shift)
+
+
+16.4 Progress Indicators
+When to Use:
+
+Multi-step forms
+File uploads
+Long-running operations
+
+Design:
+
+Progress Bar:
+
+Height: 4px
+Background: #E8EEF3
+Fill: #2C5F8D
+Border Radius: 2px
+Animated fill (transition 300ms)
+
+
+
+Percentage Display:
+
+Text: "Uploading... 45%"
+Position: Above or beside progress bar
+
+
+16.5 Optimistic UI (Use Sparingly)
+When NOT to Use:
+
+Medical data (appointments, prescriptions, lab results)
+Financial transactions
+Critical status changes
+
+When OK to Use:
+
+Profile photo upload (show immediately, revert if fails)
+UI preference changes (theme, language)
+
+Implementation:
+
+Update UI immediately
+Make API call in background
+On failure: Revert UI, show error toast
+
+
+16.6 Data Fetching Strategy
+On Mount:
+
+Show skeleton immediately
+Fetch data
+Replace skeleton with content
+
+On Refetch:
+
+Show subtle loading indicator (spinner in corner)
+Don't remove existing content
+Update content when loaded
+
+On Pagination:
+
+Show skeleton for new items only
+Keep existing items visible
+
+On Filter Change:
+
+Show overlay spinner or skeleton
+Clear old results
+Display new results
+
+
+16.7 Error Recovery
+Retry Logic:
+
+Auto-retry network errors (max 2 attempts)
+Exponential backoff
+Show user-facing error after retries exhausted
+
+Partial Load Handling:
+
+If some data loads successfully, display it
+Show error state for failed sections
+Allow section-specific retry
+
+
+SECTION 17: ACCESSIBILITY & INCLUSIVITY
+17.1 WCAG 2.1 AA Compliance (Minimum)
+Requirements:
+
+Color Contrast:
+
+Normal text (< 18px): Minimum 4.5:1
+Large text (≥ 18px or 14px bold): Minimum 3:1
+Interactive elements: 3:1 against background
+
+
+Keyboard Navigation:
+
+All interactive elements reachable via Tab
+Focus indicators clearly visible (2px outline, #2C5F8D)
+Logical tab order
+Skip links available
+
+
+Screen Reader Support:
+
+Semantic HTML (header, nav, main, footer, article, section)
+ARIA labels where needed
+Alt text for images
+Form labels properly associated
+
+
+Text Resize:
+
+Text can scale up to 200% without loss of functionality
+No horizontal scrolling at 200%
+
+
+Touch Targets:
+
+Minimum 44x44px for touch targets
+Adequate spacing between interactive elements
+
+
+
+
+17.2 Semantic HTML Structure
+Example Page Structure:
+html<html lang="en">
+<head>
+  <title>My Appointments - Patient Portal</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header role="banner">
+    <nav aria-label="Main navigation">
+      <!-- Navigation links -->
+    </nav>
+  </header>
+
+  <main id="main-content" role="main">
+    <h1>My Appointments</h1>
+    <!-- Page content -->
+  </main>
+
+  <footer role="contentinfo">
+    <!-- Footer -->
+  </footer>
+</body>
+</html>
+
+17.3 ARIA Labels & Roles
+When to Use ARIA:
+
+Custom interactive widgets (modals, dropdowns, tabs)
+Dynamic content updates
+Complex UI patterns not covered by HTML
+
+Common ARIA Patterns:
+Modal Dialog:
+html<div role="dialog" aria-labelledby="dialog-title" aria-modal="true">
+  <h2 id="dialog-title">Appointment Details</h2>
+  <!-- Modal content -->
+</div>
+Tabs:
+html<div role="tablist" aria-label="Appointment filters">
+  <button role="tab" aria-selected="true" aria-controls="upcoming-panel">
+    Upcoming
+  </button>
+  <button role="tab" aria-selected="false" aria-controls="past-panel">
+    Past
+  </button>
+</div>
+<div role="tabpanel" id="upcoming-panel">
+  <!-- Tab content -->
+</div>
+Live Regions (for dynamic updates):
+html<div aria-live="polite" aria-atomic="true">
+  Appointment cancelled successfully
+</div>
+
+17.4 Keyboard Navigation Patterns
+Tab Order:
+
+Logical flow: top to bottom, left to right
+Skip repetitive elements with skip links
+
+Focus Management:
+
+Trap focus inside modals (can't tab outside)
+Return focus to trigger element on modal close
+Focus first form field on modal open
+
+Keyboard Shortcuts:
+
+Esc: Close modals, dropdowns
+Enter: Submit forms, activate buttons
+Space: Toggle checkboxes, activate buttons
+Arrow keys: Navigate lists, tabs
+
+Focus Indicators:
+
+Visible outline: 2px solid #2C5F8D
+Offset: 2px
+Never remove focus styles (:focus)
+
+
+17.5 Form Accessibility
+Labels:
+
+Every input must have an associated label
+Use <label for="input-id"> pattern
+Or wrap input in label
+
+Fieldsets for Groups:
+html<fieldset>
+  <legend>Contact Information</legend>
+  <label for="phone">Phone</label>
+  <input type="tel" id="phone" name="phone">
+</fieldset>
+Error Messaging:
+
+Associate errors with fields using aria-describedby
+
+html<label for="email">Email</label>
+<input type="email" id="email" aria-describedby="email-error" aria-invalid="true">
+<span id="email-error" role="alert">Please enter a valid email address</span>
+Required Fields:
+
+Use required attribute
+Mark visually with asterisk
+Include in label text: "Email (required)"
+
+
+17.6 Screen Reader Considerations
+Descriptive Link Text:
+
+❌ Bad: "Click here"
+✅ Good: "View appointment details"
+
+Image Alt Text:
+
+Descriptive and concise
+Empty alt="" for decorative images
+Avoid "image of" or "picture of"
+
+Table Headers:
+html<table>
+  <thead>
+    <tr>
+      <th scope="col">Medicine Name</th>
+      <th scope="col">Dosage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Paracetamol</td>
+      <td>500mg</td>
+    </tr>
+  </tbody>
+</table>
+
+17.7 Color Blindness Considerations
+Never Rely on Color Alone:
+
+Use icons + color for status
+Use text labels + color for categories
+Use patterns/shapes for differentiation
+
+Example:
+
+✅ "Confirmed" badge: Green background + checkmark icon + "Confirmed" text
+❌ Just green badge
+
+
+17.8 Motion & Animation Accessibility
+Respect prefers-reduced-motion:
+css@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+Avoid Autoplaying Media:
+
+No auto-play videos
+No auto-advancing carousels
+User must initiate motion
+
+
+17.9 Internationalization (i18n) Readiness
+Prepare for Localization:
+
+Externalize all user-facing strings
+Use i18n library (e.g., react-i18next)
+Support RTL layouts (Arabic, Hebrew)
+Date/time formatting locale-aware
+Currency formatting locale-aware
+
+Example:
+javascript// Instead of:
+<h1>Welcome back, {userName}</h1>
+
+// Use:
+<h1>{t('dashboard.welcome', { name: userName })}</h1>
+
+SECTION 18: SECURITY & DATA PRIVACY
+18.1 Frontend Security Principles
+Never Trust User Input:
+
+All input validated client-side AND server-side
+Client-side validation for UX only
+Server enforces security
+
+Never Expose Sensitive Data:
+
+Don't include patient_id explicitly in API requests (derive from token)
+Don't log sensitive data
+Don't store unencrypted data in localStorage
+
+HTTPS Only:
+
+All API calls over HTTPS
+No mixed content
+
+
+18.2 Authentication Token Handling
+Token Storage:
+
+Option A (Recommended): httpOnly cookie (set by backend)
+Option B: Memory (React state) + Refresh Token in httpOnly cookie
+NOT Recommended: localStorage (XSS vulnerability)
+
+Token Inclusion:
+
+Send token in Authorization header
+Axios interceptor to add token to all requests
+
+javascriptaxios.interceptors.request.use(config => {
+  const token = authContext.token;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+Token Expiration:
+
+Check token expiration before requests
+Implement refresh token flow (if backend supports)
+On 401 response: Clear auth state, redirect to login
+
+
+18.3 Data Privacy Compliance
+HIPAA/GDPR Considerations (if applicable):
+
+Display privacy policy link
+Allow users to request data export
+Allow users to request account deletion (if backend supports)
+Log user consent for data processing
+
+Data Minimization:
+
+Only request/display necessary data
+Don't cache sensitive medical data indefinitely
+Clear sensitive data on logout
+
+Audit Logging:
+
+Backend logs all access (frontend just makes requests)
+Display "Last accessed" timestamps (if backend provides)
+
+
+18.4 XSS Prevention
+React's Built-in Protection:
+
+React escapes JSX content by default
+Avoid dangerouslySetInnerHTML unless absolutely necessary
+
+If HTML Rendering Required:
+
+Sanitize HTML with library (DOMPurify)
+
+javascriptimport DOMPurify from 'dompurify';
+const cleanHTML = DOMPurify.sanitize(dirtyHTML);
+return <div dangerouslySetInnerHTML={{ __html: cleanHTML }} />;
+
+18.5 CSRF Protection
+Backend Responsibility:
+
+Backend implements CSRF tokens
+Frontend includes token in requests (if required)
+
+SameSite Cookies:
+
+Backend sets cookies with SameSite=Strict or Lax
+
+
+18.6 Rate Limiting
+Client-Side:
+
+Debounce search inputs
+Throttle button clicks
+Prevent multiple simultaneous submissions
+
+Backend Enforcement:
+
+Backend rate limits API requests
+Frontend displays rate limit errors gracefully
+
+
+SECTION 19: PERFORMANCE OPTIMIZATION
+19.1 Code Splitting
+Route-Based Splitting:
+
+Each page is a separate chunk
+Lazy load routes with React.lazy
+
+javascriptconst Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Appointments = React.lazy(() => import('./pages/Appointments'));
+Component-Based Splitting:
+
+Heavy components (charts, PDF viewers) lazy loaded
+Load on demand when user interacts
+
+
+19.2 Image Optimization
+Best Practices:
+
+Use WebP format (with JPEG fallback)
+Serve responsive images (srcset)
+Lazy load images below fold
+Compress images (max 80% quality)
+
+Avatar Images:
+
+Limit size: 200x200px max
+Cache avatars locally
+
+
+19.3 API Response Caching
+Use React Query (TanStack Query):
+
+Cache API responses
+Automatic background refetching
+Stale-while-revalidate pattern
+
+javascriptconst { data, isLoading } = useQuery(
+  ['appointments', clinicId],
+  () => fetchAppointments(clinicId),
+  { staleTime: 5 * 60 * 1000 } // 5 minutes
+);
+
+19.4 Bundle Size Optimization
+Tree Shaking:
+
+Import only what you need
+
+javascript// Instead of:
+import _ from 'lodash';
+
+// Use:
+import debounce from 'lodash/debounce';
+Minification:
+
+Vite/Webpack handles automatically in production
+
+Analyze Bundle:
+
+Use bundle analyzer to identify large dependencies
+Remove unused dependencies
+
+
+19.5 Runtime Performance
+Virtual Lists:
+
+For long lists (100+ items), use react-window or react-virtualized
+Only render visible items
+
+Memoization:
+
+Use React.memo for expensive components
+Use useMemo for expensive calculations
+Use useCallback for function props
+
+Avoid Unnecessary Re-renders:
+
+Optimize context usage (split contexts)
+Use context selectors if needed
+
+
+SECTION 20: TESTING STRATEGY (RECOMMENDATIONS)
+20.1 Unit Testing
+Tools: Jest + React Testing Library
+What to Test:
+
+Utility functions
+Custom hooks
+Component logic
+
+Example:
+javascripttest('formats date correctly', () => {
+  const result = formatDate('2025-01-22');
+  expect(result).toBe('January 22, 2025');
+});
+
+20.2 Integration Testing
+What to Test:
+
+Page components with mocked API
+User flows (login → clinic selection → dashboard)
+
+Example:
+javascripttest('displays appointments after login', async () => {
+  render(<App />);
+  // Simulate login
+  // Assert appointments displayed
+});
+```
+
+---
+
+### 20.3 End-to-End Testing
+
+**Tools:** Cypress or Playwright
+
+**What to Test:**
+- Critical user journeys:
+  - Login flow
+  - View appointment
+  - View prescription
+  - Cancel appointment
+
+---
+
+### 20.4 Accessibility Testing
+
+**Tools:**
+- axe-core (automated)
+- Manual keyboard testing
+- Screen reader testing (NVDA, JAWS, VoiceOver)
+
+---
+
+## SECTION 21: DEPLOYMENT & ENVIRONMENT SETUP
+
+### 21.1 Environment Variables
+
+**Required Variables:**
+- `REACT_APP_API_BASE_URL`: Backend API URL
+- `REACT_APP_ENV`: `development`, `staging`, `production`
+
+**Example .env file:**
+```
+REACT_APP_API_BASE_URL=https://api.hospital.com
+REACT_APP_ENV=production
+
+21.2 Build Process
+Production Build:
+bashnpm run build
+Output:
+
+Optimized static files in /dist or /build
+Minified JavaScript, CSS
+Hashed filenames for cache busting
+
+
+21.3 Hosting Options
+Static Hosting (Recommended):
+
+Vercel
+Netlify
+AWS S3 + CloudFront
+Azure Static Web Apps
+
+Requirements:
+
+HTTPS enforced
+SPA routing configured (all routes serve index.html)
+
+
+21.4 CI/CD Pipeline
+Steps:
+
+Lint code
+Run tests
+Build production bundle
+Deploy to hosting
+
+Example GitHub Actions:
+yamlname: Deploy
+on:
+  push:
+    branches: [main]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Deploy
+        run: # Deploy command
+
+SECTION 22: MAINTENANCE & FUTURE ENHANCEMENTS
+22.1 Monitoring
+Frontend Monitoring:
+
+Error tracking: Sentry or similar
+Performance monitoring: Web Vitals
+User analytics: (Privacy-compliant)
+
+
+22.2 Future Feature Considerations
+Potential Additions:
+
+Video consultation integration
+Chat with doctor (if backend supports)
+Health tracking (vitals input from wearables)
+Appointment reminders (push notifications)
+Multi-language support
+Dark mode toggle
+Family account management (view dependents)
+
+
+SECTION 23: FINAL AI AGENT INSTRUCTIONS
+23.1 How to Use This Document
+As an AI Agent implementing this frontend, you MUST:
+
+Read the entire document carefully
+Internalize the database schema (Section 0.2)
+Respect the visual design system (Section 2) - NO DEVIATIONS
+Follow the color palette exactly - Serenity in Blue
+Implement each page as specified (Sections 6-14)
+Use semantic HTML and ARIA (Section 17)
+Handle errors gracefully (Section 15)
+Optimize for performance (Section 19)
+NEVER invent features not mentioned
+NEVER allow write access to medical data
+
+
+23.2 Implementation Checklist
+Phase 1: Setup
+
+ Initialize React app with Vite
+ Set up project structure
+ Configure Tailwind CSS with custom config (Serenity in Blue palette)
+ Set up React Router
+ Create global context (auth, clinic, UI)
+ Set up Axios with interceptors
+
+Phase 2: Authentication
+
+ Build Login page
+ Build Password Reset flow
+ Build Clinic Selection page
+ Implement auth context and token handling
+
+Phase 3: Layout
+
+ Build Header component
+ Build Mobile Navigation
+ Build Breadcrumb component
+
+Phase 4: Core Pages
+
+ Build Dashboard (with summary cards)
+ Build Appointments page (timeline view)
+ Build Medical History/Visits page
+ Build Admissions page
+ Build Prescriptions page
+ Build Lab Results page
+
+Phase 5: Supporting Pages
+
+ Build Notifications center
+ Build Profile page
+ Build Invoices page (if applicable)
+
+Phase 6: Polish
+
+ Implement all loading states (skeletons)
+ Implement all empty states
+ Implement all error states
+ Add animations (subtle, per guidelines)
+ Accessibility audit (keyboard nav, screen readers, ARIA)
+ Responsive design testing
+ Performance optimization
+
+Phase 7: Integration
+
+ Connect to Laravel APIs (once built)
+ Test all data flows
+ Handle edge cases
+
+
+23.3 When in Doubt
+If you encounter ambiguity:
+
+Refer back to database schema
+Choose the SIMPLER, CLEANER option
+Prioritize READABILITY over DENSITY
+Ask: "Is this medically appropriate?"
+Default to READ-ONLY unless explicitly stated
+
+
+23.4 Quality Standards
+Every component you build must:
+
+Be accessible (WCAG AA)
+Be responsive (mobile, tablet, desktop)
+Handle loading states
+Handle empty states
+Handle error states
+Use the exact color palette
+Follow spacing scale
+Use proper typography
+Be keyboard navigable
+Have semantic HTML
+
+
+CONCLUSION
+This document provides a comprehensive, detailed specification for building a patient-facing React frontend for a multi-clinic Hospital Management System.
+The frontend you build from this specification will:
+
+Align perfectly with the existing Laravel backend schema
+Scale across multiple clinics seamlessly
+Provide a calm, professional, medically-appropriate user experience
+Respect patient privacy and data security
+Be accessible to all users
+Be maintainable and extensible
+
+Key Takeaways:
+
+Visual Design: Serenity in Blue palette, calm medical aesthetic
+Architecture: React + Context API, clinic-scoped data
+Scope: Patient-facing ONLY, read-dominant
+Pages: Dashboard, Appointments, Visits, Admissions, Prescriptions, Lab Results, Profile, Notifications
+Data Sources: All from Laravel backend via RESTful APIs
+Security: Token-based auth, HTTPS only, no sensitive data exposure
+Accessibility: WCAG 2.1 AA minimum
+Performance: Code splitting, caching, optimized bundle
+
+Build this exactly as specified, and you will have a production-ready, professional medical patient portal.
