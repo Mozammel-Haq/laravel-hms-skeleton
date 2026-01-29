@@ -200,10 +200,25 @@ class AppointmentController extends Controller
         Gate::authorize('update', $appointment);
 
         $validated = $request->validate([
-            'appointment_date' => 'required|date|after_or_equal:today',
+            'doctor_id' => 'required|exists:doctors,id',
+            'appointment_date' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) use ($appointment) {
+                    // Only enforce future dates if the date is being changed
+                    if ($value !== $appointment->appointment_date && \Carbon\Carbon::parse($value)->lt(now()->startOfDay())) {
+                        $fail('The ' . $attribute . ' must be a date after or equal to today.');
+                    }
+                },
+            ],
             'start_time' => 'required',
             'status' => 'required|in:pending,confirmed,cancelled,completed,arrived,noshow',
         ]);
+
+        // If doctor changed, we might want to re-validate availability or just trust the admin/staff
+        // We'll update the end_time if start_time changed, assuming 15 min default or keeping duration
+        // For now, let's just update end_time based on start_time + 15 mins to be safe
+        $validated['end_time'] = \Carbon\Carbon::parse($request->start_time)->addMinutes(15)->format('H:i');
 
         $appointment->update($validated);
 
@@ -230,6 +245,10 @@ class AppointmentController extends Controller
         $request->validate([
             'status' => 'required|in:pending,confirmed,cancelled,completed,arrived,noshow',
         ]);
+
+        if ($appointment->status === 'confirmed' && $request->status === 'cancelled') {
+            return back()->with('error', 'Cannot cancel a confirmed appointment.');
+        }
 
         $appointment->update(['status' => $request->status]);
 

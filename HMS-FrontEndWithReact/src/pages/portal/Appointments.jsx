@@ -29,13 +29,13 @@ const Appointments = () => {
       setLoading(true);
 
       // The clinic_id is handled by the API interceptor (X-Clinic-ID header),
-      
+
       const response = await api.get(API_ENDPOINTS.PATIENT.APPOINTMENTS, {
         params: {
           patient_id: user?.id
         }
       });
-      
+
       setAppointments(response.data.appointments || []);
     } catch (error) {
       console.error("Failed to fetch appointments", error);
@@ -73,7 +73,7 @@ const Appointments = () => {
   const getSpecializations = (doctor) => {
     try {
       if (!doctor?.specialization) return "";
-      
+
       // If it's already an array (e.g. from JSON cast in Laravel)
       if (Array.isArray(doctor.specialization)) {
         const first = doctor.specialization[0];
@@ -152,7 +152,7 @@ const Appointments = () => {
 
 
       {/* Appointments List */}
-      
+
       <div className="space-y-3">
         {loading ? (
           <div className="flex items-center justify-center py-16">
@@ -211,7 +211,7 @@ const Appointments = () => {
                               {apt.status}
                             </span>
                           </div>
-                          
+
                           <div className="flex flex-wrap items-center gap-2 text-sm">
                             <span className="inline-flex items-center px-3 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 font-medium border border-secondary-200 dark:border-secondary-700">
                               {getSpecializations(apt.doctor)}
@@ -258,25 +258,27 @@ const Appointments = () => {
                       <div className="flex flex-wrap gap-2 pt-3 border-t border-secondary-100 dark:border-secondary-800">
                         {isUpcoming ? (
                           <>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               className="flex-1 sm:flex-none min-w-[140px] font-semibold hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-700 dark:hover:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
                             >
                               <Calendar className="w-4 h-4 mr-2" />
                               Reschedule
                             </Button>
-                            <Button 
-                              variant="danger" 
-                              size="sm"
-                              className="flex-1 sm:flex-none min-w-[140px] font-semibold"
-                            >
-                              Cancel
-                            </Button>
+                            {status === 'pending' && (
+                              <Button
+                                variant="danger"
+                                size="sm"
+                                className="flex-1 sm:flex-none min-w-[140px] font-semibold"
+                              >
+                                Cancel
+                              </Button>
+                            )}
                           </>
                         ) : (
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             className="flex-1 sm:flex-none min-w-[140px] font-semibold hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors"
                           >
