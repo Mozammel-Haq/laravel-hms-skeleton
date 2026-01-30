@@ -30,11 +30,11 @@ class UserSeeder extends Seeder
                 'city' => 'Dhaka',
                 'country' => 'Bangladesh',
                 'postal_code' => '1209',
-                'phone' => '+11110000',
-                'website' => 'citycare.com',
+                'phone' => '+8801711223344',
+                'website' => 'citycare.com.bd',
                 'logo_path' => 'dh-cc.png',
-                'timezone' => 'UTC +6',
-                'currency' => 'TK',
+                'timezone' => 'Asia/Dhaka',
+                'currency' => 'BDT',
                 'opening_time' => '08:00:00',
                 'closing_time' => '22:00:00',
                 'status' => 'active'
@@ -49,37 +49,32 @@ class UserSeeder extends Seeder
                 'role' => 'Super Admin',
             ],
             [
-                'name' => 'Clinic Admin',
-                'email' => 'admin@hospital.com',
-                'role' => 'Clinic Admin',
-            ],
-            [
-                'name' => 'Default Doctor',
+                'name' => 'Dr. Rahim Ahmed',
                 'email' => 'doctor@hospital.com',
                 'role' => 'Doctor',
             ],
             [
-                'name' => 'Default Nurse',
+                'name' => 'Fatima Begum',
                 'email' => 'nurse@hospital.com',
                 'role' => 'Nurse',
             ],
             [
-                'name' => 'Default Receptionist',
+                'name' => 'Sumaiya Akter',
                 'email' => 'receptionist@hospital.com',
                 'role' => 'Receptionist',
             ],
             [
-                'name' => 'Default LabTech',
+                'name' => 'Abdul Malek',
                 'email' => 'lab@hospital.com',
                 'role' => 'Lab Technician',
             ],
             [
-                'name' => 'Default Pharmacist',
+                'name' => 'Hassan Mahmud',
                 'email' => 'pharmacist@hospital.com',
                 'role' => 'Pharmacist',
             ],
             [
-                'name' => 'Default Accountant',
+                'name' => 'Rafiqul Islam',
                 'email' => 'accountant@hospital.com',
                 'role' => 'Accountant',
             ],
@@ -116,8 +111,9 @@ class UserSeeder extends Seeder
                 $doctor = Doctor::firstOrCreate(
                     ['user_id' => $user->id],
                     [
+                        'clinic_id' => $clinic->id,
                         'primary_department_id' => $department->id,
-                        'specialization' => 'General Physician',
+                        'specialization' => ['General Physician'],
                         'consultation_fee' => 1000,
                         'status' => 'active'
                     ]

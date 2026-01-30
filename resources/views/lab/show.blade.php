@@ -23,14 +23,17 @@
 
                                 <div class="fw-semibold mt-3 mb-2">Payment Status</div>
                                 @if ($order->invoice)
-                                    <span class="badge bg-{{ $order->invoice->status === 'paid' ? 'success' : ($order->invoice->status === 'partial' ? 'warning' : 'danger') }}">
+                                    <span
+                                        class="badge bg-{{ $order->invoice->status === 'paid' ? 'success' : ($order->invoice->status === 'partial' ? 'warning' : 'danger') }}">
                                         {{ ucfirst($order->invoice->status) }}
                                     </span>
                                     <div class="mt-2">
                                         @if ($order->invoice->status !== 'paid')
-                    <a href="{{ route('billing.payment.add', $order->invoice) }}" class="btn btn-sm btn-success w-100">Make Payment</a>
-                @else
-                                            <span class="text-muted small"><i class="ti ti-check-circle"></i> Paid</span>
+                                            <a href="{{ route('billing.payment.add', $order->invoice) }}"
+                                                class="btn btn-sm btn-success w-100">Make Payment</a>
+                                        @else
+                                            <span class="text-muted small"><i class="ti ti-check-circle"></i>
+                                                Paid</span>
                                         @endif
                                     </div>
                                 @else
@@ -38,7 +41,8 @@
                                     <div class="mt-2">
                                         <form action="{{ route('lab.invoice.generate', $order) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-primary w-100">Generate Invoice</button>
+                                            <button type="submit" class="btn btn-sm btn-primary w-100">Generate
+                                                Invoice</button>
                                         </form>
                                     </div>
                                 @endif
@@ -57,7 +61,7 @@
                                 @endif
                             </div>
                             <div class="card-body">
-                                <div class="table-responsive">
+                                <div class="table">
                                     <table class="table table-hover align-middle">
                                         <thead class="table-light">
                                             <tr>
@@ -70,32 +74,40 @@
                                         <tbody>
                                             @forelse ($order->results as $r)
                                                 <tr>
-                                                    <td>{{ \Illuminate\Support\Carbon::parse($r->reported_at)->format('Y-m-d H:i') }}</td>
+                                                    <td>{{ \Illuminate\Support\Carbon::parse($r->reported_at)->format('Y-m-d H:i') }}
+                                                    </td>
                                                     <td>{{ $r->result_value }}</td>
                                                     <td>{{ $r->remarks ?? '—' }}</td>
                                                     <td class="text-end">
                                                         <div class="dropdown">
-                                                            <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                                data-bs-toggle="dropdown" aria-expanded="false">
                                                                 <i class="ti ti-dots-vertical"></i>
                                                             </button>
                                                             <ul class="dropdown-menu dropdown-menu-end">
                                                                 <li>
                                                                     <a class="dropdown-item" href="javascript:void(0)"
                                                                         onclick="showResultModal({{ json_encode($r->result_value) }}, {{ json_encode($r->remarks ?? 'No remarks') }}, {{ json_encode($order->test->name) }})">
-                                                                        <i class="ti ti-file-description me-1"></i> View Result
+                                                                        <i class="ti ti-file-description me-1"></i> View
+                                                                        Result
                                                                     </a>
                                                                 </li>
-                                                                @if($r->pdf_path)
-                                                                <li>
-                                                                    <a class="dropdown-item" href="{{ route('lab.results.view', $r) }}" target="_blank">
-                                                                        <i class="ti ti-eye me-1"></i> Preview Result
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a class="dropdown-item" href="{{ route('lab.results.download', $r) }}">
-                                                                        <i class="ti ti-download me-1"></i> Download Result
-                                                                    </a>
-                                                                </li>
+                                                                @if ($r->pdf_path)
+                                                                    <li>
+                                                                        <a class="dropdown-item"
+                                                                            href="{{ route('lab.results.view', $r) }}"
+                                                                            target="_blank">
+                                                                            <i class="ti ti-eye me-1"></i> Preview
+                                                                            Result
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item"
+                                                                            href="{{ route('lab.results.download', $r) }}">
+                                                                            <i class="ti ti-download me-1"></i> Download
+                                                                            Result
+                                                                        </a>
+                                                                    </li>
                                                                 @endif
                                                             </ul>
                                                         </div>
@@ -103,7 +115,8 @@
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="4" class="text-center text-muted">No results recorded</td>
+                                                    <td colspan="4" class="text-center text-muted">No results
+                                                        recorded</td>
                                                 </tr>
                                             @endforelse
                                         </tbody>
@@ -115,39 +128,40 @@
                 </div>
             </div>
 
-    <!-- Result Modal -->
-    <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Lab Result: <span id="modalTestName"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Result Value</label>
-                        <p id="modalResultValue" class="p-2 bg-light rounded"></p>
+            <!-- Result Modal -->
+            <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Lab Result: <span id="modalTestName"></span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Result Value</label>
+                                <p id="modalResultValue" class="p-2 bg-light rounded"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Remarks</label>
+                                <p id="modalRemarks" class="p-2 bg-light rounded"></p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Remarks</label>
-                        <p id="modalRemarks" class="p-2 bg-light rounded"></p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
-        </div>
-    </div>
 
-    @push('scripts')
-    <script>
-        function showResultModal(value, remarks, testName) {
-            document.getElementById('modalResultValue').innerText = value;
-            document.getElementById('modalRemarks').innerText = remarks;
-            document.getElementById('modalTestName').innerText = testName;
-            new bootstrap.Modal(document.getElementById('resultModal')).show();
-        }
-    </script>
-    @endpush
+            @push('scripts')
+                <script>
+                    function showResultModal(value, remarks, testName) {
+                        document.getElementById('modalResultValue').innerText = value;
+                        document.getElementById('modalRemarks').innerText = remarks;
+                        document.getElementById('modalTestName').innerText = testName;
+                        new bootstrap.Modal(document.getElementById('resultModal')).show();
+                    }
+                </script>
+            @endpush
 </x-app-layout>

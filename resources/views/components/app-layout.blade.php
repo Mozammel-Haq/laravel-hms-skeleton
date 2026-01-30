@@ -450,7 +450,7 @@
                 dropdown.appendChild(menu);
 
                 // Insert dropdown before the table's container (if responsive) or the table itself
-                const responsiveParent = table.closest('.table-responsive') || table.closest(
+                const responsiveParent = table.closest('.table') || table.closest(
                     '.table-wrapper');
                 if (responsiveParent) {
                     responsiveParent.parentNode.insertBefore(dropdown, responsiveParent);

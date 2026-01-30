@@ -318,7 +318,7 @@
 
     <div class="tab-content m-3">
         <div class="tab-pane active show" id="appointments" role="tabpanel">
-            <div class="table-responsive">
+            <div class="table">
                 <table class="table table-hover align-middle datatable">
                     <thead>
                         <tr>
@@ -420,7 +420,7 @@
         </div>
 
         <div class="tab-pane" id="transactions" role="tabpanel">
-            <div class="table-responsive">
+            <div class="table">
                 <table class="table table-hover align-middle datatable">
                     <thead class="thead-light">
                         <tr>
@@ -503,7 +503,7 @@
                         </button>
                     @endcan
                 </div>
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
@@ -589,7 +589,7 @@
                         </button>
                     @endcan
                 </div>
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
@@ -670,7 +670,7 @@
                         </button>
                     @endcan
                 </div>
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
@@ -742,7 +742,7 @@
                         </button>
                     @endcan
                 </div>
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>

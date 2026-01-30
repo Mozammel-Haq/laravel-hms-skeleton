@@ -187,7 +187,7 @@
                         <h5 class="card-title mb-0">Bed History</h5>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
@@ -245,7 +245,7 @@
                         @endif
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>
@@ -263,13 +263,16 @@
                                             <td>{{ $round->notes }}</td>
                                             <td class="text-end">
                                                 <div class="dropdown">
-                                                    <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown">
+                                                    <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                        data-bs-toggle="dropdown">
                                                         <i class="ti ti-dots-vertical"></i>
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end">
                                                         <li>
-                                                            <a class="dropdown-item" href="{{ route('vitals.record', ['admission_id' => $admission->id, 'inpatient_round_id' => $round->id]) }}">
-                                                                <i class="ti ti-heart-rate-monitor me-1"></i> Record Vitals
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('vitals.record', ['admission_id' => $admission->id, 'inpatient_round_id' => $round->id]) }}">
+                                                                <i class="ti ti-heart-rate-monitor me-1"></i> Record
+                                                                Vitals
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -299,7 +302,7 @@
                         @endif
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-hover">
                                 <thead class="table-light">
                                     <tr>

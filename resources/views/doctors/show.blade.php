@@ -84,7 +84,7 @@
                                         }
                                         $pieces = array_slice($pieces, 0, 2);
                                     @endphp
-                                    @if(count($pieces) > 0)
+                                    @if (count($pieces) > 0)
                                         @foreach ($pieces as $spec)
                                             <span
                                                 class="badge bg-primary-subtle text-primary border border-primary-subtle">
@@ -174,7 +174,7 @@
                             class="btn btn-sm btn-outline-primary">Manage</a>
                     </div>
                     <div class="card-body p-2">
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-sm align-middle mb-0 datatable">
                                 <thead class="table-light">
                                     <tr>

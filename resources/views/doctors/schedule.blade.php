@@ -11,41 +11,41 @@
                                 <h3 class="page-title mb-0">Manage Schedule</h3>
                                 <div class="text-muted">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}
                                     (@php
-                                            $specData = $doctor->specialization;
-                                            $specData = \Illuminate\Support\Arr::wrap($specData);
-                                            $finalSpecs = [];
-                                            foreach ($specData as $item) {
-                                                if (is_string($item)) {
-                                                    $decoded = json_decode($item, true);
-                                                    if (json_last_error() === JSON_ERROR_NONE) {
-                                                        if (is_array($decoded)) {
-                                                            foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
-                                                                $finalSpecs[] = $sub;
-                                                            }
-                                                        } else {
-                                                            $finalSpecs[] = $decoded;
+                                        $specData = $doctor->specialization;
+                                        $specData = \Illuminate\Support\Arr::wrap($specData);
+                                        $finalSpecs = [];
+                                        foreach ($specData as $item) {
+                                            if (is_string($item)) {
+                                                $decoded = json_decode($item, true);
+                                                if (json_last_error() === JSON_ERROR_NONE) {
+                                                    if (is_array($decoded)) {
+                                                        foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                            $finalSpecs[] = $sub;
                                                         }
                                                     } else {
-                                                        $finalSpecs[] = $item;
+                                                        $finalSpecs[] = $decoded;
                                                     }
                                                 } else {
                                                     $finalSpecs[] = $item;
                                                 }
+                                            } else {
+                                                $finalSpecs[] = $item;
                                             }
-                                            $pieces = [];
-                                            foreach (\Illuminate\Support\Arr::flatten($finalSpecs) as $s) {
-                                                if (is_string($s)) {
-                                                    foreach (explode(',', $s) as $part) {
-                                                        $t = trim($part, " \t\n\r\0\x0B\"'[]");
-                                                        if ($t !== '') {
-                                                            $pieces[] = $t;
-                                                        }
+                                        }
+                                        $pieces = [];
+                                        foreach (\Illuminate\Support\Arr::flatten($finalSpecs) as $s) {
+                                            if (is_string($s)) {
+                                                foreach (explode(',', $s) as $part) {
+                                                    $t = trim($part, " \t\n\r\0\x0B\"'[]");
+                                                    if ($t !== '') {
+                                                        $pieces[] = $t;
                                                     }
                                                 }
                                             }
-                                            $pieces = array_slice($pieces, 0, 2);
+                                        }
+                                        $pieces = array_slice($pieces, 0, 2);
                                     @endphp
-                                            {{ empty($pieces) ? '' : implode(', ', $pieces) }})</div>
+                                    {{ empty($pieces) ? '' : implode(', ', $pieces) }})</div>
                             </div>
                             <a href="{{ $mode === 'self' ? route('doctor.schedule.index') : route('doctors.index') }}"
                                 class="btn btn-outline-primary">
@@ -80,7 +80,7 @@
                                 @method('PUT')
                             @endif
 
-                            <div class="table-responsive mb-4">
+                            <div class="table mb-4">
                                 <table class="table table-bordered align-middle" id="schedule-table">
                                     <thead class="table-light">
                                         <tr>

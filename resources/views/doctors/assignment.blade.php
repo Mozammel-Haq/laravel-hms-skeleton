@@ -61,7 +61,7 @@
         {{-- Doctors Table --}}
         <div class="card">
             <div class="card-body">
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
@@ -117,7 +117,10 @@
                                                     $decoded = json_decode($item, true);
                                                     if (json_last_error() === JSON_ERROR_NONE) {
                                                         if (is_array($decoded)) {
-                                                            foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                            foreach (
+                                                                \Illuminate\Support\Arr::flatten($decoded)
+                                                                as $sub
+                                                            ) {
                                                                 $finalSpecs[] = $sub;
                                                             }
                                                         } else {
@@ -143,10 +146,11 @@
                                             }
                                             $pieces = array_slice($pieces, 0, 2);
                                         @endphp
-                                        @if(count($pieces) > 0)
+                                        @if (count($pieces) > 0)
                                             <div class="d-flex flex-wrap gap-1">
-                                                @foreach($pieces as $spec)
-                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-10">{{ $spec }}</span>
+                                                @foreach ($pieces as $spec)
+                                                    <span
+                                                        class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-10">{{ $spec }}</span>
                                                 @endforeach
                                             </div>
                                         @else

@@ -39,7 +39,7 @@
             <hr>
 
             <!-- Roles Table -->
-            <div class="table-responsive">
+            <div class="table">
                 <table class="table table-nowrap">
                     <thead class="thead-light">
                         <tr>
@@ -66,7 +66,8 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="dropdown">
-                                        <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <button class="btn btn-sm btn-light btn-icon" type="button"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="ti ti-dots-vertical"></i>
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">

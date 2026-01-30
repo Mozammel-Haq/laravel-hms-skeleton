@@ -75,7 +75,11 @@
                             <div class="col-md-4">
                                 <div class="text-muted">Symptoms</div>
                                 @php
-                                    $symptoms = is_array($consultation->symptoms) ? $consultation->symptoms : ($consultation->symptoms ? [$consultation->symptoms] : []);
+                                    $symptoms = is_array($consultation->symptoms)
+                                        ? $consultation->symptoms
+                                        : ($consultation->symptoms
+                                            ? [$consultation->symptoms]
+                                            : []);
                                 @endphp
                                 @if (!empty($symptoms))
                                     <ul class="mb-0 ps-3">
@@ -93,7 +97,8 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="text-muted">Notes</div>
-                                <div class="fw-semibold">{{ optional($consultation->prescription)->notes ?? 'N/A' }}</div>
+                                <div class="fw-semibold">{{ optional($consultation->prescription)->notes ?? 'N/A' }}
+                                </div>
                             </div>
                         </div>
                         <div class="fw-semibold mb-2">Prescription Items</div>
@@ -105,7 +110,7 @@
                                     <span
                                         class="text-muted small ms-2">({{ $prescription->issued_at ? $prescription->issued_at : 'N/A' }})</span>
                                 </div>
-                                <div class="table-responsive">
+                                <div class="table">
                                     <table class="table table-hover align-middle mb-0">
                                         <thead class="table-light">
                                             <tr>

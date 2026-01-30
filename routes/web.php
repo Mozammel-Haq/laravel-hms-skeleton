@@ -51,7 +51,6 @@ Route::get('patient/medical-history/{patient}/download', [\App\Http\Controllers\
  * --------------------------------------------------------------------------
  */
 Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
-
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Notifications

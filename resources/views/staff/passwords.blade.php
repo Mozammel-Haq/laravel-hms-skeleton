@@ -7,7 +7,7 @@
                     <h3 class="page-title mb-0">Reset Passwords</h3>
                     <a href="{{ route('staff.index') }}" class="btn btn-outline-secondary">Manage Staff</a>
                 </div>
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle datatable">
                         <thead>
                             <tr>
@@ -29,12 +29,14 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="dropdown">
-                                            <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown">
+                                            <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                data-bs-toggle="dropdown">
                                                 <i class="ti ti-dots-vertical"></i>
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-end">
                                                 <li>
-                                                    <a class="dropdown-item" href="{{ route('staff.edit', $user->id) }}">
+                                                    <a class="dropdown-item"
+                                                        href="{{ route('staff.edit', $user->id) }}">
                                                         <i class="ti ti-key me-1"></i> Reset Password
                                                     </a>
                                                 </li>

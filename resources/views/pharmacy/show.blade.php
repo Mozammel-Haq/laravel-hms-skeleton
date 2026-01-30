@@ -17,7 +17,7 @@
                     <div class="card-header bg-transparent">
                         <h5 class="mb-0">Items Purchased</h5>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>

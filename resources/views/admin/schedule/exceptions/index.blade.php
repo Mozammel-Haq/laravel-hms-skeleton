@@ -47,7 +47,7 @@
                 </form>
 
                 <hr>
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
@@ -86,7 +86,12 @@
                                                                     $decoded = json_decode($item, true);
                                                                     if (json_last_error() === JSON_ERROR_NONE) {
                                                                         if (is_array($decoded)) {
-                                                                            foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                                            foreach (
+                                                                                \Illuminate\Support\Arr::flatten(
+                                                                                    $decoded,
+                                                                                )
+                                                                                as $sub
+                                                                            ) {
                                                                                 $finalSpecs[] = $sub;
                                                                             }
                                                                         } else {
@@ -100,7 +105,10 @@
                                                                 }
                                                             }
                                                             $pieces = [];
-                                                            foreach (\Illuminate\Support\Arr::flatten($finalSpecs) as $s) {
+                                                            foreach (
+                                                                \Illuminate\Support\Arr::flatten($finalSpecs)
+                                                                as $s
+                                                            ) {
                                                                 if (is_string($s)) {
                                                                     foreach (explode(',', $s) as $part) {
                                                                         $t = trim($part, " \t\n\r\0\x0B\"'[]");

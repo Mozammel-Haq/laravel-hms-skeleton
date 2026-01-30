@@ -20,7 +20,7 @@
                             </button>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
+                            <div class="table">
                                 <table class="table table-bordered mb-0" id="items-table">
                                     <thead class="table-light">
                                         <tr>

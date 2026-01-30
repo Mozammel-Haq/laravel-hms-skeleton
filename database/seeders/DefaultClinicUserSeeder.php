@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DefaultClinicUserSeeder extends Seeder
 {
@@ -13,10 +14,16 @@ class DefaultClinicUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $clinicId = DB::table('clinics')->where('email', 'dhcchms@citycare.com')->value('id');
+        $prefix = env('DB_PREFIX', '');
+        $clinics = $prefix . 'clinics';
+        $users = $prefix . 'users';
+        $roles = $prefix . 'roles';
+        $userRole = $prefix . 'user_role';
+
+        $clinicId = DB::table($clinics)->where('email', 'dhcchms@citycare.com')->value('id');
 
         if (!$clinicId) {
-            $clinicId = DB::table('clinics')->insertGetId([
+            $clinicId = DB::table($clinics)->insertGetId([
                 'name' => 'Dhanmondi CityCare',
                 'code' => 'CC-HMS-1',
                 'registration_number' => '1210784863',
@@ -26,46 +33,46 @@ class DefaultClinicUserSeeder extends Seeder
                 'state' => 'BD',
                 'country' => 'Bangladesh',
                 'postal_code' => '1209',
-                'phone' => '+11110000',
+                'phone' => '+8801711223344',
                 'email' => 'dhcchms@citycare.com',
-                'website' => 'https://citycare.com',
+                'website' => 'citycare.com.bd',
                 'logo_path' => 'dh-cc.png',
-                'timezone' => 'UTC +6',
+                'timezone' => 'Asia/Dhaka',
                 'currency' => 'BDT',
                 'opening_time' => '08:00:00',
-                'closing_time' => '01:30:00',
+                'closing_time' => '22:00:00',
                 'status' => 'active',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
 
-        $user = DB::table('users')->where('email', 'hmojammel29@gmail.com')->first();
+        $user = DB::table($users)->where('email', 'admin@hospital.com')->first();
 
         if (!$user) {
-            $user_id = DB::table('users')->insertGetId([
+            $user_id = DB::table($users)->insertGetId([
                 'clinic_id' => $clinicId,
-                'email' => 'hmojammel29@gmail.com',
-                'name' => 'Mozammel Haq',
-                'password' => '$2y$12$MkVB1YRWFc.Rjzo1cvMKAOo8Wfa0eWdLew2I3rpOQTd8/eXpY.c2',
-                'phone' => '01799007398',
-                'email_verified_at' => null,
+                'email' => 'admin@hospital.com',
+                'name' => 'Clinic Admin',
+                'password' => Hash::make('password'),
+                'phone' => '+8801711223344',
+                'email_verified_at' => now(),
                 'last_login_at' => null,
                 'is_two_factor_enabled' => 0,
                 'status' => 'active',
-                'created_at' => null,
-                'updated_at' => '2026-01-01 06:25:47',
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         } else {
             $user_id = $user->id;
         }
 
-        $role_id = DB::table('roles')->where('name', 'Clinic Admin')->value('id');
+        $role_id = DB::table($roles)->where('name', 'Clinic Admin')->value('id');
 
         if ($role_id) {
-            $exists = DB::table('user_role')->where('user_id', $user_id)->where('role_id', $role_id)->exists();
+            $exists = DB::table($userRole)->where('user_id', $user_id)->where('role_id', $role_id)->exists();
             if (!$exists) {
-                DB::table('user_role')->insert([
+                DB::table($userRole)->insert([
                     'user_id' => $user_id,
                     'role_id' => $role_id
                 ]);

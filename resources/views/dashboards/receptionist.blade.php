@@ -120,7 +120,7 @@
                             All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
@@ -167,7 +167,7 @@
                         <a href="{{ route('patients.index') }}" class="btn btn-sm btn-outline-secondary">View All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>

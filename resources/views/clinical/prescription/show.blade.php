@@ -169,7 +169,7 @@
                                     $vitals = isset($vitalsHistory) ? $vitalsHistory : collect();
                                 @endphp
                                 @if ($vitals->isNotEmpty())
-                                    <div class="table-responsive">
+                                    <div class="table">
                                         <table class="table table-sm table-hover mb-0 static-table">
                                             <thead>
                                                 <tr>
@@ -216,7 +216,7 @@
                         <div class="mb-4">
                             <h6 class="fs-16 fw-bold mb-3">Prescribed Medicines</h6>
 
-                            <div class="table-responsive border bg-white">
+                            <div class="table border bg-white">
                                 <table class="table table-nowrap static-table">
                                     <thead class="table-light">
                                         <tr>
