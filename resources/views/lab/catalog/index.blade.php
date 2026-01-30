@@ -12,8 +12,8 @@
         <form method="GET" action="{{ route('lab.catalog.index') }}" class="mb-4">
             <div class="row g-2">
                 <div class="col-md-3">
-                    <input type="text" name="search" class="form-control" placeholder="Search Test Name or Category..."
-                        value="{{ request('search') }}">
+                    <input type="text" name="search" class="form-control"
+                        placeholder="Search Test Name or Category..." value="{{ request('search') }}">
                 </div>
                 <div class="col-md-2">
                     <select name="status" class="form-select">
@@ -39,7 +39,7 @@
         </form>
 
         <hr>
-        <div class="table-responsive">
+        <div class="table">
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>

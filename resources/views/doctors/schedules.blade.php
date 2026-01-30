@@ -93,7 +93,7 @@
         <div x-show="view === 'list'" style="display: none;">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table">
                         <table class="table table-hover align-middle datatable datatable-server">
                             <thead class="table-light">
                                 <tr>
@@ -119,7 +119,10 @@
                                                             $decoded = json_decode($item, true);
                                                             if (json_last_error() === JSON_ERROR_NONE) {
                                                                 if (is_array($decoded)) {
-                                                                    foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                                    foreach (
+                                                                        \Illuminate\Support\Arr::flatten($decoded)
+                                                                        as $sub
+                                                                    ) {
                                                                         $finalSpecs[] = $sub;
                                                                     }
                                                                 } else {

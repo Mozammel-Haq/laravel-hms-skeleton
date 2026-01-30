@@ -231,7 +231,7 @@
                         <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-outline-primary">View
                             All</a>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table">
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
@@ -347,7 +347,10 @@
                                                             $decoded = json_decode($item, true);
                                                             if (json_last_error() === JSON_ERROR_NONE) {
                                                                 if (is_array($decoded)) {
-                                                                    foreach (\Illuminate\Support\Arr::flatten($decoded) as $sub) {
+                                                                    foreach (
+                                                                        \Illuminate\Support\Arr::flatten($decoded)
+                                                                        as $sub
+                                                                    ) {
                                                                         $finalSpecs[] = $sub;
                                                                     }
                                                                 } else {
@@ -420,7 +423,7 @@
                         <h5 class="mb-0">Recent Transactions</h5>
                         <a href="{{ route('billing.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
-                    <div class="table-responsive">
+                    <div class="table">
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>

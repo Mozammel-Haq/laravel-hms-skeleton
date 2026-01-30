@@ -92,7 +92,7 @@
                 @if (isset($vitalsHistory) && $vitalsHistory->isNotEmpty())
                     <div class="mb-4">
                         <h6 class="fw-bold border-bottom pb-2">Vitals</h6>
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-sm table-bordered">
                                 <thead>
                                     <tr>

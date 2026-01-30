@@ -13,7 +13,7 @@
                     </h3>
                     <a href="{{ route('vitals.record') }}" class="btn btn-outline-secondary">Record Vitals</a>
                 </div>
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle datatable datatable-server">
                         <thead>
                             <tr>

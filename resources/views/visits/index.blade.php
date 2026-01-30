@@ -44,7 +44,7 @@
         </form>
 
         <hr>
-        <div class="table-responsive">
+        <div class="table">
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>

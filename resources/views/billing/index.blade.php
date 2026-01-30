@@ -50,7 +50,7 @@
                 </form>
 
                 <hr>
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>

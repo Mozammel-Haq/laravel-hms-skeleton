@@ -112,7 +112,7 @@
                 <a href="{{ route('lab.index') }}" class="btn btn-sm btn-outline-primary">Manage Lab</a>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
@@ -134,7 +134,7 @@
                                             Patient
                                         @endif
                                     </td>
-                                    <td>{{ $o->created_at}}</td>
+                                    <td>{{ $o->created_at }}</td>
                                     <td>
                                         @php
                                             $oStatus = $o->status;

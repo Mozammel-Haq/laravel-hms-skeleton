@@ -48,7 +48,7 @@
 
                 <hr>
                 @if ($exceptions->count() > 0)
-                    <div class="table-responsive">
+                    <div class="table">
                         <table class="table table-hover">
                             <thead>
                                 <tr>

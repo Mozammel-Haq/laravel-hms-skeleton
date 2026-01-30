@@ -99,7 +99,7 @@
                                     <div class="mb-1">Resp Rate: {{ $history->first()->respiratory_rate }}</div>
                                 </div>
                                 <hr>
-                                <div class="table-responsive">
+                                <div class="table">
                                     <table class="table table-sm table-hover mb-0 datatable">
                                         <thead>
                                             <tr>

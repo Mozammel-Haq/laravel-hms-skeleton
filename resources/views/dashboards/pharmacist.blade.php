@@ -116,7 +116,7 @@
                             class="btn btn-sm btn-outline-secondary">View All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
@@ -166,7 +166,7 @@
                         <a href="{{ route('pharmacy.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>

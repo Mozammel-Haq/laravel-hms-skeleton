@@ -25,11 +25,13 @@ return new class extends Migration
 
             $table->enum('appointment_type', ['online', 'in_person']);
             $table->string('reason_for_visit')->nullable();
-            $table->enum('booking_source', ['reception', 'patient_portal']);
+            $table->enum('booking_source', ['reception', 'patient_portal', 'online', 'in_person']);
 
-            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'arrived', 'confirmed', 'completed', 'cancelled', 'noshow'])->default('pending');
+            $table->decimal('fee', 10, 2)->nullable();
+            $table->enum('visit_type', ['new', 'follow_up'])->default('new');
 
-            $table->foreignId('created_by')->constrained('users')->restrictOnDelete();
+            $table->foreignId('created_by')->nullable()->constrained('users')->restrictOnDelete();
 
             $table->timestamps();
 

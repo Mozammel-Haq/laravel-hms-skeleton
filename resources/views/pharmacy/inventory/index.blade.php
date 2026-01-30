@@ -28,9 +28,12 @@
                         <div class="col-md-2">
                             <select name="status" class="form-select">
                                 <option value="">All Status</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>
+                                    Inactive</option>
+                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash
+                                </option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -48,7 +51,7 @@
                     </div>
                 </form>
                 <hr>
-                <div class="table-responsive">
+                <div class="table">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>

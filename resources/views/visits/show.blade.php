@@ -65,7 +65,7 @@
                             $total = $invoices->sum('total_amount');
                         @endphp
 
-                        <div class="table-responsive">
+                        <div class="table">
                             <table class="table table-hover table-sm align-middle mb-0">
                                 <thead class="table-light">
                                     <tr>
@@ -95,12 +95,14 @@
                                             <td>{{ optional($inv->issued_at)->format('Y-m-d') }}</td>
                                             <td class="text-end">
                                                 <div class="dropdown">
-                                                    <button class="btn btn-sm btn-light btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <button class="btn btn-sm btn-light btn-icon" type="button"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
                                                         <i class="ti ti-dots-vertical"></i>
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end">
                                                         <li>
-                                                            <a class="dropdown-item" href="{{ route('billing.show', $inv) }}">
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('billing.show', $inv) }}">
                                                                 <i class="ti ti-eye me-1"></i> View
                                                             </a>
                                                         </li>
@@ -147,26 +149,25 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Quantity</label>
-                                    <input type="number" name="quantity" class="form-control"
-                                           value="1" min="1" required>
+                                    <input type="number" name="quantity" class="form-control" value="1" min="1"
+                                        required>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Unit Price</label>
-                                    <input type="number" step="0.01" name="unit_price"
-                                           class="form-control" required>
+                                    <input type="number" step="0.01" name="unit_price" class="form-control" required>
                                 </div>
 
                                 <div class="row mb-3">
                                     <div class="col-6">
                                         <label class="form-label">Discount</label>
-                                        <input type="number" name="discount"
-                                               class="form-control" step="0.01" min="0" value="0">
+                                        <input type="number" name="discount" class="form-control" step="0.01"
+                                            min="0" value="0">
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label">Tax (%)</label>
-                                        <input type="number" name="tax"
-                                               class="form-control" step="0.01" min="0" value="0">
+                                        <input type="number" name="tax" class="form-control" step="0.01"
+                                            min="0" value="0">
                                     </div>
                                 </div>
 

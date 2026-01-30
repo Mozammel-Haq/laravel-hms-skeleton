@@ -184,7 +184,7 @@
                 </template>
 
                 {{-- SUMMARY TABLE (UNCHANGED) --}}
-                <div class="table-responsive mt-4">
+                <div class="table mt-4">
                     <table class="table table-hover align-middle datatable">
                         <thead>
                             <tr>
@@ -254,6 +254,7 @@
                 background: #ffffff;
                 box-shadow: 0 6px 14px rgba(0, 0, 0, .08);
                 transition: transform .15s ease;
+
                 @media (max-width: 767px) {
                     height: 60px;
                     font-size: 24px;
