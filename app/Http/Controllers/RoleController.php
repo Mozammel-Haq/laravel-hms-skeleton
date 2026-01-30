@@ -7,8 +7,23 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * RoleController
+ *
+ * Manages user roles and their permissions.
+ * Only accessible by Super Admin.
+ */
 class RoleController extends Controller
 {
+    /**
+     * Display a listing of roles.
+     *
+     * Supports filtering by:
+     * - Search: Name, description
+     * - Date Range: Creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         // Only Super Admin can manage roles
@@ -38,6 +53,12 @@ class RoleController extends Controller
         return view('admin.roles.index', compact('roles'));
     }
 
+    /**
+     * Store a newly created role.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         if (!auth()->user()->hasRole('Super Admin')) {
@@ -64,6 +85,13 @@ class RoleController extends Controller
     }
 
 
+    /**
+     * Update the specified role.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Role  $role
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Role $role)
     {
         if (!auth()->user()->hasRole('Super Admin')) {
@@ -91,6 +119,12 @@ class RoleController extends Controller
         return redirect()->route('admin.roles.index')->with('success', 'Role updated successfully.');
     }
 
+    /**
+     * Remove the specified role from storage.
+     *
+     * @param  \App\Models\Role  $role
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Role $role)
     {
         if (!auth()->user()->hasRole('Super Admin')) {

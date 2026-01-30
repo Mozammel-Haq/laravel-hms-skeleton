@@ -10,12 +10,27 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * AdminAppointmentRequestController
+ *
+ * Manages appointment cancellation and rescheduling requests submitted by patients.
+ * Allows admins to approve or reject these requests and updates appointments accordingly.
+ */
 class AdminAppointmentRequestController extends Controller
 {
+    /**
+     * Display a listing of pending appointment requests.
+     *
+     * Lists all appointment requests with 'pending' status.
+     * Requires 'view_appointments' permission.
+     *
+     * @return \Illuminate\View\View
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
     public function index()
     {
         // Add permission check
-        // $this->authorize('view_appointments');
+        $this->authorize('view_appointments');
 
         $requests = AppointmentRequest::with(['appointment.patient', 'appointment.doctor', 'appointment.clinic'])
             ->where('status', 'pending')
@@ -25,6 +40,26 @@ class AdminAppointmentRequestController extends Controller
         return view('appointments.requests.index', compact('requests'));
     }
 
+    /**
+     * Update the status of a specific appointment request.
+     *
+     * Handles the approval or rejection of an appointment request (cancellation or rescheduling).
+     *
+     * Actions:
+     * - Updates the request status (approved/rejected).
+     * - Logs who processed the request and any admin notes.
+     * - If approved:
+     *   - For 'cancel' requests: Updates the appointment status to 'cancelled'.
+     *   - For 'reschedule' requests: Updates the appointment date and time, recalculating the end time based on duration.
+     * - Sends a notification to the patient about the status update.
+     *
+     * Requires 'update_appointments' permission (currently commented out but recommended).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\AppointmentRequest  $appointmentRequest
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function update(Request $request, AppointmentRequest $appointmentRequest)
     {
         // $this->authorize('update_appointments');

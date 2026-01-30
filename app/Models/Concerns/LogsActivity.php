@@ -5,6 +5,12 @@ namespace App\Models\Concerns;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Trait LogsActivity
+ *
+ * Automatically records 'created', 'updated', and 'deleted' events
+ * to the ActivityLog table for auditing purposes.
+ */
 trait LogsActivity
 {
     public static function bootLogsActivity()
@@ -30,10 +36,16 @@ trait LogsActivity
         }
 
         try {
+            $description = ucfirst($action) . ' ' . class_basename($model);
+            if (method_exists($model, 'getActivityDescription')) {
+                $description = $model->getActivityDescription($action);
+            }
+
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'clinic_id' => $model->clinic_id ?? optional(Auth::user())->clinic_id ?? null,
                 'action' => $action,
+                'description' => $description,
                 'entity_type' => get_class($model),
                 'entity_id' => $model->id,
                 'ip_address' => request()->ip(),

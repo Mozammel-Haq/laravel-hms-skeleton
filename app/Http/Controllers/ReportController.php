@@ -16,8 +16,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Carbon\Carbon;
 
+/**
+ * Manages generation and display of various system reports.
+ */
 class ReportController extends Controller
 {
+    /**
+     * Helper to determine the date range for reports based on request parameters.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return array [startDate, endDate]
+     */
     private function getDateRange(Request $request)
     {
         $range = $request->get('range', 'month'); // day, week, month, year, custom
@@ -25,45 +34,82 @@ class ReportController extends Controller
         $endDate = $request->get('end_date');
 
         if ($range == 'custom' && $startDate && $endDate) {
-            return [
-                Carbon::parse($startDate)->startOfDay(),
-                Carbon::parse($endDate)->endOfDay()
-            ];
+            return [$startDate, $endDate];
         }
 
-        $now = Carbon::now();
-
         switch ($range) {
-            case 'today':
-                return [$now->clone()->startOfDay(), $now->clone()->endOfDay()];
+            case 'day':
+                return [now()->startOfDay(), now()->endOfDay()];
             case 'week':
-                return [$now->clone()->startOfWeek(), $now->clone()->endOfWeek()];
+                return [now()->startOfWeek(), now()->endOfWeek()];
             case 'year':
-                return [$now->clone()->startOfYear(), $now->clone()->endOfYear()];
+                return [now()->startOfYear(), now()->endOfYear()];
             case 'month':
             default:
-                return [$now->clone()->startOfMonth(), $now->clone()->endOfMonth()];
+                return [now()->startOfMonth(), now()->endOfMonth()];
         }
     }
 
-    private function getFormatForGroup($range)
-    {
-        switch ($range) {
-            case 'today':
-                return '%H:00'; // Hourly
-            case 'year':
-                return '%Y-%m'; // Monthly
-            default:
-                return '%Y-%m-%d'; // Daily
-        }
-    }
-
+    /**
+     * Display the main reports dashboard.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        Gate::authorize('view_reports');
+        Gate::authorize('viewAny', User::class); // Adjust permission as needed
         return view('reports.index');
     }
 
+    /**
+     * Generate appointment reports.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View
+     */
+    public function appointments(Request $request)
+    {
+        Gate::authorize('viewAny', Appointment::class);
+        [$startDate, $endDate] = $this->getDateRange($request);
+
+        $appointments = Appointment::with(['patient', 'doctor'])
+            ->whereBetween('appointment_date', [$startDate, $endDate])
+            ->get();
+
+        $stats = [
+            'total' => $appointments->count(),
+            'completed' => $appointments->where('status', 'completed')->count(),
+            'cancelled' => $appointments->where('status', 'cancelled')->count(),
+            'scheduled' => $appointments->where('status', 'scheduled')->count(),
+        ];
+
+        return view('reports.appointments', compact('appointments', 'stats', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Generate income/financial reports.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View
+     */
+    public function income(Request $request)
+    {
+        Gate::authorize('viewAny', Payment::class);
+        [$startDate, $endDate] = $this->getDateRange($request);
+
+        $payments = Payment::with('invoice')
+            ->whereBetween('payment_date', [$startDate, $endDate])
+            ->get();
+
+        $totalIncome = $payments->sum('amount');
+        $byMethod = $payments->groupBy('payment_method')->map->sum('amount');
+
+        return view('reports.income', compact('payments', 'totalIncome', 'byMethod', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Display the financial report (Revenue, Payments, Pending).
+     */
     public function financial(Request $request)
     {
         Gate::authorize('view_financial_reports');
@@ -81,19 +127,19 @@ class ReportController extends Controller
 
         // Collected (Paid) - Based on actual payments received in the date range
         $paidQuery = Payment::whereBetween('paid_at', [$startDate, $endDate]);
-        
+
         if ($request->filled('status') && $request->status !== 'all') {
-            $paidQuery->whereHas('invoice', function($q) use ($request) {
+            $paidQuery->whereHas('invoice', function ($q) use ($request) {
                 $q->where('status', $request->status);
             });
         }
         $paid = $paidQuery->sum('amount');
 
         // Pending (Unpaid) - Remaining balance of invoices created in this period
-        $pending = (clone $query)->withSum('payments', 'amount')->get()->sum(function($invoice) {
+        $pending = (clone $query)->withSum('payments', 'amount')->get()->sum(function ($invoice) {
             return max(0, $invoice->total_amount - $invoice->payments_sum_amount);
         });
-        
+
         $invoiceCount = (clone $query)->count();
 
         // Revenue by Type (Pie Chart)
@@ -126,6 +172,21 @@ class ReportController extends Controller
         return view('reports.financial', $data);
     }
 
+    /**
+     * Compare performance metrics across different clinics (Super Admin only).
+     *
+     * Metrics compared:
+     * - Patient Count: Total patients registered in the selected period.
+     * - Appointment Count: Total appointments scheduled.
+     * - Revenue: Total invoice amount generated.
+     * - Staff Count: Total number of staff members (current snapshot, not time-bound).
+     *
+     * Security:
+     * - Restricted to users with 'Super Admin' role.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function compare(Request $request)
     {
         if (!auth()->user()->hasRole('Super Admin')) {
@@ -174,6 +235,9 @@ class ReportController extends Controller
         return view('reports.compare', $data);
     }
 
+    /**
+     * Display patient demographics report (Gender, Age, Growth).
+     */
     public function patientDemographics(Request $request)
     {
         Gate::authorize('view_reports');
@@ -224,6 +288,9 @@ class ReportController extends Controller
         return view('reports.demographics', $data);
     }
 
+    /**
+     * Display executive summary report.
+     */
     public function summary(Request $request)
     {
         Gate::authorize('view_reports');
@@ -321,6 +388,14 @@ class ReportController extends Controller
         return view('reports.doctor_performance', $data);
     }
 
+    /**
+     * Generate tax report.
+     *
+     * Calculates estimated tax based on total revenue.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function tax(Request $request)
     {
         Gate::authorize('view_financial_reports');

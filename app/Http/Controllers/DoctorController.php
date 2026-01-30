@@ -15,6 +15,16 @@ use Illuminate\Support\Facades\Log;
 
 class DoctorController extends Controller
 {
+    /**
+     * Display a listing of doctors.
+     *
+     * Supports filtering by:
+     * - Status: 'trashed', 'active', 'inactive' (Default: all active)
+     * - Search: Doctor name, email, department, specialization, room number
+     * - Date Range: Registration date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', Doctor::class);
@@ -57,6 +67,11 @@ class DoctorController extends Controller
         return view('doctors.index', compact('doctors'));
     }
 
+    /**
+     * Show the form for creating a new doctor.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         Gate::authorize('create', Doctor::class);
@@ -64,6 +79,15 @@ class DoctorController extends Controller
         return view('doctors.create', compact('departments'));
     }
 
+    /**
+     * Store a newly created doctor in storage.
+     *
+     * Creates a User account, assigns Role, creates Doctor profile, and links to Clinic.
+     * Wrapped in a transaction to ensure data integrity.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', Doctor::class);
@@ -145,6 +169,12 @@ class DoctorController extends Controller
         return redirect()->route('doctors.index')->with('success', 'Doctor created successfully.');
     }
 
+    /**
+     * Display the specified doctor details.
+     *
+     * @param  \App\Models\Doctor  $doctor
+     * @return \Illuminate\View\View
+     */
     public function show(Doctor $doctor)
     {
         Gate::authorize('view', $doctor);
@@ -161,6 +191,12 @@ class DoctorController extends Controller
         return view('doctors.show', compact('doctor'));
     }
 
+    /**
+     * Show the form for editing the specified doctor.
+     *
+     * @param  \App\Models\Doctor  $doctor
+     * @return \Illuminate\View\View
+     */
     public function edit(Doctor $doctor)
     {
         Gate::authorize('update', $doctor);
@@ -168,6 +204,16 @@ class DoctorController extends Controller
         return view('doctors.edit', compact('doctor', 'departments'));
     }
 
+    /**
+     * Update the specified doctor in storage.
+     *
+     * Updates both the Doctor profile and associated User account (phone).
+     * Handles profile photo upload and replacement.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Doctor  $doctor
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Doctor $doctor)
     {
         Gate::authorize('update', $doctor);
@@ -238,6 +284,12 @@ class DoctorController extends Controller
         return redirect()->route('doctors.show', $doctor)->with('success', 'Doctor updated successfully.');
     }
 
+    /**
+     * Soft delete the specified doctor.
+     *
+     * @param \App\Models\Doctor $doctor
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Doctor $doctor)
     {
         Gate::authorize('delete', $doctor);
@@ -261,6 +313,12 @@ class DoctorController extends Controller
         return redirect()->route('doctors.index')->with('success', 'Doctor deleted successfully.');
     }
 
+    /**
+     * Restore a soft-deleted doctor.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $doctor = Doctor::withTrashed()->findOrFail($id);
@@ -280,7 +338,12 @@ class DoctorController extends Controller
         return redirect()->route('doctors.index')->with('success', 'Doctor restored successfully.');
     }
 
-    // Schedule Management
+    /**
+     * Manage doctor schedule.
+     *
+     * @param \App\Models\Doctor $doctor
+     * @return \Illuminate\View\View
+     */
     public function schedule(Doctor $doctor)
     {
         Gate::authorize('update', $doctor); // Assuming managing schedule requires update permission
@@ -295,7 +358,17 @@ class DoctorController extends Controller
         return view('doctors.schedule', compact('doctor', 'schedules'));
     }
 
-    public function updateSchedule(Request $request, Doctor $doctor)
+    /**
+     * Update the doctor's schedule.
+     *
+     * Validates schedule slots against clinic opening hours.
+     * Replaces existing schedules for the current clinic with new ones.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Doctor  $doctor
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateSchedule(Request $request, Doctor $doctor): \Illuminate\Http\RedirectResponse
     {
         Gate::authorize('update', $doctor);
 

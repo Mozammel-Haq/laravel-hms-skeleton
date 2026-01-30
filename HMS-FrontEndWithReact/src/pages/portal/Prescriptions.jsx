@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Pill, RefreshCw, AlertCircle, Clock, CheckCircle } from 'lucide-react';
+import { Pill, RefreshCw, AlertCircle, Clock, CheckCircle, Search, Printer } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
@@ -12,6 +12,7 @@ const Prescriptions = () => {
   const [filter, setFilter] = useState('active');
   const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const { user } = useAuth();
   const { activeClinicId } = useClinic();
   const { addToast } = useUI();
@@ -36,9 +37,14 @@ const Prescriptions = () => {
   }, [user, activeClinicId]);
 
   const filteredMeds = medications.filter(med => {
-    if (filter === 'active') return med.status === 'Active';
-    if (filter === 'history') return med.status !== 'Active';
-    return true;
+    if (filter === 'active' && med.status !== 'Active') return false;
+    if (filter === 'history' && med.status === 'Active') return false;
+
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    const name = med.name?.toLowerCase() || '';
+    const doctor = med.prescribedBy?.toLowerCase() || '';
+    return name.includes(term) || doctor.includes(term);
   });
 
   const handleRefillRequest = (medName) => {
@@ -64,7 +70,7 @@ const Prescriptions = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-secondary-200 dark:border-secondary-800">
+      <div className="flex flex-col sm:flex-row justify-between items-end gap-4 border-b border-secondary-200 dark:border-secondary-800 pb-0">
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setFilter('active')}
@@ -87,6 +93,19 @@ const Prescriptions = () => {
             Medication History
           </button>
         </nav>
+
+        <div className="relative w-full sm:w-64 mb-2">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-secondary-400" />
+          </div>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search medications..."
+            className="block w-full pl-10 pr-3 py-2 border border-secondary-200 dark:border-secondary-800 rounded-md leading-5 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white placeholder-secondary-400 dark:placeholder-secondary-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm"
+          />
+        </div>
       </div>
 
       {/* List */}
@@ -124,12 +143,25 @@ const Prescriptions = () => {
                 </div>
 
                 <div className="flex flex-col justify-between items-start md:items-end border-t md:border-t-0 md:border-l border-secondary-200 dark:border-secondary-800 pt-4 md:pt-0 md:pl-6">
-                  <div className="mb-4">
-                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                        med.status === 'Active' ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/20' : 'bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400 border-secondary-200 dark:border-secondary-800'
-                      }`}>
-                        {med.status}
-                      </span>
+                  <div className="mb-4 flex flex-col items-end gap-2 w-full">
+                     <div className="flex items-center justify-between w-full md:justify-end gap-2">
+                         {med.print_url && (
+                              <a
+                                  href={med.print_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1 text-secondary-500 hover:text-primary-600 dark:text-secondary-400 dark:hover:text-primary-400 transition-colors rounded hover:bg-secondary-100 dark:hover:bg-secondary-800"
+                                  title="Print Prescription"
+                              >
+                                  <Printer className="w-5 h-5" />
+                              </a>
+                          )}
+                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                            med.status === 'Active' ? 'bg-green-100 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/20' : 'bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400 border-secondary-200 dark:border-secondary-800'
+                          }`}>
+                            {med.status}
+                          </span>
+                     </div>
                   </div>
 
                   {med.status === 'Active' && (

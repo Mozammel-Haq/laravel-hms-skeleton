@@ -126,6 +126,11 @@
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <span class="fs-12"><i
                                                                 class="ti ti-clock me-1"></i>{{ $notification->created_at->diffForHumans() }}</span>
+                                                        <form action="{{ route('notifications.destroy', $notification->id) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0 ms-2" title="Delete"><i class="ti ti-x"></i></button>
+                                                        </form>
                                                     </div>
                                                 </div>
                                             </div>

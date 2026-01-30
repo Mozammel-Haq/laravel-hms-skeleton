@@ -8,8 +8,20 @@ use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * Class DoctorAssignmentController
+ *
+ * Manages the assignment of doctors to clinics.
+ *
+ * @package App\Http\Controllers\Extras
+ */
 class DoctorAssignmentController extends Controller
 {
+    /**
+     * Display a listing of doctors and their assignments.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('view_doctors'); // adjust as per your policies
@@ -24,8 +36,8 @@ class DoctorAssignmentController extends Controller
                 $q->whereHas('user', function ($u) use ($search) {
                     $u->where('name', 'like', "%{$search}%");
                 })
-                ->orWhere('specialization', 'like', "%{$search}%")
-                ->orWhere('license_number', 'like', "%{$search}%");
+                    ->orWhere('specialization', 'like', "%{$search}%")
+                    ->orWhere('license_number', 'like', "%{$search}%");
             });
         }
 
@@ -47,6 +59,12 @@ class DoctorAssignmentController extends Controller
         return view('doctors.assignment', compact('clinics', 'doctors'));
     }
 
+    /**
+     * Show the form for editing the specified doctor's assignments.
+     *
+     * @param  \App\Models\Doctor  $doctor
+     * @return \Illuminate\View\View
+     */
     public function edit(Doctor $doctor)
     {
         Gate::authorize('update', $doctor);
@@ -57,6 +75,13 @@ class DoctorAssignmentController extends Controller
         return view('doctor_assignments.edit', compact('doctor', 'clinics', 'assignedClinicIds'));
     }
 
+    /**
+     * Update the clinic assignments for the specified doctor.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Doctor  $doctor
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Doctor $doctor)
     {
         $user = auth()->user();
@@ -90,7 +115,12 @@ class DoctorAssignmentController extends Controller
             ->with('success', 'Doctor clinic assignments updated successfully.');
     }
 
-    // Optional: API for calendar (if needed)
+    /**
+     * Get calendar data for doctor schedules (API).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function calendar(Request $request)
     {
         $request->validate([

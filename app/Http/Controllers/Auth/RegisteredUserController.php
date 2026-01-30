@@ -14,6 +14,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
+/**
+ * RegisteredUserController
+ *
+ * Handles the registration of new users.
+ * Validates input, creates user accounts, assigns default clinic, and triggers welcome events.
+ */
 class RegisteredUserController extends Controller
 {
     /**
@@ -27,6 +33,8 @@ class RegisteredUserController extends Controller
     /**
      * Handle an incoming registration request.
      *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse

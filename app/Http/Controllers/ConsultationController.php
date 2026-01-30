@@ -13,8 +13,26 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * ConsultationController
+ *
+ * Manages clinical consultations between doctors and patients.
+ * Handles consultation lifecycle: starting from appointment, recording diagnosis/notes,
+ * and transitioning to prescription creation.
+ */
 class ConsultationController extends Controller
 {
+    /**
+     * Display a listing of consultations.
+     *
+     * Supports filtering by:
+     * - Search: Patient name/code, Doctor name, Type
+     * - Status: Active/Trashed (soft deletes)
+     * - Date Range: Creation date
+     * - Role-based access: Doctors see only their own consultations
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('view_consultations');
@@ -65,6 +83,12 @@ class ConsultationController extends Controller
         return view('clinical.consultations.index', compact('consultations'));
     }
 
+    /**
+     * Remove the specified consultation from storage.
+     *
+     * @param  \App\Models\Consultation  $consultation
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Consultation $consultation)
     {
         Gate::authorize('delete', $consultation); // Assuming delete policy exists or maps to appropriate permission
@@ -72,6 +96,12 @@ class ConsultationController extends Controller
         return redirect()->route('clinical.consultations.index')->with('success', 'Consultation deleted successfully.');
     }
 
+    /**
+     * Restore the specified soft-deleted consultation.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $consultation = Consultation::withTrashed()->findOrFail($id);
@@ -79,8 +109,20 @@ class ConsultationController extends Controller
         $consultation->restore();
         return redirect()->route('clinical.consultations.index')->with('success', 'Consultation restored successfully.');
     }
+
     /**
      * Start a consultation for an appointment.
+     *
+     * Validates:
+     * - Doctor authorization (must be assigned doctor)
+     * - Appointment timing (cannot be future)
+     * - Payment status (consultation fee must be paid)
+     * - Appointment status (confirmed or arrived)
+     *
+     * Loads patient vitals history for the consultation view.
+     *
+     * @param  \App\Models\Appointment  $appointment
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function create(Appointment $appointment)
     {
@@ -130,8 +172,20 @@ class ConsultationController extends Controller
         ]);
     }
 
-
-
+    /**
+     * Store a newly created consultation in storage.
+     *
+     * Features:
+     * - Transactional data integrity
+     * - Creates/Updates Visit record (check-in/check-out)
+     * - Records diagnosis, notes, and symptoms
+     * - Updates Appointment status to 'completed'
+     * - Redirects to Prescription creation
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Appointment  $appointment
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request, Appointment $appointment)
     {
         Gate::authorize('create', Consultation::class);
@@ -204,7 +258,17 @@ class ConsultationController extends Controller
             ->with('success', 'Consultation saved. Please write prescription.');
     }
 
-
+    /**
+     * Display the specified consultation details.
+     *
+     * Loads related data:
+     * - Visit/Appointment/Patient/Doctor
+     * - Prescription items
+     * - Calculates fee information
+     *
+     * @param  \App\Models\Consultation  $consultation
+     * @return \Illuminate\View\View
+     */
     public function show(Consultation $consultation)
     {
         Gate::authorize('view', $consultation);

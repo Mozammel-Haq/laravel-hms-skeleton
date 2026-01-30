@@ -13,13 +13,34 @@ use Illuminate\Support\Facades\Gate;
 
 use App\Models\Doctor;
 
+/**
+ * Manages lab test orders, results, and billing integration.
+ *
+ * Responsibilities:
+ * - Order Management: Create, view, delete, restore lab orders.
+ * - Result Management: Technicians enter results, upload PDF reports.
+ * - Billing Integration: Generate invoices for lab tests.
+ * - Notifications: Alert technicians of new orders, alert doctors/patients of results.
+ * - Eligibility Checks: Ensure patient is admitted or has a completed consultation.
+ */
 class LabController extends Controller
 {
+    /**
+     * Display a listing of lab test orders.
+     *
+     * Supports filtering by:
+     * - Status: 'pending', 'completed', 'trashed', 'all'
+     * - Search: Patient name/code, Test name, Order ID
+     * - Date Range: Creation date (from/to)
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', LabTestOrder::class);
         $query = LabTestOrder::with(['patient', 'test']);
 
+        // Filter by Status
         if (request('status') === 'trashed') {
             $query->onlyTrashed()->latest();
         } elseif (request()->filled('status')) {
@@ -28,6 +49,7 @@ class LabController extends Controller
             }
             $query->latest();
         } else {
+            // Default view (all active orders)
             $query->latest();
         }
 
@@ -57,6 +79,12 @@ class LabController extends Controller
         return view('lab.index', compact('orders'));
     }
 
+    /**
+     * Show the form for creating a new lab test order.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View
+     */
     public function create(Request $request)
     {
         Gate::authorize('create', LabTestOrder::class);
@@ -81,6 +109,19 @@ class LabController extends Controller
         return view('lab.create', compact('patients', 'tests', 'doctors', 'doctor', 'appointmentId'));
     }
 
+    /**
+     * Store a newly created lab test order.
+     *
+     * Features:
+     * - Validates request data
+     * - Auto-assigns doctor if user is a doctor
+     * - Enforces eligibility rules (IPD Admitted OR OPD Completed)
+     * - Creates LabTestOrder record
+     * - Dispatches notifications to Lab Technicians
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', LabTestOrder::class);
@@ -160,6 +201,17 @@ class LabController extends Controller
         return redirect()->route('lab.index')->with('success', 'Lab test order created successfully.');
     }
 
+    /**
+     * Generate an invoice for the lab test order.
+     *
+     * Features:
+     * - Checks if invoice already exists
+     * - Creates invoice via BillingService
+     * - Updates order with invoice ID
+     *
+     * @param \App\Models\LabTestOrder $order
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function generateInvoice(LabTestOrder $order)
     {
         Gate::authorize('update', $order);
@@ -186,7 +238,8 @@ class LabController extends Controller
             visitId: null, // Could fetch visit if needed
             invoiceType: 'lab',
             createdBy: auth()->id(),
-            finalize: true
+            finalize: true,
+            clinicId: $order->clinic_id
         );
 
         $order->update(['invoice_id' => $invoice->id]);
@@ -194,6 +247,18 @@ class LabController extends Controller
         return redirect()->route('lab.show', $order)->with('success', 'Invoice generated successfully.');
     }
 
+    /**
+     * Display the specified lab test order details.
+     *
+     * Loads related data:
+     * - Patient profile
+     * - Test details
+     * - Results history
+     * - Invoice status
+     *
+     * @param \App\Models\LabTestOrder $order
+     * @return \Illuminate\View\View
+     */
     public function show(LabTestOrder $order)
     {
         Gate::authorize('view', $order);
@@ -201,6 +266,14 @@ class LabController extends Controller
         return view('lab.show', compact('order'));
     }
 
+    /**
+     * Show the form to add a result to the lab test order.
+     *
+     * Check: Invoice must be paid before adding results.
+     *
+     * @param \App\Models\LabTestOrder $order
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function addResult(LabTestOrder $order)
     {
         Gate::authorize('update', $order);
@@ -212,6 +285,19 @@ class LabController extends Controller
         return view('lab.result', compact('order'));
     }
 
+    /**
+     * Store a new result for the lab test order.
+     *
+     * Features:
+     * - Validates result data and file upload (PDF)
+     * - Creates LabTestResult record
+     * - Updates order status to 'completed'
+     * - Notifies Patient and Doctor
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\LabTestOrder $order
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeResult(Request $request, LabTestOrder $order)
     {
         Gate::authorize('update', $order);
@@ -245,18 +331,24 @@ class LabController extends Controller
         $order->update(['status' => 'completed']);
 
         // Notify Patient
-        if ($order->patient && $order->patient->user) {
-            $order->patient->user->notify(new LabResultReadyNotification($order));
+        if ($order->patient) {
+            $order->patient->notify(new \App\Notifications\LabResultReadyNotification($order));
         }
 
         // Notify Doctor
         if ($order->doctor && $order->doctor->user) {
-            $order->doctor->user->notify(new LabResultReadyNotification($order));
+            $order->doctor->user->notify(new \App\Notifications\LabResultReadyNotification($order));
         }
 
         return redirect()->route('lab.show', $order)->with('success', 'Result recorded successfully.');
     }
 
+    /**
+     * Soft delete the specified lab test order.
+     *
+     * @param \App\Models\LabTestOrder $order
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(LabTestOrder $order)
     {
         Gate::authorize('delete', $order);
@@ -264,6 +356,12 @@ class LabController extends Controller
         return redirect()->route('lab.index')->with('success', 'Lab test order deleted successfully.');
     }
 
+    /**
+     * Restore a soft-deleted lab test order.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $order = LabTestOrder::withTrashed()->findOrFail($id);

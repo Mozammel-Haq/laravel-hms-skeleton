@@ -12,15 +12,34 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * Manages prescriptions created by doctors and processed by pharmacy.
+ *
+ * Responsibilities:
+ * - Creation of prescriptions during consultations
+ * - Viewing prescription history (Clinical & Pharmacy views)
+ * - Filtering by fulfillment status (Pending/Fulfilled)
+ * - Printing and Patient Portal access
+ */
 class PrescriptionController extends Controller
 {
+    /**
+     * Display a listing of prescriptions.
+     *
+     * Supports filtering by:
+     * - Status: 'pending' (not sold), 'fulfilled' (sold), 'trashed', 'all'
+     * - Search: ID, Patient name, Doctor name
+     * - Date Range: Issued at
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', Prescription::class);
 
         $query = Prescription::with(['consultation.patient', 'consultation.doctor.user']);
 
-        // Filter by doctor if the user is a doctor
+        // Scope to Doctor's own prescriptions if user is a Doctor
         $doctor = Doctor::where('user_id', auth()->user()->id)->first();
         if ($doctor) {
             $query->whereHas('consultation', function ($q) use ($doctor) {
@@ -28,11 +47,17 @@ class PrescriptionController extends Controller
             });
         }
 
+        // Filter by Status (Pharmacy Logic)
         if (request('status') === 'trashed') {
             $query->onlyTrashed();
         } elseif (request('status') === 'all') {
             $query->withTrashed();
+        } elseif (request('status') === 'pending') {
+            $query->doesntHave('pharmacySale');
+        } elseif (request('status') === 'fulfilled') {
+            $query->whereHas('pharmacySale');
         } elseif (request()->filled('status')) {
+            // Fallback for direct status column matches
             $query->where('status', request('status'));
         }
 
@@ -62,6 +87,12 @@ class PrescriptionController extends Controller
         return view('clinical.prescription.index', compact('prescriptions'));
     }
 
+    /**
+     * Soft delete the specified prescription.
+     *
+     * @param  \App\Models\Prescription  $prescription
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Prescription $prescription)
     {
         Gate::authorize('delete', $prescription);
@@ -69,6 +100,12 @@ class PrescriptionController extends Controller
         return redirect()->route('clinical.prescriptions.index')->with('success', 'Prescription deleted successfully.');
     }
 
+    /**
+     * Restore a soft-deleted prescription.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $prescription = Prescription::withTrashed()->findOrFail($id);
@@ -77,6 +114,14 @@ class PrescriptionController extends Controller
         return redirect()->route('clinical.prescriptions.index')->with('success', 'Prescription restored successfully.');
     }
 
+    /**
+     * Display the specified prescription.
+     *
+     * Shows prescription details, items, vitals history, and complaint linkage.
+     *
+     * @param  \App\Models\Prescription  $prescription
+     * @return \Illuminate\View\View
+     */
     public function show(Prescription $prescription)
     {
         Gate::authorize('view', $prescription);
@@ -101,6 +146,15 @@ class PrescriptionController extends Controller
     }
 
 
+    /**
+     * Show the form for creating a new prescription.
+     *
+     * Loads consultation details, patient vitals history, and available medicines.
+     * Prevents creation if consultation is already completed.
+     *
+     * @param  \App\Models\Consultation  $consultation
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function create(Consultation $consultation)
     {
         Gate::authorize('create', Prescription::class);
@@ -123,6 +177,16 @@ class PrescriptionController extends Controller
         return view('clinical.prescription.create', compact('consultation', 'medicines', 'vitalsHistory'));
     }
 
+    /**
+     * Store a newly created prescription in storage.
+     *
+     * Validates input, creates prescription and items, and updates consultation status.
+     * Notifies the patient upon success.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Consultation  $consultation
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request, Consultation $consultation)
     {
         Gate::authorize('create', Prescription::class);
@@ -185,8 +249,53 @@ class PrescriptionController extends Controller
         // 🔑 NOW refresh
         $consultation->refresh()->load('prescription');
 
+        // Notify Patient
+        if ($consultation->patient) {
+            $consultation->patient->notify(new \App\Notifications\NewPrescriptionNotification($prescription));
+        }
+
         return redirect()
             ->route('clinical.prescriptions.show', $consultation->prescription)
             ->with('success', 'Prescription created successfully.');
+    }
+
+    /**
+     * Print the prescription (Doctor/Staff view).
+     *
+     * @param  \App\Models\Prescription  $prescription
+     * @return \Illuminate\View\View
+     */
+    public function print(Prescription $prescription)
+    {
+        Gate::authorize('view', $prescription);
+        $prescription->load(['clinic', 'items.medicine', 'complaints', 'consultation.patient', 'consultation.doctor.user', 'consultation.doctor.department']);
+        $vitalsHistory = collect();
+        if ($prescription->consultation && $prescription->consultation->visit) {
+            $vitalsHistory = \App\Models\PatientVital::where('visit_id', $prescription->consultation->visit->id)->orderByDesc('recorded_at')->get();
+        }
+        return view('clinical.prescription.print', compact('prescription', 'vitalsHistory'));
+    }
+
+    /**
+     * Print the prescription (Patient public view via signed URL).
+     *
+     * Validates the signed URL before showing the print view.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Prescription  $prescription
+     * @return \Illuminate\View\View
+     */
+    public function patientPrint(Request $request, Prescription $prescription)
+    {
+        if (! $request->hasValidSignature()) {
+            abort(403, 'Invalid or expired link.');
+        }
+
+        $prescription->load(['clinic', 'items.medicine', 'complaints', 'consultation.patient', 'consultation.doctor.user', 'consultation.doctor.department']);
+        $vitalsHistory = collect();
+        if ($prescription->consultation && $prescription->consultation->visit) {
+            $vitalsHistory = \App\Models\PatientVital::where('visit_id', $prescription->consultation->visit->id)->orderByDesc('recorded_at')->get();
+        }
+        return view('clinical.prescription.print', compact('prescription', 'vitalsHistory'));
     }
 }

@@ -14,6 +14,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * AppointmentBookingController
+ *
+ * Manages the appointment booking process for patients and staff.
+ * Allows searching for doctors and viewing their availability.
+ */
 class AppointmentBookingController extends Controller
 {
     protected $appointmentService;
@@ -83,6 +89,10 @@ class AppointmentBookingController extends Controller
 
     /**
      * Show booking calendar for a specific doctor.
+     *
+     * @param  \App\Models\Doctor  $doctor
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
      */
     public function show(Doctor $doctor, Request $request)
     {
@@ -130,11 +140,17 @@ class AppointmentBookingController extends Controller
 
     /**
      * Store appointment.
+     *
+     * Validates availability and creates a new appointment.
+     * Uses database transactions to prevent double booking.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'doctor_id'        => 'required|exists:doctors,id',
+            'doctor_id'        => 'required|exists:doctors,id,status,active',
             'patient_id'       => 'required|exists:patients,id',
             'clinic_id'        => 'required|exists:clinics,id',
             'appointment_date' => 'required|date|after_or_equal:today',
@@ -193,10 +209,10 @@ class AppointmentBookingController extends Controller
                 $doctor->user->notify(new AppointmentBookedNotification($appointment));
             }
 
-            // Notify Patient (if they have a user account)
+            // Notify Patient
             $patient = Patient::find($validated['patient_id']);
-            if ($patient && $patient->user) {
-                $patient->user->notify(new AppointmentBookedNotification($appointment));
+            if ($patient) {
+                $patient->notify(new AppointmentBookedNotification($appointment));
             }
 
             return redirect()->route('appointments.booking.show', $doctor)

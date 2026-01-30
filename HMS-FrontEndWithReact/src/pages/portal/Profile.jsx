@@ -92,7 +92,7 @@ const Profile = () => {
       // So we use POST with _method override
       formData.append('_method', 'PUT');
 
-      const response = await api.post(`${API_ENDPOINTS.PATIENT.UPDATE_PROFILE}/${authUser.id}`, formData, {
+      const response = await api.post(API_ENDPOINTS.PATIENT.UPDATE_PROFILE(authUser.id), formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

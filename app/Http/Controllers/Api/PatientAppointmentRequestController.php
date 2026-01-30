@@ -10,15 +10,27 @@ use App\Notifications\AppointmentRequestSubmittedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 
+/**
+ * PatientAppointmentRequestController
+ *
+ * Handles API requests for patient appointment modifications.
+ * Allows patients to request cancellation or rescheduling of appointments.
+ */
 class PatientAppointmentRequestController extends Controller
 {
+    /**
+     * Display a listing of appointment requests.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $user = $request->user();
 
-        $requests = AppointmentRequest::whereHas('appointment', function($q) use ($user) {
-                $q->where('patient_id', $user->id);
-            })
+        $requests = AppointmentRequest::whereHas('appointment', function ($q) use ($user) {
+            $q->where('patient_id', $user->id);
+        })
             ->with(['appointment', 'appointment.doctor', 'appointment.clinic'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -28,6 +40,14 @@ class PatientAppointmentRequestController extends Controller
         ]);
     }
 
+    /**
+     * Store a new appointment request.
+     * Validates eligibility (must be pending appointment) and prevents duplicates.
+     * Notifies clinic admins of the new request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -46,7 +66,7 @@ class PatientAppointmentRequestController extends Controller
         }
 
         if ($appointment->status !== 'pending') {
-            return response()->json(['message' => 'Only pending appointments can be modified'], 422);
+            return response()->json(['message' => 'Only pending appointments can be rescheduled or cancelled'], 422);
         }
 
         // Check for existing pending requests
@@ -70,16 +90,16 @@ class PatientAppointmentRequestController extends Controller
 
         // Notify Clinic Admins
         // Assuming Clinic Admin role exists or we notify all admins of the clinic
-        $admins = User::whereHas('roles', function($q) {
+        $admins = User::whereHas('roles', function ($q) {
             $q->where('name', 'Clinic Admin')
-              ->orWhere('name', 'Super Admin');
+                ->orWhere('name', 'Super Admin');
         })
-        ->where(function($q) use ($appointment) {
-             // If multi-tenant, filter by clinic or global admins
-             $q->where('clinic_id', $appointment->clinic_id)
-               ->orWhereNull('clinic_id');
-        })
-        ->get();
+            ->where(function ($q) use ($appointment) {
+                // If multi-tenant, filter by clinic or global admins
+                $q->where('clinic_id', $appointment->clinic_id)
+                    ->orWhereNull('clinic_id');
+            })
+            ->get();
 
         Notification::send($admins, new AppointmentRequestSubmittedNotification($appointmentRequest));
 

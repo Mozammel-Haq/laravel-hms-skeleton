@@ -7,12 +7,48 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 use App\Models\Concerns\LogsActivity;
+use App\Models\Concerns\NotifiesRoles;
+use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * Patient Model
+ *
+ * Represents a patient in the system.
+ * Handles personal details, authentication (portal), and medical records.
+ *
+ * @property int $id
+ * @property int|null $clinic_id
+ * @property string $name
+ * @property string $email
+ * @property string $password
+ * @property string|null $profile_photo
+ * @property \Illuminate\Support\Carbon|null $date_of_birth
+ * @property string|null $phone
+ * @property string|null $blood_group
+ * @property string|null $nid_number
+ * @property string|null $birth_certificate_number
+ * @property string|null $passport_number
+ * @property string|null $patient_code
+ * @property bool $must_change_password
+ * @property \Illuminate\Support\Carbon|null $last_login_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ *
+ * @property-read int|null $age
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Clinic[] $clinics
+ * @property-read \App\Models\Clinic|null $clinic
+ */
 class Patient extends Model implements AuthenticatableContract
 {
-    use SoftDeletes, HasApiTokens, AuthenticatableTrait, LogsActivity;
+    use SoftDeletes, HasApiTokens, AuthenticatableTrait, LogsActivity, Notifiable;
+
+    public function getActivityDescription($action)
+    {
+        return ucfirst($action) . " patient {$this->name}";
+    }
 
     protected $casts = [
         'date_of_birth' => 'date',
@@ -40,6 +76,12 @@ class Patient extends Model implements AuthenticatableContract
         'remember_token',
     ];
 
+    /**
+     * Get the patient's age.
+     *
+     * @param  mixed  $value
+     * @return int|null
+     */
     public function getAgeAttribute($value)
     {
         if ($value !== null) {
@@ -51,6 +93,11 @@ class Patient extends Model implements AuthenticatableContract
         return null;
     }
 
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
     protected static function booted()
     {
         static::created(function ($patient) {
@@ -70,58 +117,139 @@ class Patient extends Model implements AuthenticatableContract
                     $q->whereHas('clinics', function ($q2) {
                         $q2->where($q2->qualifyColumn('id'), auth()->user()->clinic_id);
                     })
-                    ->orWhere($builder->qualifyColumn('clinic_id'), auth()->user()->clinic_id);
+                        ->orWhere($builder->qualifyColumn('clinic_id'), auth()->user()->clinic_id);
                 });
             }
         });
     }
 
-    // Helper to bypass the scope (naming convention from BaseTenantModel)
+    /**
+     * Helper to bypass the tenant scope.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public static function withoutTenant()
     {
         return static::withoutGlobalScope('clinic_access');
     }
 
-    public function clinics()
+    /**
+     * Get the clinics associated with the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function clinics(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Clinic::class, 'clinic_patient');
     }
 
-    // Deprecated but kept for backward compatibility if code uses $patient->clinic
-    public function clinic()
+    /**
+     * Get the clinic associated with the patient (Legacy).
+     *
+     * @deprecated Use clinics() instead.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function clinic(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Clinic::class);
     }
 
-    public function appointments()
+    /**
+     * Get the appointments for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function appointments(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Appointment::class);
     }
-    public function allergies()
+
+    /**
+     * Get the allergies for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function allergies(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PatientAllergy::class);
     }
-    public function medicalHistory()
+
+    /**
+     * Get the medical history for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function medicalHistory(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PatientMedicalHistory::class);
     }
-    public function consultations()
+
+    /**
+     * Get the surgeries for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function surgeries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PatientSurgery::class);
+    }
+
+    /**
+     * Get the immunizations for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function immunizations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PatientImmunization::class);
+    }
+
+    /**
+     * Get the consultations for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function consultations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Consultation::class);
     }
-    public function labTestResults()
+
+    /**
+     * Get the lab test results for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function labTestResults(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(LabTestResult::class);
     }
-    public function invoices()
+
+    /**
+     * Get the invoices for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Invoice::class);
     }
-    public function admissions()
+
+    /**
+     * Get the admissions for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function admissions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Admission::class);
     }
-    public function vitals()
+
+    /**
+     * Get the vitals for the patient.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function vitals(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PatientVital::class);
     }

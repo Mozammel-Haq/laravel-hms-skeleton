@@ -8,8 +8,21 @@ use App\Models\PatientVital;
 use App\Support\TenantContext;
 use Illuminate\Http\Request;
 
+/**
+ * VitalsApiController
+ *
+ * Handles API requests for patient vitals.
+ * Retrieves vital signs history and calculates trends.
+ */
 class VitalsApiController extends Controller
 {
+    /**
+     * Display a listing of patient vitals.
+     * Returns historical data and summary cards with trend analysis.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         $user = $request->user();
@@ -34,8 +47,23 @@ class VitalsApiController extends Controller
         $clinicId = $targetPatient->clinic_id;
         TenantContext::setClinicId($clinicId);
 
-        $vitalsHistory = PatientVital::where('patient_id', $targetPatient->id)
-            ->orderBy('recorded_at', 'desc')
+        $query = PatientVital::where('patient_id', $targetPatient->id);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                // Search by date (formatted as Y-m-d in DB)
+                $q->whereDate('recorded_at', 'like', "%{$search}%")
+                    // Or search by specific values if the user types numbers
+                    ->orWhere('heart_rate', 'like', "%{$search}%")
+                    ->orWhere('blood_pressure', 'like', "%{$search}%")
+                    ->orWhere('temperature', 'like', "%{$search}%")
+                    ->orWhere('spo2', 'like', "%{$search}%")
+                    ->orWhere('weight', 'like', "%{$search}%");
+            });
+        }
+
+        $vitalsHistory = $query->orderBy('recorded_at', 'desc')
             ->limit(20)
             ->get();
 

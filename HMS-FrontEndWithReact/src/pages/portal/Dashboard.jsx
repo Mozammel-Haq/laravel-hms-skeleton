@@ -154,7 +154,9 @@ const Dashboard = () => {
                       }`}>
                         {apt.status}
                       </span>
-                      <Button variant="outline" size="sm">Details</Button>
+                      <Link to="/portal/appointments">
+                        <Button variant="outline" size="sm">Details</Button>
+                      </Link>
                     </div>
                   </div>
                 ))}

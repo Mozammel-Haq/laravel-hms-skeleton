@@ -42,7 +42,7 @@ class AppointmentBookedNotification extends Notification
         return [
             'title' => 'New Appointment Booked',
             'message' => "Appointment #{$this->appointment->id} scheduled for {$this->appointment->appointment_date->format('M d, Y H:i')}",
-            'link' => route('appointments.show', $this->appointment->id),
+            'link' => '/patient/appointments',
             'type' => 'success',
         ];
     }

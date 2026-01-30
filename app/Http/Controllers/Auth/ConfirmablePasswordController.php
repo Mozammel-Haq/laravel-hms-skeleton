@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
+/**
+ * ConfirmablePasswordController
+ *
+ * Handles password confirmation for sensitive actions.
+ * Ensures the user is recently authenticated before proceeding.
+ */
 class ConfirmablePasswordController extends Controller
 {
     /**
@@ -21,6 +27,10 @@ class ConfirmablePasswordController extends Controller
 
     /**
      * Confirm the user's password.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
     {

@@ -6,10 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 
+/**
+ * PatientClinicsController
+ *
+ * Handles API requests for retrieving patient's associated clinics.
+ */
 class PatientClinicsController extends Controller
 {
     /**
      * Get a list of clinics the authenticated patient belongs to.
+     * Aggregates clinics from legacy relationships and new pivot tables.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse

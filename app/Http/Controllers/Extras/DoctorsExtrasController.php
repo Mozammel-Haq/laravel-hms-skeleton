@@ -8,8 +8,26 @@ use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
+/**
+ * Class DoctorsExtrasController
+ *
+ * Handles additional doctor-related functionalities such as assignment and schedule viewing.
+ *
+ * @package App\Http\Controllers\Extras
+ */
 class DoctorsExtrasController extends Controller
 {
+    /**
+     * Display the doctor assignment page.
+     *
+     * Supports filtering by:
+     * - Clinic ID
+     * - Search (Doctor name, specialization, license)
+     * - Status (deleted)
+     * - Date Range (created_at)
+     *
+     * @return \Illuminate\View\View
+     */
     public function assignment()
     {
         $user = auth()->user();
@@ -66,6 +84,11 @@ class DoctorsExtrasController extends Controller
         return view('doctors.assignment', compact('clinics', 'doctors'));
     }
 
+    /**
+     * Display the doctor schedules page.
+     *
+     * @return \Illuminate\View\View
+     */
     public function schedules()
     {
         $clinicId = auth()->user()->clinic_id;
@@ -98,6 +121,14 @@ class DoctorsExtrasController extends Controller
         return view('doctors.schedules', compact('doctors'));
     }
 
+    /**
+     * Get doctor schedule events for the calendar view.
+     *
+     * Returns JSON data for doctor availability based on weekly schedules and exceptions.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getCalendarEvents(Request $request)
     {
         $request->validate([

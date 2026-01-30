@@ -1,12 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\ApoointmentsApiController;
+use App\Http\Controllers\Api\AppointmentsApiController;
 use App\Http\Controllers\Api\BookingApiController;
 use App\Http\Controllers\Api\ClinicApiController;
 use App\Http\Controllers\Api\DoctorsApiController;
 use App\Http\Controllers\Api\PatientAuthController;
 use App\Http\Controllers\Api\PatientClinicsController;
 use App\Http\Controllers\Api\PatientDashboardController;
+use App\Http\Controllers\Api\PatientAppointmentRequestController;
+use App\Http\Controllers\Api\PatientNotificationController;
 use App\Http\Controllers\Api\PatientProfileController;
 use App\Http\Controllers\Api\LabResultApiController;
 use App\Http\Controllers\Api\MedicalHistoryApiController;
@@ -34,9 +36,10 @@ Route::prefix('patient')->group(function () {
         Route::get('clinics', [PatientClinicsController::class, 'index']);
 
         // Get Appointments List
-        Route::get('appointments', [ApoointmentsApiController::class, 'index']);
-        Route::post('appointments', [ApoointmentsApiController::class, 'store']);
-        Route::get('appointments/slots', [ApoointmentsApiController::class, 'slots']);
+        Route::get('appointments', [AppointmentsApiController::class, 'index']);
+        Route::get('appointments/slots', [AppointmentsApiController::class, 'slots']);
+        Route::get('appointments/{id}', [AppointmentsApiController::class, 'show']);
+        Route::post('appointments', [AppointmentsApiController::class, 'store']);
 
         // Appointment Requests (Cancel/Reschedule)
         Route::get('appointment-requests', [PatientAppointmentRequestController::class, 'index']);
@@ -46,6 +49,11 @@ Route::prefix('patient')->group(function () {
         Route::get('lab-results', [LabResultApiController::class, 'index']);
         Route::get('vitals', [VitalsApiController::class, 'index']);
         Route::get('medical-history', [MedicalHistoryApiController::class, 'index']);
+
+        // Notifications
+        Route::get('notifications', [PatientNotificationController::class, 'index']);
+        Route::post('notifications/{id}/read', [PatientNotificationController::class, 'markAsRead']);
+        Route::delete('notifications/{id}', [PatientNotificationController::class, 'destroy']);
 
         // Get Doctors + Departments List
         Route::get('doctors', [BookingApiController::class, 'index']);

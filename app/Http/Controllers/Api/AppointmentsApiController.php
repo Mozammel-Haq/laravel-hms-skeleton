@@ -9,10 +9,20 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ApoointmentsApiController extends Controller
+/**
+ * AppointmentsApiController
+ *
+ * Handles API requests related to appointments.
+ * Allows patients to view their appointments, book new ones, and check doctor availability.
+ */
+class AppointmentsApiController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the patient's appointments.
+     * Supports filtering by status (upcoming, past, etc.) and search.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
@@ -35,12 +45,36 @@ class ApoointmentsApiController extends Controller
         }
 
         // 2. Fetch Appointments
-        $appointments = Appointment::withoutGlobalScopes()
-            ->with(['doctor', 'doctor.user:id,name,email', 'requests' => function($q) {
+        $query = Appointment::withoutGlobalScopes()
+            ->with(['doctor', 'doctor.user:id,name,email', 'requests' => function ($q) {
                 $q->where('status', 'pending');
             }])
             ->where('appointments.clinic_id', $selectedClinicId)
-            ->where('appointments.patient_id', $patient->id)
+            ->where('appointments.patient_id', $patient->id);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('reason_for_visit', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%")
+                    ->orWhereHas('doctor.user', function ($sub) use ($search) {
+                        $sub->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            if ($request->status === 'upcoming') {
+                $query->whereIn('status', ['confirmed', 'pending', 'arrived', 'scheduled', 'checked in']);
+            } elseif ($request->status === 'past') {
+                $query->whereIn('status', ['completed', 'cancelled', 'noshow', 'checked out']);
+            } else {
+                $query->where('status', $request->status);
+            }
+        }
+
+        $appointments = $query->orderBy('appointment_date', 'desc')
+            ->orderBy('start_time', 'desc')
             ->get();
 
         return response()->json([
@@ -48,6 +82,46 @@ class ApoointmentsApiController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified appointment details.
+     * Includes doctor, visit, prescription, and vitals information.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Request $request, $id)
+    {
+        $appointment = Appointment::withoutGlobalScopes()
+            ->with([
+                'doctor.user:id,name',
+                'doctor.department',
+                'visit.consultation.prescriptions.items.medicine',
+                'visit.vitals'
+            ])
+            ->find($id);
+
+        if (!$appointment) {
+            return response()->json(['message' => 'Appointment not found'], 404);
+        }
+
+        // Check ownership
+        if ($appointment->patient_id != $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        return response()->json([
+            'appointment' => $appointment,
+        ]);
+    }
+
+    /**
+     * Get available time slots for a doctor on a specific date.
+     * Calculates slots based on doctor's schedule and existing bookings.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function slots(Request $request)
     {
         $request->validate([
@@ -187,14 +261,6 @@ class ApoointmentsApiController extends Controller
             'appointment' => $appointment,
             'patient_id' => $request->patient_id,
         ], 201);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**

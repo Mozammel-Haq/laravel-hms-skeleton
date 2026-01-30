@@ -7,8 +7,26 @@ use App\Models\MedicineBatch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * Manages medicine batches and inventory stock.
+ *
+ * Responsibilities:
+ * - Batch management (creation, listing)
+ * - Stock level tracking per clinic
+ * - Expiry tracking and status filtering
+ */
 class InventoryController extends Controller
 {
+    /**
+     * Display a listing of medicine batches.
+     *
+     * Supports filtering by:
+     * - Status: 'expired', 'out_of_stock', 'in_stock'
+     * - Search: Batch number, Medicine name
+     * - Date Range: Creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         // View inventory for the current clinic
@@ -17,11 +35,11 @@ class InventoryController extends Controller
 
         if (request()->filled('search')) {
             $search = request('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('batch_number', 'like', "%{$search}%")
-                  ->orWhereHas('medicine', function($m) use ($search) {
-                      $m->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('medicine', function ($m) use ($search) {
+                        $m->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -32,7 +50,7 @@ class InventoryController extends Controller
                 $query->where('quantity_in_stock', 0);
             } elseif (request('status') === 'in_stock') {
                 $query->where('quantity_in_stock', '>', 0)
-                      ->whereDate('expiry_date', '>=', now());
+                    ->whereDate('expiry_date', '>=', now());
             }
         }
 
@@ -48,6 +66,11 @@ class InventoryController extends Controller
         return view('pharmacy.inventory.batches', compact('batches'));
     }
 
+    /**
+     * Show the form for adding a new batch.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         Gate::authorize('create', MedicineBatch::class); // Needs policy
@@ -55,6 +78,12 @@ class InventoryController extends Controller
         return view('pharmacy.inventory.add-batch', compact('medicines'));
     }
 
+    /**
+     * Store a newly created batch in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', MedicineBatch::class);

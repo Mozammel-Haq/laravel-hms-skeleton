@@ -14,9 +14,28 @@ use App\Models\Appointment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * Manages invoice generation, viewing, and payments.
+ *
+ * Responsibilities:
+ * - Invoice lifecycle management (create, view, delete, restore)
+ * - Payment processing for invoices
+ * - Integration with patient billable items (consultations, lab, medicines)
+ * - Automatic status updates (unpaid -> partial -> paid)
+ * - Financial reporting (implied via index filtering)
+ */
 class BillingController extends Controller
 {
-    // List all invoices
+    /**
+     * Display a listing of invoices.
+     *
+     * Supports filtering by:
+     * - Status: 'unpaid', 'paid', 'partial', 'trashed', 'all'
+     * - Search: Invoice number, Patient name/code
+     * - Date Range: Issued at (from/to)
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', Invoice::class);
@@ -57,6 +76,12 @@ class BillingController extends Controller
         return view('billing.index', compact('invoices'));
     }
 
+    /**
+     * Soft delete the specified invoice.
+     *
+     * @param \App\Models\Invoice $invoice
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Invoice $invoice)
     {
         Gate::authorize('delete', $invoice);
@@ -64,6 +89,17 @@ class BillingController extends Controller
         return redirect()->route('billing.index')->with('success', 'Invoice deleted successfully.');
     }
 
+    /**
+     * Display the specified invoice details.
+     *
+     * Loads related data:
+     * - Patient profile
+     * - Invoice items (services, meds, etc.)
+     * - Payment history
+     *
+     * @param \App\Models\Invoice $invoice
+     * @return \Illuminate\View\View
+     */
     public function show(Invoice $invoice)
     {
         Gate::authorize('view', $invoice);
@@ -71,6 +107,12 @@ class BillingController extends Controller
         return view('billing.show', compact('invoice'));
     }
 
+    /**
+     * Restore a soft-deleted invoice.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $invoice = Invoice::withTrashed()->findOrFail($id);
@@ -79,7 +121,12 @@ class BillingController extends Controller
         return redirect()->route('billing.index')->with('success', 'Invoice restored successfully.');
     }
 
-    // Show create invoice form
+    /**
+     * Show the form for creating a new invoice.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View
+     */
     public function create(Request $request)
     {
         Gate::authorize('create', Invoice::class);
@@ -94,7 +141,20 @@ class BillingController extends Controller
         return view('billing.create', compact('patients'));
     }
 
-    // Store invoice and items
+    /**
+     * Store a newly created invoice in storage.
+     *
+     * Features:
+     * - Validates items and prices
+     * - Calculates totals, tax, and discount
+     * - Creates Invoice record
+     * - Creates InvoiceItem records
+     * - Updates source records (Consultation, LabTest, etc.) with invoice_id
+     * - Wraps operations in a database transaction
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', Invoice::class);
@@ -146,9 +206,8 @@ class BillingController extends Controller
                 'subtotal'   => $subtotal,
                 'discount'   => $discount,
                 'tax'        => $tax,
-                // 'tax_amount' => $taxAmount, // Column does not exist
-                'total_amount'      => $grandTotal, // Column is total_amount, not total
-                'status'     => 'unpaid', // default status
+                'total_amount' => $grandTotal,
+                'status'     => 'unpaid',
             ]);
 
             // Insert invoice items
@@ -178,7 +237,20 @@ class BillingController extends Controller
         return redirect()->route('billing.index')->with('success', 'Invoice generated successfully.');
     }
 
-    // Fetch pending items for a specific patient (AJAX)
+    /**
+     * Fetch pending billable items for a specific patient via AJAX.
+     *
+     * Retrieves all unbilled items for a patient including:
+     * - Consultations (not yet invoiced)
+     * - Lab Tests (not yet invoiced)
+     * - Medicines (not yet invoiced)
+     *
+     * The response is formatted for easy consumption by the frontend billing UI.
+     * Each item includes: id, type, description, and price.
+     *
+     * @param \App\Models\Patient $patient The patient to fetch items for.
+     * @return \Illuminate\Http\JsonResponse JSON response containing grouped billable items.
+     */
     public function getPatientItems(Patient $patient)
     {
         $consultations = Consultation::where('patient_id', $patient->id)
@@ -200,7 +272,12 @@ class BillingController extends Controller
         ]);
     }
 
-    // Show payment form for a specific invoice
+    /**
+     * Show the payment form for a specific invoice.
+     *
+     * @param \App\Models\Invoice $invoice
+     * @return \Illuminate\View\View
+     */
     public function addPayment(Invoice $invoice)
     {
         Gate::authorize('create', Invoice::class);
@@ -209,7 +286,19 @@ class BillingController extends Controller
         return view('billing.payment', compact('invoice'));
     }
 
-    // Store payment for an invoice
+    /**
+     * Store a payment for an invoice and update invoice status.
+     *
+     * Features:
+     * - Validates payment amount (cannot exceed remaining balance)
+     * - Records payment transaction
+     * - Updates invoice status (unpaid -> partial -> paid)
+     * - Automatically confirms related appointment if invoice is fully paid
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Invoice $invoice
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storePayment(Request $request, Invoice $invoice)
     {
         Gate::authorize('create', Invoice::class);

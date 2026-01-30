@@ -15,7 +15,7 @@ class StoreAppointmentRequest extends FormRequest
     {
         return [
             'patient_id' => ['required', 'exists:patients,id'],
-            'doctor_id' => ['required', 'exists:doctors,id'],
+            'doctor_id' => ['required', 'exists:doctors,id,status,active'],
             'appointment_date' => ['required', 'date', 'after_or_equal:today'],
             'start_time' => ['required', 'date_format:H:i'],
             'type' => ['required', 'in:consultation,follow_up,emergency'],

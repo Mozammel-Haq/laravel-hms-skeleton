@@ -5,32 +5,44 @@ import api from '../../services/api';
 import { API_ENDPOINTS } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
 import { useClinic } from '../../context/ClinicContext';
+import { useUI } from '../../context/UIContext';
 import MedicalLoader from '../../components/loaders/MedicalLoader';
 
 const LabResults = () => {
   const { user } = useAuth();
   const { activeClinicId } = useClinic();
+  const { addToast } = useUI();
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('All');
+
+  const fetchLabResults = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get(API_ENDPOINTS.PATIENT.LAB_RESULTS, {
+          params: {
+              search: searchTerm,
+              status: statusFilter !== 'All' ? statusFilter : undefined
+          }
+      });
+      setResults(response.data.results || []);
+    } catch (error) {
+      console.error('Failed to fetch lab results', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchLabResults = async () => {
-      setLoading(true);
-      try {
-        const response = await api.get(API_ENDPOINTS.PATIENT.LAB_RESULTS);
-        setResults(response.data.results || []);
-      } catch (error) {
-        console.error('Failed to fetch lab results', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (user && activeClinicId) {
-        fetchLabResults();
+        const timer = setTimeout(() => {
+            fetchLabResults();
+        }, 500); // Debounce search
+        return () => clearTimeout(timer);
     }
-  }, [user, activeClinicId]);
+  }, [user, activeClinicId, searchTerm, statusFilter]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -41,10 +53,29 @@ const LabResults = () => {
     }
   };
 
-  const filteredResults = results.filter(result =>
-    result.testName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    result.doctor.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Backend handles filtering now
+  const filteredResults = results;
+
+  const handleDownloadAll = async () => {
+    const files = filteredResults.filter(r => r.file);
+    if (files.length === 0) {
+      addToast('info', 'No PDF reports available to download.');
+      return;
+    }
+
+    addToast('info', `Starting download of ${files.length} reports...`);
+
+    // Download files sequentially to avoid browser blocking
+    for (const file of files) {
+        const link = document.createElement('a');
+        link.href = file.file;
+        link.download = `Lab_Report_${file.testName}_${file.date}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -54,27 +85,47 @@ const LabResults = () => {
           <p className="text-secondary-500 dark:text-secondary-400">View and download your laboratory test reports</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant={filterOpen ? 'primary' : 'outline'} size="sm" onClick={() => setFilterOpen(!filterOpen)}>
             <Filter className="w-4 h-4 mr-2" />
             Filter
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={handleDownloadAll}>
             <Download className="w-4 h-4 mr-2" />
             Download All
           </Button>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400" />
-        <input
-          type="text"
-          placeholder="Search by test name or doctor..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-secondary-900 dark:text-white placeholder:text-secondary-400"
-        />
+      {/* Search and Filter */}
+      <div className="space-y-4">
+        <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400" />
+            <input
+            type="text"
+            placeholder="Search by test name or doctor..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-secondary-900 dark:text-white placeholder:text-secondary-400"
+            />
+        </div>
+
+        {filterOpen && (
+            <div className="flex flex-wrap gap-2 p-4 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl animate-in slide-in-from-top-2">
+                {['All', 'Normal', 'Attention', 'Critical', 'Pending'].map((status) => (
+                    <button
+                        key={status}
+                        onClick={() => setStatusFilter(status)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            statusFilter === status
+                                ? 'bg-primary-500 text-white'
+                                : 'bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-700'
+                        }`}
+                    >
+                        {status}
+                    </button>
+                ))}
+            </div>
+        )}
       </div>
 
       {/* Results List */}

@@ -6,8 +6,24 @@ use App\Models\Room;
 use App\Models\Ward;
 use Illuminate\Http\Request;
 
+/**
+ * RoomController
+ *
+ * Manages hospital rooms within wards.
+ * Defines room types, rates, and availability.
+ */
 class RoomController extends Controller
 {
+    /**
+     * Display a listing of rooms.
+     *
+     * Supports filtering by:
+     * - Status: 'available', 'occupied', 'maintenance'
+     * - Search: Room number
+     * - Date Range: Creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         $query = Room::withoutTenant()
@@ -35,12 +51,23 @@ class RoomController extends Controller
         return view('ipd.rooms.index', compact('rooms'));
     }
 
+    /**
+     * Show the form for creating a new room.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         $wards = Ward::orderBy('name')->get();
         return view('ipd.rooms.create', compact('wards'));
     }
 
+    /**
+     * Store a newly created room.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -54,12 +81,25 @@ class RoomController extends Controller
         return redirect()->route('ipd.rooms.index')->with('success', 'Room created');
     }
 
+    /**
+     * Show the form for editing the specified room.
+     *
+     * @param  \App\Models\Room  $room
+     * @return \Illuminate\View\View
+     */
     public function edit(Room $room)
     {
         $wards = Ward::orderBy('name')->get();
         return view('ipd.rooms.edit', compact('room', 'wards'));
     }
 
+    /**
+     * Update the specified room.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Room  $room
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Room $room)
     {
         $request->validate([

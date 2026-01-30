@@ -9,10 +9,19 @@ use App\Models\Doctor;
 use App\Support\TenantContext;
 use Illuminate\Http\Request;
 
+/**
+ * DoctorsApiController
+ *
+ * Handles API requests related to doctors.
+ * Allows retrieving a list of doctors and their details.
+ */
 class DoctorsApiController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of doctors.
+     * Supports multi-tenancy context for appointment counts.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
@@ -35,10 +44,17 @@ class DoctorsApiController extends Controller
 
 
     /**
-     * Display the specified resource.
+     * Display the specified doctor details.
+     * Includes department, education, clinics, and schedules.
+     *
+     * @param  \App\Models\Doctor  $doctor
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show(Doctor $doctor)
     {
+        if ($doctor->status !== 'active') {
+            return response()->json(['message' => 'Doctor not found'], 404);
+        }
         $doctor->load(['department', 'educations', 'clinics', 'schedules', 'user:id,name']);
         return response()->json($doctor);
     }
