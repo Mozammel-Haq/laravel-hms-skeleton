@@ -20,29 +20,27 @@
 
         <div class="row g-3">
             <div class="col-lg-4">
-                <div class="card mt-2">
+                <div class="card h-100">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">My Profile &amp; Portfolio</h5>
+                        <a href="{{ route('doctors.show', $doctor) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-external-link-alt me-1"></i> Public View
+                        </a>
+                    </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h3 class="page-title mb-0">My Profile &amp; Portfolio</h3>
-                            <a href="{{ route('doctors.show', $doctor) }}" class="btn btn-outline-secondary">View Public
-                                Profile</a>
-                        </div>
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="avatar avatar-xl rounded-circle me-3">
+                        <div class="d-flex flex-column align-items-center text-center mb-4">
+                            <div class="position-relative mb-3">
                                 @php
                                     $photoPath = $doctor->profile_photo;
                                 @endphp
                                 <img src="{{ $photoPath ? asset($photoPath) : asset('assets/img/doctors/doctor-01.jpg') }}"
-                                    alt="img" class="rounded-circle">
-                            </span>
-                            <div>
-                                <div class="h5 mb-0">{{ $doctor->user?->name }}</div>
-                                <div class="text-muted">{{ $doctor->department?->name }}</div>
+                                    alt="{{ $doctor->user?->name }}"
+                                    class="rounded-circle border border-3 border-light shadow-sm"
+                                    style="width: 120px; height: 120px; object-fit: cover;">
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="text-muted">Specialization</div>
-                            <div class="fw-semibold">
+                            <h5 class="mb-1">{{ $doctor->user?->name }}</h5>
+                            <p class="text-muted mb-2">{{ $doctor->department?->name ?? 'No Department' }}</p>
+                            <div class="badge bg-soft-primary text-primary rounded-pill px-3 py-2">
                                 @php
                                     $specData = $doctor->specialization;
                                     $specData = \Illuminate\Support\Arr::wrap($specData);
@@ -61,6 +59,10 @@
                                             } else {
                                                 $finalSpecs[] = $item;
                                             }
+                                        } elseif (is_array($item)) {
+                                            foreach (\Illuminate\Support\Arr::flatten($item) as $sub) {
+                                                $finalSpecs[] = $sub;
+                                            }
                                         } else {
                                             $finalSpecs[] = $item;
                                         }
@@ -78,34 +80,38 @@
                                     }
                                     $pieces = array_slice($pieces, 0, 2);
                                 @endphp
-                                {{ empty($pieces) ? 'N/A' : implode(', ', $pieces) }}
+                                {{ empty($pieces) ? 'General Physician' : implode(', ', $pieces) }}
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <div class="text-muted">Consultation Fee</div>
-                            <div class="fw-semibold">
-                                @if (!is_null($doctor->consultation_fee))
-                                    {{ number_format($doctor->consultation_fee, 2) }}
-                                @else
-                                    N/A
-                                @endif
+
+                        <div class="border-top pt-3">
+                            <div class="row text-center">
+                                <div class="col-6 border-end">
+                                    <p class="text-muted small mb-1">Consultation</p>
+                                    <h6 class="mb-0 text-primary">
+                                        {{ !is_null($doctor->consultation_fee) ? number_format($doctor->consultation_fee, 2) : 'N/A' }}
+                                    </h6>
+                                </div>
+                                <div class="col-6">
+                                    <p class="text-muted small mb-1">Follow Up</p>
+                                    <h6 class="mb-0 text-primary">
+                                        {{ !is_null($doctor->follow_up_fee) ? number_format($doctor->follow_up_fee, 2) : 'N/A' }}
+                                    </h6>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <div class="text-muted">Follow Up Fee</div>
-                            <div class="fw-semibold">
-                                @if (!is_null($doctor->follow_up_fee ?? null))
-                                    {{ number_format($doctor->follow_up_fee, 2) }}
-                                @else
-                                    N/A
-                                @endif
-                            </div>
+
+                        <div class="mt-4">
+                            <h6 class="text-uppercase text-muted fs-12 fw-bold mb-2">Biography</h6>
+                            <p class="text-muted fs-14 mb-0" style="text-align: justify;">
+                                {{ $doctor->biography ?: 'No biography available for this doctor.' }}
+                            </p>
                         </div>
-                        <div>
-                            <div class="text-muted mb-1">Biography</div>
-                            <div class="fs-13">
-                                {{ $doctor->biography ?: 'No biography available.' }}
-                            </div>
+
+                        <div class="mt-4 d-grid">
+                            <a href="{{ route('profile.edit') }}" class="btn btn-light btn-sm">
+                                <i class="fas fa-cog me-1"></i> Edit Account Settings
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -181,7 +187,8 @@
                                                                 placeholder="Country">
                                                         </div>
                                                         <div class="col-md-3">
-                                                            <input type="number" name="start_year" class="form-control"
+                                                            <input type="number" name="start_year"
+                                                                class="form-control"
                                                                 value="{{ old('start_year_' . $education->id, $education->start_year) }}"
                                                                 placeholder="Start year">
                                                         </div>

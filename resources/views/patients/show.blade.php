@@ -489,51 +489,492 @@
         </div>
 
         <div class="tab-pane" id="medical" role="tabpanel">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle datatable">
-                    <thead>
-                        <tr>
-                            <th>Condition</th>
-                            <th>Diagnosed Date</th>
-                            <th>Status</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($patient->medicalHistory as $history)
+            <!-- Medical Conditions -->
+            <div class="card mb-4 shadow-sm">
+                <div
+                    class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="ti ti-activity-heartbeat me-1"></i> Medical Conditions
+                    </h5>
+                    @can('update', $patient)
+                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal"
+                            data-bs-target="#addConditionModal">
+                            <i class="ti ti-plus me-1"></i> Add Condition
+                        </button>
+                    @endcan
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
                             <tr>
-                                <td>{{ $history->condition_name }}</td>
-                                <td>
-                                    {{ optional($history->diagnosed_date)->format('d M Y') ?? '-' }}
-                                </td>
-                                <td>
-                                    @php
-                                        $hStatus = $history->status ?? 'unknown';
-                                        $hColor = match ($hStatus) {
-                                            'active', 'cured', 'treated' => 'success',
-                                            'ongoing', 'chronic' => 'warning',
-                                            'critical' => 'danger',
-                                            default => 'primary',
-                                        };
-                                    @endphp
-                                    <span class="badge bg-{{ $hColor }}">
-                                        {{ ucfirst($hStatus) }}
-                                    </span>
-                                </td>
-                                <td class="text-muted">
-                                    {{ \Illuminate\Support\Str::limit($history->notes, 80) }}
-                                </td>
+                                <th class="ps-4">Condition</th>
+                                <th>Diagnosed Date</th>
+                                <th>Diagnosed By</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                                @can('update', $patient)
+                                    <th class="text-end pe-4">Action</th>
+                                @endcan
                             </tr>
-                        @empty
+                        </thead>
+                        <tbody>
+                            @forelse ($patient->medicalHistory as $history)
+                                <tr>
+                                    <td class="ps-4 fw-medium">{{ $history->condition_name }}</td>
+                                    <td>{{ optional($history->diagnosed_date)->format('d M Y') ?? '-' }}</td>
+                                    <td>{{ $history->doctor_name ?? '-' }}</td>
+                                    <td>
+                                        @php
+                                            $hStatus = $history->status ?? 'unknown';
+                                            $hColor = match ($hStatus) {
+                                                'active', 'cured', 'treated' => 'success',
+                                                'ongoing', 'chronic' => 'warning',
+                                                'critical' => 'danger',
+                                                default => 'secondary',
+                                            };
+                                        @endphp
+                                        <span
+                                            class="badge bg-{{ $hColor }} bg-opacity-10 text-{{ $hColor }} px-2 py-1">
+                                            {{ ucfirst($hStatus) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="d-inline-block text-truncate" style="max-width: 200px;"
+                                            title="{{ $history->notes }}">
+                                            {{ $history->notes ?? '-' }}
+                                        </span>
+                                    </td>
+                                    @can('update', $patient)
+                                        <td class="text-end pe-4">
+                                            <form
+                                                action="{{ route('patients.medical-history.condition.destroy', $history) }}"
+                                                method="POST" class="d-inline"
+                                                onsubmit="return confirm('Are you sure you want to delete this condition?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-icon btn-sm btn-light text-danger"
+                                                    title="Delete">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    @endcan
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="ti ti-clipboard-heart fs-1 text-muted opacity-50 mb-2"></i>
+                                            <p class="mb-0">No medical conditions recorded.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Allergies -->
+            <div class="card mb-4 shadow-sm">
+                <div
+                    class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="ti ti-alert-triangle me-1"></i> Allergies
+                    </h5>
+                    @can('update', $patient)
+                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal"
+                            data-bs-target="#addAllergyModal">
+                            <i class="ti ti-plus me-1"></i> Add Allergy
+                        </button>
+                    @endcan
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-4">
-                                    No medical history records found.
-                                </td>
+                                <th class="ps-4">Allergen</th>
+                                <th>Severity</th>
+                                <th>Reaction/Notes</th>
+                                @can('update', $patient)
+                                    <th class="text-end pe-4">Action</th>
+                                @endcan
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse ($patient->allergies as $allergy)
+                                <tr>
+                                    <td class="ps-4 fw-medium">{{ $allergy->allergy_name }}</td>
+                                    <td>
+                                        @php
+                                            $sevColor = match (strtolower($allergy->severity)) {
+                                                'low' => 'success',
+                                                'medium' => 'warning',
+                                                'high', 'severe' => 'danger',
+                                                default => 'secondary',
+                                            };
+                                        @endphp
+                                        <span
+                                            class="badge bg-{{ $sevColor }} bg-opacity-10 text-{{ $sevColor }} px-2 py-1">
+                                            {{ ucfirst($allergy->severity) }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="d-inline-block text-truncate" style="max-width: 200px;"
+                                            title="{{ $allergy->notes }}">
+                                            {{ $allergy->notes ?? '-' }}
+                                        </span>
+                                    </td>
+                                    @can('update', $patient)
+                                        <td class="text-end pe-4">
+                                            <form
+                                                action="{{ route('patients.medical-history.allergy.destroy', $allergy) }}"
+                                                method="POST" class="d-inline"
+                                                onsubmit="return confirm('Are you sure you want to delete this allergy record?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-icon btn-sm btn-light text-danger"
+                                                    title="Delete">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    @endcan
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="ti ti-mood-empty fs-1 text-muted opacity-50 mb-2"></i>
+                                            <p class="mb-0">No allergies recorded.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Surgeries -->
+            <div class="card mb-4 shadow-sm">
+                <div
+                    class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="ti ti-cut me-1"></i> Surgeries
+                    </h5>
+                    @can('update', $patient)
+                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal"
+                            data-bs-target="#addSurgeryModal">
+                            <i class="ti ti-plus me-1"></i> Add Surgery
+                        </button>
+                    @endcan
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Procedure</th>
+                                <th>Date</th>
+                                <th>Hospital</th>
+                                <th>Surgeon</th>
+                                <th>Notes</th>
+                                @can('update', $patient)
+                                    <th class="text-end pe-4">Action</th>
+                                @endcan
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($patient->surgeries as $surgery)
+                                <tr>
+                                    <td class="ps-4 fw-medium">{{ $surgery->surgery_name }}</td>
+                                    <td>{{ optional($surgery->surgery_date)->format('d M Y') ?? '-' }}</td>
+                                    <td>{{ $surgery->hospital_name ?? '-' }}</td>
+                                    <td>{{ $surgery->surgeon_name ?? '-' }}</td>
+                                    <td>
+                                        <span class="d-inline-block text-truncate" style="max-width: 150px;"
+                                            title="{{ $surgery->notes }}">
+                                            {{ $surgery->notes ?? '-' }}
+                                        </span>
+                                    </td>
+                                    @can('update', $patient)
+                                        <td class="text-end pe-4">
+                                            <form
+                                                action="{{ route('patients.medical-history.surgery.destroy', $surgery) }}"
+                                                method="POST" class="d-inline"
+                                                onsubmit="return confirm('Are you sure you want to delete this surgery record?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-icon btn-sm btn-light text-danger"
+                                                    title="Delete">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    @endcan
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="ti ti-tools-off fs-1 text-muted opacity-50 mb-2"></i>
+                                            <p class="mb-0">No surgeries recorded.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Immunizations -->
+            <div class="card mb-4 shadow-sm">
+                <div
+                    class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="ti ti-vaccine me-1"></i> Immunizations
+                    </h5>
+                    @can('update', $patient)
+                        <button type="button" class="btn btn-primary btn-sm rounded-pill px-3" data-bs-toggle="modal"
+                            data-bs-target="#addImmunizationModal">
+                            <i class="ti ti-plus me-1"></i> Add Immunization
+                        </button>
+                    @endcan
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Vaccine</th>
+                                <th>Date</th>
+                                <th>Provider</th>
+                                <th>Notes</th>
+                                @can('update', $patient)
+                                    <th class="text-end pe-4">Action</th>
+                                @endcan
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($patient->immunizations as $immunization)
+                                <tr>
+                                    <td class="ps-4 fw-medium">{{ $immunization->vaccine_name }}</td>
+                                    <td>{{ optional($immunization->immunization_date)->format('d M Y') ?? '-' }}</td>
+                                    <td>{{ $immunization->provider_name ?? '-' }}</td>
+                                    <td>
+                                        <span class="d-inline-block text-truncate" style="max-width: 150px;"
+                                            title="{{ $immunization->notes }}">
+                                            {{ $immunization->notes ?? '-' }}
+                                        </span>
+                                    </td>
+                                    @can('update', $patient)
+                                        <td class="text-end pe-4">
+                                            <form
+                                                action="{{ route('patients.medical-history.immunization.destroy', $immunization) }}"
+                                                method="POST" class="d-inline"
+                                                onsubmit="return confirm('Are you sure you want to delete this immunization record?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-icon btn-sm btn-light text-danger"
+                                                    title="Delete">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    @endcan
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="ti ti-shield-off fs-1 text-muted opacity-50 mb-2"></i>
+                                            <p class="mb-0">No immunizations recorded.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
+
+    @can('update', $patient)
+        <!-- Add Condition Modal -->
+        <div class="modal fade" id="addConditionModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Add Medical Condition</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('patients.medical-history.condition.store', $patient) }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Condition Name <span class="text-danger">*</span></label>
+                                <input type="text" name="condition_name" class="form-control" required
+                                    placeholder="e.g. Hypertension, Type 2 Diabetes">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Diagnosed Date</label>
+                                    <input type="date" name="diagnosed_date" class="form-control">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="active">Active</option>
+                                        <option value="chronic">Chronic</option>
+                                        <option value="treated">Treated</option>
+                                        <option value="cured">Cured</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Diagnosed By</label>
+                                <input type="text" name="doctor_name" class="form-control" placeholder="Doctor Name"
+                                    value="{{ auth()->user()->hasRole('Doctor') ? auth()->user()->name : '' }}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Additional details..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Condition</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Allergy Modal -->
+        <div class="modal fade" id="addAllergyModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Add Allergy</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('patients.medical-history.allergy.store', $patient) }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Allergy Name <span class="text-danger">*</span></label>
+                                <input type="text" name="allergy_name" class="form-control" required
+                                    placeholder="e.g. Penicillin, Peanuts">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Severity</label>
+                                <select name="severity" class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Severe">Severe</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Reaction details..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Allergy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Surgery Modal -->
+        <div class="modal fade" id="addSurgeryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Add Surgery Record</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('patients.medical-history.surgery.store', $patient) }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Procedure Name <span class="text-danger">*</span></label>
+                                <input type="text" name="surgery_name" class="form-control" required
+                                    placeholder="e.g. Appendectomy">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" name="surgery_date" class="form-control">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Hospital</label>
+                                    <input type="text" name="hospital_name" class="form-control"
+                                        placeholder="Hospital Name">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Surgeon</label>
+                                <input type="text" name="surgeon_name" class="form-control"
+                                    placeholder="Surgeon Name">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Additional details..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Surgery</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Immunization Modal -->
+        <div class="modal fade" id="addImmunizationModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Add Immunization Record</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('patients.medical-history.immunization.store', $patient) }}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Vaccine Name <span class="text-danger">*</span></label>
+                                <input type="text" name="vaccine_name" class="form-control" required
+                                    placeholder="e.g. Influenza, COVID-19">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" name="immunization_date" class="form-control">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Provider/Clinic</label>
+                                    <input type="text" name="provider_name" class="form-control"
+                                        placeholder="Provider Name">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes</label>
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Additional details..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Immunization</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endcan
 </x-app-layout>

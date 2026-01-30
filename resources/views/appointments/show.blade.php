@@ -10,6 +10,19 @@
                     <a href="{{ route('appointments.index') }}" class="btn btn-outline-primary me-2">
                         <i class="ti ti-arrow-left me-1"></i> Back
                     </a>
+
+                    @if ($appointment->status === 'completed' &&
+                        $appointment->visit &&
+                        $appointment->visit->consultation &&
+                        $appointment->visit->consultation->prescriptions->isEmpty())
+                        @can('create', App\Models\Prescription::class)
+                            <a href="{{ route('clinical.prescriptions.create.withConsultation', $appointment->visit->consultation->id) }}"
+                                class="btn btn-success me-2">
+                                <i class="ti ti-file-medical me-1"></i> Make Prescription
+                            </a>
+                        @endcan
+                    @endif
+
                     @can('update', $appointment)
                         <a href="{{ route('appointments.edit', $appointment) }}" class="btn btn-primary">
                             <i class="ti ti-edit me-1"></i> Edit

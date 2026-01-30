@@ -8,8 +8,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Manages staff members (users) and their roles.
+ */
 class StaffController extends Controller
 {
+    /**
+     * Display a listing of staff members.
+     *
+     * Supports filtering by:
+     * - Status: 'active', 'inactive', 'trashed'
+     * - Role: Filter by role ID
+     * - Search: Name or Email
+     * - Date Range: Creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', User::class);
@@ -48,6 +62,12 @@ class StaffController extends Controller
         return view('staff.index', compact('users', 'roles'));
     }
 
+    /**
+     * Restore the specified staff member.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $user = User::withTrashed()->findOrFail($id);
@@ -57,6 +77,11 @@ class StaffController extends Controller
         return redirect()->route('staff.index')->with('success', 'Staff member restored successfully.');
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         Gate::authorize('create', User::class);
@@ -64,6 +89,12 @@ class StaffController extends Controller
         return view('staff.create', compact('roles'));
     }
 
+    /**
+     * Store a newly created staff member in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', User::class);
@@ -95,6 +126,12 @@ class StaffController extends Controller
         return redirect()->route('staff.index')->with('success', 'Staff member created successfully.');
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\User  $staff
+     * @return \Illuminate\View\View
+     */
     public function show(User $staff)
     {
         Gate::authorize('view', $staff);
@@ -102,6 +139,12 @@ class StaffController extends Controller
         return view('staff.show', compact('staff'));
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\View\View
+     */
     public function edit(User $user)
     {
         Gate::authorize('update', $user);
@@ -109,6 +152,13 @@ class StaffController extends Controller
         return view('staff.edit', compact('user', 'roles'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, User $user)
     {
         Gate::authorize('update', $user);
@@ -137,6 +187,12 @@ class StaffController extends Controller
         return redirect()->route('staff.index')->with('success', 'Staff member updated successfully.');
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(User $user)
     {
         Gate::authorize('delete', $user);
@@ -145,6 +201,11 @@ class StaffController extends Controller
         return redirect()->route('staff.index')->with('success', 'Staff member deleted successfully.');
     }
 
+    /**
+     * Display a listing of staff passwords (for management).
+     *
+     * @return \Illuminate\View\View
+     */
     public function passwords()
     {
         Gate::authorize('viewAny', User::class);

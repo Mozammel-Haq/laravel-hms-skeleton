@@ -36,6 +36,24 @@
                     margin: 0 !important;
                     padding: 0 !important;
                 }
+
+                /* Hide sorting icons in print */
+                th.sorting::before,
+                th.sorting::after,
+                th.sorting_asc::before,
+                th.sorting_asc::after,
+                th.sorting_desc::before,
+                th.sorting_desc::after {
+                    display: none !important;
+                    content: none !important;
+                }
+
+                th.sorting,
+                th.sorting_asc,
+                th.sorting_desc {
+                    background-image: none !important;
+                    padding-right: initial !important;
+                }
             }
 
             .pos-receipt {
@@ -132,7 +150,7 @@
                                 class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'partial' ? 'warning' : 'secondary') }}">{{ ucfirst($invoice->status) }}</span>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
+                            <table class="table table-hover align-middle static-table">
                                 <thead>
                                     <tr>
                                         <th>Description</th>
@@ -256,7 +274,7 @@
 
         <div class="dashed-border"></div>
 
-        <table>
+        <table class="static-table">
             <thead>
                 <tr>
                     <th>Item</th>

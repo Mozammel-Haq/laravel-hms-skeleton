@@ -6,8 +6,25 @@ use App\Models\Clinic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * ClinicController
+ *
+ * Manages clinic profiles, settings, and media.
+ * Handles creation, updates, and deletion of clinic records.
+ * Supports multi-tenant configuration and gallery management.
+ */
 class ClinicController extends Controller
 {
+    /**
+     * Display a listing of clinics.
+     *
+     * Supports filtering by:
+     * - Status: 'active', 'inactive', 'trashed' (with/only)
+     * - Search: Name, code, city
+     * - Date Range: Creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', Clinic::class);
@@ -46,12 +63,44 @@ class ClinicController extends Controller
         return view('clinics.index', compact('clinics'));
     }
 
+    /**
+     * Display the current user's clinic profile.
+     *
+     * Redirects to the show page for the clinic associated with the authenticated user.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function profile()
+    {
+        $clinic = auth()->user()->clinic;
+        if (!$clinic) {
+            return redirect()->route('dashboard')->with('error', 'No clinic associated with your account.');
+        }
+        return redirect()->route('clinics.show', $clinic);
+    }
+
+    /**
+     * Show the form for creating a new clinic.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         Gate::authorize('create', Clinic::class);
         return view('clinics.create');
     }
 
+    /**
+     * Store a newly created clinic in storage.
+     *
+     * Features:
+     * - Validates clinic details (name, code, address, etc.)
+     * - Handles logo upload
+     * - Handles gallery image uploads with sorting
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', Clinic::class);
@@ -103,18 +152,43 @@ class ClinicController extends Controller
         return redirect()->route('clinics.show', $clinic)->with('success', 'Clinic created successfully.');
     }
 
+    /**
+     * Display the specified clinic profile.
+     *
+     * @param  \App\Models\Clinic  $clinic
+     * @return \Illuminate\View\View
+     */
     public function show(Clinic $clinic)
     {
         Gate::authorize('view', $clinic);
         return view('clinics.show', compact('clinic'));
     }
 
+    /**
+     * Show the form for editing the specified clinic.
+     *
+     * @param  \App\Models\Clinic  $clinic
+     * @return \Illuminate\View\View
+     */
     public function edit(Clinic $clinic)
     {
         Gate::authorize('update', $clinic);
         return view('clinics.edit', compact('clinic'));
     }
 
+    /**
+     * Update the specified clinic in storage.
+     *
+     * Features:
+     * - Updates clinic details
+     * - Replaces logo (deletes old one)
+     * - Adds new gallery images
+     * - Reorders gallery images
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Clinic  $clinic
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Clinic $clinic)
     {
         Gate::authorize('update', $clinic);
@@ -184,6 +258,14 @@ class ClinicController extends Controller
         return redirect()->route('clinics.show', $clinic)->with('success', 'Clinic updated successfully.');
     }
 
+    /**
+     * Remove the specified clinic image from storage.
+     *
+     * Deletes the image file and database record.
+     *
+     * @param  \App\Models\ClinicImage  $image
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroyImage(\App\Models\ClinicImage $image)
     {
         $image->load('clinic');
@@ -198,6 +280,14 @@ class ClinicController extends Controller
         return response()->json(['success' => true]);
     }
 
+    /**
+     * Remove the specified clinic from storage.
+     *
+     * Checks for dependencies before deletion.
+     *
+     * @param  \App\Models\Clinic  $clinic
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Clinic $clinic)
     {
         Gate::authorize('delete', $clinic);
@@ -216,6 +306,12 @@ class ClinicController extends Controller
         }
     }
 
+    /**
+     * Restore the specified soft-deleted clinic.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $clinic = Clinic::withTrashed()->findOrFail($id);

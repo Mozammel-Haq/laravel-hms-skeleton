@@ -11,8 +11,20 @@ use App\Support\TenantContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
+/**
+ * PatientDashboardController
+ *
+ * Handles API requests for the patient dashboard.
+ * Aggregates statistics like upcoming appointments, vitals, and prescriptions.
+ */
 class PatientDashboardController extends Controller
 {
+    /**
+     * Get dashboard statistics for the patient.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function stats(Request $request)
     {
         $user = $request->user();

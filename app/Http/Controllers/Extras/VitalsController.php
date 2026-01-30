@@ -12,8 +12,24 @@ use App\Models\InpatientRound;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * Class VitalsController
+ *
+ * Manages the recording and storage of patient vitals.
+ * Can record vitals for visits, admissions, or independent of both.
+ *
+ * @package App\Http\Controllers\Extras
+ */
 class VitalsController extends Controller
 {
+    /**
+     * Show the form for recording vitals.
+     *
+     * Pre-fills patient/visit/admission data based on query parameters.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function record(Request $request)
     {
         Gate::authorize('create', PatientVital::class);
@@ -52,6 +68,12 @@ class VitalsController extends Controller
         return view('vitals.record', compact('patients', 'visit', 'appointment'));
     }
 
+    /**
+     * Store the recorded vitals.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', PatientVital::class);
@@ -80,6 +102,13 @@ class VitalsController extends Controller
             if ($visit->appointment && $visit->appointment->patient_id !== (int) $data['patient_id']) {
                 return redirect()->back()->withErrors([
                     'patient_id' => 'Selected patient does not match the visit.',
+                ]);
+            }
+
+            // Validation: Cannot record vitals for future appointments
+            if ($visit->appointment && $visit->appointment->appointment_date->isFuture()) {
+                return redirect()->back()->withErrors([
+                    'visit_id' => 'Vitals cannot be recorded for future appointments.',
                 ]);
             }
         }
@@ -141,6 +170,17 @@ class VitalsController extends Controller
             ->with('success', 'Vitals recorded successfully.');
     }
 
+    /**
+     * Display a history of recorded vitals.
+     *
+     * Supports filtering by:
+     * - Patient ID (via query param)
+     * - Search (Patient name, code, notes)
+     * - Date Range (recorded_at)
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function history(Request $request)
     {
         $query = PatientVital::with(['patient', 'visit.appointment'])->latest('recorded_at');

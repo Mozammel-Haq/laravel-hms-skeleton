@@ -8,10 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 
+/**
+ * PasswordResetLinkController
+ *
+ * Handles the generation and sending of password reset links.
+ */
 class PasswordResetLinkController extends Controller
 {
     /**
      * Display the password reset link request view.
+     *
+     * @return \Illuminate\View\View
      */
     public function create(): View
     {

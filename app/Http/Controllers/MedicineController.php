@@ -8,8 +8,26 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Manages medicine inventory and catalog.
+ *
+ * Responsibilities:
+ * - Medicine catalog management (CRUD)
+ * - Medicine search with stock levels
+ * - Filtering medicines by status and date
+ */
 class MedicineController extends Controller
 {
+    /**
+     * Display a listing of medicines.
+     *
+     * Supports filtering by:
+     * - Status: 'active', 'inactive', 'trashed'
+     * - Search: Name, Generic Name, Manufacturer
+     * - Date Range: Creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', Medicine::class);
@@ -43,12 +61,23 @@ class MedicineController extends Controller
         return view('pharmacy.inventory.index', compact('medicines'));
     }
 
+    /**
+     * Show the form for creating a new medicine.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         Gate::authorize('create', Medicine::class);
         return view('pharmacy.inventory.create');
     }
 
+    /**
+     * Store a newly created medicine in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', Medicine::class);
@@ -76,18 +105,37 @@ class MedicineController extends Controller
         return redirect()->route('pharmacy.medicines.index')->with('success', 'Medicine added successfully.');
     }
 
+    /**
+     * Display the specified medicine.
+     *
+     * @param \App\Models\Medicine $medicine
+     * @return \Illuminate\View\View
+     */
     public function show(Medicine $medicine)
     {
         Gate::authorize('view', $medicine);
         return view('pharmacy.inventory.create', compact('medicine'));
     }
 
+    /**
+     * Show the form for editing the specified medicine.
+     *
+     * @param \App\Models\Medicine $medicine
+     * @return \Illuminate\View\View
+     */
     public function edit(Medicine $medicine)
     {
         Gate::authorize('update', $medicine);
         return view('pharmacy.inventory.create', compact('medicine'));
     }
 
+    /**
+     * Update the specified medicine in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Medicine $medicine
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Medicine $medicine)
     {
         Gate::authorize('update', $medicine);
@@ -115,6 +163,12 @@ class MedicineController extends Controller
         return redirect()->route('pharmacy.medicines.index')->with('success', 'Medicine updated successfully.');
     }
 
+    /**
+     * Soft delete the specified medicine.
+     *
+     * @param \App\Models\Medicine $medicine
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Medicine $medicine)
     {
         Gate::authorize('delete', $medicine);
@@ -122,6 +176,19 @@ class MedicineController extends Controller
         return redirect()->route('pharmacy.medicines.index')->with('success', 'Medicine deleted successfully.');
     }
 
+    /**
+     * AJAX search for medicines with stock checking.
+     *
+     * Features:
+     * - Searches by name, generic name, or manufacturer
+     * - Checks stock levels in 'medicine_batches' table if available
+     * - Filters by current user's clinic
+     * - Formats results for Select2 or similar UI components
+     * - Returns price and stock information
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function search(Request $request)
     {
         try {

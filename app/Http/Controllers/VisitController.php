@@ -49,6 +49,12 @@ class VisitController extends Controller
         return view('visits.index', compact('visits'));
     }
 
+    /**
+     * Remove the specified visit from storage (Soft Delete).
+     *
+     * @param  \App\Models\Visit  $visit
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Visit $visit)
     {
         Gate::authorize('delete', $visit);
@@ -64,12 +70,25 @@ class VisitController extends Controller
         return redirect()->route('visits.index')->with('success', 'Visit restored successfully.');
     }
 
+    /**
+     * Display the specified visit details.
+     *
+     * @param  \App\Models\Visit  $visit
+     * @return \Illuminate\View\View
+     */
     public function show(Visit $visit)
     {
         $visit->load(['appointment.patient', 'consultation']);
         return view('visits.show', compact('visit'));
     }
 
+    /**
+     * Create an invoice for a procedure performed during the visit.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Visit  $visit
+     * @return void
+     */
     public function storeProcedureInvoice(Request $request, Visit $visit)
     {
         Gate::authorize('create', \App\Models\Invoice::class);

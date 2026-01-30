@@ -6,8 +6,25 @@ use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * DepartmentController
+ *
+ * Manages hospital departments (e.g., Cardiology, Neurology).
+ * Supports CRUD operations and soft deletes.
+ * Departments are scoped to the current tenant (clinic).
+ */
 class DepartmentController extends Controller
 {
+    /**
+     * Display a listing of departments.
+     *
+     * Supports filtering by:
+     * - Status: 'trashed' (optional)
+     * - Search: Name, description
+     * - Date Range: Creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', Department::class);
@@ -37,6 +54,12 @@ class DepartmentController extends Controller
         return view('departments.index', compact('departments'));
     }
 
+    /**
+     * Restore a soft-deleted department.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $department = Department::withTrashed()->findOrFail($id);
@@ -45,6 +68,14 @@ class DepartmentController extends Controller
         return back()->with('success', 'Department restored successfully.');
     }
 
+    /**
+     * Store a newly created department.
+     *
+     * Automatically assigns the department to the current user's clinic.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', Department::class);
@@ -59,6 +90,13 @@ class DepartmentController extends Controller
         return back()->with('success', 'Department created successfully.');
     }
 
+    /**
+     * Update the specified department.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Department  $department
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Department $department)
     {
         Gate::authorize('update', $department);
@@ -69,6 +107,14 @@ class DepartmentController extends Controller
         return back()->with('success', 'Department updated successfully.');
     }
 
+    /**
+     * Remove the specified department from storage.
+     *
+     * Performs a soft delete.
+     *
+     * @param  \App\Models\Department  $department
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Department $department)
     {
         Gate::authorize('delete', $department);

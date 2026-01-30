@@ -5,8 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\LabTest;
 use Illuminate\Http\Request;
 
+/**
+ * Manages the catalog of available lab tests.
+ */
 class LabTestController extends Controller
 {
+    /**
+     * Display a listing of lab tests.
+     *
+     * Supports filtering by:
+     * - Search: Name or Category
+     * - Status: 'active', 'inactive'
+     * - Date Range: Creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         $query = LabTest::query();
@@ -32,11 +45,24 @@ class LabTestController extends Controller
         return view('lab.catalog.index', compact('tests'));
     }
 
+    /**
+     * Show the form for creating a new lab test.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         return view('lab.catalog.create');
     }
 
+    /**
+     * Store a newly created lab test in storage.
+     *
+     * Validates and creates a new lab test record.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $request->validate([

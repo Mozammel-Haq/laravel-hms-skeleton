@@ -12,6 +12,15 @@ use App\Services\PharmacyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * Manages Pharmacy operations including Point of Sale (POS) and Sales History.
+ *
+ * Responsibilities:
+ * - Point of Sale (POS) interface for medicine sales
+ * - Processing sales and inventory deduction (via PharmacyService)
+ * - Invoice generation for sales
+ * - Sales history tracking and reporting
+ */
 class PharmacyController extends Controller
 {
     protected $pharmacyService;
@@ -21,6 +30,16 @@ class PharmacyController extends Controller
         $this->pharmacyService = $pharmacyService;
     }
 
+    /**
+     * Display a listing of pharmacy sales.
+     *
+     * Supports filtering by:
+     * - Status: 'trashed' (for soft deleted sales)
+     * - Search: Sale ID, Patient Name/Code
+     * - Date Range: Sale creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', PharmacySale::class);
@@ -55,6 +74,17 @@ class PharmacyController extends Controller
         return view('pharmacy.index', compact('sales'));
     }
 
+    /**
+     * Show the Point of Sale (POS) interface.
+     *
+     * Prepares data for the POS view, including:
+     * - Patient selection (with pre-fill from prescription)
+     * - Available medicines (filtered by stock)
+     * - Prescription details (if provided)
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function create(Request $request)
     {
         Gate::authorize('create', PharmacySale::class);
@@ -84,6 +114,15 @@ class PharmacyController extends Controller
         return view('pharmacy.pos', compact('patients', 'medicines', 'prescription'));
     }
 
+    /**
+     * Store a newly created pharmacy sale in storage.
+     *
+     * Validates stock, creates sale record, and generates a corresponding invoice.
+     * Wrapped in try-catch to handle service errors gracefully.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', PharmacySale::class);
@@ -136,6 +175,14 @@ class PharmacyController extends Controller
         }
     }
 
+    /**
+     * Display the specified pharmacy sale.
+     *
+     * Shows sale details including items, patient info, and linked invoice.
+     *
+     * @param  \App\Models\PharmacySale  $pharmacySale
+     * @return \Illuminate\View\View
+     */
     public function show(PharmacySale $pharmacySale)
     {
         Gate::authorize('view', $pharmacySale);
@@ -151,6 +198,14 @@ class PharmacyController extends Controller
         return view('pharmacy.show', ['sale' => $pharmacySale, 'invoice' => $invoice]);
     }
 
+    /**
+     * Remove the specified pharmacy sale from storage.
+     *
+     * Performs a soft delete.
+     *
+     * @param  \App\Models\PharmacySale  $pharmacySale
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(PharmacySale $pharmacySale)
     {
         Gate::authorize('delete', $pharmacySale);
@@ -158,6 +213,12 @@ class PharmacyController extends Controller
         return redirect()->route('pharmacy.index')->with('success', 'Sale deleted successfully.');
     }
 
+    /**
+     * Restore a soft-deleted pharmacy sale.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $sale = PharmacySale::withTrashed()->findOrFail($id);

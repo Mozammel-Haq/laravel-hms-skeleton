@@ -42,7 +42,7 @@ class LabResultReadyNotification extends Notification
         return [
             'title' => 'Lab Result Ready',
             'message' => "Results for {$this->order->test->name} are now available.",
-            'link' => route('lab.show', $this->order->id),
+            'link' => '/patient/lab-results',
             'type' => 'info',
         ];
     }

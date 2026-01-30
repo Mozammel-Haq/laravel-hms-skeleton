@@ -8,8 +8,26 @@ use App\Models\DoctorScheduleRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
+/**
+ * Handles self-scheduling functionalities for doctors.
+ *
+ * Responsibilities:
+ * - Viewing own schedule and appointments.
+ * - Managing schedule preferences.
+ * - Submitting schedule update requests.
+ */
 class DoctorSelfScheduleController extends Controller
 {
+    /**
+     * Display the doctor's schedule and appointments.
+     *
+     * Supports filtering by:
+     * - Search (Patient name, code)
+     * - Status (scheduled, completed, etc.)
+     * - Date Range (appointment_date)
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         $doctor = optional(auth()->user())->doctor;
@@ -62,6 +80,11 @@ class DoctorSelfScheduleController extends Controller
         return view('doctor.schedule.index', compact('doctor', 'appointments', 'schedules'));
     }
 
+    /**
+     * Show the schedule management view for the doctor.
+     *
+     * @return \Illuminate\View\View
+     */
     public function manage()
     {
         $doctor = optional(auth()->user())->doctor;
@@ -85,6 +108,12 @@ class DoctorSelfScheduleController extends Controller
         ]);
     }
 
+    /**
+     * Process the schedule update request from the doctor.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function requestUpdate(Request $request)
     {
         $doctor = optional(auth()->user())->doctor;

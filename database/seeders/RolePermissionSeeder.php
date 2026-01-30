@@ -132,6 +132,7 @@ class RolePermissionSeeder extends Seeder
             'view_dashboard',
             'view_doctor_dashboard',
             'view_patients',
+            'edit_patients', // Doctors need to edit patient medical history
             'view_appointments',
             'perform_consultation',
             'view_consultations',

@@ -47,7 +47,7 @@ class DefaultClinicUserSeeder extends Seeder
                 'clinic_id' => $clinicId,
                 'email' => 'hmojammel29@gmail.com',
                 'name' => 'Mozammel Haq',
-                'password' => '$2y$12$MkVB1YRWFc.Rjzo1cvMKAOo8Wfa0eWdLew2I3rpOQTd8/eXpY.c2', // truncated for brevity; ensure full hash is used in real data
+                'password' => '$2y$12$MkVB1YRWFc.Rjzo1cvMKAOo8Wfa0eWdLew2I3rpOQTd8/eXpY.c2',
                 'phone' => '01799007398',
                 'email_verified_at' => null,
                 'last_login_at' => null,

@@ -9,10 +9,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
+/**
+ * ProfileController
+ *
+ * Manages user profile settings.
+ * Handles profile information updates, password changes, and account deletion.
+ */
 class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
      */
     public function edit(Request $request): View
     {
@@ -23,6 +32,12 @@ class ProfileController extends Controller
 
     /**
      * Update the user's profile information.
+     *
+     * Handles name, email, and profile photo updates.
+     * Resets email verification if email is changed.
+     *
+     * @param  \App\Http\Requests\ProfileUpdateRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -33,7 +48,7 @@ class ProfileController extends Controller
             $file = $request->file('profile_photo');
             $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
             $path = $file->storeAs('profile-photos', $filename, 'public');
-            
+
             // Delete old photo if exists
             if ($user->profile_photo_path) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
@@ -52,6 +67,12 @@ class ProfileController extends Controller
 
     /**
      * Delete the user's account.
+     *
+     * Permanently deletes the user account and associated data.
+     * Requires password confirmation.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Request $request): RedirectResponse
     {

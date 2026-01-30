@@ -7,8 +7,24 @@ use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * BedController
+ *
+ * Manages hospital beds within rooms and wards.
+ * Handles bed availability, creation, and reordering.
+ */
 class BedController extends Controller
 {
+    /**
+     * Display a listing of beds.
+     *
+     * Supports filtering by:
+     * - Status: 'available', 'occupied', 'maintenance'
+     * - Search: Bed number
+     * - Date Range: Creation date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         $query = Bed::withoutTenant()
@@ -37,6 +53,11 @@ class BedController extends Controller
         return view('ipd.beds.index', compact('beds'));
     }
 
+    /**
+     * Show the form for creating a new bed.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         $rooms = Room::withoutTenant()
@@ -48,6 +69,12 @@ class BedController extends Controller
         return view('ipd.beds.create', compact('rooms'));
     }
 
+    /**
+     * Store a newly created bed.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -59,6 +86,12 @@ class BedController extends Controller
         return redirect()->route('ipd.beds.index')->with('success', 'Bed created');
     }
 
+    /**
+     * Show the form for editing the specified bed.
+     *
+     * @param  \App\Models\Bed  $bed
+     * @return \Illuminate\View\View
+     */
     public function edit(Bed $bed)
     {
         $rooms = Room::withoutTenant()
@@ -70,6 +103,13 @@ class BedController extends Controller
         return view('ipd.beds.edit', compact('bed', 'rooms'));
     }
 
+    /**
+     * Update the specified bed.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Bed  $bed
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, Bed $bed)
     {
         $request->validate([
@@ -81,6 +121,12 @@ class BedController extends Controller
         return redirect()->route('ipd.beds.index')->with('success', 'Bed updated');
     }
 
+    /**
+     * Reorder beds within a room.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function reorder(Request $request)
     {
         $request->validate([

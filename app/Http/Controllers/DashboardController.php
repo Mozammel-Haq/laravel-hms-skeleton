@@ -16,8 +16,24 @@ use App\Models\LeaveRequest;
 use App\Models\Patient;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * DashboardController
+ *
+ * Manages the dashboard views for different user roles.
+ * Displays key statistics and metrics relevant to the user's role.
+ */
 class DashboardController extends Controller
 {
+    /**
+     * Display the dashboard.
+     *
+     * Shows different statistics based on the user's role:
+     * - Super Admin: Global system stats.
+     * - Clinic Admin: Clinic-specific stats (doctors, patients, appointments).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -296,7 +312,6 @@ class DashboardController extends Controller
         }
 
         // Default fallback if no role matches
-        // return view('dashboard');
         abort(403, 'Unauthorized access: User has no assigned role.');
     }
 }

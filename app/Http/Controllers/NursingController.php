@@ -5,8 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\Admission;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * Manages nursing-related functionality.
+ *
+ * Responsibilities:
+ * - Listing admissions for nursing notes
+ * - Filtering admissions by status and date
+ */
 class NursingController extends Controller
 {
+    /**
+     * Display a listing of admissions for nursing notes.
+     *
+     * Supports filtering by:
+     * - Status: 'admitted', 'all', or specific status (Default: 'admitted')
+     * - Search: Patient name or code
+     * - Date Range: Admission date
+     *
+     * @return \Illuminate\View\View
+     */
     public function notesIndex()
     {
         Gate::authorize('view_nursing_notes');

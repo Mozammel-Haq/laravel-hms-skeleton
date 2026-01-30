@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
                 'role' => 'Clinic Admin',
             ],
             [
-                'name' => 'Dr. John Doe',
+                'name' => 'Default Doctor',
                 'email' => 'doctor@hospital.com',
                 'role' => 'Doctor',
             ],

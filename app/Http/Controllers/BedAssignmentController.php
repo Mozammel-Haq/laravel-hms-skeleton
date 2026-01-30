@@ -4,17 +4,33 @@ namespace App\Http\Controllers;
 
 use App\Models\BedAssignment;
 
+/**
+ * BedAssignmentController
+ *
+ * Manages the assignment of patients to beds (Admissions).
+ * Tracks active and released assignments.
+ */
 class BedAssignmentController extends Controller
 {
+    /**
+     * Display a listing of bed assignments.
+     *
+     * Supports filtering by:
+     * - Status: 'active' (occupied), 'released'
+     * - Search: Patient name, code
+     * - Date Range: Assignment date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        $query = BedAssignment::with(['bed','admission.patient']);
+        $query = BedAssignment::with(['bed', 'admission.patient']);
 
         if (request()->filled('search')) {
             $search = request('search');
-            $query->whereHas('admission.patient', function($q) use ($search) {
+            $query->whereHas('admission.patient', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('patient_code', 'like', "%{$search}%");
+                    ->orWhere('patient_code', 'like', "%{$search}%");
             });
         }
 
@@ -38,9 +54,15 @@ class BedAssignmentController extends Controller
         return view('ipd.bed_assignments.index', compact('assignments'));
     }
 
+    /**
+     * Display the specified bed assignment details.
+     *
+     * @param  \App\Models\BedAssignment  $bedAssignment
+     * @return \Illuminate\View\View
+     */
     public function show(BedAssignment $bedAssignment)
     {
-        $bedAssignment->load(['bed','admission.patient']);
+        $bedAssignment->load(['bed', 'admission.patient']);
         return view('ipd.bed_assignments.show', ['assignment' => $bedAssignment]);
     }
 }

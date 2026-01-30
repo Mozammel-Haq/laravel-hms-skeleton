@@ -11,6 +11,14 @@ use Illuminate\Validation\ValidationException;
 
 class PatientAuthController extends Controller
 {
+    /**
+     * Authenticate a patient and generate an access token.
+     * Supports multi-clinic authentication via clinic_code.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function login(Request $request)
     {
         // return response()->json($request->all());
@@ -80,20 +88,51 @@ class PatientAuthController extends Controller
         ]);
     }
 
+    /**
+     * Destroy an authenticated session.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function logout(Request $request)
     {
         $token = $request->user()?->currentAccessToken();
         if ($token) {
+            $patient = $request->user();
+            ActivityLog::create([
+                'user_id' => null,
+                'clinic_id' => $patient->clinic_id,
+                'action' => 'logout',
+                'description' => 'Patient logged out via API',
+                'entity_type' => 'App\Models\Patient',
+                'entity_id' => $patient->id,
+                'ip_address' => $request->ip(),
+            ]);
+
             $token->delete();
         }
         return response()->json(['message' => 'Logged out']);
     }
 
+    /**
+     * Get the authenticated patient's profile.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function me(Request $request)
     {
         return response()->json($request->user());
     }
 
+    /**
+     * Change the patient's password.
+     * Validates current password before updating.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function changePassword(Request $request)
     {
         $validated = $request->validate([

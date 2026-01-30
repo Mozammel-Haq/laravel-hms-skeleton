@@ -9,12 +9,6 @@
                     </div>
                 </div>
 
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -46,12 +40,12 @@
                                     <td>
                                         <div class="small">
                                             Dr. {{ $request->appointment->doctor->user->name }}<br>
-                                            {{ $request->appointment->appointment_date->format('Y-m-d') }} 
+                                            {{ $request->appointment->appointment_date->format('Y-m-d') }}
                                             {{ \Carbon\Carbon::parse($request->appointment->start_time)->format('h:i A') }}
                                         </div>
                                     </td>
                                     <td>
-                                        @if($request->type === 'reschedule')
+                                        @if ($request->type === 'reschedule')
                                             <div class="text-primary fw-bold">
                                                 {{ $request->desired_date->format('Y-m-d') }} <br>
                                                 {{ \Carbon\Carbon::parse($request->desired_time)->format('h:i A') }}
@@ -66,19 +60,23 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="d-flex gap-2 justify-content-end">
-                                            <form action="{{ route('appointments.requests.update', $request) }}" method="POST">
+                                            <form action="{{ route('appointments.requests.update', $request) }}"
+                                                method="POST">
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="status" value="approved">
-                                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to approve this request?')">
+                                                <button type="submit" class="btn btn-sm btn-success"
+                                                    onclick="return confirm('Are you sure you want to approve this request?')">
                                                     Approve
                                                 </button>
                                             </form>
-                                            <form action="{{ route('appointments.requests.update', $request) }}" method="POST">
+                                            <form action="{{ route('appointments.requests.update', $request) }}"
+                                                method="POST">
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="status" value="rejected">
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to reject this request?')">
+                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Are you sure you want to reject this request?')">
                                                     Reject
                                                 </button>
                                             </form>

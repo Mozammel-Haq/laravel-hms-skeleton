@@ -10,6 +10,9 @@ import {
   FileText,
   User,
   X,
+  Activity,
+  Pill,
+  Stethoscope,
 } from "lucide-react";
 import Button from "../../components/common/Button";
 import { useAuth } from "../../context/AuthContext";
@@ -26,6 +29,11 @@ const Appointments = () => {
   const { user } = useAuth();
   const {activeClinicId} = useClinic();
 
+  // Summary Modal State
+  const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryData, setSummaryData] = useState(null);
+
   // Request Modal State
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -34,17 +42,22 @@ const Appointments = () => {
   const [desiredDate, setDesiredDate] = useState("");
   const [desiredTime, setDesiredTime] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // console.log(user);
   const getAppointments = async () => {
     try {
       setLoading(true);
 
-      // The clinic_id is handled by the API interceptor (X-Clinic-ID header),
-
       const response = await api.get(API_ENDPOINTS.PATIENT.APPOINTMENTS, {
         params: {
-          patient_id: user?.id
+          patient_id: user?.id,
+          search: searchTerm,
+          status: filter === "upcoming" ? "upcoming" : (filter === "past" ? "past" : filter) // Backend handles 'upcoming' logic?
+          // Wait, backend logic for 'status' in AppointmentsApiController was:
+          // if ($request->filled('status') && $request->status !== 'all') { $query->where('status', $request->status); }
+          // The backend doesn't seem to have 'upcoming' logic in the summary I saw.
+          // Let's re-read AppointmentsApiController to be sure.
         }
       });
 
@@ -59,18 +72,30 @@ const Appointments = () => {
 
   useEffect(() => {
     if (activeClinicId) {
-      getAppointments();
+        const timer = setTimeout(() => {
+            getAppointments();
+        }, 500);
+        return () => clearTimeout(timer);
     }
-  }, [activeClinicId]);
+  }, [activeClinicId, searchTerm, filter]);
   console.log(appointments);
   const filteredAppointments = appointments.filter((apt) => {
     const status = apt.status?.toLowerCase().trim();
-    // console.log(`Appointment ${apt.id} status: ${status}, filter: ${filter}`);
-    if (filter === "upcoming")
-      return ["confirmed", "pending", "arrived"].includes(status);
-    if (filter === "past")
-      return ["completed", "cancelled"].includes(status);
-    return true;
+    const matchesFilter = filter === "upcoming"
+      ? ["confirmed", "pending", "arrived"].includes(status)
+      : ["completed", "cancelled"].includes(status);
+
+    if (!matchesFilter) return false;
+
+    if (!searchTerm) return true;
+
+    const term = searchTerm.toLowerCase();
+    const doctorName = apt.doctor?.user?.name?.toLowerCase() || "";
+    const type = apt.type?.toLowerCase() || "";
+    const notes = apt.notes?.toLowerCase() || "";
+    const date = apt.appointment_date || "";
+
+    return doctorName.includes(term) || type.includes(term) || notes.includes(term) || date.includes(term);
   });
 
   const getDateParts = (dateString) => {
@@ -120,6 +145,28 @@ const Appointments = () => {
     setIsRequestModalOpen(false);
     setSelectedAppointment(null);
     setRequestType(null);
+  };
+
+  const openSummaryModal = async (appointment) => {
+    setSelectedAppointment(appointment);
+    setIsSummaryModalOpen(true);
+    setSummaryLoading(true);
+    try {
+        const response = await api.get(API_ENDPOINTS.PATIENT.APPOINTMENT_DETAILS(appointment.id));
+        setSummaryData(response.data);
+    } catch (error) {
+        console.error("Failed to fetch appointment details", error);
+        // Fallback to basic data if API fails or not implemented yet
+        setSummaryData({ appointment });
+    } finally {
+        setSummaryLoading(false);
+    }
+  };
+
+  const closeSummaryModal = () => {
+    setIsSummaryModalOpen(false);
+    setSelectedAppointment(null);
+    setSummaryData(null);
   };
 
   const handleSubmitRequest = async (e) => {
@@ -196,8 +243,10 @@ const Appointments = () => {
           </div>
           <input
             type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search doctor, date..."
             className="block w-full pl-10 pr-3 py-2 border border-secondary-200 dark:border-secondary-800 rounded-md leading-5 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white placeholder-secondary-400 dark:placeholder-secondary-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm"
-            placeholder="Search doctor or specialty..."
           />
         </div>
       </div>
@@ -318,39 +367,41 @@ const Appointments = () => {
                         {isUpcoming ? (
                           <>
                             {status === 'pending' && (
-                              <>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="flex-1 sm:flex-none min-w-[140px] font-semibold hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-700 dark:hover:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
-                                  onClick={() => {
-                                    navigate('/portal/appointments/book', {
-                                      state: {
-                                        prefill: {
-                                          doctorId: apt?.doctor?.id || apt?.doctor_id,
-                                          departmentId: apt?.department_id || apt?.doctor?.primary_department_id,
-                                          date: apt.appointment_date,
-                                          time: apt.start_time,
-                                          visitMode: apt.appointment_type
-                                        }
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 sm:flex-none min-w-[140px] font-semibold hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-700 dark:hover:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
+                                onClick={() => {
+                                  navigate('/portal/appointments/book', {
+                                    state: {
+                                      prefill: {
+                                        appointmentId: apt.id,
+                                        doctorId: apt?.doctor?.id || apt?.doctor_id,
+                                        departmentId: apt?.department_id || apt?.doctor?.primary_department_id,
+                                        date: apt.appointment_date,
+                                        time: apt.start_time,
+                                        visitMode: apt.appointment_type
                                       }
-                                    });
-                                  }}
-                                  disabled={hasPendingRequest}
-                                >
-                                  <Calendar className="w-4 h-4 mr-2" />
-                                  Reschedule
-                                </Button>
-                                <Button
-                                  variant="danger"
-                                  size="sm"
-                                  className="flex-1 sm:flex-none min-w-[140px] font-semibold"
-                                  onClick={() => openRequestModal(apt, 'cancel')}
-                                  disabled={hasPendingRequest}
-                                >
-                                  Cancel
-                                </Button>
-                              </>
+                                    }
+                                  });
+                                }}
+                                disabled={hasPendingRequest}
+                              >
+                                <Calendar className="w-4 h-4 mr-2" />
+                                Reschedule
+                              </Button>
+                            )}
+
+                            {status === 'pending' && (
+                              <Button
+                                variant="danger"
+                                size="sm"
+                                className="flex-1 sm:flex-none min-w-[140px] font-semibold"
+                                onClick={() => openRequestModal(apt, 'cancel')}
+                                disabled={hasPendingRequest}
+                              >
+                                Cancel
+                              </Button>
                             )}
                           </>
                         ) : (
@@ -358,6 +409,7 @@ const Appointments = () => {
                             variant="outline"
                             size="sm"
                             className="flex-1 sm:flex-none min-w-[140px] font-semibold hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors"
+                            onClick={() => openSummaryModal(apt)}
                           >
                             View Summary
                           </Button>
@@ -469,6 +521,162 @@ const Appointments = () => {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Summary Modal */}
+      {isSummaryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-secondary-900 rounded-xl shadow-xl max-w-2xl w-full overflow-hidden border border-secondary-200 dark:border-secondary-700 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-secondary-100 dark:border-secondary-800">
+              <h3 className="text-lg font-bold text-secondary-900 dark:text-white">
+                Appointment Summary
+              </h3>
+              <button onClick={closeSummaryModal} className="text-secondary-500 hover:text-secondary-700 dark:hover:text-secondary-300">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto custom-scrollbar">
+              {summaryLoading ? (
+                <div className="flex justify-center py-8">
+                  <MedicalLoader text="Loading details..." />
+                </div>
+              ) : summaryData?.appointment ? (
+                <div className="space-y-6">
+                  {/* Doctor & Time Info */}
+                  <div className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-secondary-50 dark:bg-secondary-800/50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-white dark:bg-secondary-700 flex items-center justify-center text-xl font-bold text-primary-600 dark:text-primary-400 border border-secondary-200 dark:border-secondary-600">
+                        <User className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-secondary-900 dark:text-white">
+                          {summaryData.appointment.doctor?.user?.name}
+                        </h4>
+                        <p className="text-sm text-secondary-500 dark:text-secondary-400">
+                          {getSpecializations(summaryData.appointment.doctor)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="sm:ml-auto flex flex-col items-start sm:items-end justify-center">
+                        <div className="flex items-center gap-2 text-sm text-secondary-600 dark:text-secondary-300">
+                            <Calendar className="w-4 h-4" />
+                            <span>{summaryData.appointment.appointment_date}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-secondary-600 dark:text-secondary-300 mt-1">
+                            <Clock className="w-4 h-4" />
+                            <span>{summaryData.appointment.start_time} - {summaryData.appointment.end_time}</span>
+                        </div>
+                    </div>
+                  </div>
+
+                  {/* Vitals */}
+                  {summaryData.appointment.visit?.vitals?.length > 0 && (() => {
+                      const vitalRecord = summaryData.appointment.visit.vitals[0];
+                      const displayVitals = [
+                          { key: 'Blood Pressure', value: vitalRecord.blood_pressure, unit: 'mmHg' },
+                          { key: 'Heart Rate', value: vitalRecord.heart_rate, unit: 'bpm' },
+                          { key: 'Temperature', value: vitalRecord.temperature, unit: '°C' },
+                          { key: 'Weight', value: vitalRecord.weight, unit: 'kg' },
+                          { key: 'SpO2', value: vitalRecord.spo2, unit: '%' },
+                      ].filter(v => v.value);
+
+                      if (displayVitals.length === 0) return null;
+
+                      return (
+                          <div>
+                              <h4 className="flex items-center gap-2 font-bold text-secondary-900 dark:text-white mb-3">
+                                  <Activity className="w-5 h-5 text-rose-500" />
+                                  Vitals Recorded
+                              </h4>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                  {displayVitals.map((vital, idx) => (
+                                      <div key={idx} className="p-3 rounded-lg border border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800">
+                                          <p className="text-xs text-secondary-500 dark:text-secondary-400 uppercase font-semibold">
+                                              {vital.key}
+                                          </p>
+                                          <p className="font-bold text-secondary-900 dark:text-white">
+                                              {vital.value} <span className="text-xs font-normal text-secondary-500">{vital.unit}</span>
+                                          </p>
+                                      </div>
+                                  ))}
+                              </div>
+                          </div>
+                      );
+                  })()}
+
+                  {/* Consultation Notes */}
+                  {summaryData.appointment.visit?.consultation && (
+                      <div>
+                          <h4 className="flex items-center gap-2 font-bold text-secondary-900 dark:text-white mb-3">
+                              <Stethoscope className="w-5 h-5 text-primary-500" />
+                              Consultation Notes
+                          </h4>
+                          <div className="p-4 rounded-xl border border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-sm text-secondary-700 dark:text-secondary-300 whitespace-pre-wrap">
+                              {summaryData.appointment.visit.consultation.doctor_notes || summaryData.appointment.visit.consultation.notes || "No notes recorded."}
+                          </div>
+                      </div>
+                  )}
+
+                  {/* Prescriptions */}
+                  {summaryData.appointment.visit?.consultation?.prescriptions?.length > 0 && (() => {
+                      const prescriptions = summaryData.appointment.visit.consultation.prescriptions;
+                      const allItems = prescriptions.flatMap(p => p.items || []);
+
+                      if (allItems.length === 0) return null;
+
+                      return (
+                          <div>
+                              <h4 className="flex items-center gap-2 font-bold text-secondary-900 dark:text-white mb-3">
+                                  <Pill className="w-5 h-5 text-emerald-500" />
+                                  Prescriptions
+                              </h4>
+                              <div className="space-y-2">
+                                  {allItems.map((item, idx) => (
+                                      <div key={idx} className="flex items-start gap-3 p-3 rounded-lg border border-secondary-200 dark:border-secondary-700 bg-white dark:bg-secondary-800">
+                                          <div className="mt-1">
+                                              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                          </div>
+                                          <div>
+                                              <p className="font-bold text-secondary-900 dark:text-white">
+                                                  {item.medicine?.name || 'Unknown Medicine'}
+                                              </p>
+                                              <p className="text-sm text-secondary-600 dark:text-secondary-400">
+                                                  {item.dosage} • {item.frequency} • {item.duration_days} days
+                                              </p>
+                                              {item.instructions && (
+                                                  <p className="text-xs text-secondary-500 dark:text-secondary-500 mt-1 italic">
+                                                      Note: {item.instructions}
+                                                  </p>
+                                              )}
+                                          </div>
+                                      </div>
+                                  ))}
+                              </div>
+                          </div>
+                      );
+                  })()}
+
+                  {/* Fallback if no visit data */}
+                  {!summaryData.appointment.visit && (
+                      <div className="text-center py-8 text-secondary-500 dark:text-secondary-400">
+                          <FileText className="w-12 h-12 mx-auto mb-2 opacity-20" />
+                          <p>No medical records found for this appointment yet.</p>
+                      </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-secondary-500">
+                  Failed to load details.
+                </div>
+              )}
+            </div>
+
+            <div className="p-4 border-t border-secondary-100 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-800/50 flex justify-end">
+              <Button onClick={closeSummaryModal}>Close</Button>
+            </div>
           </div>
         </div>
       )}

@@ -5,12 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * ActivityController
+ *
+ * Displays activity logs for system auditing.
+ * Allows filtering by action, user, and date range.
+ */
 class ActivityController extends Controller
 {
+    /**
+     * Display a listing of activity logs.
+     *
+     * Supports filtering by:
+     * - Action: Filter by specific action type.
+     * - Search: Search by action name or user name.
+     * - Date Range: Filter by start and end dates.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('view_reports');
-        $query = ActivityLog::with('user');
+        $query = ActivityLog::with(['user', 'subject']);
 
         if (request()->filled('action')) {
             if (request('action') !== 'all') {

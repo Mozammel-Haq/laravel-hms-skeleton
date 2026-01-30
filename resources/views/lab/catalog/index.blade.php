@@ -1,7 +1,12 @@
 <x-app-layout>
 
     <div class="card mt-3 p-3 mx-2">
-        <h5 class="mb-3">Lab Test Catalog</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Lab Test Catalog</h5>
+            <a href="{{ route('lab.catalog.create') }}" class="btn btn-primary">
+                <i class="ti ti-plus me-1"></i> Add Lab Test
+            </a>
+        </div>
 
         <!-- Filter Form -->
         <form method="GET" action="{{ route('lab.catalog.index') }}" class="mb-4">

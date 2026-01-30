@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Heart, Thermometer, Droplet, Weight, Wind, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
+import { Activity, Heart, Thermometer, Droplet, Weight, Wind, TrendingUp, TrendingDown, ArrowRight, Search } from 'lucide-react';
 import Button from '../../components/common/Button';
 import api from '../../services/api';
 import { API_ENDPOINTS } from '../../services/endpoints';
@@ -11,6 +11,7 @@ const Vitals = () => {
   const { user } = useAuth();
   const { activeClinicId } = useClinic();
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState({ cards: [], history: [] });
 
   useEffect(() => {
@@ -30,6 +31,18 @@ const Vitals = () => {
         fetchVitals();
     }
   }, [user, activeClinicId]);
+
+  const filteredHistory = data.history.filter(record => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+        record.date?.toLowerCase().includes(term) ||
+        record.heartRate?.toString().includes(term) ||
+        record.bp?.toString().includes(term) ||
+        record.temp?.toString().includes(term) ||
+        record.weight?.toString().includes(term)
+    );
+  });
 
   const getIcon = (title) => {
       switch(title) {
@@ -135,12 +148,12 @@ const Vitals = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-secondary-200 dark:divide-secondary-800">
-              {data.history.length === 0 ? (
+              {filteredHistory.length === 0 ? (
                  <tr>
                      <td colSpan="5" className="px-6 py-4 text-center text-secondary-500">No history available</td>
                  </tr>
               ) : (
-                data.history.map((record, i) => (
+                filteredHistory.map((record, i) => (
                 <tr key={i} className="hover:bg-secondary-50 dark:hover:bg-secondary-700 transition-colors">
                   <td className="px-6 py-4 text-secondary-900 dark:text-white">{record.date}</td>
                   <td className="px-6 py-4 text-secondary-600 dark:text-secondary-300">{record.heartRate}</td>

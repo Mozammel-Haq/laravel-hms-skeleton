@@ -9,8 +9,22 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
+/**
+ * PatientProfileController
+ *
+ * Handles API requests for updating the patient's profile.
+ * Supports updating personal information, profile photo, and password.
+ */
 class PatientProfileController extends Controller
 {
+    /**
+     * Update the patient's profile.
+     * Validates input data and handles file uploads for profile photos.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request, $id)
     {
         $patient = Patient::findOrFail($id);

@@ -45,7 +45,7 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>User</th>
+                            <th>Performed By</th>
                             <th>Action</th>
                             <th>Description</th>
                             <th>Date</th>
@@ -54,10 +54,10 @@
                     <tbody>
                         @forelse($activities as $activity)
                             <tr>
-                                <td>{{ $activity->user->name ?? 'System' }}</td>
-                                <td>{{ $activity->action }}</td>
+                                <td>{{ $activity->actor_name }}</td>
+                                <td><span class="badge bg-label-primary">{{ ucfirst($activity->action) }}</span></td>
                                 <td>{{ $activity->description }}</td>
-                                <td>{{ $activity->created_at }}</td>
+                                <td>{{ $activity->created_at->format('M d, Y h:i A') }}</td>
                             </tr>
                         @empty
                             <tr>

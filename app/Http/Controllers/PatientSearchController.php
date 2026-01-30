@@ -5,10 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use Illuminate\Http\Request;
 
+/**
+ * Handles AJAX requests for searching patients.
+ *
+ * Responsibilities:
+ * - Patient search for Select2 dropdowns
+ * - Filtering patients by eligibility (e.g., for lab tests)
+ */
 class PatientSearchController extends Controller
 {
     /**
      * Search patients for Select2 via AJAX.
+     *
+     * Supports filtering by:
+     * - Term: Name, Patient Code, Phone, Email
+     * - Type: 'lab_eligible' (checks appointments or admissions)
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function search(Request $request)
     {
@@ -20,10 +34,10 @@ class PatientSearchController extends Controller
 
         // Filter for Lab Eligibility
         if ($request->input('type') === 'lab_eligible') {
-            $query->where(function($q) {
-                $q->whereHas('appointments', function($sub) {
+            $query->where(function ($q) {
+                $q->whereHas('appointments', function ($sub) {
                     $sub->where('status', 'completed');
-                })->orWhereHas('admissions', function($sub) {
+                })->orWhereHas('admissions', function ($sub) {
                     $sub->where('status', 'admitted');
                 });
             });
@@ -32,9 +46,9 @@ class PatientSearchController extends Controller
         if ($term) {
             $query->where(function ($q) use ($term) {
                 $q->where('name', 'like', "%{$term}%")
-                  ->orWhere('patient_code', 'like', "%{$term}%")
-                  ->orWhere('phone', 'like', "%{$term}%")
-                  ->orWhere('email', 'like', "%{$term}%");
+                    ->orWhere('patient_code', 'like', "%{$term}%")
+                    ->orWhere('phone', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%");
             });
         }
 

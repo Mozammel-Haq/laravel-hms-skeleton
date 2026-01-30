@@ -9,10 +9,26 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * AdminUsersController
+ *
+ * Manages administrative users (Super Admins, Clinic Admins).
+ * Handles user creation, listing, and role assignment.
+ */
 class AdminUsersController extends Controller
 {
     /**
-     * Display a listing of users (Super Admins or Clinic Admins)
+     * Display a listing of users (Super Admins or Clinic Admins).
+     *
+     * Supports filtering by:
+     * - Search: Name, email, phone.
+     * - Status: Active, inactive, trashed.
+     * - Date Range: Registration date.
+     *
+     * Handles different views based on route (Super Admin vs Clinic Admin).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -68,7 +84,10 @@ class AdminUsersController extends Controller
     }
 
     /**
-     * Show the form for creating a new user
+     * Show the form for creating a new user.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View
      */
     public function create(Request $request)
     {
@@ -84,7 +103,10 @@ class AdminUsersController extends Controller
     }
 
     /**
-     * Store a newly created user
+     * Store a newly created user in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
@@ -128,7 +150,10 @@ class AdminUsersController extends Controller
     }
 
     /**
-     * Show the form for editing an existing user
+     * Show the form for editing the specified user.
+     *
+     * @param \App\Models\User $user
+     * @return \Illuminate\View\View
      */
     public function edit(User $user)
     {
@@ -143,7 +168,11 @@ class AdminUsersController extends Controller
     }
 
     /**
-     * Update an existing user
+     * Update the specified user in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\User $user
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, User $user)
     {
@@ -180,7 +209,7 @@ class AdminUsersController extends Controller
             $file = $request->file('profile_photo');
             $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
             $path = $file->storeAs('profile-photos', $filename, 'public');
-            
+
             // Delete old photo if exists
             if ($user->profile_photo_path) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
@@ -198,7 +227,10 @@ class AdminUsersController extends Controller
     }
 
     /**
-     * Delete a user
+     * Remove the specified user from storage.
+     *
+     * @param \App\Models\User $user
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(User $user)
     {

@@ -7,10 +7,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * DoctorScheduleExceptionController
+ *
+ * Manages schedule exceptions (e.g., leave, unavailability) for doctors.
+ * Allows doctors to request time off or block their schedule.
+ */
 class DoctorScheduleExceptionController extends Controller
 {
     /**
      * Display a listing of the resource.
+     *
+     * Supports filtering by:
+     * - Status: 'pending', 'approved', 'rejected' (Default: all)
+     * - Search: Reason
+     * - Date Range: Start date
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
@@ -64,6 +77,9 @@ class DoctorScheduleExceptionController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {

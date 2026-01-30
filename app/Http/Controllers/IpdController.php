@@ -14,6 +14,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * Manages In-Patient Department (IPD) admissions, bed assignments, and discharges.
+ *
+ * Responsibilities:
+ * - Patient Admission (IPD creation)
+ * - Bed Management (Assignment, Status View)
+ * - Rounds (Doctor notes)
+ * - Discharge Processing (Billing check, Invoice generation)
+ */
 class IpdController extends Controller
 {
     protected $ipdService;
@@ -23,11 +32,22 @@ class IpdController extends Controller
         $this->ipdService = $ipdService;
     }
 
+    /**
+     * Display a listing of IPD admissions.
+     *
+     * Supports filtering by:
+     * - Status: 'admitted', 'discharged', 'trashed', or 'all' (Default: 'admitted')
+     * - Search: Patient name, code, doctor name
+     * - Date Range: Admission date
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('viewAny', Admission::class);
         $query = Admission::with(['patient', 'doctor', 'bedAssignments.bed']);
 
+        // Filter by Status
         if (request('status') === 'trashed') {
             $query->onlyTrashed()->latest();
         } elseif (request()->filled('status')) {
@@ -36,6 +56,7 @@ class IpdController extends Controller
             }
             $query->latest();
         } else {
+            // Default to currently admitted patients
             $query->where('status', 'admitted')->latest();
         }
 
@@ -83,6 +104,12 @@ class IpdController extends Controller
         return view('ipd.index', compact('admissions', 'admissionsCount', 'bedsAvailable', 'bedsOccupied', 'totalWards', 'totalRooms'));
     }
 
+    /**
+     * Soft delete the specified admission.
+     *
+     * @param  \App\Models\Admission  $admission
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy(Admission $admission)
     {
         Gate::authorize('delete', $admission);
@@ -90,6 +117,12 @@ class IpdController extends Controller
         return redirect()->route('ipd.index')->with('success', 'Admission record deleted successfully.');
     }
 
+    /**
+     * Restore a soft-deleted admission.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $admission = Admission::withTrashed()->findOrFail($id);
@@ -98,6 +131,14 @@ class IpdController extends Controller
         return redirect()->route('ipd.index')->with('success', 'Admission record restored successfully.');
     }
 
+    /**
+     * Show the form for admitting a new patient.
+     *
+     * Only accessible by Receptionists and Admins.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
     public function create(Request $request)
     {
         Gate::authorize('create', Admission::class);
@@ -123,6 +164,18 @@ class IpdController extends Controller
         return view('ipd.create', compact('patients', 'doctors', 'wards'));
     }
 
+    /**
+     * Store a newly created admission in storage.
+     *
+     * Features:
+     * - Admits patient via IpdService
+     * - Assigns initial bed
+     * - Generates admission fee invoice (optional)
+     * - Records initial deposit (optional)
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         Gate::authorize('create', Admission::class);
@@ -154,6 +207,7 @@ class IpdController extends Controller
         try {
             $this->ipdService->assignBed($admission, $request->bed_id);
         } catch (\Exception $e) {
+            // Rollback admission if bed assignment fails
             $admission->delete();
             return back()
                 ->withInput()
@@ -201,6 +255,18 @@ class IpdController extends Controller
             ->with('success', 'Patient admitted successfully.');
     }
 
+    /**
+     * Display the specified admission details.
+     *
+     * Loads related data:
+     * - Patient profile
+     * - Bed assignments history
+     * - Doctor rounds
+     * - Vitals history
+     *
+     * @param  \App\Models\Admission  $admission
+     * @return \Illuminate\View\View
+     */
     public function show(Admission $admission)
     {
         Gate::authorize('view', $admission);
@@ -208,6 +274,12 @@ class IpdController extends Controller
         return view('ipd.show', compact('admission'));
     }
 
+    /**
+     * Show the form to assign a bed to a patient.
+     *
+     * @param  \App\Models\Admission  $admission
+     * @return \Illuminate\View\View
+     */
     public function assignBed(Admission $admission)
     {
         Gate::authorize('update', $admission);
@@ -224,6 +296,13 @@ class IpdController extends Controller
         return view('ipd.assign-bed', compact('admission', 'wards'));
     }
 
+    /**
+     * Store the bed assignment.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Admission  $admission
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeBedAssignment(Request $request, Admission $admission)
     {
         Gate::authorize('update', $admission);
@@ -244,6 +323,12 @@ class IpdController extends Controller
         }
     }
 
+    /**
+     * Recommend discharge for the patient.
+     *
+     * @param \App\Models\Admission $admission
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function recommendDischarge(Admission $admission)
     {
         Gate::authorize('update', $admission);
@@ -259,6 +344,12 @@ class IpdController extends Controller
         return back()->with('success', 'Discharge recommended successfully.');
     }
 
+    /**
+     * Show the form for discharging a patient.
+     *
+     * @param \App\Models\Admission $admission
+     * @return \Illuminate\View\View
+     */
     public function discharge(Admission $admission)
     {
         Gate::authorize('update', $admission);
@@ -266,7 +357,7 @@ class IpdController extends Controller
             abort(403, 'Only Receptionist and Admin can discharge patients.');
         }
 
-        // Task 4: Check bills.
+        // Check for unpaid invoices before discharge
         $unpaidInvoices = \App\Models\Invoice::where('patient_id', $admission->patient_id)
             ->where('status', '!=', 'paid')
             ->exists();
@@ -274,6 +365,13 @@ class IpdController extends Controller
         return view('ipd.discharge', compact('admission', 'unpaidInvoices'));
     }
 
+    /**
+     * Process patient discharge and generate final invoice.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Admission $admission
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeDischarge(Request $request, Admission $admission)
     {
         Gate::authorize('update', $admission);
@@ -311,6 +409,11 @@ class IpdController extends Controller
             ->with('success', 'Patient discharged and invoice generated successfully.');
     }
 
+    /**
+     * List admissions for doctor rounds.
+     *
+     * @return \Illuminate\View\View
+     */
     public function roundsIndex()
     {
         Gate::authorize('viewAny', Admission::class);
@@ -327,6 +430,8 @@ class IpdController extends Controller
         }
 
         $query->latest();
+
+        // ... search logic ...
 
         if (request()->filled('search')) {
             $search = request('search');
@@ -352,6 +457,11 @@ class IpdController extends Controller
         return view('ipd.rounds.index', compact('admissions'));
     }
 
+    /**
+     * Display the current status of all beds.
+     *
+     * @return \Illuminate\View\View
+     */
     public function bedStatus()
     {
         Gate::authorize('viewAny', Admission::class);
@@ -382,6 +492,12 @@ class IpdController extends Controller
         return view('ipd.bed_status', compact('wards', 'bedsAvailable', 'bedsOccupied', 'bedAdmissions'));
     }
 
+    /**
+     * Show the form for creating a new round note.
+     *
+     * @param \App\Models\Admission $admission
+     * @return \Illuminate\View\View
+     */
     public function createRound(Admission $admission)
     {
         Gate::authorize('update', $admission);
@@ -394,6 +510,13 @@ class IpdController extends Controller
         return view('ipd.rounds.create', compact('admission'));
     }
 
+    /**
+     * Store a newly created round note in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Admission $admission
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeRound(Request $request, Admission $admission)
     {
         Gate::authorize('update', $admission);

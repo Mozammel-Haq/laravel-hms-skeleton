@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, AlertCircle, Scissors, FileText, Syringe, Clock } from 'lucide-react';
+import { Activity, AlertCircle, Scissors, FileText, Syringe, Clock, Search } from 'lucide-react';
 import api from '../../services/api';
 import { API_ENDPOINTS } from '../../services/endpoints';
 import { useAuth } from '../../context/AuthContext';
@@ -10,6 +10,7 @@ const MedicalHistory = () => {
   const { user } = useAuth();
   const { activeClinicId } = useClinic();
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState({
       conditions: [],
       allergies: [],
@@ -35,6 +36,18 @@ const MedicalHistory = () => {
     }
   }, [user, activeClinicId]);
 
+  const filterData = (items, keys) => {
+    if (!searchTerm) return items;
+    return items.filter(item =>
+      keys.some(key => item[key]?.toString().toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  };
+
+  const filteredConditions = filterData(data.conditions || [], ['name', 'doctor', 'diagnosed']);
+  const filteredAllergies = filterData(data.allergies || [], ['allergen', 'reaction', 'severity']);
+  const filteredSurgeries = filterData(data.surgeries || [], ['procedure', 'hospital', 'surgeon']);
+  const filteredImmunizations = filterData(data.immunizations || [], ['vaccine', 'provider']);
+
   if (loading) {
       return (
         <div className="flex justify-center items-center h-96">
@@ -45,9 +58,23 @@ const MedicalHistory = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-secondary-900 dark:text-white">Medical History</h1>
-        <p className="text-secondary-500 dark:text-secondary-400 mt-1">Comprehensive view of your medical records and health profile.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-secondary-900 dark:text-white">Medical History</h1>
+          <p className="text-secondary-500 dark:text-secondary-400 mt-1">Comprehensive view of your medical records and health profile.</p>
+        </div>
+        <div className="relative w-full sm:w-64">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-secondary-400" />
+          </div>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search history..."
+            className="block w-full pl-10 pr-3 py-2 border border-secondary-200 dark:border-secondary-800 rounded-md leading-5 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white placeholder-secondary-400 dark:placeholder-secondary-500 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -58,8 +85,8 @@ const MedicalHistory = () => {
             <h2 className="font-bold text-primary-700 dark:text-primary-400">Chronic Conditions</h2>
           </div>
           <div className="divide-y divide-secondary-200 dark:divide-secondary-800">
-            {data.conditions.length === 0 ? <div className="p-4 text-center text-secondary-500">No chronic conditions recorded</div> :
-            data.conditions.map((item) => (
+            {filteredConditions.length === 0 ? <div className="p-4 text-center text-secondary-500">No chronic conditions recorded</div> :
+            filteredConditions.map((item) => (
               <div key={item.id} className="p-4 hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors">
                 <div className="flex justify-between items-start">
                   <div>
@@ -134,8 +161,8 @@ const MedicalHistory = () => {
             <h2 className="font-bold text-purple-700 dark:text-purple-400">Immunizations</h2>
           </div>
           <div className="divide-y divide-secondary-200 dark:divide-secondary-800">
-            {data.immunizations.length === 0 ? <div className="p-4 text-center text-secondary-500">No immunizations recorded</div> :
-            data.immunizations.map((item) => (
+            {filteredImmunizations.length === 0 ? <div className="p-4 text-center text-secondary-500">No immunizations recorded</div> :
+            filteredImmunizations.map((item) => (
               <div key={item.id} className="p-4 hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors">
                 <div className="flex justify-between items-center">
                   <div>
@@ -159,7 +186,11 @@ const MedicalHistory = () => {
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">
             You can request a full download of your medical history for personal use or to share with another provider.
           </p>
-          <button className="text-primary-600 dark:text-primary-400 text-sm font-medium hover:text-primary-700 dark:hover:text-primary-300 mt-2 transition-colors">
+          <button
+            onClick={() => data.download_url && window.open(data.download_url, '_blank')}
+            disabled={!data.download_url}
+            className={`text-primary-600 dark:text-primary-400 text-sm font-medium hover:text-primary-700 dark:hover:text-primary-300 mt-2 transition-colors ${!data.download_url ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
             Request Medical Records Download &rarr;
           </button>
         </div>

@@ -51,23 +51,19 @@
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
-                                <th>User</th>
+                                <th>Performed By</th>
                                 <th>Action</th>
-                                <th>Entity</th>
-                                <th>Entity ID</th>
-                                <th>IP</th>
+                                <th>Description</th>
                                 <th>Date</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($logs as $log)
                                 <tr>
-                                    <td>{{ optional($log->user)->name ?? 'System' }}</td>
-                                    <td>{{ $log->action }}</td>
-                                    <td>{{ class_basename($log->entity_type) }}</td>
-                                    <td>{{ $log->entity_id }}</td>
-                                    <td>{{ $log->ip_address }}</td>
-                                    <td>{{ $log->created_at }}</td>
+                                    <td>{{ $log->actor_name }}</td>
+                                    <td><span class="badge bg-primary">{{ ucfirst($log->action) }}</span></td>
+                                    <td>{{ $log->description }}</td>
+                                    <td>{{ $log->created_at->format('M d, Y h:i A') }}</td>
                                 </tr>
                             @empty
                                 <tr>

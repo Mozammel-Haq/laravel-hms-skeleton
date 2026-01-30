@@ -5,6 +5,12 @@ namespace App\Models\Concerns;
 use App\Support\TenantContext;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * Trait BelongsToClinic
+ *
+ * Automatically filters models by the current clinic (tenant) context.
+ * Also sets the clinic_id when creating new models.
+ */
 trait BelongsToClinic
 {
     protected static function bootBelongsToClinic()

@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
+/**
+ * SystemController
+ *
+ * Manages system-wide operations like clinic context switching.
+ * Handles session-based context for multi-tenant features.
+ */
 class SystemController extends Controller
 {
     /**

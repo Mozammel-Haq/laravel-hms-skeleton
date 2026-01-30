@@ -345,13 +345,15 @@
                     <li class="menu-title"><span>Clinical Workflow</span></li>
 
                     <li class="submenu">
-                        <a href="#" class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
+                        <a href="#"
+                            class="{{ request()->routeIs('appointments.*') ? 'active subdrop' : '' }}">
                             <i class="ti ti-calendar"></i><span>Appointments</span><span class="menu-arrow"></span>
                         </a>
                         <ul
                             style="{{ request()->routeIs('appointments.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('appointments.index') }}">Today</a></li>
-                            <li><a href="{{ route('appointments.index') }}">Upcoming</a></li>
+                            <li><a href="{{ route('appointments.index', ['filter' => 'today']) }}">Today</a></li>
+                            <li><a href="{{ route('appointments.index', ['filter' => 'upcoming']) }}">Upcoming</a>
+                            </li>
                         </ul>
                     </li>
                     <li>
@@ -383,8 +385,8 @@
                             <i class="ti ti-users"></i><span>Patients</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('patients.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('patients.index') }}">OPD Patients</a></li>
-                            <li><a href="{{ route('patients.index') }}">IPD Patients</a></li>
+                            <li><a href="{{ route('patients.index', ['type' => 'opd']) }}">OPD Patients</a></li>
+                            <li><a href="{{ route('patients.index', ['type' => 'ipd']) }}">IPD Patients</a></li>
                         </ul>
                     </li>
 
@@ -445,10 +447,9 @@
                             <i class="ti ti-calendar-plus"></i><span>Appointments</span><span
                                 class="menu-arrow"></span>
                         </a>
-                        <ul
-                            style="{{ request()->routeIs('appointments.*') || request()->routeIs('appointments.booking.*') ? 'display: block;' : 'display: none;' }}">
+                        <ul style="{{ request()->routeIs('appointments.*') || request()->routeIs('appointments.booking.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('appointments.booking.index') }}">Smart Booking</a></li>
-                            <li><a href="{{ route('appointments.index') }}">Today List</a></li>
+                            <li><a href="{{ route('appointments.index', ['filter' => 'today']) }}">Today List</a></li>
                         </ul>
                     </li>
 
@@ -458,7 +459,7 @@
                         </a>
                         <ul style="{{ request()->routeIs('patients.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('patients.create') }}">Register Patient</a></li>
-                            <li><a href="{{ route('patients.index') }}">Search Patient</a></li>
+                            <li><a href="{{ route('patients.search') }}">Search Patient</a></li>
                         </ul>
                     </li>
 
@@ -504,7 +505,8 @@
                         </a>
                         <ul
                             style="{{ request()->routeIs('appointments.*') || request()->routeIs('appointments.booking.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('appointments.index') }}">Today List</a></li>
+                            <li><a href="{{ route('appointments.index', ['filter' => 'today']) }}">Today List</a>
+                            </li>
                         </ul>
                     </li>
 
@@ -513,7 +515,8 @@
                             <i class="ti ti-bed"></i><span>IPD</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('ipd.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('ipd.index') }}">Admitted Patients</a></li>
+                            <li><a href="{{ route('ipd.index', ['status' => 'admitted']) }}">Admitted Patients</a>
+                            </li>
                             <li><a href="{{ route('ipd.bed_status') }}">Bed Status</a></li>
                         </ul>
                     </li>
@@ -539,12 +542,12 @@
 
                     <li class="submenu">
                         <a href="#" class="{{ request()->routeIs('lab.*') ? 'active subdrop' : '' }}">
-                            <i class="ti ti-test-pipe"></i><span>Lab Orders</span><span class="menu-arrow"></span>
+                            <i class="ti ti-test-pipe"></i><span>Lab Management</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('lab.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('lab.index') }}">Pending</a></li>
-                            <li><a href="{{ route('lab.index') }}">In Progress</a></li>
-                            <li><a href="{{ route('lab.index') }}">Completed</a></li>
+                            <li><a href="{{ route('lab.catalog.index') }}">Test Catalog</a></li>
+                            <li><a href="{{ route('lab.index', ['status' => 'pending']) }}">Pending Orders</a></li>
+                            <li><a href="{{ route('lab.index') }}">All Orders</a></li>
                         </ul>
                     </li>
 
@@ -570,8 +573,12 @@
                         </a>
                         <ul
                             style="{{ request()->routeIs('pharmacy.prescriptions.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('pharmacy.prescriptions.index') }}">Pending</a></li>
-                            <li><a href="{{ route('pharmacy.prescriptions.index') }}">Fulfilled</a></li>
+                            <li><a
+                                    href="{{ route('pharmacy.prescriptions.index', ['status' => 'pending']) }}">Pending</a>
+                            </li>
+                            <li><a
+                                    href="{{ route('pharmacy.prescriptions.index', ['status' => 'fulfilled']) }}">Fulfilled</a>
+                            </li>
                         </ul>
                     </li>
 
@@ -609,8 +616,8 @@
                             <i class="ti ti-file-invoice"></i><span>Invoices</span><span class="menu-arrow"></span>
                         </a>
                         <ul style="{{ request()->routeIs('billing.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('billing.index') }}">Pending</a></li>
-                            <li><a href="{{ route('billing.index') }}">Paid</a></li>
+                            <li><a href="{{ route('billing.index', ['status' => 'unpaid']) }}">Pending</a></li>
+                            <li><a href="{{ route('billing.index', ['status' => 'paid']) }}">Paid</a></li>
                         </ul>
                     </li>
 

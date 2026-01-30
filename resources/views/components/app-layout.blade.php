@@ -366,8 +366,8 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize column filters for all tables
-            const tables = document.querySelectorAll('table');
+            // Initialize column filters for all tables (exclude static tables)
+            const tables = document.querySelectorAll('table:not(.static-table)');
             tables.forEach((table, index) => {
                 // Skip if table has no header
                 if (!table.querySelector('thead')) return;
@@ -383,7 +383,8 @@
 
                 // Dropdown Toggle Button
                 const btn = document.createElement('button');
-                btn.className = 'btn btn-sm btn-primary dropdown-toggle d-flex align-items-center gap-1 mt-1';
+                btn.className =
+                    'btn btn-sm btn-primary dropdown-toggle d-flex align-items-center gap-1 mt-1';
                 btn.type = 'button';
                 btn.setAttribute('data-bs-toggle', 'dropdown');
                 btn.setAttribute('aria-expanded', 'false');
@@ -399,13 +400,15 @@
 
                 // Add Header to Menu
                 const header = document.createElement('li');
-                header.innerHTML = '<h6 class="dropdown-header text-uppercase text-muted p-0 mb-2">Visible Columns</h6>';
+                header.innerHTML =
+                    '<h6 class="dropdown-header text-uppercase text-muted p-0 mb-2">Visible Columns</h6>';
                 menu.appendChild(header);
 
                 // Add Reset Option
                 const resetItem = document.createElement('li');
                 resetItem.className = 'mb-2 pb-2 border-bottom';
-                resetItem.innerHTML = '<a href="#" class="dropdown-item p-0 text-primary small">Reset to Default</a>';
+                resetItem.innerHTML =
+                    '<a href="#" class="dropdown-item p-0 text-primary small">Reset to Default</a>';
                 resetItem.querySelector('a').onclick = (e) => {
                     e.preventDefault();
                     resetColumns(table, menu);
@@ -420,7 +423,8 @@
                     if (!text && colIndex !== headers.length - 1) return;
 
                     const li = document.createElement('li');
-                    li.className = 'ms-4 form-check form-switch mb-2 d-flex align-items-center gap-2';
+                    li.className =
+                        'ms-4 form-check form-switch mb-2 d-flex align-items-center gap-2';
 
                     const input = document.createElement('input');
                     input.className = 'form-check-input mt-0';
@@ -446,7 +450,8 @@
                 dropdown.appendChild(menu);
 
                 // Insert dropdown before the table's container (if responsive) or the table itself
-                const responsiveParent = table.closest('.table-responsive') || table.closest('.table-wrapper');
+                const responsiveParent = table.closest('.table-responsive') || table.closest(
+                    '.table-wrapper');
                 if (responsiveParent) {
                     responsiveParent.parentNode.insertBefore(dropdown, responsiveParent);
                 } else {

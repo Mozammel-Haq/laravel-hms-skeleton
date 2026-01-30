@@ -8,8 +8,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * DoctorScheduleRequestAdminController
+ *
+ * Manages doctor schedule change requests for administrators.
+ * Allows approving or rejecting proposed schedule changes.
+ */
 class DoctorScheduleRequestAdminController extends Controller
 {
+    /**
+     * Display a listing of schedule change requests.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         Gate::authorize('manage_doctor_schedule');
@@ -50,6 +61,14 @@ class DoctorScheduleRequestAdminController extends Controller
         return view('admin.schedule.requests.index', compact('requests'));
     }
 
+    /**
+     * Approve a doctor's schedule change request.
+     * Replaces the doctor's existing schedule with the requested one.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\DoctorScheduleRequest  $scheduleRequest
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function approve(Request $request, DoctorScheduleRequest $scheduleRequest)
     {
         Gate::authorize('manage_doctor_schedule');
@@ -93,6 +112,13 @@ class DoctorScheduleRequestAdminController extends Controller
         return back()->with('success', 'Schedule request approved and applied.');
     }
 
+    /**
+     * Reject a doctor's schedule change request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\DoctorScheduleRequest  $scheduleRequest
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function reject(Request $request, DoctorScheduleRequest $scheduleRequest)
     {
         Gate::authorize('manage_doctor_schedule');

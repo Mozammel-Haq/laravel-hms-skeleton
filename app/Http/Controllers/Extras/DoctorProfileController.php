@@ -8,8 +8,20 @@ use App\Models\DoctorCertification;
 use App\Models\DoctorEducation;
 use Illuminate\Http\Request;
 
+/**
+ * Class DoctorProfileController
+ *
+ * Manages the profile of the currently authenticated doctor.
+ *
+ * @package App\Http\Controllers\Extras
+ */
 class DoctorProfileController extends Controller
 {
+    /**
+     * Get the currently authenticated doctor.
+     *
+     * @return \App\Models\Doctor
+     */
     protected function currentDoctor()
     {
         $user = auth()->user();
@@ -21,6 +33,11 @@ class DoctorProfileController extends Controller
         return $user->doctor;
     }
 
+    /**
+     * Display the doctor's profile.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         $doctor = $this->currentDoctor()->load(['educations', 'awards', 'certifications']);
@@ -28,6 +45,12 @@ class DoctorProfileController extends Controller
         return view('doctor.profile.index', compact('doctor'));
     }
 
+    /**
+     * Store a new education record for the doctor.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeEducation(Request $request)
     {
         $doctor = $this->currentDoctor();
@@ -45,6 +68,13 @@ class DoctorProfileController extends Controller
         return back()->with('success', 'Education added successfully.');
     }
 
+    /**
+     * Update the specified education record.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\DoctorEducation  $education
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function updateEducation(Request $request, DoctorEducation $education)
     {
         $doctor = $this->currentDoctor();
@@ -66,6 +96,12 @@ class DoctorProfileController extends Controller
         return back()->with('success', 'Education updated successfully.');
     }
 
+    /**
+     * Remove the specified education record.
+     *
+     * @param  \App\Models\DoctorEducation  $education
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroyEducation(DoctorEducation $education)
     {
         $doctor = $this->currentDoctor();
@@ -79,6 +115,12 @@ class DoctorProfileController extends Controller
         return back()->with('success', 'Education removed successfully.');
     }
 
+    /**
+     * Store a new award record for the doctor.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeAward(Request $request)
     {
         $doctor = $this->currentDoctor();
@@ -94,6 +136,13 @@ class DoctorProfileController extends Controller
         return back()->with('success', 'Award added successfully.');
     }
 
+    /**
+     * Update the specified award record.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\DoctorAward  $award
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function updateAward(Request $request, DoctorAward $award)
     {
         $doctor = $this->currentDoctor();
@@ -113,6 +162,12 @@ class DoctorProfileController extends Controller
         return back()->with('success', 'Award updated successfully.');
     }
 
+    /**
+     * Remove the specified award record.
+     *
+     * @param  \App\Models\DoctorAward  $award
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroyAward(DoctorAward $award)
     {
         $doctor = $this->currentDoctor();
@@ -126,6 +181,12 @@ class DoctorProfileController extends Controller
         return back()->with('success', 'Award removed successfully.');
     }
 
+    /**
+     * Store a new certification record for the doctor.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function storeCertification(Request $request)
     {
         $doctor = $this->currentDoctor();
@@ -142,6 +203,13 @@ class DoctorProfileController extends Controller
         return back()->with('success', 'Certification added successfully.');
     }
 
+    /**
+     * Update the specified certification record.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\DoctorCertification  $certification
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function updateCertification(Request $request, DoctorCertification $certification)
     {
         $doctor = $this->currentDoctor();
@@ -162,6 +230,12 @@ class DoctorProfileController extends Controller
         return back()->with('success', 'Certification updated successfully.');
     }
 
+    /**
+     * Remove the specified certification record.
+     *
+     * @param  \App\Models\DoctorCertification  $certification
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroyCertification(DoctorCertification $certification)
     {
         $doctor = $this->currentDoctor();
@@ -175,4 +249,3 @@ class DoctorProfileController extends Controller
         return back()->with('success', 'Certification removed successfully.');
     }
 }
-

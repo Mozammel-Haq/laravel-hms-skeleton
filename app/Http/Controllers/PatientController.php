@@ -11,10 +11,24 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PatientWelcomeMail;
 
+/**
+ * PatientController
+ *
+ * Manages patient records, including registration, profile management,
+ * and clinic association. Supports both IPD and OPD patient workflows.
+ */
 class PatientController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the patients.
+     *
+     * Supports filtering by:
+     * - Type (ipd/opd): Based on active admissions
+     * - Status (active/trashed): Soft delete support
+     * - Search: Name, code, phone, or email
+     * - Date Range: Created at timestamps
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
@@ -22,6 +36,20 @@ class PatientController extends Controller
 
         $query = Patient::query();
 
+        // Filter by patient type (IPD vs OPD)
+        if (request('type') === 'ipd') {
+            // IPD: Patients currently admitted
+            $query->whereHas('admissions', function ($q) {
+                $q->where('status', 'admitted');
+            });
+        } elseif (request('type') === 'opd') {
+            // OPD: Patients NOT currently admitted (optional logic)
+            $query->whereDoesntHave('admissions', function ($q) {
+                $q->where('status', 'admitted');
+            });
+        }
+
+        // Filter by status (Soft Deletes)
         if (request('status') === 'trashed') {
             $query->onlyTrashed();
         } elseif (request()->filled('status')) {
@@ -50,6 +78,12 @@ class PatientController extends Controller
         return view('patients.index', compact('patients'));
     }
 
+    /**
+     * Restore a soft-deleted patient.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function restore($id)
     {
         $patient = Patient::withTrashed()->findOrFail($id);
@@ -62,7 +96,9 @@ class PatientController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new patient.
+     *
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -71,7 +107,16 @@ class PatientController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created patient in storage.
+     *
+     * Features:
+     * - Global Duplicate Check: Checks for existing patients by NID, Passport, Email, or Phone.
+     * - Clinic Registration: Links existing global patients to the current clinic.
+     * - Profile Photo: Handles image upload and storage.
+     * - Automatic Credentials: Generates default password and sends welcome email.
+     *
+     * @param  \App\Http\Requests\StorePatientRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StorePatientRequest $request)
     {
@@ -80,7 +125,7 @@ class PatientController extends Controller
         $data = $request->validated();
         $clinicId = auth()->user()->clinic_id;
 
-        // 1. Check for existing patient globally
+        // 1. Check for existing patient globally (by NID, Passport, Email, Phone, etc.)
         $query = Patient::withoutTenant();
 
         $matchFound = false;
@@ -93,18 +138,18 @@ class PatientController extends Controller
 
         $existingPatient = null;
         if (count($conditions) > 0) {
-             $existingPatient = $query->where(function($q) use ($conditions) {
+            $existingPatient = $query->where(function ($q) use ($conditions) {
                 foreach ($conditions as $cond) {
                     $q->orWhere($cond[0], $cond[1]);
                 }
-             })->first();
+            })->first();
         }
 
         if ($existingPatient) {
-            // Check if already in THIS clinic
+            // Check if patient is already linked to THIS clinic
             $alreadyLinked = $existingPatient->clinics()->whereKey($clinicId)->exists();
 
-            // Legacy check
+            // Legacy check for single-tenant structure compatibility
             if (!$alreadyLinked && $existingPatient->clinic_id == $clinicId) {
                 $alreadyLinked = true;
             }
@@ -114,7 +159,7 @@ class PatientController extends Controller
                     ->with('info', 'Patient is already registered in this clinic.');
             }
 
-            // Link to clinic
+            // Link existing global patient to this clinic
             $existingPatient->clinics()->syncWithoutDetaching([$clinicId]);
 
             return redirect()->route('patients.show', $existingPatient)
@@ -172,7 +217,17 @@ class PatientController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified patient profile.
+     *
+     * Loads related data:
+     * - Appointments (with doctor info)
+     * - Admissions
+     * - Vitals
+     * - Medical History
+     * - Invoices
+     *
+     * @param  \App\Models\Patient  $patient
+     * @return \Illuminate\View\View
      */
     public function show(Patient $patient)
     {
@@ -191,7 +246,10 @@ class PatientController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified patient.
+     *
+     * @param  \App\Models\Patient  $patient
+     * @return \Illuminate\View\View
      */
     public function edit(Patient $patient)
     {
@@ -200,7 +258,15 @@ class PatientController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified patient in storage.
+     *
+     * Handles:
+     * - Profile updates
+     * - Profile photo replacement/deletion
+     *
+     * @param  \App\Http\Requests\UpdatePatientRequest  $request
+     * @param  \App\Models\Patient  $patient
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdatePatientRequest $request, Patient $patient)
     {
@@ -240,7 +306,12 @@ class PatientController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified patient from storage.
+     *
+     * Performs a soft delete and sets status to 'inactive'.
+     *
+     * @param  \App\Models\Patient  $patient
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Patient $patient)
     {

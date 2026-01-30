@@ -31,6 +31,24 @@
                 body {
                     background-color: white !important;
                 }
+
+                /* Hide sorting icons in print */
+                th.sorting::before,
+                th.sorting::after,
+                th.sorting_asc::before,
+                th.sorting_asc::after,
+                th.sorting_desc::before,
+                th.sorting_desc::after {
+                    display: none !important;
+                    content: none !important;
+                }
+
+                th.sorting,
+                th.sorting_asc,
+                th.sorting_desc {
+                    background-image: none !important;
+                    padding-right: initial !important;
+                }
             }
         </style>
     @endpush
@@ -152,7 +170,7 @@
                                 @endphp
                                 @if ($vitals->isNotEmpty())
                                     <div class="table-responsive">
-                                        <table class="table table-sm table-hover mb-0">
+                                        <table class="table table-sm table-hover mb-0 static-table">
                                             <thead>
                                                 <tr>
                                                     <th>Date</th>
@@ -199,7 +217,7 @@
                             <h6 class="fs-16 fw-bold mb-3">Prescribed Medicines</h6>
 
                             <div class="table-responsive border bg-white">
-                                <table class="table table-nowrap">
+                                <table class="table table-nowrap static-table">
                                     <thead class="table-light">
                                         <tr>
                                             <th>#</th>
