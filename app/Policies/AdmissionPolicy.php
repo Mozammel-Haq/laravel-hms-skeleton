@@ -19,7 +19,7 @@ class AdmissionPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->clinic_id);
+        return $user->clinic_id !== null;
     }
 
     public function update(User $user, Admission $admission): bool

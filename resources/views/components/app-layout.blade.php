@@ -358,11 +358,10 @@
     <script src="{{ asset('assets') }}/js/jquery.dataTables.min.js"></script>
     <script src="{{ asset('assets') }}/js/dataTables.bootstrap5.min.js"></script>
     <!-- Your custom scripts -->
-    @stack('scripts')
-
     <script src="{{ asset('assets') }}/js/script.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="{{ asset('assets') }}/js/rocket-loader.min.js" defer></script>
+    @stack('scripts')
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

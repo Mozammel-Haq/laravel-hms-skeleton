@@ -330,6 +330,11 @@
                         return this.rooms.find(r => r.id === this.selectedRoomId)?.beds || [];
                     },
 
+                    onWardChange() {
+                        const ward = this.wards.find(w => w.id === this.selectedWardId);
+                        this.selectedRoomId = ward && ward.rooms?.length ? ward.rooms[0].id : null;
+                    },
+
                     bedSlotClass(bed) {
                         return {
                             'bed-available': bed.status === 'available',
