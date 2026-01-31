@@ -227,41 +227,66 @@ CREATE TABLE `lara_patients` (
 -- Dumping data for table `lara_patients`
 -- Table structure for table `lara_doctors`
 DROP TABLE IF EXISTS `lara_doctors`;
+
 CREATE TABLE `lara_doctors` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint unsigned NOT NULL,
-  `clinic_id` bigint unsigned NOT NULL,
-  `primary_department_id` bigint unsigned NOT NULL,
-  `registration_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `license_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `specialization` json NOT NULL,
-  `experience_years` int unsigned NOT NULL DEFAULT '0',
-  `gender` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `blood_group` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `clinic_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `primary_department_id` bigint(20) UNSIGNED NOT NULL,
+
+  `registration_number` varchar(255) DEFAULT NULL,
+  `license_number` varchar(255) DEFAULT NULL,
+
+  `specialization` json DEFAULT NULL,
+
+  `experience_years` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `gender` varchar(255) DEFAULT NULL,
+  `blood_group` varchar(255) DEFAULT NULL,
   `date_of_birth` date DEFAULT NULL,
+
   `consultation_fee` decimal(10,2) DEFAULT NULL,
   `follow_up_fee` decimal(10,2) DEFAULT NULL,
-  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `biography` text COLLATE utf8mb4_unicode_ci,
-  `profile_photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `is_featured` tinyint(1) NOT NULL DEFAULT '0',
-  `status` enum('active','inactive') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+
+  `consultation_room_number` varchar(255) DEFAULT NULL,
+  `consultation_floor` varchar(255) DEFAULT NULL,
+
+  `location` varchar(255) DEFAULT NULL,
+
+  `biography` text DEFAULT NULL,
+  `profile_photo` varchar(255) DEFAULT NULL,
+
+  `is_featured` tinyint(1) NOT NULL DEFAULT 0,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
+
   PRIMARY KEY (`id`),
+
   UNIQUE KEY `lara_doctors_license_number_unique` (`license_number`),
   UNIQUE KEY `lara_doctors_registration_number_unique` (`registration_number`),
+
   KEY `lara_doctors_user_id_foreign` (`user_id`),
   KEY `lara_doctors_clinic_id_foreign` (`clinic_id`),
   KEY `lara_doctors_primary_department_id_foreign` (`primary_department_id`),
-  CONSTRAINT `lara_doctors_clinic_id_foreign` FOREIGN KEY (`clinic_id`) REFERENCES `lara_clinics` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `lara_doctors_primary_department_id_foreign` FOREIGN KEY (`primary_department_id`) REFERENCES `lara_departments` (`id`) ON DELETE RESTRICT,
-  CONSTRAINT `lara_doctors_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `lara_users` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table `lara_doctors`
-INSERT INTO `lara_doctors` VALUES (1, 2, 1, 1, NULL, NULL, '[\"General Physician\"]', 0, NULL, NULL, NULL, '1000.00', NULL, NULL, NULL, NULL, 0, 'active', '2026-01-30 06:37:25', '2026-01-30 06:37:25', NULL);
+  CONSTRAINT `lara_doctors_user_id_foreign`
+    FOREIGN KEY (`user_id`) REFERENCES `lara_users` (`id`)
+    ON DELETE RESTRICT,
+
+  CONSTRAINT `lara_doctors_primary_department_id_foreign`
+    FOREIGN KEY (`primary_department_id`) REFERENCES `lara_departments` (`id`)
+    ON DELETE RESTRICT,
+
+  CONSTRAINT `lara_doctors_clinic_id_foreign`
+    FOREIGN KEY (`clinic_id`) REFERENCES `lara_clinics` (`id`)
+    ON DELETE RESTRICT
+
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
 
 -- Table structure for table `lara_user_role`
 DROP TABLE IF EXISTS `lara_user_role`;

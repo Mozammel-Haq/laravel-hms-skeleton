@@ -43,7 +43,7 @@ class LabTestResult extends BaseTenantModel
                 if ($result->order && $result->order->doctor && $result->order->doctor->user) {
                     $result->order->doctor->user->notify(new \App\Notifications\GeneralNotification(
                         'Lab Result Ready',
-                        "Lab result for {$result->order->patient->name} is ready.",
+                        "Lab result for {$result->order?->patient?->name} is ready.",
                         // route('lab-results.show', $result->id) // Assuming route
                         null
                     ));

@@ -49,13 +49,13 @@ class Appointment extends BaseTenantModel
             if ($appointment->doctor && $appointment->doctor->user) {
                 $appointment->doctor->user->notify(new \App\Notifications\GeneralNotification(
                     'New Appointment',
-                    "New appointment with {$appointment->patient->name} on {$appointment->appointment_date->format('Y-m-d')}",
+                    "New appointment with {$appointment->patient?->name} on {$appointment->appointment_date?->format('Y-m-d')}",
                     route('appointments.show', $appointment->id) // Assuming route exists
                 ));
             }
 
             // Notify Receptionist
-            $appointment->notifyRole('Receptionist', 'New Appointment', "New appointment scheduled for {$appointment->patient->name}.");
+            $appointment->notifyRole('Receptionist', 'New Appointment', "New appointment scheduled for {$appointment->patient?->name}.");
         });
     }
 

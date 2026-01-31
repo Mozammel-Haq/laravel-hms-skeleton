@@ -34,7 +34,7 @@ class LeaveRequest extends Model
     protected static function booted()
     {
         static::created(function ($request) {
-            $request->notifyRole('Clinic Admin', 'New Leave Request', "New leave request from {$request->user->name}.");
+            $request->notifyRole('Clinic Admin', 'New Leave Request', "New leave request from {$request->user?->name}.");
         });
     }
 
