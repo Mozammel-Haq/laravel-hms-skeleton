@@ -19,16 +19,23 @@
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <x-input-label for="patient_id" :value="__('Select Patient')" />
-                            <select id="patient_id" name="patient_id"
-                                class="form-select mt-1 block w-full select2-patient" required>
-                                <option value="">Select a patient...</option>
+                            <label class="form-label fw-medium">Patient <span class="text-danger">*</span></label>
+                            <select id="patient_id" name="patient_id" class="form-select form-select-sm select2-patient"
+                                required>
+                                <option value="">Select Patient</option>
+                                @if (isset($patients))
+                                    @foreach ($patients as $patient)
+                                        <option value="{{ $patient->id }}" selected>
+                                            {{ $patient->name }} ({{ $patient->patient_code }})
+                                        </option>
+                                    @endforeach
+                                @endif
                             </select>
                             <x-input-error :messages="$errors->get('patient_id')" class="mt-2" />
                         </div>
 
                         <div class="col-md-6">
-                            <x-input-label for="doctor_id" :value="__('Attending Doctor')" />
+                            <x-input-label for="doctor_id" value="Attending Doctor" />
                             <select id="doctor_id" name="doctor_id" class="form-select mt-1 block w-full" required>
                                 <option value="">Select a doctor...</option>
                                 @foreach ($doctors as $doctor)
@@ -43,28 +50,28 @@
                         </div>
 
                         <div class="col-md-6">
-                            <x-input-label for="admission_date" :value="__('Admission Date')" />
+                            <x-input-label for="admission_date" value="Admission Date" />
                             <x-text-input id="admission_date" class="block mt-1 w-full form-control"
                                 type="datetime-local" name="admission_date" :value="old('admission_date', now()->format('Y-m-d\TH:i'))" required />
                             <x-input-error :messages="$errors->get('admission_date')" class="mt-2" />
                         </div>
 
                         <div class="col-md-12">
-                            <x-input-label for="admission_reason" :value="__('Admission Notes / Reason')" />
+                            <x-input-label for="admission_reason" value="Admission Notes / Reason" />
                             <textarea id="admission_reason" name="admission_reason" class="form-control mt-1 block w-full" rows="4"
                                 placeholder="Enter reason for admission and initial notes...">{{ old('admission_reason') }}</textarea>
                             <x-input-error :messages="$errors->get('admission_reason')" class="mt-2" />
                         </div>
 
                         <div class="col-md-6">
-                            <x-input-label for="admission_fee" :value="__('Admission Fee')" />
+                            <x-input-label for="admission_fee" value="Admission Fee" />
                             <x-text-input id="admission_fee" class="block mt-1 w-full form-control" type="number"
                                 name="admission_fee" :value="old('admission_fee', 0)" min="0" step="0.01" />
                             <x-input-error :messages="$errors->get('admission_fee')" class="mt-2" />
                         </div>
 
                         <div class="col-md-6">
-                            <x-input-label for="deposit_amount" :value="__('Deposit Amount')" />
+                            <x-input-label for="deposit_amount" value="Deposit Amount" />
                             <x-text-input id="deposit_amount" class="block mt-1 w-full form-control" type="number"
                                 name="deposit_amount" :value="old('deposit_amount', 0)" min="0" step="0.01" />
                             <x-input-error :messages="$errors->get('deposit_amount')" class="mt-2" />
@@ -94,11 +101,110 @@
                             <x-input-error :messages="$errors->get('bed_id')" class="mt-2" />
                         </div>
                         <div class="col-md-4">
-                            <div class="card border-0 shadow-sm mt-2"
-                                x-data='bedMatrix({
-                                wards: @json($wards),
-                                initialBedId: {{ old('bed_id') ? (int) old('bed_id') : (request('bed_id') ? (int) request('bed_id') : 'null') }}
-                            })'>
+                            <script>
+                                window.bedMatrix = function(config) {
+                                    return {
+                                        wards: config.wards || [],
+                                        selectedWardId: null,
+                                        selectedRoomId: null,
+                                        selectedBedId: config.initialBedId,
+                                        init() {
+                                            if (this.wards.length) {
+                                                const wardWithRooms = this.wards.find(w => w.rooms && w.rooms.length);
+                                                if (wardWithRooms) {
+                                                    this.selectedWardId = wardWithRooms.id;
+                                                    this.selectedRoomId = wardWithRooms.rooms[0].id;
+                                                } else {
+                                                    this.selectedWardId = this.wards[0].id;
+                                                    this.selectedRoomId = null;
+                                                }
+                                            }
+                                            if (this.selectedBedId) {
+                                                for (const ward of this.wards) {
+                                                    for (const room of ward.rooms || []) {
+                                                        for (const bed of room.beds || []) {
+                                                            if (bed.id === this.selectedBedId) {
+                                                                this.selectedWardId = ward.id;
+                                                                this.selectedRoomId = room.id;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            this.updateHidden();
+                                            this.updateButtonState();
+                                        },
+                                        get rooms() {
+                                            const wardId = Number(this.selectedWardId);
+                                            const ward = this.wards.find(w => Number(w.id) === wardId);
+                                            return ward && ward.rooms ? ward.rooms : [];
+                                        },
+                                        get beds() {
+                                            const wardId = Number(this.selectedWardId);
+                                            const ward = this.wards.find(w => Number(w.id) === wardId);
+                                            if (!ward || !ward.rooms) return [];
+                                            const roomId = Number(this.selectedRoomId);
+                                            const room = ward.rooms.find(r => Number(r.id) === roomId);
+                                            return room && room.beds ? room.beds : [];
+                                        },
+                                        onWardChange() {
+                                            const wardId = Number(this.selectedWardId);
+                                            const ward = this.wards.find(w => Number(w.id) === wardId);
+                                            if (ward && ward.rooms && ward.rooms.length) {
+                                                this.selectedRoomId = ward.rooms[0].id;
+                                            } else {
+                                                this.selectedRoomId = null;
+                                            }
+                                        },
+                                        selectBed(bed) {
+                                            if (bed.status !== 'available') return;
+                                            this.selectedBedId = bed.id;
+                                            this.updateHidden();
+                                            this.updateButtonState();
+                                        },
+                                        isSelected(bed) {
+                                            return this.selectedBedId === bed.id;
+                                        },
+                                        bedButtonClass(bed) {
+                                            let classes = ['btn-outline-secondary'];
+                                            if (bed.status === 'available') {
+                                                classes = ['btn-outline-success'];
+                                            } else if (bed.status === 'occupied') {
+                                                classes = ['btn-outline-danger'];
+                                            } else if (bed.status === 'maintenance') {
+                                                classes = ['btn-outline-secondary', 'opacity-50'];
+                                            }
+                                            if (this.isSelected(bed)) {
+                                                classes.push('active');
+                                            }
+                                            return classes.join(' ');
+                                        },
+                                        updateHidden() {
+                                            const input = document.getElementById('bed_id');
+                                            if (input) {
+                                                input.value = this.selectedBedId || '';
+                                            }
+                                        },
+                                        updateButtonState() {
+                                            const button = document.getElementById('admit-button');
+                                            if (button) {
+                                                if (this.selectedBedId) {
+                                                    button.removeAttribute('disabled');
+                                                } else {
+                                                    button.setAttribute('disabled', 'disabled');
+                                                }
+                                            }
+                                        },
+                                    };
+                                }
+
+                                // Configuration object to avoid HTML attribute quoting issues
+                                window.ipdBedsConfig = {
+                                    wards: @json($wards),
+                                    initialBedId: Number(@json(old('bed_id') ?? request('bed_id'))) || null
+                                };
+                            </script>
+                            <div class="card border-0 shadow-sm mt-2" x-data="window.bedMatrix(window.ipdBedsConfig)">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <div>
@@ -208,105 +314,17 @@
                     placeholder: 'Search for a patient',
                     minimumInputLength: 0,
                     allowClear: true,
-                    width: '100%'
+                    width: '100%',
+                    language: {
+                        noResults: function() {
+                            return "No patients found";
+                        },
+                        searching: function() {
+                            return "Searching...";
+                        }
+                    }
                 });
             });
-
-            function bedMatrix(config) {
-                return {
-                    wards: config.wards || [],
-                    selectedWardId: null,
-                    selectedRoomId: null,
-                    selectedBedId: config.initialBedId,
-                    init() {
-                        if (this.wards.length) {
-                            const wardWithRooms = this.wards.find(w => w.rooms && w.rooms.length);
-                            if (wardWithRooms) {
-                                this.selectedWardId = wardWithRooms.id;
-                                this.selectedRoomId = wardWithRooms.rooms[0].id;
-                            } else {
-                                this.selectedWardId = this.wards[0].id;
-                                this.selectedRoomId = null;
-                            }
-                        }
-                        if (this.selectedBedId) {
-                            for (const ward of this.wards) {
-                                for (const room of ward.rooms || []) {
-                                    for (const bed of room.beds || []) {
-                                        if (bed.id === this.selectedBedId) {
-                                            this.selectedWardId = ward.id;
-                                            this.selectedRoomId = room.id;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        this.updateHidden();
-                        this.updateButtonState();
-                    },
-                    get rooms() {
-                        const wardId = Number(this.selectedWardId);
-                        const ward = this.wards.find(w => Number(w.id) === wardId);
-                        return ward && ward.rooms ? ward.rooms : [];
-                    },
-                    get beds() {
-                        const wardId = Number(this.selectedWardId);
-                        const ward = this.wards.find(w => Number(w.id) === wardId);
-                        if (!ward || !ward.rooms) return [];
-                        const roomId = Number(this.selectedRoomId);
-                        const room = ward.rooms.find(r => Number(r.id) === roomId);
-                        return room && room.beds ? room.beds : [];
-                    },
-                    onWardChange() {
-                        const wardId = Number(this.selectedWardId);
-                        const ward = this.wards.find(w => Number(w.id) === wardId);
-                        if (ward && ward.rooms && ward.rooms.length) {
-                            this.selectedRoomId = ward.rooms[0].id;
-                        } else {
-                            this.selectedRoomId = null;
-                        }
-                    },
-                    selectBed(bed) {
-                        if (bed.status !== 'available') return;
-                        this.selectedBedId = bed.id;
-                        this.updateHidden();
-                        this.updateButtonState();
-                    },
-                    isSelected(bed) {
-                        return this.selectedBedId === bed.id;
-                    },
-                    bedButtonClass(bed) {
-                        let classes = ['btn-outline-secondary'];
-                        if (bed.status === 'available') {
-                            classes = ['btn-outline-success'];
-                        } else if (bed.status === 'occupied') {
-                            classes = ['btn-outline-danger'];
-                        } else if (bed.status === 'maintenance') {
-                            classes = ['btn-outline-secondary', 'opacity-50'];
-                        }
-                        if (this.isSelected(bed)) {
-                            classes.push('active');
-                        }
-                        return classes.join(' ');
-                    },
-                    updateHidden() {
-                        const input = document.getElementById('bed_id');
-                        if (input) {
-                            input.value = this.selectedBedId || '';
-                        }
-                    },
-                    updateButtonState() {
-                        const button = document.getElementById('admit-button');
-                        if (button) {
-                            if (this.selectedBedId) {
-                                button.removeAttribute('disabled');
-                            } else {
-                                button.setAttribute('disabled', 'disabled');
-                            }
-                        }
-                    },
-                };
-            }
         </script>
     @endpush
 </x-app-layout>
