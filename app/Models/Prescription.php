@@ -37,7 +37,7 @@ class Prescription extends BaseTenantModel
     protected static function booted()
     {
         static::created(function ($prescription) {
-            $prescription->notifyRole('Pharmacist', 'New Prescription', "New prescription pending for {$prescription->patient->name}.");
+            $prescription->notifyRole('Pharmacist', 'New Prescription', "New prescription pending for {$prescription->patient?->name}.");
         });
     }
 

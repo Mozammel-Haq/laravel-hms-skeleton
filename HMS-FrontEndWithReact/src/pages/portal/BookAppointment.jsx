@@ -520,9 +520,10 @@ const BookAppointment = () => {
                                                                 <span className="font-medium text-secondary-700 dark:text-secondary-300">
                                                                     Fee:
                                                                 </span>
-                                                                {doc.follow_up_fee &&
-                                                                doc.follow_up_fee <
-                                                                    doc.consultation_fee ? (
+                                                                {doc.follow_up_fee !== null &&
+                                                                doc.follow_up_fee !== undefined &&
+                                                                Number(doc.follow_up_fee) <
+                                                                    Number(doc.consultation_fee) ? (
                                                                     <div className="flex items-center gap-2">
                                                                         <span className="line-through text-secondary-400 text-[10px]">
                                                                             $

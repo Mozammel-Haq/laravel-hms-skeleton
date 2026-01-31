@@ -38,7 +38,7 @@ class BedAssignment extends BaseTenantModel
     protected static function booted()
     {
         static::created(function ($assignment) {
-            $assignment->notifyRole('Nurse', 'Bed Assigned', "Bed {$assignment->bed->bed_number} assigned to admission #{$assignment->admission_id}.");
+            $assignment->notifyRole('Nurse', 'Bed Assigned', "Bed {$assignment->bed?->bed_number} assigned to admission #{$assignment->admission_id}.");
         });
     }
 

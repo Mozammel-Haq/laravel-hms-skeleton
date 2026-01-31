@@ -46,7 +46,7 @@ class Admission extends BaseTenantModel
     protected static function booted()
     {
         static::created(function ($admission) {
-            $admission->notifyRole('Nurse', 'New Admission', "Patient {$admission->patient->name} admitted.");
+            $admission->notifyRole('Nurse', 'New Admission', "Patient {$admission->patient?->name} admitted.");
         });
     }
 

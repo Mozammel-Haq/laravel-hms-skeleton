@@ -39,7 +39,7 @@ class LabTestOrder extends BaseTenantModel
     protected static function booted()
     {
         static::created(function ($order) {
-            $order->notifyRole('Lab Technician', 'New Lab Order', "New lab order for {$order->patient->name}.");
+            $order->notifyRole('Lab Technician', 'New Lab Order', "New lab order for {$order->patient?->name}.");
         });
     }
 

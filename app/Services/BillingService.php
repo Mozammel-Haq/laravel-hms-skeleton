@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Payment;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -21,9 +22,9 @@ class BillingService
      * @param float $tax
      * @return Invoice
      */
-    public function createInvoice($patient, array $items, ?int $appointmentId = null, float $discount = 0, float $tax = 0, ?int $visitId = null, ?string $invoiceType = null, ?int $createdBy = null, bool $finalize = true)
+    public function createInvoice($patient, array $items, ?int $appointmentId = null, float $discount = 0, float $tax = 0, ?int $visitId = null, ?string $invoiceType = null, ?int $createdBy = null, bool $finalize = true, ?int $clinicId = null)
     {
-        $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
+        $clinicId = $clinicId ?? \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
 
         if (!$clinicId) {
              throw new Exception("Clinic context is required to create invoice.");

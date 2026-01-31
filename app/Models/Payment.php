@@ -35,7 +35,7 @@ class Payment extends BaseTenantModel
     protected static function booted()
     {
         static::created(function ($payment) {
-            $payment->notifyRole('Accountant', 'New Payment Received', "Payment of {$payment->amount} received for Invoice #{$payment->invoice->invoice_number}.");
+            $payment->notifyRole('Accountant', 'New Payment Received', "Payment of {$payment->amount} received for Invoice #{$payment->invoice?->invoice_number}.");
         });
     }
 

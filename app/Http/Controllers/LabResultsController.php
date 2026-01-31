@@ -115,7 +115,4 @@ class LabResultsController extends Controller
 
         return Storage::disk('public')->download($result->pdf_path);
     }
-
-        return Storage::disk('public')->download($result->pdf_path);
-    }
 }

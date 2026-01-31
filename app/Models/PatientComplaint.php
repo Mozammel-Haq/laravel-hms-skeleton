@@ -34,7 +34,7 @@ class PatientComplaint extends BaseTenantModel
     protected static function booted()
     {
         static::created(function ($complaint) {
-            $complaint->notifyRole('Clinic Admin', 'New Patient Complaint', "Complaint filed by {$complaint->patient->name}.");
+            $complaint->notifyRole('Clinic Admin', 'New Patient Complaint', "Complaint filed by {$complaint?->patient?->name}.");
         });
     }
 
