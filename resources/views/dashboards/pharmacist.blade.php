@@ -113,7 +113,7 @@
                     <div class="card-header bg-white d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">Recent Prescriptions</h5>
                         <a href="{{ route('clinical.prescriptions.index') }}"
-                            class="btn btn-sm btn-outline-secondary">View All</a>
+                            class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body">
                         <div class="table">

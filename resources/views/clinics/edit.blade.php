@@ -136,7 +136,7 @@
                                 @foreach ($services as $service)
                                     <div class="input-group mb-2">
                                         <input type="text" name="services[]" class="form-control" placeholder="e.g., General Consultation" value="{{ $service }}">
-                                        <button type="button" class="btn btn-outline-secondary" onclick="removeService(this)">Remove</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="removeService(this)">Remove</button>
                                     </div>
                                 @endforeach
                             </div>
@@ -415,7 +415,7 @@
             wrapper.className = 'input-group mb-2';
             wrapper.innerHTML = `
                 <input type="text" name="services[]" class="form-control" placeholder="e.g., General Consultation">
-                <button type="button" class="btn btn-outline-secondary" onclick="removeService(this)">Remove</button>
+                <button type="button" class="btn btn-outline-primary" onclick="removeService(this)">Remove</button>
             `;
             list.appendChild(wrapper);
         }

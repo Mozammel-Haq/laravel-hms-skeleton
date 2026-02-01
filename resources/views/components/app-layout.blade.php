@@ -383,11 +383,11 @@
                 // Dropdown Toggle Button
                 const btn = document.createElement('button');
                 btn.className =
-                    'btn btn-sm btn-primary dropdown-toggle d-flex align-items-center gap-1 mt-1';
+                    'btn btn-sm btn-primary dropdown-toggle d-flex align-items-center gap-1 mt-1 me-1';
                 btn.type = 'button';
                 btn.setAttribute('data-bs-toggle', 'dropdown');
                 btn.setAttribute('aria-expanded', 'false');
-                btn.setAttribute('data-bs-auto-close', 'outside'); // Keep open on click
+                btn.setAttribute('data-bs-auto-close', 'outside');
                 btn.innerHTML = '<i class="ti ti-columns bg-transparent text-white"></i> Columns';
 
                 // Dropdown Menu

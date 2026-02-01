@@ -3,7 +3,7 @@
 
         <!-- Breadcrumb -->
         <div class="mb-2 mt-2">
-            <a href="{{ route('appointments.booking.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('appointments.booking.index') }}" class="btn btn-outline-primary">
                 ← Find a Doctor
             </a>
         </div>

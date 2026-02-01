@@ -45,7 +45,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h3 class="page-title mb-0">My Schedule</h3>
-                            <a href="{{ route('appointments.index') }}" class="btn btn-outline-secondary">View
+                            <a href="{{ route('appointments.index') }}" class="btn btn-outline-primary">View
                                 Appointments</a>
                         </div>
                         <hr>

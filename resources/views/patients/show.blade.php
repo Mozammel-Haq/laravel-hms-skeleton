@@ -7,7 +7,7 @@
         </h6>
         <div class="d-flex align-items-center gap-2">
             @can('update', $patient)
-                <a href="{{ route('patients.edit', $patient) }}" class="btn btn-outline-secondary btn-sm">
+                <a href="{{ route('patients.edit', $patient) }}" class="btn btn-outline-primary btn-sm">
                     <i class="ti ti-edit me-1"></i> Edit Profile
                 </a>
             @endcan

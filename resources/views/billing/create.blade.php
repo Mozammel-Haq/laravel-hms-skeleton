@@ -7,7 +7,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Create Invoice</h3>
 
-                    <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Invoices</a>
+                    <a href="{{ route('billing.index') }}" class="btn btn-outline-primary">Invoices</a>
                 </div>
                 <hr>
                 <form method="POST" action="{{ route('billing.store') }}">

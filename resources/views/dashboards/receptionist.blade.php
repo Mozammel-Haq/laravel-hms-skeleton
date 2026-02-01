@@ -164,7 +164,7 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white d-flex align-items-center justify-content-between">
                         <h5 class="mb-0">New Patients</h5>
-                        <a href="{{ route('patients.index') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                        <a href="{{ route('patients.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body">
                         <div class="table">

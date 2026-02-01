@@ -113,7 +113,7 @@
                             <div id="servicesList">
                                 <div class="input-group mb-2">
                                     <input type="text" name="services[]" class="form-control" placeholder="e.g., General Consultation" value="{{ old('services.0') }}">
-                                    <button type="button" class="btn btn-outline-secondary" onclick="removeService(this)">Remove</button>
+                                    <button type="button" class="btn btn-outline-primary" onclick="removeService(this)">Remove</button>
                                 </div>
                             </div>
                             <button type="button" class="btn btn-sm btn-outline-primary" onclick="addService()">Add Service</button>
@@ -284,7 +284,7 @@
             wrapper.className = 'input-group mb-2';
             wrapper.innerHTML = `
                 <input type="text" name="services[]" class="form-control" placeholder="e.g., General Consultation">
-                <button type="button" class="btn btn-outline-secondary" onclick="removeService(this)">Remove</button>
+                <button type="button" class="btn btn-outline-primary" onclick="removeService(this)">Remove</button>
             `;
             list.appendChild(wrapper);
         }

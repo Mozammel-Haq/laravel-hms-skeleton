@@ -5,7 +5,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Record Vitals</h3>
-                    <a href="{{ route('vitals.history') }}" class="btn btn-outline-secondary">View History</a>
+                    <a href="{{ route('vitals.history') }}" class="btn btn-outline-primary">View History</a>
                 </div>
                 <hr>
                 <form class="row g-3 mt-3" method="POST" action="{{ route('vitals.store') }}">
@@ -94,7 +94,7 @@
                     </div>
                     <div class="col-12">
                         <button class="btn btn-primary" type="submit">Save</button>
-                        <button class="btn btn-outline-secondary" type="reset">Clear</button>
+                        <button class="btn btn-outline-primary" type="reset">Clear</button>
                     </div>
                 </form>
             </div>

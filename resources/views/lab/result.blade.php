@@ -5,7 +5,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Record Lab Result</h3>
-                    <a href="{{ route('lab.show', $order) }}" class="btn btn-outline-secondary">Back</a>
+                    <a href="{{ route('lab.show', $order) }}" class="btn btn-outline-primary">Back</a>
                 </div>
                 <hr>
                 <form method="post" action="{{ route('lab.result.store', $order) }}" enctype="multipart/form-data">

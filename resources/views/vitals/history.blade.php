@@ -11,7 +11,7 @@
                             Vitals History
                         @endif
                     </h3>
-                    <a href="{{ route('vitals.record') }}" class="btn btn-outline-secondary">Record Vitals</a>
+                    <a href="{{ route('vitals.record') }}" class="btn btn-outline-primary">Record Vitals</a>
                 </div>
                 <div class="table">
                     <table class="table table-hover align-middle datatable datatable-server">

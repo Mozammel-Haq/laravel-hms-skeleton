@@ -7,7 +7,7 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h3 class="page-title mb-0">Consultation</h3>
                             <a href="{{ route('clinical.prescriptions.index') }}"
-                                class="btn btn-outline-secondary">Prescriptions</a>
+                                class="btn btn-outline-primary">Prescriptions</a>
                         </div>
                         <div class="fw-semibold mb-2">Patient</div>
                         <div class="d-flex align-items-center mb-3">

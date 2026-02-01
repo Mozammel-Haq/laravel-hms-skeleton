@@ -137,7 +137,7 @@
                                 <button onclick="window.print()" class="btn btn-outline-primary me-2">
                                     <i class="ti ti-printer me-1"></i> Print
                                 </button>
-                                <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Back</a>
+                                <a href="{{ route('billing.index') }}" class="btn btn-outline-primary">Back</a>
                             </div>
                         </div>
                         <hr>

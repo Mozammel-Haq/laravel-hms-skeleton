@@ -7,7 +7,7 @@
                         <h4 class="mb-1">Discharge Patient</h4>
                         <p class="text-muted mb-0">Finalize inpatient discharge details</p>
                     </div>
-                    <a href="{{ route('ipd.show', $admission) }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('ipd.show', $admission) }}" class="btn btn-outline-primary">
                         <i class="ti ti-arrow-left me-1"></i> Back to Admission
                     </a>
                 </div>
@@ -124,7 +124,7 @@
                             </div>
 
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ route('ipd.show', $admission) }}" class="btn btn-outline-secondary">
+                                <a href="{{ route('ipd.show', $admission) }}" class="btn btn-outline-primary">
                                     Cancel
                                 </a>
                                 <button type="submit" class="btn btn-danger"

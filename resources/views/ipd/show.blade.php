@@ -6,7 +6,7 @@
                 <p class="text-muted mb-0">Patient admission record and status</p>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('ipd.index') }}" class="btn btn-outline-primary">
                     <i class="ti ti-arrow-left me-1"></i> Back to IPD
                 </a>
                 @if ($admission->status === 'admitted')

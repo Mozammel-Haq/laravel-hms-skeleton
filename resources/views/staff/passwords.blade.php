@@ -5,7 +5,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Reset Passwords</h3>
-                    <a href="{{ route('staff.index') }}" class="btn btn-outline-secondary">Manage Staff</a>
+                    <a href="{{ route('staff.index') }}" class="btn btn-outline-primary">Manage Staff</a>
                 </div>
                 <div class="table">
                     <table class="table table-hover align-middle datatable">

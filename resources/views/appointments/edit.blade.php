@@ -4,7 +4,7 @@
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="page-title mb-0">Edit Appointment</h4>
-                    <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-outline-secondary">
+                    <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-outline-primary">
                         <i class="ti ti-arrow-left me-1"></i> Back
                     </a>
                 </div>

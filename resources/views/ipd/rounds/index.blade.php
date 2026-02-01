@@ -5,7 +5,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Rounds Management</h3>
-                    <a href="{{ route('ipd.index') }}" class="btn btn-outline-secondary">IPD Dashboard</a>
+                    <a href="{{ route('ipd.index') }}" class="btn btn-outline-primary">IPD Dashboard</a>
                 </div>
                 <hr>
 

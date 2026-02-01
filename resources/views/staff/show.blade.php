@@ -4,7 +4,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Staff Details</h3>
-                    <a href="{{ route('staff.index') }}" class="btn btn-outline-secondary">Back</a>
+                    <a href="{{ route('staff.index') }}" class="btn btn-outline-primary">Back</a>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">

@@ -6,7 +6,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Consultations</h3>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('appointments.index') }}" class="btn btn-outline-secondary">Appointments</a>
+                        <a href="{{ route('appointments.index') }}" class="btn btn-outline-primary">Appointments</a>
                     </div>
                 </div>
 

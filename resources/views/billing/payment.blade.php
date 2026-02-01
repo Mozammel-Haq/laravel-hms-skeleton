@@ -12,7 +12,7 @@
                 <h3 class="page-title mb-0">Record Payment</h3>
                 <p class="text-muted mb-0">Add payment for Invoice #{{ $invoice->invoice_number ?? $invoice->id }}</p>
             </div>
-            <a href="{{ route('billing.show', $invoice) }}" class="btn btn-outline-secondary">
+            <a href="{{ route('billing.show', $invoice) }}" class="btn btn-outline-primary">
                 <i class="ti ti-arrow-left me-1"></i> Back to Invoice
             </a>
         </div>

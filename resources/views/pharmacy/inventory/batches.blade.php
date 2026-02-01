@@ -13,7 +13,7 @@
                         <a href="{{ route('pharmacy.inventory.create') }}" class="btn btn-primary">
                             <i class="ti ti-plus me-1"></i> Add Batch
                         </a>
-                        <a href="{{ route('pharmacy.medicines.index') }}" class="btn btn-outline-secondary">
+                        <a href="{{ route('pharmacy.medicines.index') }}" class="btn btn-outline-primary">
                             <i class="ti ti-list me-1"></i> Medicine Catalog
                         </a>
                     </div>

@@ -5,7 +5,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="page-title mb-0">Cash Payments</h3>
-                    <a href="{{ route('billing.index') }}" class="btn btn-outline-secondary">Billing</a>
+                    <a href="{{ route('billing.index') }}" class="btn btn-outline-primary">Billing</a>
                 </div>
 
                 <hr>

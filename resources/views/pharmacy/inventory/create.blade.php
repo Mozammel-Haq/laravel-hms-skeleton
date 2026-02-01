@@ -11,7 +11,7 @@
                             {{ isset($medicine) ? 'Update medicine details' : 'Register a new medicine in the catalog' }}
                         </p>
                     </div>
-                    <a href="{{ route('pharmacy.medicines.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('pharmacy.medicines.index') }}" class="btn btn-outline-primary">
                         <i class="ti ti-arrow-left me-1"></i> Back to Catalog
                     </a>
                 </div>

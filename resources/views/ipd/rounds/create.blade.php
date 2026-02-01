@@ -12,7 +12,7 @@
                                 <p class="text-muted mb-0">Record a doctor's visit for {{ $admission->patient->name }}
                                 </p>
                             </div>
-                            <a href="{{ route('ipd.show', $admission->id) }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('ipd.show', $admission->id) }}" class="btn btn-outline-primary">
                                 <i class="ti ti-arrow-left me-1"></i> Back to Admission
                             </a>
                         </div>

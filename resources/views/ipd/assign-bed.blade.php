@@ -15,7 +15,7 @@
                                 <h4 class="mb-1">Assign/Transfer Bed</h4>
                                 <p class="text-muted mb-0">Choose an available bed for this admission</p>
                             </div>
-                            <a href="{{ route('ipd.show', $admission->id) }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('ipd.show', $admission->id) }}" class="btn btn-outline-primary">
                                 <i class="ti ti-arrow-left me-1"></i> Back to Admission
                             </a>
                         </div>
@@ -81,11 +81,11 @@
                                                 x-show="isSelected(bed)">
                                                 <i class="ti ti-check"></i>
                                             </span>
-                                            <span
-                                                class="position-absolute bottom-0 start-50 translate-middle-x badge rounded-pill bg-primary-subtle text-primary"
+                                            {{-- <span
+                                                class="position-absolute bottom-0 start-50 translate-middle-x badge rounded-pill bg-primary text-white"
                                                 x-show="isCurrent(bed)">
                                                 Current
-                                            </span>
+                                            </span> --}}
                                         </button>
                                     </template>
                                     <div x-show="beds.length === 0" class="text-muted small">
@@ -115,7 +115,8 @@
                             <div class="avatar avatar-md me-3">
                                 @if ($admission->patient->profile_photo)
                                     <img src="{{ asset($admission->patient->profile_photo) }}"
-                                        alt="{{ $admission->patient->name }}" class="rounded-circle w-100 h-100 object-fit-cover">
+                                        alt="{{ $admission->patient->name }}"
+                                        class="rounded-circle w-100 h-100 object-fit-cover">
                                 @else
                                     <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
                                         {{ substr($admission->patient->name, 0, 1) }}
@@ -218,13 +219,13 @@
                     return this.currentBedId && this.currentBedId === bed.id;
                 },
                 bedButtonClass(bed) {
-                    let classes = ['btn-outline-secondary'];
+                    let classes = ['btn-outline-primary'];
                     if (bed.status === 'available') {
                         classes = ['btn-outline-success'];
                     } else if (bed.status === 'occupied') {
                         classes = ['btn-outline-danger'];
                     } else if (bed.status === 'maintenance') {
-                        classes = ['btn-outline-secondary', 'opacity-50'];
+                        classes = ['btn-outline-primary', 'opacity-50'];
                     }
                     if (this.isSelected(bed)) {
                         classes.push('active');

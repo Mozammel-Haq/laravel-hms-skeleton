@@ -166,13 +166,13 @@
                                             return this.selectedBedId === bed.id;
                                         },
                                         bedButtonClass(bed) {
-                                            let classes = ['btn-outline-secondary'];
+                                            let classes = ['btn-outline-primary'];
                                             if (bed.status === 'available') {
                                                 classes = ['btn-outline-success'];
                                             } else if (bed.status === 'occupied') {
                                                 classes = ['btn-outline-danger'];
                                             } else if (bed.status === 'maintenance') {
-                                                classes = ['btn-outline-secondary', 'opacity-50'];
+                                                classes = ['btn-outline-primary', 'opacity-50'];
                                             }
                                             if (this.isSelected(bed)) {
                                                 classes.push('active');
@@ -212,7 +212,7 @@
                                             <div class="text-muted small">Choose an available bed</div>
                                         </div>
                                         <a href="{{ route('ipd.bed_status') }}"
-                                            class="btn btn-sm btn-outline-secondary">
+                                            class="btn btn-sm btn-outline-primary">
                                             <i class="ti ti-grid-3x3"></i>
                                         </a>
                                     </div>

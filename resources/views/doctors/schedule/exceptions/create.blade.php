@@ -5,7 +5,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Request Schedule Exception</h5>
-                    <a href="{{ route('doctor.schedule.exceptions.index') }}" class="btn btn-sm btn-outline-secondary">
+                    <a href="{{ route('doctor.schedule.exceptions.index') }}" class="btn btn-sm btn-outline-primary">
                         <i class="ti ti-arrow-left me-1"></i> Back
                     </a>
                 </div>

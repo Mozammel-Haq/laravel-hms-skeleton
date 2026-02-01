@@ -9,7 +9,7 @@
                         <h4 class="mb-1">Add New Batch</h4>
                         <p class="text-muted mb-0">Register new stock batch for medicines</p>
                     </div>
-                    <a href="{{ route('pharmacy.inventory.index') }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('pharmacy.inventory.index') }}" class="btn btn-outline-primary">
                         <i class="ti ti-arrow-left me-1"></i> Back to Inventory
                     </a>
                 </div>

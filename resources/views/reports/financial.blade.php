@@ -208,10 +208,10 @@
                             class="btn btn-success d-print-none">
                             <i class="ti ti-file-spreadsheet me-1"></i> Export Excel
                         </a>
-                        <button onclick="window.print()" class="btn btn-outline-secondary d-print-none">
+                        <button onclick="window.print()" class="btn btn-outline-primary d-print-none">
                             <i class="ti ti-printer me-1"></i> Print / PDF
                         </button>
-                        <a href="{{ route('reports.index') }}" class="btn btn-outline-secondary d-print-none">
+                        <a href="{{ route('reports.index') }}" class="btn btn-outline-primary d-print-none">
                             <i class="ti ti-arrow-left me-1"></i> Back
                         </a>
                     </div>

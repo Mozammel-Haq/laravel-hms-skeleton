@@ -14,7 +14,7 @@
                         <i class="bi bi-list"></i> List
                     </button>
                 </div>
-                <a href="{{ route('doctors.index') }}" class="btn btn-outline-secondary">Back to Doctors</a>
+                <a href="{{ route('doctors.index') }}" class="btn btn-outline-primary">Back to Doctors</a>
             </div>
         </div>
 
@@ -22,7 +22,7 @@
         <div x-show="view === 'calendar'" style="display: none;">
             <div class="card shadow-sm">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <button class="btn btn-outline-secondary btn-sm" @click="prevMonth()">
+                    <button class="btn btn-outline-primary btn-sm" @click="prevMonth()">
                         <i class="bi bi-chevron-left"></i> Previous
                     </button>
                     <div class="d-flex align-items-center gap-2">
@@ -30,7 +30,7 @@
                         <div x-show="loading" class="spinner-border spinner-border-sm text-primary" role="status">
                         </div>
                     </div>
-                    <button class="btn btn-outline-secondary btn-sm" @click="nextMonth()">
+                    <button class="btn btn-outline-primary btn-sm" @click="nextMonth()">
                         Next <i class="bi bi-chevron-right"></i>
                     </button>
                 </div>
