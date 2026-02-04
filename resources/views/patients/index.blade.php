@@ -1,60 +1,66 @@
 <x-app-layout>
 
-    <div class="container py-4">
-                    <div class=" d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
-                <div class="page-title">
-                    <h4>Patients</h4>
-                    {{-- breadcrumb --}}
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb breadcrumb-dots mb-0">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Patients</li>
-                        </ol>
-                    </nav>
-                </div>
-                @can('create', \App\Models\Patient::class)
-                    <div class="action-btn">
-                        <a href="{{ route('patients.create') }}" class="btn btn-primary">
-                            <i class="ti ti-plus me-1"></i> Add Patient
-                        </a>
-                    </div>
-                @endcan
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 py-2 pt-3 rounded shadow-sm">
+            <div>
+                <h4 class="mb-2 text-primary fw-bold">Patients</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Patients</li>
+                    </ol>
+                </nav>
             </div>
-    <div class="card">
-        <div class="card-body">
-            <!-- Filters -->
-            <form method="GET" action="{{ route('patients.index') }}" class="mb-4">
-                <div class="row g-2">
-                    <div class="col-md-3">
-                        <input type="text" name="search" class="form-control" placeholder="Search..."
-                            value="{{ request('search') }}">
+            @can('create', \App\Models\Patient::class)
+                <a href="{{ route('patients.create') }}" class="btn btn-primary btn-sm">
+                    <i class="ti ti-plus me-1"></i> Add Patient
+                </a>
+            @endcan
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <!-- Filters -->
+                <form method="GET" action="{{ route('patients.index') }}" class="mb-4">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold text-muted">Search</label>
+                            <input type="text" name="search" class="form-control form-control-sm" placeholder="Search name, code..."
+                                value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold text-muted">Status</label>
+                            <select name="status" class="form-select form-select-sm">
+                                <option value="">All Status</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive
+                                </option>
+                                <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold text-muted">From</label>
+                            <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
+                                value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold text-muted">To</label>
+                            <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
+                                value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold d-block">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+                                <a href="{{ route('patients.index') }}" class="btn btn-light btn-sm w-100">Reset</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2">
-                        <select name="status" class="form-select">
-                            <option value="">All Status</option>
-                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive
-                            </option>
-                            <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="date" name="from" class="form-control" placeholder="From Date"
-                            value="{{ request('from') }}">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="date" name="to" class="form-control" placeholder="To Date"
-                            value="{{ request('to') }}">
-                    </div>
-                    <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        <a href="{{ route('patients.index') }}" class="btn btn-light w-100">Reset</a>
-                    </div>
-                </div>
-            </form>
+                </form>
             <hr>
-            <div class="table">
+            <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>

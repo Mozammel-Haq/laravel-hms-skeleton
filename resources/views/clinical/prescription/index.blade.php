@@ -1,12 +1,17 @@
 <x-app-layout>
-    <div class="container-fluid">
-
-        <div class="card mt-2 mx-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h3 class="page-title mb-0">Prescriptions</h3>
+    <div class="container-fluid m-2">
+                                <div class="bg-primary-subtle text-primary px-4 py-3 rounded">
+                    <h4 class="fw-bold mb-2 text-primary">Prescriptions</h4>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Prescriiptions</li>
+                        </ol>
+                    </nav>
                 </div>
-
+        <div class="card ">
+            <div class="card-body">
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('clinical.prescriptions.index') }}" class="mb-4">
                     <div class="row g-2">

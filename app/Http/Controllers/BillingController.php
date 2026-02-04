@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Patient;
 use App\Models\Consultation;
-use App\Models\LabTest;
-use App\Models\Medicine;
+use App\Models\LabTestOrder;
+use App\Models\PharmacySale;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoicePayment;
 use App\Models\Appointment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 /**
  * Manages invoice generation, viewing, and payments.
@@ -176,23 +178,29 @@ class BillingController extends Controller
             foreach ($request->items as $item) {
                 $modelClass = match ($item['item_type']) {
                     'consultation' => Consultation::class,
-                    'lab'          => LabTest::class,
-                    'medicine'     => Medicine::class,
+                    'lab_order'    => LabTestOrder::class,
+                    'pharmacy_sale'=> PharmacySale::class,
                     default        => null,
                 };
                 if (!$modelClass) {
-                    abort(422);
+                    throw ValidationException::withMessages(['items' => "Invalid item type: {$item['item_type']}"]);
                 }
                 $ref = $modelClass::where('id', $item['reference_id'])->first();
                 if (!$ref) {
-                    abort(422);
+                    throw ValidationException::withMessages(['items' => "Item not found: {$item['description']}"]);
                 }
                 if (isset($ref->patient_id) && (int)$ref->patient_id !== (int)$request->patient_id) {
-                    abort(422);
+                    throw ValidationException::withMessages(['items' => "Item does not belong to this patient: {$item['description']}"]);
                 }
-                if (isset($ref->invoice_id) && !empty($ref->invoice_id)) {
-                    abort(422);
+
+                // Check if already invoiced
+                if ($item['item_type'] === 'lab_order' && !empty($ref->invoice_id)) {
+                    throw ValidationException::withMessages(['items' => "Item already invoiced: {$item['description']}"]);
                 }
+                if ($item['item_type'] === 'consultation' && $ref->invoiceItem()->exists()) {
+                    throw ValidationException::withMessages(['items' => "Item already invoiced: {$item['description']}"]);
+                }
+
                 $subtotal += $item['quantity'] * $item['unit_price'];
             }
 
@@ -202,6 +210,7 @@ class BillingController extends Controller
             $grandTotal = $subtotal - $discount + $taxAmount;
 
             $invoice = Invoice::create([
+                'invoice_number' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
                 'patient_id' => $request->patient_id,
                 'subtotal'   => $subtotal,
                 'discount'   => $discount,
@@ -212,24 +221,41 @@ class BillingController extends Controller
 
             // Insert invoice items
             foreach ($request->items as $item) {
+                // Map frontend item types to database ENUM values
+                $dbItemType = match ($item['item_type']) {
+                    'lab_order' => 'lab',
+                    'pharmacy_sale' => 'medicine',
+                    default => $item['item_type'],
+                };
+
+                // Fetch description
+                $description = 'Item';
+                if ($item['item_type'] === 'lab_order') {
+                     $ref = LabTestOrder::with('test')->find($item['reference_id']);
+                     $description = $ref && $ref->test ? $ref->test->name : 'Lab Test';
+                } elseif ($item['item_type'] === 'consultation') {
+                     $ref = Consultation::with('doctor.user')->find($item['reference_id']);
+                     $description = 'Consultation';
+                     if ($ref && $ref->doctor && $ref->doctor->user) {
+                         $description .= ' - ' . $ref->doctor->user->name;
+                     }
+                } elseif ($item['item_type'] === 'pharmacy_sale') {
+                    $description = 'Medicines';
+                }
+
                 InvoiceItem::create([
                     'invoice_id'   => $invoice->id,
                     'reference_id' => $item['reference_id'],
-                    'item_type'    => $item['item_type'],
+                    'item_type'    => $dbItemType,
+                    'description'  => $description,
                     'quantity'     => $item['quantity'],
                     'unit_price'   => $item['unit_price'],
-                    'total'        => $item['quantity'] * $item['unit_price'],
+                    'total_price'  => $item['quantity'] * $item['unit_price'],
                 ]);
 
                 // Optionally mark the referenced items as invoiced
-                $modelClass = match ($item['item_type']) {
-                    'consultation' => Consultation::class,
-                    'lab'          => LabTest::class,
-                    'medicine'     => Medicine::class,
-                    default        => null,
-                };
-                if ($modelClass) {
-                    $modelClass::where('id', $item['reference_id'])->update(['invoice_id' => $invoice->id]);
+                if ($item['item_type'] === 'lab_order') {
+                    LabTestOrder::where('id', $item['reference_id'])->update(['invoice_id' => $invoice->id]);
                 }
             }
         });
@@ -254,16 +280,33 @@ class BillingController extends Controller
     public function getPatientItems(Patient $patient)
     {
         $consultations = Consultation::where('patient_id', $patient->id)
-            ->whereNull('invoice_id')
-            ->get(['id', DB::raw("'consultation' as type"), 'diagnosis as description', 'fee as price']);
+            ->whereDoesntHave('invoiceItem')
+            ->with('doctor')
+            ->get()
+            ->map(function ($c) {
+                return [
+                    'id' => $c->id,
+                    'type' => 'consultation',
+                    'description' => 'Consultation: ' . ($c->diagnosis ?? 'General Checkup'),
+                    'price' => $c->doctor->consultation_fee ?? 0,
+                ];
+            });
 
-        $lab_tests = LabTest::where('patient_id', $patient->id)
+        $lab_tests = LabTestOrder::where('patient_id', $patient->id)
             ->whereNull('invoice_id')
-            ->get(['id', DB::raw("'lab' as type"), 'name as description', 'price']);
+            ->with('test')
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'type' => 'lab_order',
+                    'description' => $order->test->name ?? 'Unknown Test',
+                    'price' => $order->test->price ?? 0,
+                ];
+            });
 
-        $medicines = Medicine::where('patient_id', $patient->id)
-            ->whereNull('invoice_id')
-            ->get(['id', DB::raw("'medicine' as type"), 'name as description', 'price']);
+        // Medicines logic temporarily disabled due to schema mismatch (PharmacySale vs Medicine Catalog)
+        $medicines = [];
 
         return response()->json([
             'consultations' => $consultations,

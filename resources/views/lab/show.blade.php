@@ -1,21 +1,23 @@
 <x-app-layout>
-    <div class="container-fluid py-4">
+    <div class="container-fluid mx-2 mt-2">
         <!-- Header -->
-        <div class="mx-2 row align-items-center mb-4 bg-primary-subtle text-primary px-4 py-2 pt-3">
-            <div class="col">
-                <h4 class="mb-1 fw-bold text-dark">Lab Order Details</h4>
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded shadow-sm mb-3">
+            <div>
+                <h5 class="fw-bold mb-1 text-primary">Lab Order Details</h5>
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('lab.index') }}" class="text-decoration-none">Lab Orders</a></li>
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('lab.index') }}">Lab Orders</a></li>
                         <li class="breadcrumb-item active" aria-current="page">#{{ $order->id }}</li>
                     </ol>
                 </nav>
             </div>
-
+            <a href="{{ route('lab.index') }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-arrow-left me-1"></i> Back to List
+            </a>
         </div>
 
-        <div class="row px-2">
+        <div class="row g-3">
             <!-- Left Column: Patient & Order Info -->
             <div class="col-lg-4">
                 <!-- Patient Card -->
@@ -99,7 +101,7 @@
 
             <!-- Right Column: Results -->
             <div class="col-lg-8">
-                <div class="card border border-secondary-subtle shadow-sm">
+                <div class="card border-0 shadow-sm">
                     <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0 fw-bold text-dark">
                             <i class="ti ti-report-analytics me-2 text-primary"></i> Test Results

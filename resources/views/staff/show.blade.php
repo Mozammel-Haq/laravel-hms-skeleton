@@ -1,23 +1,23 @@
 <x-app-layout>
-    <div class="container-fluid py-4">
+    <div class="container-fluid mx-2 mt-2">
         <!-- Header -->
-        <div class="row align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
-            <div class="col">
-                <h4 class="mb-1 fw-bold text-dark">Staff Profile</h4>
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded shadow-sm mb-3">
+            <div>
+                <h5 class="fw-bold mb-1 text-primary">Staff Profile</h5>
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('staff.index') }}" class="text-decoration-none">Staff</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ $staff->name }}</li>
                     </ol>
                 </nav>
             </div>
-            <div class="col-auto d-flex gap-2">
-                <a href="{{ route('staff.index') }}" class="btn btn-outline-primary">
+            <div class="d-flex gap-2">
+                <a href="{{ route('staff.index') }}" class="btn btn-sm btn-outline-primary">
                     <i class="ti ti-arrow-left me-1"></i> Back
                 </a>
                 @can('update', $staff)
-                    <a href="{{ route('staff.edit', $staff->id) }}" class="btn btn-primary">
+                    <a href="{{ route('staff.edit', $staff->id) }}" class="btn btn-sm btn-primary">
                         <i class="ti ti-edit me-1"></i> Edit Profile
                     </a>
                 @endcan
@@ -26,7 +26,7 @@
 
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="card border border-secondary-subtle shadow-sm">
+                <div class="card shadow-sm">
                     <div class="card-body text-center p-5">
                         <!-- Profile Image -->
                         <div class="position-relative d-inline-block mb-4">

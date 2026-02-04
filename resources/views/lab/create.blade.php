@@ -1,9 +1,8 @@
 <x-app-layout>
-    <div class="container-fluid m-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
             <div>
-                <h4 class="font-bold mb-2 text-primary">Order Lab Test</h4>
-                {{-- breadcrumb --}}
+                <h5 class="fw-bold mb-1 text-primary">Order Lab Test</h5>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-dots mb-0">
                         <li class="breadcrumb-item"><a href="{{ route('lab.index') }}">Lab Tests</a></li>
@@ -11,17 +10,22 @@
                     </ol>
                 </nav>
             </div>
+            <a href="{{ route('lab.index') }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-arrow-left me-1"></i> Back to List
+            </a>
         </div>
-        <div class="card p-3">
-            <div class="card-body">
-                <hr>
+
+        <div class="card shadow-sm rounded-bottom mt-0">
+            <div class="card-body p-3">
                 <form method="post" action="{{ route('lab.store') }}">
                     @csrf
                     <input type="hidden" name="appointment_id" value="{{ $appointmentId ?? '' }}">
+
+                    <h5 class="text-primary fw-bold mb-3 border-bottom pb-2">Order Details</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Patient</label>
-                            <select name="patient_id" class="form-select select2-patient" required>
+                            <label class="form-label small fw-semibold">Patient <span class="text-danger">*</span></label>
+                            <select name="patient_id" class="form-select form-select-sm select2-patient" required>
                                 <option value="">Select patient</option>
                                 @if (isset($patients))
                                     @foreach ($patients as $patient)
@@ -33,8 +37,8 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Test</label>
-                            <select name="lab_test_id" class="form-select" required>
+                            <label class="form-label small fw-semibold">Test <span class="text-danger">*</span></label>
+                            <select name="lab_test_id" class="form-select form-select-sm" required>
                                 <option value="">Select test</option>
                                 @foreach ($tests as $t)
                                     <option value="{{ $t->id }}">{{ $t->name }}</option>
@@ -45,13 +49,13 @@
                         @if (isset($doctor) && $doctor)
                             <input type="hidden" name="doctor_id" value="{{ $doctor->id }}">
                             <div class="col-md-6">
-                                <label class="form-label">Doctor</label>
-                                <input type="text" class="form-control" value="{{ $doctor->user->name }}" disabled>
+                                <label class="form-label small fw-semibold">Doctor</label>
+                                <input type="text" class="form-control form-control-sm bg-light" value="{{ $doctor->user->name }}" disabled>
                             </div>
                         @else
                             <div class="col-md-6">
-                                <label class="form-label">Doctor (optional)</label>
-                                <select name="doctor_id" class="form-select">
+                                <label class="form-label small fw-semibold">Doctor (optional)</label>
+                                <select name="doctor_id" class="form-select form-select-sm">
                                     <option value="">Select doctor</option>
                                     @if (isset($doctors))
                                         @foreach ($doctors as $d)
@@ -62,10 +66,11 @@
                                 </select>
                             </div>
                         @endif
+                    </div>
 
-                        <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                        </div>
+                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                        <a href="{{ route('lab.index') }}" class="btn btn-sm btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-sm btn-primary px-4">Submit Order</button>
                     </div>
                 </form>
             </div>
@@ -76,6 +81,7 @@
             $(document).ready(function() {
                 // Initialize Select2 with AJAX
                 $('.select2-patient').select2({
+                    theme: 'bootstrap-5',
                     ajax: {
                         url: '{{ route('patients.search') }}',
                         dataType: 'json',

@@ -1,80 +1,76 @@
 <x-app-layout>
-    <div class="content px-2 pt-1">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm">
+            <div>
+                <h5 class="fw-bold mb-1 text-primary">Find a Doctor</h5>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Find a Doctor</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
 
-
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card card-table show-entire">
-
-                    <div class="card-body">
-                        <div class="page-table-header mb-2">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <div class="doctor-table-blk">
-                                        <h4 class="fw-bold mb-2 text-primary">Find a Doctor</h4>
-                                        {{-- breadcrumb --}}
-                                        <nav aria-label="breadcrumb">
-                                            <ol class="breadcrumb mb-0">
-                                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                                                <li class="breadcrumb-item active" aria-current="page">Find a Doctor</li>
-                                            </ol>
-                                        </nav>
-                                    </div>
-                                </div>
+        <div class="card border-0 shadow-sm rounded-bottom rounded-0">
+            <div class="card-body p-4">
+                <!-- Filter Form -->
+                <form method="GET" action="{{ route('appointments.booking.index') }}" class="mb-4">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted mb-1">Search</label>
+                            <input type="text" name="search" class="form-control form-control-sm"
+                                placeholder="Search doctor..." value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted mb-1">Clinic</label>
+                            <select class="form-select form-select-sm" name="clinic_id">
+                                <option value="">All Clinics</option>
+                                @foreach ($clinics as $clinic)
+                                    <option value="{{ $clinic->id }}"
+                                        {{ request('clinic_id') == $clinic->id ? 'selected' : '' }}>
+                                        {{ $clinic->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold text-muted mb-1">Department</label>
+                            <select class="form-select form-select-sm" name="department_id">
+                                <option value="">All Departments</option>
+                                @foreach ($departments as $dept)
+                                    <option value="{{ $dept->id }}"
+                                        {{ request('department_id') == $dept->id ? 'selected' : '' }}>
+                                        {{ $dept->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold text-muted mb-1">Status</label>
+                            <select class="form-select form-select-sm" name="status">
+                                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All
+                                    Status</option>
+                                <option value="active"
+                                    {{ request('status', 'active') == 'active' ? 'selected' : '' }}>Active
+                                </option>
+                                <option value="inactive"
+                                    {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-sm btn-primary w-100">Search</button>
+                                <a href="{{ route('appointments.booking.index') }}"
+                                    class="btn btn-sm btn-light border w-100">Reset</a>
                             </div>
                         </div>
-                        <hr>
+                    </div>
+                </form>
+                <hr>
 
-                        <!-- Filter Form -->
-                        <form method="GET" action="{{ route('appointments.booking.index') }}" class="mb-4">
-                            <div class="row g-2">
-                                <div class="col-md-3">
-                                    <input type="text" name="search" class="form-control"
-                                        placeholder="Search doctor..." value="{{ request('search') }}">
-                                </div>
-                                <div class="col-md-2">
-                                    <select class="select form-control" name="clinic_id">
-                                        <option value="">All Clinics</option>
-                                        @foreach ($clinics as $clinic)
-                                            <option value="{{ $clinic->id }}"
-                                                {{ request('clinic_id') == $clinic->id ? 'selected' : '' }}>
-                                                {{ $clinic->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <select class="select form-control" name="department_id">
-                                        <option value="">All Departments</option>
-                                        @foreach ($departments as $dept)
-                                            <option value="{{ $dept->id }}"
-                                                {{ request('department_id') == $dept->id ? 'selected' : '' }}>
-                                                {{ $dept->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-2">
-                                    <select class="select form-control" name="status">
-                                        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All
-                                            Status</option>
-                                        <option value="active"
-                                            {{ request('status', 'active') == 'active' ? 'selected' : '' }}>Active
-                                        </option>
-                                        <option value="inactive"
-                                            {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3 d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary w-100">Search</button>
-                                    <a href="{{ route('appointments.booking.index') }}"
-                                        class="btn btn-light w-100">Reset</a>
-                                </div>
-                            </div>
-                        </form>
-
-                        <!-- Doctors Grid -->
-                        <div class="row g-3">
+                <!-- Doctors Grid -->
+                <div class="row g-3">
                             @forelse($doctors as $doctor)
                                 <div class="col-xl-3 col-lg-4 col-md-6">
                                     <div class="card shadow-sm border border-secondary doctor-card ">

@@ -1,28 +1,41 @@
 <x-app-layout>
-    <div class="container-fluid  mt-2 mx-1">
-                        <div class="px-4 pt-3 border-bottom bg-primary-subtle text-primary">
-                            <h4 class="page-title mb-2">Create Invoice</h4>
-                            {{-- breadcrumb --}}
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Create Invoice</li>
-                                </ol>
-                            </nav>
-                        </div>
+    <div class="container-fluid mx-2 mt-2">
+    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+        <div>
+            <h5 class="fw-bold mb-1 text-primary">Create Invoice</h5>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-dots mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Create Invoice</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="{{ route('billing.index') }}" class="btn btn-sm btn-outline-primary">
+            <i class="ti ti-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
 
+    <div class="card shadow-sm border-0 rounded-bottom mt-0">
+        <div class="card-body">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-
-        <div class="card">
-            <div class="card-body">
                 <form method="POST" action="{{ route('billing.store') }}">
                     @csrf
 
                     <!-- Patient Selection -->
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Patient</label>
-                            <select name="patient_id" id="patientSelect" class="form-select select2-patient" required>
+                            <label class="form-label small text-muted">Patient</label>
+                            <select name="patient_id" id="patientSelect" class="form-select form-select-sm select2-patient" required>
                                 <option value="">Select patient</option>
                                 @if (isset($patients))
                                     @foreach ($patients as $patient)
@@ -34,13 +47,13 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Discount</label>
-                            <input type="number" name="discount" id="discount" class="form-control" step="0.01"
+                            <label class="form-label small fw-semibold">Discount</label>
+                            <input type="number" name="discount" id="discount" class="form-control form-control-sm" step="0.01"
                                 value="0">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Tax (%)</label>
-                            <input type="number" name="tax" id="tax" class="form-control" step="0.01"
+                            <label class="form-label small fw-semibold">Tax (%)</label>
+                            <input type="number" name="tax" id="tax" class="form-control form-control-sm" step="0.01"
                                 value="0">
                         </div>
                     </div>
@@ -83,7 +96,10 @@
                         </tfoot>
                     </table>
 
-                    <button type="button" class="btn btn-success mb-3" id="addItemBtn">Add Item</button>
+                    <button type="button" class="btn btn-success mb-3" id="addItemBtn" disabled>
+                        <i class="ti ti-plus me-1"></i> Add Pending Item
+                    </button>
+                    <span id="itemsLoadingStatus" class="ms-2 text-muted small" style="display: none;"></span>
 
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary">Generate Invoice</button>
@@ -97,23 +113,23 @@
     <template id="itemRowTemplate">
         <tr>
             <td>
-                <select class="form-select descriptionSelect" name="items[][reference_id]" required>
+                <select class="form-select form-select-sm descriptionSelect" name="items[][reference_id]" required>
                     <option value="">Select Item</option>
                 </select>
             </td>
             <td>
-                <input type="text" name="items[][item_type]" class="form-control itemType" readonly>
+                <input type="text" name="items[][item_type]" class="form-control form-control-sm itemType" readonly>
             </td>
             <td>
-                <input type="number" name="items[][quantity]" class="form-control quantity" min="1"
+                <input type="number" name="items[][quantity]" class="form-control form-control-sm quantity" min="1"
                     value="1">
             </td>
             <td>
-                <input type="number" name="items[][unit_price]" class="form-control unitPrice" step="0.01"
+                <input type="number" name="items[][unit_price]" class="form-control form-control-sm unitPrice" step="0.01"
                     value="0">
             </td>
             <td>
-                <input type="number" name="items[][total]" class="form-control total" step="0.01" value="0"
+                <input type="number" name="items[][total]" class="form-control form-control-sm total" step="0.01" value="0"
                     readonly>
             </td>
             <td>
@@ -158,32 +174,80 @@
             let itemsData = {}; // Will hold AJAX fetched items
             const patientSelect = document.getElementById('patientSelect');
             const addItemBtn = document.getElementById('addItemBtn');
+            const itemsLoadingStatus = document.getElementById('itemsLoadingStatus');
             const tableBody = document.querySelector('#invoiceItemsTable tbody');
 
             // Fetch pending items when patient changes
-            patientSelect.addEventListener('change', function() {
-                const patientId = this.value;
-                if (!patientId) return;
+            $('.select2-patient').on('select2:select', function(e) {
+                const patientId = e.params.data.id;
+                loadPatientItems(patientId);
+            });
+
+             // Also handle manual change if needed (though Select2 handles it mostly)
+             $(patientSelect).on('change', function() {
+                 if(this.value && !itemsData.consultations) { // check if not already loaded
+                    loadPatientItems(this.value);
+                 }
+             });
+
+            function loadPatientItems(patientId) {
+                if (!patientId) {
+                    addItemBtn.disabled = true;
+                    return;
+                }
+
+                itemsLoadingStatus.style.display = 'inline';
+                itemsLoadingStatus.innerText = 'Searching for pending items...';
+                itemsLoadingStatus.className = 'ms-2 text-muted small';
+                addItemBtn.disabled = true;
 
                 fetch(`/billing/patient-items/${patientId}`)
                     .then(res => res.json())
                     .then(data => {
                         itemsData = data; // { consultations: [], lab_tests: [], medicines: [] }
+                        const totalItems = (data.consultations?.length || 0) + (data.lab_tests?.length || 0) + (data.medicines?.length || 0);
+
+                        itemsLoadingStatus.style.display = 'inline';
+                        if (totalItems > 0) {
+                            itemsLoadingStatus.innerText = `${totalItems} pending item(s) found.`;
+                            itemsLoadingStatus.className = 'ms-2 text-success small fw-bold';
+                            addItemBtn.disabled = false;
+                        } else {
+                            itemsLoadingStatus.innerText = 'No pending billable items found for this patient.';
+                            itemsLoadingStatus.className = 'ms-2 text-danger small fw-bold';
+                            addItemBtn.disabled = true;
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        itemsLoadingStatus.innerText = 'Error loading items.';
+                        itemsLoadingStatus.className = 'ms-2 text-danger small';
                     });
-            });
+            }
 
             // Add item row
+            let itemRowIndex = 0;
             addItemBtn.addEventListener('click', function() {
                 const template = document.getElementById('itemRowTemplate').content.cloneNode(true);
+                const row = template.querySelector('tr');
+
+                // Update names with index
+                row.querySelector('.descriptionSelect').name = `items[${itemRowIndex}][reference_id]`;
+                row.querySelector('.itemType').name = `items[${itemRowIndex}][item_type]`;
+                row.querySelector('.quantity').name = `items[${itemRowIndex}][quantity]`;
+                row.querySelector('.unitPrice').name = `items[${itemRowIndex}][unit_price]`;
+                // total is not submitted but good to keep consistent if needed
+                row.querySelector('.total').name = `items[${itemRowIndex}][total]`;
+
                 const select = template.querySelector('.descriptionSelect');
 
                 // Populate options from fetched items
-                ['consultations', 'lab_tests', 'medicines'].forEach(type => {
-                    if (itemsData[type]) {
-                        itemsData[type].forEach(item => {
+                ['consultations', 'lab_tests', 'medicines'].forEach(group => {
+                    if (itemsData[group]) {
+                        itemsData[group].forEach(item => {
                             const option = document.createElement('option');
                             option.value = item.id;
-                            option.dataset.type = type;
+                            option.dataset.type = item.type;
                             option.dataset.price = item.price;
                             option.text = item.description;
                             select.appendChild(option);
@@ -192,6 +256,7 @@
                 });
 
                 tableBody.appendChild(template);
+                itemRowIndex++;
             });
 
             // Event delegation for dynamic rows

@@ -1,57 +1,65 @@
 <x-app-layout>
-    <div class="container-fluid m-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
             <div>
-                <h4 class="font-bold mb-2 text-primary">Lab Test Results</h4>
+                <h5 class="fw-bold mb-1 text-primary">Lab Test Results</h5>
                 {{-- breadcrumb --}}
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-dots mb-0">
                         <li class="breadcrumb-item"><a href="{{ route('lab.catalog.index') }}">Lab Tests</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Lab Test Results</li>
+                        <li class="breadcrumb-item active" aria-current="page">Lab Test Results</li>
                     </ol>
                 </nav>
             </div>
         </div>
-        <div class="card p-3">
-            <div class="card-body">
+        <div class="card shadow-sm rounded-bottom mt-0 border-0">
+            <div class="card-body p-3">
 
                 <!-- Filter Form -->
-                <form method="GET" action="{{ route('lab.results.index') }}" class="mb-4 mt-3">
-                    <div class="row g-2">
-                        <div class="col-md-3">
-                            <input type="text" name="search" class="form-control"
-                                placeholder="Search by Patient, Test, Result..." value="{{ request('search') }}">
+                <div class="bg-light p-3 rounded mb-3">
+                    <form method="GET" action="{{ route('lab.results.index') }}">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold text-muted mb-1">Search</label>
+                                <input type="text" name="search" class="form-control form-control-sm"
+                                    placeholder="Search by Patient, Test, Result..." value="{{ request('search') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-bold text-muted mb-1">Status</label>
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status
+                                    </option>
+                                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>
+                                        Completed</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
+                                    </option>
+                                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
+                                        Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-bold text-muted mb-1">From</label>
+                                <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
+                                    value="{{ request('from') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-bold text-muted mb-1">To</label>
+                                <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
+                                    value="{{ request('to') }}">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold text-muted mb-1 d-block">&nbsp;</label>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+                                    <a href="{{ route('lab.results.index') }}" class="btn btn-light btn-sm w-100">Reset</a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-2">
-                            <select name="status" class="form-select">
-                                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status
-                                </option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>
-                                    Completed</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
-                                </option>
-                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
-                                    Cancelled</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="date" name="from" class="form-control" placeholder="From Date"
-                                value="{{ request('from') }}">
-                        </div>
-                        <div class="col-md-2">
-                            <input type="date" name="to" class="form-control" placeholder="To Date"
-                                value="{{ request('to') }}">
-                        </div>
-                        <div class="col-md-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                            <a href="{{ route('lab.results.index') }}" class="btn btn-light w-100">Reset</a>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
 
-                <hr>
-                <div class="table">
-                    <table class="table table-striped">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>Patient</th>

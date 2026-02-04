@@ -1,8 +1,8 @@
 <x-app-layout>
-    <div class="container-fluid m-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
             <div>
-                <h4 class="font-bold mb-2 text-primary">Record Lab Result</h4>
+                <h5 class="fw-bold mb-1 text-primary">Record Lab Result</h5>
                 {{-- breadcrumb --}}
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-dots mb-0">
@@ -11,27 +11,37 @@
                     </ol>
                 </nav>
             </div>
+            <a href="{{ route('lab.index') }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-arrow-left me-1"></i> Back to List
+            </a>
         </div>
-        <div class="card p-2">
-            <div class="card-body">
+        <div class="card shadow-sm rounded-bottom mt-0 border-0">
+            <div class="card-body p-3">
                 <form method="post" action="{{ route('lab.result.store', $order) }}" enctype="multipart/form-data">
                     @csrf
-                    <div class="row g-3">
+
+                    <h5 class="card-title mb-4 pb-2 border-bottom">Result Details</h5>
+                    <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label class="form-label">Result Value</label>
-                            <input type="text" name="result_value" class="form-control" required>
+                            <label class="form-label small text-muted">Result Value <span class="text-danger">*</span></label>
+                            <input type="text" name="result_value" class="form-control form-control-sm" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Notes</label>
-                            <input type="text" name="notes" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Upload Report (PDF, max 5MB)</label>
-                            <input type="file" name="report_pdf" accept="application/pdf" class="form-control">
+                            <label class="form-label small text-muted">Notes</label>
+                            <input type="text" name="notes" class="form-control form-control-sm">
                         </div>
                         <div class="col-md-12">
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <label class="form-label small text-muted">Upload Report (PDF, max 5MB)</label>
+                            <div class="input-group input-group-sm">
+                                <input type="file" name="report_pdf" accept="application/pdf" class="form-control form-control-sm" id="reportPdf">
+                                <label class="input-group-text" for="reportPdf">Upload</label>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ route('lab.index') }}" class="btn btn-light btn-sm">Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-sm">Save Result</button>
                     </div>
                 </form>
             </div>

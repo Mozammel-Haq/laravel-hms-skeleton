@@ -1,32 +1,38 @@
 <x-app-layout>
-    <div class="container-fluid m-2">
-                        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
-                    <div>
-                        <h4 class="mb-1">Medicine Inventory</h4>
-                        <p class="text-muted mb-0">Manage medicine catalog and stock</p>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('pharmacy.medicines.create') }}" class="btn btn-primary">
-                            <i class="ti ti-plus me-1"></i> Add Medicine
-                        </a>
-                        <a href="{{ route('pharmacy.inventory.index') }}" class="btn btn-outline-primary">
-                            <i class="ti ti-package me-1"></i> Manage Batches
-                        </a>
-                    </div>
-                </div>
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 py-2 pt-3 rounded shadow-sm">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Medicine Inventory</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('pharmacy.index') }}">Pharmacy</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Inventory</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('pharmacy.medicines.create') }}" class="btn btn-sm btn-primary">
+                    <i class="ti ti-plus me-1"></i> Add Medicine
+                </a>
+                <a href="{{ route('pharmacy.inventory.index') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="ti ti-package me-1"></i> Manage Batches
+                </a>
+            </div>
+        </div>
 
-        <div class="card p-2">
-            <div class="card-body">
-
-                <!-- Filters -->
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <!-- Filter Form -->
                 <form method="GET" action="{{ route('pharmacy.medicines.index') }}" class="mb-4">
-                    <div class="row g-2">
+                    <div class="row g-2 align-items-end">
                         <div class="col-md-3">
-                            <input type="text" name="search" class="form-control" placeholder="Search..."
+                            <label class="form-label small text-muted mb-1">Search</label>
+                            <input type="text" name="search" class="form-control form-control-sm" placeholder="Search..."
                                 value="{{ request('search') }}">
                         </div>
                         <div class="col-md-2">
-                            <select name="status" class="form-select">
+                            <label class="form-label small text-muted mb-1">Status</label>
+                            <select name="status" class="form-select form-select-sm">
                                 <option value="">All Status</option>
                                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active
                                 </option>
@@ -37,22 +43,25 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                            <label class="form-label small text-muted mb-1">From Date</label>
+                            <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
                                 value="{{ request('from') }}">
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                            <label class="form-label small text-muted mb-1">To Date</label>
+                            <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
                                 value="{{ request('to') }}">
                         </div>
-                        <div class="col-md-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                            <a href="{{ route('pharmacy.medicines.index') }}" class="btn btn-light w-100">Reset</a>
+                        <div class="col-md-3">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-sm btn-primary flex-grow-1">Filter</button>
+                                <a href="{{ route('pharmacy.medicines.index') }}" class="btn btn-sm btn-light border flex-grow-1">Reset</a>
+                            </div>
                         </div>
                     </div>
                 </form>
-                <hr>
-                <div class="table">
-                    <table class="table table-hover align-middle">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>Medicine Name</th>

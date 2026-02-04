@@ -1,8 +1,8 @@
 <x-app-layout>
-    <div class="container-fluid mx-2 my-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
             <div>
-                <h4 class="font-bold mb-2 text-primary">Assign/Transfer Bed</h4>
+                <h5 class="fw-bold mb-1 text-primary">Assign/Transfer Bed</h5>
                 {{-- breadcrumb --}}
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-dots mb-0">
@@ -11,18 +11,21 @@
                     </ol>
                 </nav>
             </div>
+            <a href="{{ route('ipd.index') }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-arrow-left me-1"></i> Back to List
+            </a>
         </div>
 
 
 
-        <div class="row g-4">
+        <div class="row g-3">
             <div class="col-lg-7">
-                <div class="card border-0 mt-2"
+                <div class="card shadow-sm border-0 rounded-bottom mt-0"
                     x-data='bedAssignMatrix({
                     wards: @json($wards),
                     currentBedId: {{ $admission->current_bed_id ? (int) $admission->current_bed_id : 'null' }}
                 })'>
-                    <div class="card-body px-3 py-2">
+                    <div class="card-body p-3">
 
                         <form method="POST" action="{{ route('ipd.store-bed', $admission->id) }}">
                             @csrf

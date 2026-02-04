@@ -1,30 +1,36 @@
 <x-app-layout>
-    <div class="container-fluid  mt-2 mx-1">
-                        <div class="px-4 pt-4 border-bottom bg-primary-subtle text-primary">
-                            <h4 class="page-title mb-2">Invoices</h4>
-                            {{-- breadcrumb --}}
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Invoices</li>
-                                </ol>
-                            </nav>
-                        </div>
+    <div class="container-fluid mx-2 mt-2">
+    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+        <div>
+            <h5 class="fw-bold mb-1 text-primary">Invoices</h5>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-dots mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Invoices</li>
+                </ol>
+            </nav>
+        </div>
+        @can('create', \App\Models\Invoice::class)
+            <a href="{{ route('billing.create') }}" class="btn btn-sm btn-primary">
+                <i class="ti ti-plus me-1"></i> Create Invoice
+            </a>
+        @endcan
+    </div>
 
-
-
-        <div class="card">
-            <div class="card-body">
+    <div class="card shadow-sm border-0 rounded-bottom mt-0">
+        <div class="card-body">
 
                 <!-- Filters -->
                 <form method="GET" action="{{ route('billing.index') }}" class="mb-4">
-                    <div class="row g-2">
+                    <div class="row g-2 align-items-end">
                         <div class="col-md-3">
-                            <input type="text" name="search" class="form-control"
+                            <label class="form-label small text-muted">Search</label>
+                            <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search Invoice # or Patient" value="{{ request('search') }}">
                         </div>
                         <div class="col-md-2">
-                            <select name="status" class="form-select">
+                            <label class="form-label small fw-semibold text-muted">Status</label>
+                            <select name="status" class="form-select form-select-sm">
                                 <option value="all">All Status</option>
                                 <option value="unpaid" {{ request('status') == 'unpaid' ? 'selected' : '' }}>Unpaid
                                 </option>
@@ -38,16 +44,21 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                            <label class="form-label small fw-semibold text-muted">From</label>
+                            <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
                                 value="{{ request('from') }}">
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                            <label class="form-label small fw-semibold text-muted">To</label>
+                            <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
                                 value="{{ request('to') }}">
                         </div>
-                        <div class="col-md-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                            <a href="{{ route('billing.index') }}" class="btn btn-light w-100">Reset</a>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold d-block">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+                                <a href="{{ route('billing.index') }}" class="btn btn-light btn-sm w-100">Reset</a>
+                            </div>
                         </div>
                     </div>
                 </form>

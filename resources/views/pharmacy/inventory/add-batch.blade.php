@@ -1,84 +1,93 @@
 <x-app-layout>
-    <div class="container-fluid m-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3">
-            <div>
-                <h4 class="font-bold mb-2 text-primary">Add New Batch</h4>
-                {{-- breadcrumb --}}
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('pharmacy.inventory.index') }}">Inventory</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Add New Batch</li>
-                    </ol>
-                </nav>
-            </div>
+    <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-2 pt-3">
+        <div>
+            <h4 class="fw-bold mb-2 text-primary">Add New Batch</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-dots mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('pharmacy.inventory.index') }}">Inventory</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Add New Batch</li>
+                </ol>
+            </nav>
         </div>
+        <a href="{{ route('pharmacy.inventory.index') }}" class="btn btn-sm btn-outline-primary">
+            <i class="ti ti-arrow-left me-1"></i> Back to Batches
+        </a>
+    </div>
 
-        <div class="card p-2 mt-2">
-            <div class="card-body">
-                <form action="{{ route('pharmacy.inventory.store') }}" method="POST">
-                    @csrf
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mt-3">
+                    <div class="card-body p-4">
+                        <form action="{{ route('pharmacy.inventory.store') }}" method="POST">
+                            @csrf
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <x-input-label for="medicine_id" :value="__('Select Medicine')" />
-                            <select id="medicine_id" name="medicine_id" class="form-select mt-1 block w-full" required>
-                                <option value="">Select a medicine...</option>
-                                @foreach ($medicines as $medicine)
-                                    <option value="{{ $medicine->id }}"
-                                        {{ old('medicine_id') == $medicine->id ? 'selected' : '' }}>
-                                        {{ $medicine->name }} ({{ $medicine->strength }}) - {{ $medicine->dosage_form }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('medicine_id')" class="mt-2" />
-                            @if ($medicines->isEmpty())
-                                <div class="form-text text-warning">
-                                    No medicines found. <a href="{{ route('pharmacy.medicines.create') }}">Create a
-                                        medicine first.</a>
+                            <h5 class="text-primary fw-bold mb-3 border-bottom pb-2">Batch Details</h5>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold text-dark">Select Medicine <span class="text-danger">*</span></label>
+                                    <select id="medicine_id" name="medicine_id" class="form-select form-select-sm" required>
+                                        <option value="">Select a medicine...</option>
+                                        @foreach ($medicines as $medicine)
+                                            <option value="{{ $medicine->id }}"
+                                                {{ old('medicine_id') == $medicine->id ? 'selected' : '' }}>
+                                                {{ $medicine->name }} ({{ $medicine->strength }}) - {{ $medicine->dosage_form }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('medicine_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                    @if ($medicines->isEmpty())
+                                        <div class="form-text text-warning small">
+                                            No medicines found. <a href="{{ route('pharmacy.medicines.create') }}">Create a medicine first.</a>
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
-                        </div>
 
-                        <div class="col-md-6">
-                            <x-input-label for="batch_number" :value="__('Batch Number')" />
-                            <x-text-input id="batch_number" class="block mt-1 w-full form-control" type="text"
-                                name="batch_number" :value="old('batch_number')" required placeholder="e.g. BATCH-2023-001" />
-                            <x-input-error :messages="$errors->get('batch_number')" class="mt-2" />
-                        </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">Batch Number <span class="text-danger">*</span></label>
+                                    <input type="text" name="batch_number" class="form-control form-control-sm"
+                                        value="{{ old('batch_number') }}" required placeholder="e.g. BATCH-2023-001">
+                                    @error('batch_number') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                </div>
 
-                        <div class="col-md-6">
-                            <x-input-label for="expiry_date" :value="__('Expiry Date')" />
-                            <x-text-input id="expiry_date" class="block mt-1 w-full form-control" type="date"
-                                name="expiry_date" :value="old('expiry_date')" required />
-                            <x-input-error :messages="$errors->get('expiry_date')" class="mt-2" />
-                        </div>
-
-                        <div class="col-md-6">
-                            <x-input-label for="quantity_in_stock" :value="__('Quantity Received')" />
-                            <x-text-input id="quantity_in_stock" class="block mt-1 w-full form-control" type="number"
-                                name="quantity_in_stock" :value="old('quantity_in_stock')" min="1" required />
-                            <x-input-error :messages="$errors->get('quantity_in_stock')" class="mt-2" />
-                        </div>
-
-                        <div class="col-md-6">
-                            <x-input-label for="purchase_price" :value="__('Purchase Price (Total or Unit?)')" />
-                            <!-- Note: Controller validation says numeric|min:0. Usually this is unit price or total batch price. Assuming Unit Price based on model structure usually, but let's label it simply Purchase Price -->
-                            <div class="input-group mt-1">
-                                <span class="input-group-text">৳</span>
-                                <x-text-input id="purchase_price" class="form-control" type="number" step="0.01"
-                                    name="purchase_price" :value="old('purchase_price')" required />
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">Expiry Date <span class="text-danger">*</span></label>
+                                    <input type="date" name="expiry_date" class="form-control form-control-sm"
+                                        value="{{ old('expiry_date') }}" required>
+                                    @error('expiry_date') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                </div>
                             </div>
-                            <x-input-error :messages="$errors->get('purchase_price')" class="mt-2" />
-                            <div class="form-text">Enter the price per unit for this batch.</div>
-                        </div>
-                    </div>
 
-                    <div class="mt-4 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary" {{ $medicines->isEmpty() ? 'disabled' : '' }}>
-                            <i class="ti ti-device-floppy me-1"></i> Save Batch
-                        </button>
+                            <h5 class="text-primary fw-bold mb-3 border-bottom pb-2">Stock & Pricing</h5>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">Quantity Received <span class="text-danger">*</span></label>
+                                    <input type="number" name="quantity_in_stock" class="form-control form-control-sm"
+                                        value="{{ old('quantity_in_stock') }}" min="1" required>
+                                    @error('quantity_in_stock') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">Purchase Price <span class="text-danger">*</span></label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">৳</span>
+                                        <input type="number" name="purchase_price" class="form-control" step="0.01"
+                                            value="{{ old('purchase_price') }}" required>
+                                    </div>
+                                    @error('purchase_price') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                    <div class="form-text small">Enter the price per unit for this batch.</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ route('pharmacy.inventory.index') }}" class="btn btn-sm btn-light border">Cancel</a>
+                                <button type="submit" class="btn btn-sm btn-primary" {{ $medicines->isEmpty() ? 'disabled' : '' }}>
+                                    <i class="ti ti-device-floppy me-1"></i> Save Batch
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

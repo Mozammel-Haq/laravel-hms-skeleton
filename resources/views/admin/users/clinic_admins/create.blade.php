@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="card mt-2 mx-2">
-        <div class="card-header px-3 py-3 border-bottom bg-primary-subtle text-primary">
+        <div class="card-header px-4 py-2 border-bottom bg-primary-subtle text-primary rounded-top shadow-sm">
             <h4 class="fw-bold mb-0 text-primary">Create Clinic Admin</h4>
             {{-- breadcrumb --}}
             <nav aria-label="breadcrumb">

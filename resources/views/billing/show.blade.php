@@ -125,30 +125,30 @@
         </style>
     @endpush
 
-    <div class="container-fluid py-1 mx-2 no-print">
+    <div class="container-fluid mx-2 mt-2 no-print">
         <!-- Breadcrumbs & Header -->
-        <div class="d-flex align-items-center justify-content-between px-4 py-3 bg-primary-subtle text-primary">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
             <div>
-                <h4 class="mb-1 fw-bold text-dark">Invoice Details</h4>
+                <h5 class="fw-bold mb-1 text-primary">Invoice Details</h5>
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('billing.index') }}" class="text-decoration-none">Billing</a></li>
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ $invoice->invoice_number }}</li>
                     </ol>
                 </nav>
             </div>
-            <div class="col-auto d-flex gap-2">
-                <button onclick="window.print()" class="btn btn-secondary">
+            <div class="d-flex gap-2">
+                <button onclick="window.print()" class="btn btn-sm btn-secondary">
                     <i class="ti ti-printer me-1"></i> Print Receipt
                 </button>
-                <a href="{{ route('billing.index') }}" class="btn btn-outline-primary">
+                <a href="{{ route('billing.index') }}" class="btn btn-sm btn-outline-primary">
                     <i class="ti ti-arrow-left me-1"></i> Back
                 </a>
             </div>
         </div>
 
-        <div class="row px-0">
+        <div class="row mt-0">
             <div class="col-lg-8">
                 <div class="card border border-secondary-subtle shadow-sm mb-4">
                     <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between align-items-center">

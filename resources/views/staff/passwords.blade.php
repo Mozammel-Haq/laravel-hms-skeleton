@@ -1,12 +1,23 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 py-2 pt-3 rounded shadow-sm">
+            <div>
+                <h4 class="fw-bold mb-2 text-primary">Reset Passwords</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('staff.index') }}">Staff</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Reset Passwords</li>
+                    </ol>
+                </nav>
+            </div>
+            <a href="{{ route('staff.index') }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-users me-1"></i> Manage Staff
+            </a>
+        </div>
 
-        <div class="card mt-2">
+        <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
-                    <h3 class="page-title mb-0">Reset Passwords</h3>
-                    <a href="{{ route('staff.index') }}" class="btn btn-outline-primary">Manage Staff</a>
-                </div>
                 <div class="table">
                     <table class="table table-hover align-middle datatable">
                         <thead>

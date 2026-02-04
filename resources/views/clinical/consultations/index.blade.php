@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container-fluid mt-2 mx-2">
-                        <div class="bg-primary-subtle text-primary">
+                        <div class="bg-primary-subtle text-primary px-4 py-3 rounded">
                     <h4 class="fw-bold mb-2 text-primary">Consultations</h4>
                     {{-- breadcrumb --}}
                     <nav aria-label="breadcrumb">

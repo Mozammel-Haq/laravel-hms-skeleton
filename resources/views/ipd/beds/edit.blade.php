@@ -1,53 +1,61 @@
 <x-app-layout>
-
-    <div class="card mt-2 mx-2 p-3">
-        <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
-            <h5 class="mb-0">Edit Bed</h5>
-            {{-- breadcrumb --}}
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}" class="text-decoration-none">IPD</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ipd.beds.index') }}" class="text-decoration-none">Beds</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
-                </ol>
-            </nav>
+    <div class="container-fluid mx-2 mt-2">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+            <div>
+                <h4 class="mb-1 fw-bold text-dark">Edit Bed</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.beds.index') }}">Beds</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                    </ol>
+                </nav>
+            </div>
+            <a href="{{ route('ipd.beds.index') }}" class="btn btn-secondary btn-sm">
+                <i class="ti ti-arrow-left me-1"></i>Back
+            </a>
         </div>
-        <hr>
-        <div class="card-body">
-            <form method="post" action="{{ route('ipd.beds.update', $bed) }}">
-                @csrf
-                @method('PUT')
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Room</label>
-                        <select name="room_id" class="form-select" required>
-                            @foreach ($rooms as $room)
-                                <option value="{{ $room->id }}" @if ($bed->room_id === $room->id) selected @endif>
-                                    {{ $room->room_number }}</option>
-                            @endforeach
-                        </select>
+
+        <div class="card shadow-sm border-0 rounded-bottom mt-0">
+            <div class="card-body p-3">
+                <h5 class="card-title mb-4 pb-2 border-bottom">Bed Information</h5>
+
+                <form method="post" action="{{ route('ipd.beds.update', $bed) }}">
+                    @csrf
+                    @method('PUT')
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">Room <span class="text-danger">*</span></label>
+                            <select name="room_id" class="form-select form-select-sm" required>
+                                <option value="">Select Room</option>
+                                @foreach ($rooms as $room)
+                                    <option value="{{ $room->id }}" @selected($bed->room_id === $room->id)>
+                                        {{ $room->room_number }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">Bed Number <span class="text-danger">*</span></label>
+                            <input type="text" name="bed_number" class="form-control form-control-sm" value="{{ $bed->bed_number }}"
+                                required placeholder="e.g. B-101">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">Status <span class="text-danger">*</span></label>
+                            <select name="status" class="form-select form-select-sm" required>
+                                <option value="available" @selected($bed->status === 'available')>Available</option>
+                                <option value="occupied" @selected($bed->status === 'occupied')>Occupied</option>
+                                <option value="maintenance" @selected($bed->status === 'maintenance')>Maintenance</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Bed Number</label>
-                        <input type="text" name="bed_number" class="form-control" value="{{ $bed->bed_number }}"
-                            required>
+                    <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+                        <a href="{{ route('ipd.beds.index') }}" class="btn btn-light btn-sm">Cancel</a>
+                        <button type="submit" class="btn btn-primary btn-sm px-4">Update Bed</button>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-select" required>
-                            <option value="available" @if ($bed->status === 'available') selected @endif>Available
-                            </option>
-                            <option value="occupied" @if ($bed->status === 'occupied') selected @endif>Occupied</option>
-                            <option value="maintenance" @if ($bed->status === 'maintenance') selected @endif>Maintenance
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mt-3 d-flex gap-2">
-                    <button class="btn btn-primary">Update</button>
-                    <a href="{{ route('ipd.beds.index') }}" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

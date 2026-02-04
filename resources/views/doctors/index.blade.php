@@ -1,55 +1,61 @@
 <x-app-layout>
-
     <div class="container-fluid mx-2 mt-2">
-        {{-- Page Header --}}
-        <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
-            <h4 class="fw-bold mb-2 text-primary">Doctors</h4>
-            {{-- breadcrumb --}}
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Doctors</li>
-                </ol>
-            </nav>
+        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 py-2 pt-3 rounded shadow-sm">
+            <div>
+                <h4 class="fw-bold mb-2 text-primary">Doctors</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Doctors</li>
+                    </ol>
+                </nav>
+            </div>
+            <a href="{{ route('doctors.create') }}" class="btn btn-sm btn-primary">
+                <i class="ti ti-plus me-1"></i> Create Doctor
+            </a>
         </div>
 
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0 pt-3">
+                    <!-- Filters -->
+                    <form method="GET" action="{{ route('doctors.index') }}" class="mb-4 px-3">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold text-muted mb-1">Search</label>
+                                <input type="text" name="search" class="form-control form-control-sm" placeholder="Search by name, email..."
+                                    value="{{ request('search') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-semibold text-muted mb-1">Status</label>
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="">All Status</option>
+                                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive
+                                    </option>
+                                    <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-semibold text-muted mb-1">From Date</label>
+                                <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
+                                    value="{{ request('from') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-semibold text-muted mb-1">To Date</label>
+                                <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
+                                    value="{{ request('to') }}">
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-sm btn-primary w-100">Filter</button>
+                                    <a href="{{ route('doctors.index') }}" class="btn btn-sm btn-light border w-100">Reset</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
 
-        <div class="card border-0 pt-3">
-        {{-- Page Header --}}
-
-        <!-- Filters -->
-        <form method="GET" action="{{ route('doctors.index') }}" class="mb-4 px-3">
-            <div class="row g-2">
-                <div class="col-md-3">
-                    <input type="text" name="search" class="form-control" placeholder="Search..."
-                        value="{{ request('search') }}">
-                </div>
-                <div class="col-md-2">
-                    <select name="status" class="form-select">
-                        <option value="">All Status</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive
-                        </option>
-                        <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trash</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <input type="date" name="from" class="form-control" placeholder="From Date"
-                        value="{{ request('from') }}">
-                </div>
-                <div class="col-md-2">
-                    <input type="date" name="to" class="form-control" placeholder="To Date"
-                        value="{{ request('to') }}">
-                </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                    <a href="{{ route('doctors.index') }}" class="btn btn-light w-100">Reset</a>
-                </div>
-            </div>
-        </form>
-        <hr>
-        <div class="table">
-            <table class="table table-hover align-middle mb-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
                         <th>Doctor</th>
@@ -206,11 +212,13 @@
                     @endforelse
                 </tbody>
             </table>
-        </div>
-        @if ($doctors->hasPages())
-            <div class="card-footer bg-transparent">
-                {{ $doctors->links() }}
+                    </div>
+                    @if ($doctors->hasPages())
+                        <div class="mt-4">
+                            {{ $doctors->links() }}
+                        </div>
+                    @endif
+                </div>
             </div>
-        @endif
     </div>
 </x-app-layout>

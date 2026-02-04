@@ -1,49 +1,61 @@
 <x-app-layout>
-
-    <div class="card mt-2 mx-2 p-3">
-        <div class="d-flex justify-content-between align-items-center mt-3 px-3 mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
-            <h5 class="mb-0">Visits</h5>
-
-            <div class="d-flex gap-2">
-
-                <a href="{{ route('visits.create') }}" class="btn btn-outline-primary">New Visit</a>
+    <div class="container-fluid mx-2 mt-2">
+        {{-- Page Header --}}
+        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="fw-bold mb-2 text-primary">Visits Management</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Visits</li>
+                    </ol>
+                </nav>
             </div>
+            <a href="{{ route('visits.create') }}" class="btn btn-sm btn-primary">
+                <i class="ti ti-plus me-1"></i> New Visit
+            </a>
         </div>
 
-        <!-- Filter Form -->
-        <form method="GET" action="{{ route('visits.index') }}" class="mb-4 px-3 mt-2">
-            <div class="row g-2">
-                <div class="col-md-3">
-                    <input type="text" name="search" class="form-control" placeholder="Search Patient, Visit ID..."
-                        value="{{ request('search') }}">
+        <div class="card border-0 pt-3 shadow-sm">
+            <!-- Filter Form -->
+            <form method="GET" action="{{ route('visits.index') }}" class="mb-4 px-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small fw-bold text-muted mb-1">Search</label>
+                        <input type="text" name="search" class="form-control form-control-sm" placeholder="Patient, Visit ID..."
+                            value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-muted mb-1">Status</label>
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="">All Statuses</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed
+                            </option>
+                            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled
+                            </option>
+                            <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trashed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-muted mb-1">From Date</label>
+                        <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
+                            value="{{ request('from') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-muted mb-1">To Date</label>
+                        <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
+                            value="{{ request('to') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-primary w-100">Filter</button>
+                            <a href="{{ route('visits.index') }}" class="btn btn-sm btn-light border w-100">Reset</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <select name="status" class="form-select">
-                        <option value="">All Statuses</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed
-                        </option>
-                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled
-                        </option>
-                        <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>Trashed</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <input type="date" name="from" class="form-control" placeholder="From Date"
-                        value="{{ request('from') }}">
-                </div>
-                <div class="col-md-2">
-                    <input type="date" name="to" class="form-control" placeholder="To Date"
-                        value="{{ request('to') }}">
-                </div>
-                <div class="col-md-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                    <a href="{{ route('visits.index') }}" class="btn btn-light w-100">Reset</a>
-                </div>
-            </div>
-        </form>
-
-        <hr>
+            </form>
+            <hr class="mt-0">
         <div class="table">
             <table class="table table-hover mb-0">
                 <thead>

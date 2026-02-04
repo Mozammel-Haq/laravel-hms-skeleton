@@ -1,117 +1,130 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
-        <div class="d-flex mt-3 justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
-            <h3 class="page-title mb-0">New Sale (POS)</h3>
-            <a href="{{ route('pharmacy.index') }}" class="btn btn-outline-primary">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded shadow-sm mb-3">
+            <div>
+                <h5 class="fw-bold mb-1 text-primary">New Sale (POS)</h5>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('pharmacy.index') }}">Pharmacy</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">New Sale</li>
+                    </ol>
+                </nav>
+            </div>
+            <a href="{{ route('pharmacy.index') }}" class="btn btn-sm btn-outline-primary">
                 <i class="ti ti-arrow-left me-1"></i> Back to History
             </a>
         </div>
-        <hr>
 
         <form action="{{ route('pharmacy.store') }}" method="POST" id="pos-form">
             @csrf
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Items</h5>
-                            <button type="button" class="btn btn-sm btn-primary" onclick="addItem()">
-                                <i class="ti ti-plus me-1"></i> Add Item
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="table">
-                                <table class="table table-bordered mb-0" id="items-table">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="width: 50%">Medicine</th>
-                                            <th style="width: 20%">Quantity</th>
-                                            <th style="width: 10%">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="items-container">
-                                        <!-- Items will be added here -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            @error('items')
-                                <div class="text-danger mt-2">{{ $message }}</div>
-                            @enderror
-                        </div>
+            <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom">
+                        <h5 class="mb-0 fw-bold">Items</h5>
+                        <button type="button" class="btn btn-sm btn-primary" onclick="addItem()">
+                            <i class="ti ti-plus me-1"></i> Add Item
+                        </button>
                     </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title text-primary mb-3">Sale Details</h5>
-
-                            @php
-                                $selectedPatientId = old('patient_id');
-                                if (
-                                    !$selectedPatientId &&
-                                    isset($prescription) &&
-                                    $prescription->consultation &&
-                                    $prescription->consultation->patient
-                                ) {
-                                    $selectedPatientId = $prescription->consultation->patient->id;
-                                }
-                                $prefilledPrescriptionId = old('prescription_id');
-                                if (!$prefilledPrescriptionId && isset($prescription)) {
-                                    $prefilledPrescriptionId = $prescription->id;
-                                }
-                            @endphp
-                            <div class="mb-3">
-                                <label class="form-label">Patient <span class="text-danger">*</span></label>
-                                <select name="patient_id" class="form-select select2-patient" required>
-                                    <option value="">Select Patient</option>
-                                    @if ($selectedPatientId && isset($patients))
-                                        @foreach ($patients as $patient)
-                                            @if ((string) $selectedPatientId === (string) $patient->id)
-                                                <option value="{{ $patient->id }}" selected>
-                                                    {{ $patient->name }} ({{ $patient->patient_code }})
-                                                </option>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                </select>
-                                @error('patient_id')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Prescription ID <span class="text-danger">*</span></label>
-                                <input type="number" name="prescription_id" class="form-control"
-                                    value="{{ $prefilledPrescriptionId }}" placeholder="Enter Prescription ID" required>
-                                <div class="form-text">Required for record keeping.</div>
-                                @error('prescription_id')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <label class="form-label">Discount</label>
-                                    <input type="number" name="discount" class="form-control" step="0.01"
-                                        min="0" value="0">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label">Tax (%)</label>
-                                    <input type="number" name="tax" class="form-control" step="0.01"
-                                        min="0" value="0">
-                                </div>
-                            </div>
-
-                            <hr>
-                            <button type="submit" class="btn btn-success w-100 py-2">
-                                <i class="ti ti-check me-1"></i> Complete Sale
-                            </button>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0" id="items-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 50%" class="small fw-bold text-uppercase">Medicine</th>
+                                        <th style="width: 20%" class="small fw-bold text-uppercase">Quantity</th>
+                                        <th style="width: 10%" class="text-center small fw-bold text-uppercase">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="items-container">
+                                    <!-- Items will be added here -->
+                                </tbody>
+                            </table>
                         </div>
+                        @error('items')
+                            <div class="text-danger small px-3 py-2">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
-        </form>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary fw-bold mb-3 border-bottom pb-2">Sale Details</h5>
+
+                        @php
+                            $selectedPatientId = old('patient_id');
+                            if (
+                                !$selectedPatientId &&
+                                isset($prescription) &&
+                                $prescription->consultation &&
+                                $prescription->consultation->patient
+                            ) {
+                                $selectedPatientId = $prescription->consultation->patient->id;
+                            }
+                            $prefilledPrescriptionId = old('prescription_id');
+                            if (!$prefilledPrescriptionId && isset($prescription)) {
+                                $prefilledPrescriptionId = $prescription->id;
+                            }
+                        @endphp
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Patient <span class="text-danger">*</span></label>
+                            <select name="patient_id" class="form-select form-select-sm select2-patient" required>
+                                <option value="">Select Patient</option>
+                                @if ($selectedPatientId && isset($patients))
+                                    @foreach ($patients as $patient)
+                                        @if ((string) $selectedPatientId === (string) $patient->id)
+                                            <option value="{{ $patient->id }}" selected>
+                                                {{ $patient->name }} ({{ $patient->patient_code }})
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('patient_id')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Prescription ID <span class="text-danger">*</span></label>
+                            <input type="number" name="prescription_id" class="form-control form-control-sm"
+                                value="{{ $prefilledPrescriptionId }}" placeholder="Enter Prescription ID" required>
+                            <div class="form-text small">Required for record keeping.</div>
+                            @error('prescription_id')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Discount</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">৳</span>
+                                    <input type="number" name="discount" class="form-control" step="0.01"
+                                        min="0" value="0">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Tax (%)</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" name="tax" class="form-control" step="0.01"
+                                        min="0" value="0">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <button type="submit" class="btn btn-sm btn-success w-100 py-2 fw-bold">
+                            <i class="ti ti-check me-1"></i> Complete Sale
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
     </div>
 
     @push('scripts')

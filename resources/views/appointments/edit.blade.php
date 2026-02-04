@@ -1,35 +1,62 @@
 <x-app-layout>
-    <div class="container-fluid  mt-2 mx-1">
-                        <div class="px-4 py-3 border-bottom bg-primary-subtle text-primary">
-                    <h4 class="page-title mb-0">Edit Appointment</h4>
-                    {{-- breadcrumb --}}
+    <div class="py-4">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 rounded-top">
+                <div>
+                    <h4 class="fw-bold mb-2 text-primary">Edit Appointment</h4>
                     <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
                             <li class="breadcrumb-item"><a href="{{ route('appointments.index') }}">Appointments</a></li>
                             <li class="breadcrumb-item active" aria-current="page">Edit Appointment</li>
                         </ol>
                     </nav>
                 </div>
-        <div class="card border-0">
-            <div class="card-body p-4">
+                <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="ti ti-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-bottom rounded-0">
+                <div class="card-body p-4">
                 <form method="POST" action="{{ route('appointments.update', $appointment) }}">
                     @csrf
                     @method('PUT')
 
+                    <h5 class="text-primary fw-bold mb-3 border-bottom pb-2">Appointment Details</h5>
+
                     <div class="row g-3">
                         <!-- Patient Info (Read Only) -->
                         <div class="col-md-6">
-                            <label class="form-label">Patient</label>
-                            <input type="text" class="form-control bg-light"
+                            <label class="form-label small fw-semibold">Patient</label>
+                            <input type="text" class="form-control form-control-sm bg-light"
                                 value="{{ $appointment->patient->name }} ({{ $appointment->patient->patient_code }})"
                                 readonly disabled>
                         </div>
 
+                        <!-- Type -->
+                        <div class="col-md-6">
+                            <label for="appointment_type" class="form-label small fw-semibold">Type</label>
+                            <select id="appointment_type" name="appointment_type"
+                                class="form-select form-select-sm @error('appointment_type') is-invalid @enderror">
+                                <option value="in_person"
+                                    {{ old('appointment_type', $appointment->appointment_type) == 'in_person' ? 'selected' : '' }}>
+                                    In Person
+                                </option>
+                                <option value="online"
+                                    {{ old('appointment_type', $appointment->appointment_type) == 'online' ? 'selected' : '' }}>
+                                    Online
+                                </option>
+                            </select>
+                            @error('appointment_type')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <!-- Doctor Selection -->
                         <div class="col-md-6">
-                            <label for="doctor_id" class="form-label">Doctor</label>
+                            <label for="doctor_id" class="form-label small fw-semibold">Doctor</label>
                             <select id="doctor_id" name="doctor_id"
-                                class="form-select @error('doctor_id') is-invalid @enderror">
+                                class="form-select form-select-sm @error('doctor_id') is-invalid @enderror">
                                 <option value="">Select Doctor</option>
                                 @foreach ($doctors as $doctor)
                                     <option value="{{ $doctor->id }}"
@@ -48,9 +75,9 @@
 
                         <!-- Date -->
                         <div class="col-md-6">
-                            <label for="appointment_date" class="form-label">Date</label>
+                            <label for="appointment_date" class="form-label small fw-semibold">Date</label>
                             <input id="appointment_date" type="date" name="appointment_date"
-                                class="form-control @error('appointment_date') is-invalid @enderror"
+                                class="form-control form-control-sm @error('appointment_date') is-invalid @enderror"
                                 value="{{ old('appointment_date', $appointment->appointment_date) }}"
                                 min="{{ now()->toDateString() }}" required>
                             @error('appointment_date')
@@ -60,12 +87,12 @@
 
                         <!-- Time (Auto-filled or manual) -->
                         <div class="col-md-6">
-                            <label for="start_time" class="form-label">Start Time</label>
+                            <label for="start_time" class="form-label small fw-semibold">Start Time</label>
                             <input id="start_time" type="time" name="start_time"
-                                class="form-control bg-light @error('start_time') is-invalid @enderror"
+                                class="form-control form-control-sm bg-light @error('start_time') is-invalid @enderror"
                                 value="{{ old('start_time', \Carbon\Carbon::parse($appointment->start_time)->format('H:i')) }}"
                                 required readonly>
-                            <div class="form-text">Select a slot below to set the time.</div>
+                            <div class="form-text small">Select a slot below to set the time.</div>
                             @error('start_time')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -73,37 +100,18 @@
 
                         <!-- Available Slots -->
                         <div class="col-12" id="slots-container" style="display: none;">
-                            <label class="form-label">Available Slots</label>
-                            <div id="slots-list" class="d-flex flex-wrap gap-2 mt-1">
+                            <label class="form-label small fw-bold text-primary">Available Slots</label>
+                            <div id="slots-list" class="d-flex flex-wrap gap-2 mt-1 p-3 bg-light rounded border">
                                 <!-- Slots will be injected here via JS -->
                             </div>
-                            <p id="no-slots-msg" class="text-danger mt-2 d-none">No slots available for this date.</p>
-                        </div>
-
-                        <!-- Type -->
-                        <div class="col-md-6">
-                            <label for="appointment_type" class="form-label">Type</label>
-                            <select id="appointment_type" name="appointment_type"
-                                class="form-select @error('appointment_type') is-invalid @enderror">
-                                <option value="in_person"
-                                    {{ old('appointment_type', $appointment->appointment_type) == 'in_person' ? 'selected' : '' }}>
-                                    In Person
-                                </option>
-                                <option value="online"
-                                    {{ old('appointment_type', $appointment->appointment_type) == 'online' ? 'selected' : '' }}>
-                                    Online
-                                </option>
-                            </select>
-                            @error('appointment_type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <p id="no-slots-msg" class="text-danger mt-2 d-none small">No slots available for this date.</p>
                         </div>
 
                         <!-- Status -->
                         <div class="col-md-6">
-                            <label for="status" class="form-label">Status</label>
+                            <label for="status" class="form-label small fw-semibold">Status</label>
                             <select id="status" name="status"
-                                class="form-select @error('status') is-invalid @enderror">
+                                class="form-select form-select-sm @error('status') is-invalid @enderror">
                                 <option value="pending"
                                     {{ old('status', $appointment->status) == 'pending' ? 'selected' : '' }}>Pending
                                 </option>
@@ -130,9 +138,9 @@
 
                         <!-- Reason -->
                         <div class="col-12">
-                            <label for="reason_for_visit" class="form-label">Reason for Visit</label>
+                            <label for="reason_for_visit" class="form-label small fw-semibold">Reason for Visit</label>
                             <textarea id="reason_for_visit" name="reason_for_visit"
-                                class="form-control @error('reason_for_visit') is-invalid @enderror" rows="3">{{ old('reason_for_visit', $appointment->reason_for_visit) }}</textarea>
+                                class="form-control form-control-sm @error('reason_for_visit') is-invalid @enderror" rows="3">{{ old('reason_for_visit', $appointment->reason_for_visit) }}</textarea>
                             @error('reason_for_visit')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -140,14 +148,13 @@
                     </div>
 
                     <div class="d-flex justify-content-end mt-4 gap-2">
-                        <a href="{{ route('appointments.index') }}" class="btn btn-light">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Update Appointment</button>
+                        <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-light border">Cancel</a>
+                        <button type="submit" class="btn btn-sm btn-primary px-4">Update Appointment</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const doctorSelect = document.getElementById('doctor_id');

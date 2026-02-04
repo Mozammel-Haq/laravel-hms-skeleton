@@ -179,7 +179,7 @@
                                         </td>
                                         <td class="text-end">
                                             <div class="dropdown">
-                                                <button class="btn btn-sm btn-light btn-icon dropdown-toggle hide-arrow"
+                                                <button class="btn btn-sm btn-light btn-icon"
                                                     type="button" data-bs-toggle="dropdown">
                                                     <i class="ti ti-dots-vertical"></i>
                                                 </button>

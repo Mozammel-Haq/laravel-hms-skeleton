@@ -1,64 +1,70 @@
 <x-app-layout>
-    <div class="content">
+    <div class="container-fluid mx-2 mt-2">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+        <div>
+            <h5 class="fw-bold mb-1 text-primary">All Clinics</h5>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-dots mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">All Clinics</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="{{ route('clinics.create') }}" class="btn btn-sm btn-primary">
+            <i class="ti ti-plus me-1"></i> Create Clinic
+        </a>
+    </div>
 
-        <div class="card">
-            <div class="card-body d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-3 pb-1">
-                <div>
-                <h4 class="fw-bold mb-2 text-primary">All Clinics</h4>
-                {{-- breadcrumb --}}
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">All Clinics</li>
-                    </ol>
-                </nav>
-                </div>
-                <a href="{{ route('clinics.create') }}" class="btn btn-primary">Create Clinic</a>
-            </div>
+    <div class="card shadow-sm border-0 rounded-bottom mt-0">
+        <div class="card-body">
+                <!-- Filter Form -->
+                <form method="GET" action="{{ route('clinics.index') }}" class="mb-4">
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label small text-muted">Search</label>
+                            <input type="text" name="search" class="form-control form-control-sm"
+                                placeholder="Name, Code, City..." value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small text-muted">Status</label>
+                            <select name="status" class="form-select form-select-sm">
+                                <option value="all">All Statuses</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive
+                                </option>
+                                <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspended
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small text-muted">Trashed</label>
+                            <select name="trashed" class="form-select form-select-sm">
+                                <option value="">No Trashed</option>
+                                <option value="with" {{ request('trashed') == 'with' ? 'selected' : '' }}>With Trashed
+                                </option>
+                                <option value="only" {{ request('trashed') == 'only' ? 'selected' : '' }}>Only Trashed
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small text-muted">From</label>
+                            <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
+                                value="{{ request('from') }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small text-muted">To</label>
+                            <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
+                                value="{{ request('to') }}">
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                             <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+                        </div>
+                    </div>
+                </form>
 
-            <!-- Filter Form -->
-            <form method="GET" action="{{ route('clinics.index') }}" class="mb-4 mt-3 px-2">
-                <div class="row g-2">
-                    <div class="col-md-3">
-                        <input type="text" name="search" class="form-control"
-                            placeholder="Search Name, Code, City..." value="{{ request('search') }}">
-                    </div>
-                    <div class="col-md-2">
-                        <select name="status" class="form-select">
-                            <option value="all">All Statuses</option>
-                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive
-                            </option>
-                            <option value="suspended" {{ request('status') == 'suspended' ? 'selected' : '' }}>Suspended
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select name="trashed" class="form-select">
-                            <option value="">No Trashed</option>
-                            <option value="with" {{ request('trashed') == 'with' ? 'selected' : '' }}>With Trashed
-                            </option>
-                            <option value="only" {{ request('trashed') == 'only' ? 'selected' : '' }}>Only Trashed
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="date" name="from" class="form-control" placeholder="From Date"
-                            value="{{ request('from') }}">
-                    </div>
-                    <div class="col-md-2">
-                        <input type="date" name="to" class="form-control" placeholder="To Date"
-                            value="{{ request('to') }}">
-                    </div>
-                    <div class="col-md-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        <a href="{{ route('clinics.index') }}" class="btn btn-light w-100">Reset</a>
-                    </div>
-                </div>
-            </form>
-            <hr>
-            <div class="table px-2">
-                <table class="table table-striped">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle">
                     <thead>
                         <tr>
                             <th>Name</th>

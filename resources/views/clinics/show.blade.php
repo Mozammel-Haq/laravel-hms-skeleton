@@ -1,22 +1,22 @@
 <x-app-layout>
-    <div class="container-fluid py-3">
+    <div class="container-fluid mx-2 mt-2">
         <!-- Header -->
-        <div class="row align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3 mx-1">
-            <div class="col mb-2">
-                <h4 class="mb-1 fw-bold text-dark">Clinic Details</h4>
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded shadow-sm mb-3">
+            <div>
+                <h5 class="fw-bold mb-1 text-primary">Clinic Details</h5>
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
                         <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ $clinic->name }}</li>
                     </ol>
                 </nav>
             </div>
-            <div class="col-auto d-flex gap-2 mt-1">
-                <a href="{{ route('clinics.index') }}" class="btn btn-outline-primary">
+            <div class="d-flex gap-2">
+                <a href="{{ route('clinics.index') }}" class="btn btn-sm btn-outline-primary">
                     <i class="ti ti-arrow-left me-1"></i> Back
                 </a>
                 @can('update', $clinic)
-                    <a href="{{ route('clinics.edit', $clinic) }}" class="btn btn-primary">
+                    <a href="{{ route('clinics.edit', $clinic) }}" class="btn btn-sm btn-primary">
                         <i class="ti ti-edit me-1"></i> Edit
                     </a>
                 @endcan
@@ -25,7 +25,7 @@
                         onsubmit="return confirm('Delete this clinic?')" class="d-inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger">
+                        <button type="submit" class="btn btn-sm btn-danger">
                             <i class="ti ti-trash me-1"></i> Delete
                         </button>
                     </form>
@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <div class="row px-1 mt-2">
+        <div class="row g-3">
             <!-- Left Column: Key Info -->
             <div class="col-lg-4">
                 <div class="card border border-secondary-subtle shadow-sm mb-4">

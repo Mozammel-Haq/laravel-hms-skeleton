@@ -1,8 +1,8 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
             <div>
-                <h4 class="font-bold mb-2 text-primary">Create Ward</h4>
+                <h5 class="fw-bold mb-1 text-primary">Create Ward</h5>
                 {{-- breadcrumb --}}
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-dots mb-0">
@@ -12,46 +12,57 @@
                     </ol>
                 </nav>
             </div>
+            <div>
+                <a href="{{ route('ipd.wards.index') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Wards
+                </a>
+            </div>
         </div>
-    <div class="card p-3">
-        <div class="card-body">
-            <form method="post" action="{{ route('ipd.wards.store') }}">
-                @csrf
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Name</label>
-                        <input type="text" name="name" class="form-control" required>
+
+        <div class="card shadow-sm border-0 rounded-bottom mt-0">
+            <div class="card-body p-3">
+                <form method="post" action="{{ route('ipd.wards.store') }}">
+                    @csrf
+
+                    <h5 class="card-title mb-4 border-bottom pb-2 text-primary">Ward Information</h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-1">Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control form-control-sm" required placeholder="e.g. General Ward 1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-1">Type <span class="text-danger">*</span></label>
+                            <select name="type" class="form-select form-select-sm" required>
+                                <option value="">Select Type</option>
+                                <option value="general">General</option>
+                                <option value="icu">ICU</option>
+                                <option value="cabin">Cabin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-1">Floor</label>
+                            <input type="number" name="floor" class="form-control form-control-sm" placeholder="e.g. 1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted mb-1">Status <span class="text-danger">*</span></label>
+                            <select name="status" class="form-select form-select-sm" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small text-muted mb-1">Description</label>
+                            <textarea name="description" class="form-control form-control-sm" rows="3" placeholder="Enter ward description..."></textarea>
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Type</label>
-                        <select name="type" class="form-select" required>
-                            <option value="general">General</option>
-                            <option value="icu">ICU</option>
-                            <option value="cabin">Cabin</option>
-                        </select>
+
+                    <div class="mt-4 d-flex gap-2 justify-content-end">
+                        <a href="{{ route('ipd.wards.index') }}" class="btn btn-sm btn-light border">Cancel</a>
+                        <button class="btn btn-sm btn-primary px-4">Save Ward</button>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Floor</label>
-                        <input type="number" name="floor" class="form-control">
-                    </div>
-                    <div class="col-md-12">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-select" required>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mt-3 d-flex gap-2">
-                    <button class="btn btn-primary">Save</button>
-                    <a href="{{ route('ipd.wards.index') }}" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-        </div>
 </x-app-layout>

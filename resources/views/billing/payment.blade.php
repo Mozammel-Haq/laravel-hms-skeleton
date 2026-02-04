@@ -5,35 +5,28 @@
         $remaining = max($totalAmount - $totalPaid, 0);
     @endphp
 
-    <div class="container-fluid  mt-2 mx-1">
-                        <div class="px-4 pt-4 border-bottom bg-primary-subtle text-primary">
-                            <h4 class="page-title mb-2">Record Payment</h4>
-                            {{-- breadcrumb --}}
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                                    <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Invoices</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Record Payment</li>
-                                </ol>
-                            </nav>
-                        </div>
-
-        {{-- <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
             <div>
-                <h3 class="page-title mb-0">Record Payment</h3>
-                <p class="text-muted mb-0">Add payment for Invoice #{{ $invoice->invoice_number ?? $invoice->id }}</p>
+                <h5 class="fw-bold mb-1 text-primary">Record Payment</h5>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Invoices</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Record Payment</li>
+                    </ol>
+                </nav>
             </div>
-            <a href="{{ route('billing.show', $invoice) }}" class="btn btn-outline-primary">
+            <a href="{{ route('billing.show', $invoice) }}" class="btn btn-sm btn-outline-primary">
                 <i class="ti ti-arrow-left me-1"></i> Back to Invoice
             </a>
-        </div> --}}
+        </div>
 
-        <div class="row">
+        <div class="row mt-0">
             <!-- Left Column: Payment Form & Details -->
             <div class="col-12 col-lg-8">
                 <!-- Invoice Summary Card -->
-                <div class="card mb-3">
+                <div class="card mb-3 rounded-0 border-top-0 shadow-sm">
                     <div class="card-header bg-light-subtle">
                         <h3 class="card-title m-0">Invoice Summary</h3>
                     </div>

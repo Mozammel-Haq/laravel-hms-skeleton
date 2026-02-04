@@ -1,27 +1,36 @@
 <x-app-layout>
-    <div class="container-fluid  mt-2 mx-1">
-                        <div class="px-4 pt-4 border-bottom bg-primary-subtle text-primary">
-                            <h4 class="page-title mb-2">Payments</h4>
-                            {{-- breadcrumb --}}
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Payments</li>
-                                </ol>
-                            </nav>
-                        </div>
-        <div class="card">
-            <div class="card-body">
+    <div class="container-fluid mx-2 mt-2">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+        <div>
+            <h5 class="fw-bold mb-1 text-primary">Payments</h5>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-dots mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Payments</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+                <!-- Optional: Add Create Payment button if applicable, or keep empty if payments are only via invoices -->
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-bottom mt-0">
+        <div class="card-body">
 
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('billing.payments.index') }}" class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-2">
-                            <input type="text" name="search" class="form-control"
-                                placeholder="Search Invoice or Patient..." value="{{ request('search') }}">
+                            <label class="form-label small text-muted">Search</label>
+                            <input type="text" name="search" class="form-control form-control-sm"
+                                placeholder="Invoice or Patient..." value="{{ request('search') }}">
                         </div>
                         <div class="col-md-2">
-                            <select name="method" class="form-select">
+                            <label class="form-label small text-muted">Method</label>
+                            <select name="method" class="form-select form-select-sm">
                                 <option value="">All Methods</option>
                                 <option value="cash" {{ request('method') == 'cash' ? 'selected' : '' }}>Cash</option>
                                 <option value="card" {{ request('method') == 'card' ? 'selected' : '' }}>Card</option>
@@ -30,7 +39,8 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <select name="status" class="form-select">
+                            <label class="form-label small text-muted">Status</label>
+                            <select name="status" class="form-select form-select-sm">
                                 <option value="active" {{ request('status') !== 'trashed' ? 'selected' : '' }}>Active
                                 </option>
                                 <option value="trashed" {{ request('status') === 'trashed' ? 'selected' : '' }}>Trash
@@ -38,22 +48,24 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                            <label class="form-label small text-muted">From</label>
+                            <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
                                 value="{{ request('from') }}">
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                            <label class="form-label small text-muted">To</label>
+                            <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
                                 value="{{ request('to') }}">
                         </div>
-                        <div class="col-md-2 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                            <a href="{{ route('billing.payments.index') }}" class="btn btn-light w-100">Reset</a>
+                        <div class="col-md-2 d-flex gap-2 align-items-end">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+                            <a href="{{ route('billing.payments.index') }}" class="btn btn-light btn-sm w-100">Reset</a>
                         </div>
                     </div>
                 </form>
 
-                <div class="table">
-                    <table class="table table-hover align-middle">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle">
                         <thead>
                             <tr>
                                 <th>Invoice</th>

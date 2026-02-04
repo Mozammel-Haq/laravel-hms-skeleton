@@ -1,27 +1,25 @@
 <x-app-layout>
-    <div class="container-fluid py-1 mx-2">
-        <!-- Header -->
-        <div class="row align-items-center px-3 py-3 border-bottom bg-primary-subtle text-primary">
-            <div class="col">
-                <h4 class="mb-1 fw-bold text-dark">Book Appointment</h4>
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm">
+            <div>
+                <h5 class="fw-bold mb-1 text-primary">Book Appointment</h5>
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('appointments.booking.index') }}" class="text-decoration-none">Find a Doctor</a></li>
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('appointments.booking.index') }}">Find a Doctor</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Dr. {{ $doctor->user?->name ?? 'Doctor' }}</li>
                     </ol>
                 </nav>
             </div>
-            <div class="col-auto">
-                <a href="{{ route('appointments.booking.index') }}" class="btn btn-outline-primary">
-                    <i class="ti ti-arrow-left me-1"></i> Back to Search
-                </a>
-            </div>
+            <a href="{{ route('appointments.booking.index') }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-arrow-left me-1"></i> Back to Search
+            </a>
         </div>
-        <div class="row g-4">
+
+        <div class="row g-4 mt-2">
             <!-- Doctor Profile Side -->
-            <div class="col-lg-4 p-0">
-                <div class="card border border-secondary-subtle shadow-sm h-100">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
                     <div class="card-body text-center p-4">
                         <!-- Avatar -->
                         <div class="position-relative d-inline-block mb-3">
@@ -149,7 +147,7 @@
 
             <!-- Booking Form Side -->
             <div class="col-lg-8">
-                <div class="card border border-secondary-subtle shadow-sm h-100">
+                <div class="card border-0 shadow-sm h-100">
                     <div class="card-header bg-transparent border-bottom py-3">
                         <h5 class="card-title mb-0 fw-bold text-dark">
                             <i class="ti ti-calendar-plus me-2 text-primary"></i> Book Appointment
@@ -165,10 +163,10 @@
                             <input type="hidden" name="end_time" id="end_time">
 
                             <!-- Patient & Clinic Selection -->
-                            <div class="row g-4 mb-4">
+                            <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-dark">Patient <span class="text-danger">*</span></label>
-                                    <select class="form-select select2-patient" name="patient_id" id="patient_id" required>
+                                    <label class="form-label small fw-bold text-dark">Patient <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm select2-patient" name="patient_id" id="patient_id" required>
                                         <option value="">Select Patient</option>
                                         @if (isset($patients))
                                             @foreach ($patients as $patient)
@@ -181,8 +179,8 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-dark">Clinic Location <span class="text-danger">*</span></label>
-                                    <select class="form-select" name="clinic_id" id="clinic_id" required>
+                                    <label class="form-label small fw-bold text-dark">Clinic Location <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-sm" name="clinic_id" id="clinic_id" required>
                                         @foreach ($doctor->clinics as $clinic)
                                             <option value="{{ $clinic->id }}">{{ $clinic->name }}</option>
                                         @endforeach
@@ -191,19 +189,19 @@
                             </div>
 
                             <!-- Date & Fee -->
-                            <div class="row g-4 mb-4">
+                            <div class="row g-3 mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-dark">Appointment Date <span class="text-danger">*</span></label>
-                                    <div class="input-group">
+                                    <label class="form-label small fw-semibold text-muted">Appointment Date <span class="text-danger">*</span></label>
+                                    <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-light border-end-0"><i class="ti ti-calendar"></i></span>
-                                        <input type="text" class="form-control datetimepicker border-start-0 ps-0"
+                                        <input type="text" class="form-control form-control-sm datetimepicker border-start-0 ps-0"
                                             name="appointment_date" id="appointment_date" required placeholder="YYYY-MM-DD">
                                     </div>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold text-dark">Calculated Fee</label>
-                                    <input type="text" class="form-control bg-light" id="fee_display"
+                                    <label class="form-label small fw-semibold text-muted">Calculated Fee</label>
+                                    <input type="text" class="form-control form-control-sm bg-light" id="fee_display"
                                         value="Select Patient first" readonly>
                                     <small id="fee_note" class="text-muted mt-1 d-block"></small>
                                 </div>
@@ -211,7 +209,7 @@
 
                             <!-- Available Slots -->
                             <div class="mb-4">
-                                <label class="form-label fw-bold text-dark mb-2">Available Slots</label>
+                                <label class="form-label small fw-semibold text-muted mb-2">Available Slots</label>
                                 <div id="slots_container" class="border border-secondary-subtle rounded p-4 bg-light text-center">
                                     <div class="text-muted">
                                         <i class="ti ti-calendar-event fs-2 mb-2 d-block opacity-50"></i>

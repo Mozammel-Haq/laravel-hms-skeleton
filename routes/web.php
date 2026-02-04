@@ -354,6 +354,9 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
     Route::get('doctors/{doctor}/schedule', [DoctorController::class, 'schedule'])->name('doctors.schedule')->middleware('can:manage_doctor_schedule');
     Route::put('doctors/{doctor}/schedule', [DoctorController::class, 'updateSchedule'])->name('doctors.schedule.update')->middleware('can:manage_doctor_schedule');
 
+    // Staff extras
+    Route::get('/staff/passwords', [StaffController::class, 'passwords'])->name('staff.passwords')->middleware('can:view_staff');
+
     // Staff Management (Users & Roles)
     Route::resource('staff', StaffController::class)->middleware('can:view_staff');
     Route::post('staff/{id}/restore', [StaffController::class, 'restore'])->name('staff.restore')->middleware('can:view_staff');
@@ -398,9 +401,6 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
 
     // Clinic Profile
     // Route::view('/clinic/profile', 'clinics.profile')->name('clinics.profile'); // Removed in favor of controller method
-
-    // Staff extras
-    Route::get('/staff/passwords', [StaffController::class, 'passwords'])->name('staff.passwords')->middleware('can:view_staff');
 
     // Billing payments index
     Route::prefix('billing')->name('billing.')->middleware('can:view_billing')->group(function () {

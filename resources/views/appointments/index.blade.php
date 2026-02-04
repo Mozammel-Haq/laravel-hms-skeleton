@@ -1,73 +1,72 @@
 <x-app-layout>
-    <div class="container-fluid mx-1 py-2">
-
-                        <div class="page-header d-flex justify-content-between align-items-center px-3 py-3 border-bottom bg-primary-subtle text-primary">
-                    <div class="page-title">
-                        <h4 class="fw-bold mb-2 text-primary">Appointments</h4>
-                        {{-- breadcrumb --}}
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Appointments</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    @can('create', \App\Models\Appointment::class)
-                        <div class="action-btn d-flex gap-2">
-
-                            <a href="{{ route('appointments.booking.index') }}" class="btn btn-primary">
-                                <i class="ti ti-plus me-1"></i> Book Appointment
-                            </a>
-                        </div>
-                    @endcan
+    <div class="py-4">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 rounded-top">
+                <div>
+                    <h4 class="fw-bold mb-2 text-primary">Appointments</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Appointments</li>
+                        </ol>
+                    </nav>
                 </div>
+                @can('create', \App\Models\Appointment::class)
+                    <a href="{{ route('appointments.booking.index') }}" class="btn btn-sm btn-primary">
+                        <i class="ti ti-plus me-1"></i> Book Appointment
+                    </a>
+                @endcan
+            </div>
 
+            <div class="card border-0 shadow-sm rounded-bottom rounded-0">
+                <div class="card-body p-0 pt-3">
+                    <!-- Filters -->
+                    <form method="GET" action="{{ route('appointments.index') }}" class="mb-4 px-3">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold text-muted mb-1">Search</label>
+                                <input type="text" name="search" class="form-control form-control-sm" placeholder="Search..."
+                                    value="{{ request('search') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-semibold text-muted mb-1">Status</label>
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="">All Status</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
+                                    </option>
+                                    <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>
+                                        Confirmed</option>
+                                    <option value="arrived" {{ request('status') == 'arrived' ? 'selected' : '' }}>Arrived
+                                    </option>
+                                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>
+                                        Completed</option>
+                                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
+                                        Cancelled</option>
+                                    <option value="noshow" {{ request('status') == 'noshow' ? 'selected' : '' }}>No Show
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-semibold text-muted mb-1">From Date</label>
+                                <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
+                                    value="{{ request('from') }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small fw-semibold text-muted mb-1">To Date</label>
+                                <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
+                                    value="{{ request('to') }}">
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-sm btn-primary w-100">Filter</button>
+                                    <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-light border w-100">Reset</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
 
-        <div class="card ">
-            <div class="card-body">
-
-                <!-- Filters -->
-                <form method="GET" action="{{ route('appointments.index') }}" class="mb-4">
-                    <div class="row g-2">
-                        <div class="col-md-3">
-                            <input type="text" name="search" class="form-control" placeholder="Search..."
-                                value="{{ request('search') }}">
-                        </div>
-                        <div class="col-md-2">
-                            <select name="status" class="form-select">
-                                <option value="">All Status</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
-                                </option>
-                                <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>
-                                    Confirmed</option>
-                                <option value="arrived" {{ request('status') == 'arrived' ? 'selected' : '' }}>Arrived
-                                </option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>
-                                    Completed</option>
-                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
-                                    Cancelled</option>
-                                <option value="noshow" {{ request('status') == 'noshow' ? 'selected' : '' }}>No Show
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="date" name="from" class="form-control" placeholder="From Date"
-                                value="{{ request('from') }}">
-                        </div>
-                        <div class="col-md-2">
-                            <input type="date" name="to" class="form-control" placeholder="To Date"
-                                value="{{ request('to') }}">
-                        </div>
-                        <div class="col-md-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                            <a href="{{ route('appointments.index') }}" class="btn btn-light w-100">Reset</a>
-                        </div>
-                    </div>
-                </form>
-
-                <hr>
-                <div class="table">
-                    <table class="table table-hover align-middle">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>Date & Time</th>
@@ -293,9 +292,10 @@
                             @endforelse
                         </tbody>
                     </table>
-                </div>
-                <div class="mt-4">
-                    {{ $appointments->links('pagination::bootstrap-5') }}
+                    </div>
+                    <div class="mt-4">
+                        {{ $appointments->links('pagination::bootstrap-5') }}
+                    </div>
                 </div>
             </div>
         </div>

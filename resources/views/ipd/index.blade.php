@@ -1,16 +1,31 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
-        <div class="d-flex justify-content-between align-items-center my-3">
-            <h3 class="page-title mb-0">IPD Dashboard</h3>
-            <div class="d-flex gap-2">
-                <a href="{{ route('ipd.bed_assignments.index') }}" class="btn btn-outline-primary">Bed Assignments</a>
-                <a href="{{ route('ipd.create') }}" class="btn btn-primary">Admit Patient</a>
-            </div>
+    <div class="container-fluid mx-2 mt-2">
+    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+        <div>
+            <h5 class="fw-bold mb-1 text-primary">IPD Dashboard</h5>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-dots mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">IPD</li>
+                </ol>
+            </nav>
         </div>
-        <div class="row mb-5 g-4">
+        <div class="d-flex gap-2">
+            <a href="{{ route('ipd.bed_assignments.index') }}" class="btn btn-outline-primary btn-sm">Bed Assignments</a>
+            @can('create_admissions')
+            <a href="{{ route('ipd.create') }}" class="btn btn-primary btn-sm">
+                <i class="ti ti-plus me-1"></i>Admit Patient
+            </a>
+            @endcan
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-bottom mt-0">
+        <div class="card-body p-3">
+            <div class="row mb-4 g-4">
             <!-- Admissions Card -->
             <div class="col-md-3">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary"
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary shadow-sm"
                     data-bs-theme="light,dark">
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -65,7 +80,7 @@
 
             <!-- Beds Available Card -->
             <div class="col-md-3">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success"
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success shadow-sm"
                     data-bs-theme="light,dark">
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -170,7 +185,7 @@
 
             <!-- Wards / Rooms Card -->
             <div class="col-md-3">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" data-bs-theme="light,dark">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card shadow-sm" data-bs-theme="light,dark">
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                             <defs>
@@ -224,17 +239,19 @@
                 </div>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('ipd.index') }}" class="mb-4">
-                    <div class="row g-2">
+                    <div class="row g-2 align-items-end">
                         <div class="col-md-3">
-                            <input type="text" name="search" class="form-control"
+                            <label class="form-label small text-muted">Search</label>
+                            <input type="text" name="search" class="form-control form-control-sm"
                                 placeholder="Search Patient, Doctor..." value="{{ request('search') }}">
                         </div>
                         <div class="col-md-2">
-                            <select name="status" class="form-select">
+                            <label class="form-label small text-muted">Status</label>
+                            <select name="status" class="form-select form-select-sm">
                                 <option value="admitted"
                                     {{ request('status', 'admitted') == 'admitted' ? 'selected' : '' }}>Admitted
                                 </option>
@@ -247,22 +264,26 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="from" class="form-control" placeholder="From Date"
+                            <label class="form-label small text-muted">From Date</label>
+                            <input type="date" name="from" class="form-control form-control-sm" placeholder="From Date"
                                 value="{{ request('from') }}">
                         </div>
                         <div class="col-md-2">
-                            <input type="date" name="to" class="form-control" placeholder="To Date"
+                            <label class="form-label small text-muted">To Date</label>
+                            <input type="date" name="to" class="form-control form-control-sm" placeholder="To Date"
                                 value="{{ request('to') }}">
                         </div>
-                        <div class="col-md-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                            <a href="{{ route('ipd.index') }}" class="btn btn-light w-100">Reset</a>
+                        <div class="col-md-3">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-sm flex-grow-1">Filter</button>
+                                <a href="{{ route('ipd.index') }}" class="btn btn-light btn-sm flex-grow-1">Reset</a>
+                            </div>
                         </div>
                     </div>
                 </form>
                 <hr>
                 <div class="table">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
                                 <th>Patient</th>

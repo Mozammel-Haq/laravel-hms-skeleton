@@ -1,50 +1,50 @@
 <x-app-layout>
-    <div class="container-fluid py-4">
-        <!-- Header -->
-        <div class=" mx-2 row align-items-center mb-4 bg-primary-subtle text-primary px-4 py-2 pt-3">
-            <div class="col">
-                <h4 class="mb-1 fw-bold text-dark">Admission Details</h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}" class="text-decoration-none">IPD</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Admission #{{ $admission->id }}</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="col-auto d-flex gap-2">
-                <a href="{{ route('ipd.index') }}" class="btn btn-outline-primary">
-                    <i class="ti ti-arrow-left me-1"></i> Back
+    <div class="container-fluid mx-2 mt-2">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+        <div>
+            <h5 class="fw-bold mb-1 text-primary">Admission Details</h5>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-dots mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Admission #{{ $admission->id }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('ipd.index') }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-arrow-left me-1"></i> Back
+            </a>
+            @if ($admission->status === 'admitted')
+                <a href="{{ route('ipd.assign-bed', $admission) }}" class="btn btn-sm btn-primary">
+                    <i class="ti ti-bed me-1"></i> Transfer Bed
                 </a>
-                @if ($admission->status === 'admitted')
-                    <a href="{{ route('ipd.assign-bed', $admission) }}" class="btn btn-primary">
-                        <i class="ti ti-bed me-1"></i> Transfer Bed
-                    </a>
 
-                    @if (auth()->user()->hasRole('Doctor'))
-                        @if (!$admission->discharge_recommended)
-                            <form action="{{ route('ipd.recommend-discharge', $admission) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-warning text-white">
-                                    <i class="ti ti-check me-1"></i> Recommend Discharge
-                                </button>
-                            </form>
-                        @else
-                            <button class="btn btn-secondary" disabled>
-                                <i class="ti ti-check me-1"></i> Discharge Recommended
+                @if (auth()->user()->hasRole('Doctor'))
+                    @if (!$admission->discharge_recommended)
+                        <form action="{{ route('ipd.recommend-discharge', $admission) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-warning text-white">
+                                <i class="ti ti-check me-1"></i> Recommend Discharge
                             </button>
-                        @endif
-                    @endif
-
-                    @if (auth()->user()->hasAnyRole(['Receptionist', 'Clinic Admin', 'Super Admin']))
-                        <a href="{{ route('ipd.discharge', $admission) }}" class="btn btn-danger">
-                            <i class="ti ti-door-exit me-1"></i> Discharge
-                        </a>
+                        </form>
+                    @else
+                        <button class="btn btn-sm btn-secondary" disabled>
+                            <i class="ti ti-check me-1"></i> Discharge Recommended
+                        </button>
                     @endif
                 @endif
-            </div>
-        </div>
 
-        <div class="row g-4 mx-0">
+                @if (auth()->user()->hasAnyRole(['Receptionist', 'Clinic Admin', 'Super Admin']))
+                    <a href="{{ route('ipd.discharge', $admission) }}" class="btn btn-sm btn-danger">
+                        <i class="ti ti-door-exit me-1"></i> Discharge
+                    </a>
+                @endif
+            @endif
+        </div>
+    </div>
+
+    <div class="row g-4 mt-0">
             <!-- Left Column: Patient Profile -->
             <div class="col-lg-3">
                 <div class="card border border-secondary-subtle shadow-sm mb-4">
@@ -90,11 +90,11 @@
                 </div>
 
                 <!-- Status Card -->
-                <div class="card border border-secondary-subtle shadow-sm">
-                    <div class="card-header bg-white border-bottom py-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-2">
                         <h6 class="mb-0 fw-bold text-dark">Current Status</h6>
                     </div>
-                    <div class="card-body p-4">
+                    <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <span class="text-muted">Admission Status</span>
                             <span class="badge rounded-pill bg-{{ $admission->status === 'admitted' ? 'success' : 'secondary' }} px-3 py-2">

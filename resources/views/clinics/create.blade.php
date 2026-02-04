@@ -1,95 +1,99 @@
 <x-app-layout>
-    <div class="content">
-          <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
-                        <h4 class="fw-bold mb-2 text-primary">Create Clinic</h4>
-                        {{-- breadcrumb --}}
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('clinics.index') }}">Clinics</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Create Clinic</li>
-                            </ol>
-                        </nav>
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+            <div>
+                <h5 class="fw-bold mb-1 text-primary">Create Clinic</h5>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('clinics.index') }}">Clinics</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Create Clinic</li>
+                    </ol>
+                </nav>
             </div>
-        <div class="card pt-0">
+            <a href="{{ route('clinics.index') }}" class="btn btn-sm btn-outline-primary">
+                <i class="ti ti-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+        <div class="card shadow-sm rounded-bottom mt-0">
             <div class="card-body">
                 <form method="POST" action="{{ route('clinics.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="row g-3">
                         <div class="col-12">
-                            <h5 class="mb-3">Basic Information</h5>
+                            <h5 class="mb-3 border-bottom pb-2">Basic Information</h5>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Name</label>
-                            <input name="name" class="form-control" value="{{ old('name') }}" required>
+                            <label class="form-label small text-muted">Name</label>
+                            <input name="name" class="form-control form-control-sm" value="{{ old('name') }}" required>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Code</label>
-                            <input name="code" class="form-control" value="{{ old('code') }}" required>
+                            <label class="form-label small text-muted">Code</label>
+                            <input name="code" class="form-control form-control-sm" value="{{ old('code') }}" required>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Registration No.</label>
-                            <input name="registration_number" class="form-control"
+                            <label class="form-label small text-muted">Registration No.</label>
+                            <input name="registration_number" class="form-control form-control-sm"
                                 value="{{ old('registration_number') }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Address Line 1</label>
-                            <input name="address_line_1" class="form-control" value="{{ old('address_line_1') }}"
+                            <label class="form-label small text-muted">Address Line 1</label>
+                            <input name="address_line_1" class="form-control form-control-sm" value="{{ old('address_line_1') }}"
                                 required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Address Line 2</label>
-                            <input name="address_line_2" class="form-control" value="{{ old('address_line_2') }}">
+                            <label class="form-label small text-muted">Address Line 2</label>
+                            <input name="address_line_2" class="form-control form-control-sm" value="{{ old('address_line_2') }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">City</label>
-                            <input name="city" class="form-control" value="{{ old('city') }}" required>
+                            <label class="form-label small text-muted">City</label>
+                            <input name="city" class="form-control form-control-sm" value="{{ old('city') }}" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">State</label>
-                            <input name="state" class="form-control" value="{{ old('state') }}">
+                            <label class="form-label small text-muted">State</label>
+                            <input name="state" class="form-control form-control-sm" value="{{ old('state') }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Country</label>
-                            <input name="country" class="form-control" value="{{ old('country') }}" required>
+                            <label class="form-label small text-muted">Country</label>
+                            <input name="country" class="form-control form-control-sm" value="{{ old('country') }}" required>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Postal Code</label>
-                            <input name="postal_code" class="form-control" value="{{ old('postal_code') }}">
+                            <label class="form-label small text-muted">Postal Code</label>
+                            <input name="postal_code" class="form-control form-control-sm" value="{{ old('postal_code') }}">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Phone</label>
-                            <input name="phone" class="form-control" value="{{ old('phone') }}">
+                            <label class="form-label small text-muted">Phone</label>
+                            <input name="phone" class="form-control form-control-sm" value="{{ old('phone') }}">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Email</label>
-                            <input name="email" type="email" class="form-control" value="{{ old('email') }}">
+                            <label class="form-label small text-muted">Email</label>
+                            <input name="email" type="email" class="form-control form-control-sm" value="{{ old('email') }}">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Website</label>
-                            <input name="website" type="url" class="form-control" value="{{ old('website') }}">
+                            <label class="form-label small text-muted">Website</label>
+                            <input name="website" type="url" class="form-control form-control-sm" value="{{ old('website') }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Timezone</label>
-                            <input name="timezone" class="form-control" value="{{ old('timezone', 'UTC') }}" required>
+                            <label class="form-label small text-muted">Timezone</label>
+                            <input name="timezone" class="form-control form-control-sm" value="{{ old('timezone', 'UTC') }}" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Currency</label>
-                            <input name="currency" class="form-control" value="{{ old('currency', 'BDT') }}" required>
+                            <label class="form-label small text-muted">Currency</label>
+                            <input name="currency" class="form-control form-control-sm" value="{{ old('currency', 'BDT') }}" required>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label">Opening Time</label>
-                            <input name="opening_time" type="time" class="form-control"
+                            <label class="form-label small text-muted">Opening Time</label>
+                            <input name="opening_time" type="time" class="form-control form-control-sm"
                                 value="{{ old('opening_time') }}">
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label">Closing Time</label>
-                            <input name="closing_time" type="time" class="form-control"
+                            <label class="form-label small text-muted">Closing Time</label>
+                            <input name="closing_time" type="time" class="form-control form-control-sm"
                                 value="{{ old('closing_time') }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select" required>
+                            <label class="form-label small text-muted">Status</label>
+                            <select name="status" class="form-select form-select-sm" required>
                                 <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>Active
                                 </option>
                                 <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>Inactive
@@ -101,29 +105,29 @@
                         </div>
 
                         <div class="col-12 mt-4">
-                            <h5 class="mb-3">About & Services</h5>
+                            <h5 class="mb-3 border-bottom pb-2">About & Services</h5>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label">About Clinic</label>
-                            <textarea name="about" class="form-control" rows="4" placeholder="Describe the clinic, mission, facilities...">{{ old('about') }}</textarea>
+                            <label class="form-label small text-muted">About Clinic</label>
+                            <textarea name="about" class="form-control form-control-sm" rows="4" placeholder="Describe the clinic, mission, facilities...">{{ old('about') }}</textarea>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label">Services</label>
+                            <label class="form-label small text-muted">Services</label>
                             <div id="servicesList">
-                                <div class="input-group mb-2">
-                                    <input type="text" name="services[]" class="form-control" placeholder="e.g., General Consultation" value="{{ old('services.0') }}">
+                                <div class="input-group input-group-sm mb-2">
+                                    <input type="text" name="services[]" class="form-control form-control-sm" placeholder="e.g., General Consultation" value="{{ old('services.0') }}">
                                     <button type="button" class="btn btn-outline-primary" onclick="removeService(this)">Remove</button>
                                 </div>
                             </div>
                             <button type="button" class="btn btn-sm btn-outline-primary" onclick="addService()">Add Service</button>
-                            <div class="form-text">Add each service offered by the clinic.</div>
+                            <div class="form-text small">Add each service offered by the clinic.</div>
                         </div>
 
                         <div class="col-12 mt-4">
-                            <h5 class="mb-3">Branding & Images</h5>
+                            <h5 class="mb-3 border-bottom pb-2">Branding & Images</h5>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Clinic Logo</label>
+                            <label class="form-label small text-muted">Clinic Logo</label>
                             <div class="d-flex align-items-center gap-3">
                                 <div class="border rounded p-2"
                                     style="width: 100px; height: 100px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
@@ -132,14 +136,14 @@
                                     <span id="logoPlaceholder" class="text-muted small">No Logo</span>
                                 </div>
                                 <div>
-                                    <input type="file" name="logo" class="form-control" accept="image/*,.svg"
+                                    <input type="file" name="logo" class="form-control form-control-sm" accept="image/*,.svg"
                                         onchange="previewLogo(this)">
-                                    <div class="form-text">Recommended size: 200x200px. Max: 2MB.</div>
+                                    <div class="form-text small">Recommended size: 200x200px. Max: 2MB.</div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-12 mt-3">
-                            <label class="form-label">Gallery Images</label>
+                            <label class="form-label small text-muted">Gallery Images</label>
                             <div class="border rounded p-3 bg-light">
                                 <div class="text-center p-4 border-dashed rounded bg-white"
                                     style="border: 2px dashed #dee2e6; cursor: pointer;"
@@ -153,9 +157,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <button class="btn btn-primary" type="submit">Save</button>
-                        <a class="btn btn-secondary" href="{{ route('clinics.index') }}">Cancel</a>
+                    <div class="mt-4 pt-3 border-top">
+                        <button class="btn btn-primary btn-sm" type="submit">Save</button>
+                        <a class="btn btn-secondary btn-sm" href="{{ route('clinics.index') }}">Cancel</a>
                     </div>
                 </form>
             </div>
