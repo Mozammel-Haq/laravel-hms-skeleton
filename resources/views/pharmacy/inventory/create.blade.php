@@ -1,10 +1,6 @@
 <x-app-layout>
-    <div class="container-fluid">
-
-
-        <div class="card mt-2 mx-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="container-fluid m-2">
+                        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
                     <div>
                         <h4 class="mb-1">{{ isset($medicine) ? 'Edit Medicine' : 'Add New Medicine' }}</h4>
                         <p class="text-muted mb-0">
@@ -15,7 +11,10 @@
                         <i class="ti ti-arrow-left me-1"></i> Back to Catalog
                     </a>
                 </div>
-                <hr>
+
+        <div class="card p-2">
+            <div class="card-body">
+
                 <form
                     action="{{ isset($medicine) ? route('pharmacy.medicines.update', $medicine) : route('pharmacy.medicines.store') }}"
                     method="POST">

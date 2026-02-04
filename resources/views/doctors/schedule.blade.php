@@ -1,5 +1,18 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
+    <div class="container-fluid mx-2 mt-2">
+        {{-- Page Header --}}
+        <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <h4 class="fw-bold mb-2 text-primary">Manage Schedule</h4>
+            {{-- breadcrumb --}}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Manage Schedule</li>
+                </ol>
+            </nav>
+        </div>
+
+
         @php $mode = $mode ?? 'admin'; @endphp
 
         <div class="row justify-content-center">
@@ -8,8 +21,7 @@
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4 w-100">
                             <div>
-                                <h3 class="page-title mb-0">Manage Schedule</h3>
-                                <div class="text-muted">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}
+                                <div class="text-muted fw-bold">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}
                                     (@php
                                         $specData = $doctor->specialization;
                                         $specData = \Illuminate\Support\Arr::wrap($specData);
@@ -47,10 +59,7 @@
                                     @endphp
                                     {{ empty($pieces) ? '' : implode(', ', $pieces) }})</div>
                             </div>
-                            <a href="{{ $mode === 'self' ? route('doctor.schedule.index') : route('doctors.index') }}"
-                                class="btn btn-outline-primary">
-                                <i class="ti ti-arrow-left me-1"></i> Back
-                            </a>
+
 
                         </div>
                         <hr>
@@ -180,7 +189,7 @@
                                 </table>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex justify-content-between align-items-center mt-2">
                                 <button type="button" class="btn btn-outline-primary" id="add-slot-btn">
                                     <i class="ti ti-plus me-1"></i> Add Time Slot
                                 </button>

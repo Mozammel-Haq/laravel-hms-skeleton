@@ -1,14 +1,17 @@
 <x-app-layout>
-    <div class="container-fluid">
-
-        <div class="card mt-2 mx-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="page-title mb-0">Consultations</h3>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('appointments.index') }}" class="btn btn-outline-primary">Appointments</a>
-                    </div>
+    <div class="container-fluid mt-2 mx-2">
+                        <div class="bg-primary-subtle text-primary">
+                    <h4 class="fw-bold mb-2 text-primary">Consultations</h4>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Consultations</li>
+                        </ol>
+                    </nav>
                 </div>
+        <div class="card">
+            <div class="card-body">
 
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('clinical.consultations.index') }}" class="mb-4">

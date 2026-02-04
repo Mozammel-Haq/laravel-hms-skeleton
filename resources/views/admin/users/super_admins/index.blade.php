@@ -1,18 +1,21 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="h4">Super Admin Users</h2>
-    </x-slot>
     <div class="card m-2 p-2">
-        <div class="card-header">
-            <h3 class="card-title">Super Admin Users</h3>
-        </div>
-        <hr>
-        <div class="card-body">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">All Super Admins</h5>
+       <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-primary-subtle text-primary">
+                <div>
+                <h4 class="fw-bold mb-2 text-primary">All Super Admins</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Super Admin Users</li>
+                    </ol>
+                </nav>
+                </div>
                 <a href="{{ route('admin.super-admin-users.create') }}" class="btn btn-primary">Create Super Admin</a>
             </div>
 
+        <hr>
+        <div class="card-body">
             <!-- Filter Form -->
             <form method="GET" action="{{ route('admin.super-admin-users.index') }}" class="mb-4 mt-3">
                 <div class="row g-2">

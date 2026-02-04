@@ -1,11 +1,15 @@
 <x-app-layout>
 
-    <div class="content">
-        <div class="card p-3 mx-2">
-            <!-- Page Header -->
-            <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3 pb-3 border-bottom">
+    <div class="content px-2">
+                    <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-2 px-3 py-3 border-bottom bg-primary-subtle text-primary">
                 <div class="flex-grow-1">
-                    <h4 class="fw-bold mb-0">Roles</h4>
+                    <h4 class="fw-bold mb-2 text-primary">Roles</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Roles</li>
+                        </ol>
+                    </nav>
                 </div>
                 <div class="text-end d-flex">
                     <button class="btn btn-primary ms-2 fs-13 btn-md" data-bs-toggle="modal" data-bs-target="#add_role">
@@ -13,6 +17,10 @@
                     </button>
                 </div>
             </div>
+            <hr>
+        <div class="card p-3">
+            <!-- Page Header -->
+
 
             <!-- Filter Form -->
             <form method="GET" action="{{ route('admin.roles.index') }}" class="mb-4">

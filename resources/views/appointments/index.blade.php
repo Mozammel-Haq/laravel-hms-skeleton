@@ -1,14 +1,16 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-1 py-2">
 
-
-
-        <div class="card m-2">
-            <div class="card-body">
-                <div class="page-header d-flex justify-content-between align-items-center mb-4">
+                        <div class="page-header d-flex justify-content-between align-items-center px-3 py-3 border-bottom bg-primary-subtle text-primary">
                     <div class="page-title">
-                        <h4>Appointments</h4>
-                        <p class="text-muted">Manage patient appointments</p>
+                        <h4 class="fw-bold mb-2 text-primary">Appointments</h4>
+                        {{-- breadcrumb --}}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Appointments</li>
+                            </ol>
+                        </nav>
                     </div>
                     @can('create', \App\Models\Appointment::class)
                         <div class="action-btn d-flex gap-2">
@@ -19,6 +21,10 @@
                         </div>
                     @endcan
                 </div>
+
+
+        <div class="card ">
+            <div class="card-body">
 
                 <!-- Filters -->
                 <form method="GET" action="{{ route('appointments.index') }}" class="mb-4">

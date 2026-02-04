@@ -1,16 +1,21 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
+    <div class="container-fluid mx-2 mt-2">
+        {{-- Page Header --}}
+        <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <h4 class="fw-bold mb-2 text-primary">Edit Doctor</h4>
+            {{-- breadcrumb --}}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Doctor</li>
+                </ol>
+            </nav>
+        </div>
+
 
 
         <div class="card border-0 mt-2">
             <div class="card-body p-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="page-title mb-0">Edit Doctor</h4>
-                    <a href="{{ route('doctors.index') }}" class="btn btn-sm btn-outline-primary">
-                        <i class="ti ti-arrow-left me-1"></i> Back
-                    </a>
-                </div>
-                <hr>
                 <form action="{{ route('doctors.update', $doctor) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')

@@ -90,7 +90,7 @@
                             <div class="col-sm-6 text-start mb-3 mb-lg-0">
                                 <div class="d-flex gap-3 align-items-center">
                                     @if (data_get($prescription, 'clinic.logo_path'))
-                                        <img src="{{ Storage::url($prescription->clinic->logo_path) }}"
+                                        <img src="{{ asset("/") }}/{{ Storage::url($prescription->clinic->logo_path) }}"
                                             class="rounded border bg-light"
                                             style="width: 80px; height: 80px; object-fit: contain; padding: 5px;">
                                     @else

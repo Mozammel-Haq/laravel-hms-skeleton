@@ -1,13 +1,21 @@
 <x-app-layout>
-
-    <div class="card mt-2 mx-2 p-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Rooms</h5>
+    <div class="container mx-1 mt-2">
+        <div class="bg-primary-subtle text-primary px-4 py-2 pt-3 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Rooms</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}" class="text-decoration-none">IPD</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Rooms</li>
+                    </ol>
+                </nav>
+            </div>
             <a href="{{ route('ipd.rooms.create') }}" class="btn btn-primary">Add Room</a>
         </div>
 
         <!-- Filter Form -->
-        <form method="GET" action="{{ route('ipd.rooms.index') }}" class="mb-4">
+        <form method="GET" action="{{ route('ipd.rooms.index') }}" class="my-4">
             <div class="row g-2">
                 <div class="col-md-4">
                     <input type="text" name="search" class="form-control" placeholder="Search Room Number..."

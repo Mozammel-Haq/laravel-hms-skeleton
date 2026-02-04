@@ -1,9 +1,19 @@
 <x-app-layout>
 
     <div class="card mt-2 mx-2 p-3">
+        <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <h5 class="mb-0">Edit Bed</h5>
+            {{-- breadcrumb --}}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}" class="text-decoration-none">IPD</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('ipd.beds.index') }}" class="text-decoration-none">Beds</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                </ol>
+            </nav>
+        </div>
+        <hr>
         <div class="card-body">
-            <h5 class="mb-3">Edit Bed</h5>
-            <hr>
             <form method="post" action="{{ route('ipd.beds.update', $bed) }}">
                 @csrf
                 @method('PUT')

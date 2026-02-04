@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="content">
+    <div class="content px-2 pt-1">
 
 
         <div class="row">
@@ -11,7 +11,14 @@
                             <div class="row align-items-center">
                                 <div class="col">
                                     <div class="doctor-table-blk">
-                                        <h3>Find a Doctor</h3>
+                                        <h4 class="fw-bold mb-2 text-primary">Find a Doctor</h4>
+                                        {{-- breadcrumb --}}
+                                        <nav aria-label="breadcrumb">
+                                            <ol class="breadcrumb mb-0">
+                                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                                <li class="breadcrumb-item active" aria-current="page">Find a Doctor</li>
+                                            </ol>
+                                        </nav>
                                     </div>
                                 </div>
                             </div>
@@ -132,7 +139,7 @@
                                                     <div class="d-flex align-items-center gap-1 fs-13 text-muted"
                                                         title="{{ $clinic->name }}">
                                                         @if ($clinic->logo_path)
-                                                            <img src="{{ Storage::url($clinic->logo_path) }}"
+                                                            <img src="{{ asset("/") }}/{{ Storage::url($clinic->logo_path) }}"
                                                                 class="rounded-circle border"
                                                                 style="width: 16px; height: 16px; object-fit: cover;">
                                                         @else

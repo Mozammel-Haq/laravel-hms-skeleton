@@ -1,15 +1,19 @@
 <x-app-layout>
-    <div class="container-fluid">
-
-        <div class="card mt-2 mx-2">
+    <div class="container-fluid m-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Lab Test Results</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('lab.catalog.index') }}">Lab Tests</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Lab Test Results</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="card p-3">
             <div class="card-body">
-                <div class="page-header">
-                    <div class="row">
-                        <div class="col">
-                            <h3 class="page-title">Lab Results</h3>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('lab.results.index') }}" class="mb-4 mt-3">

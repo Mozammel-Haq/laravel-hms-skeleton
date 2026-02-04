@@ -1,19 +1,22 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2 my-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Admit Patient</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Admit Patient</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
 
 
         <div class="card border-0 mt-2 px-3 py-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="mb-1">Admit Patient</h4>
-                        <p class="text-muted mb-0">Create a new inpatient admission</p>
-                    </div>
-                    <a href="{{ route('ipd.index') }}" class="btn btn-outline-primary">
-                        <i class="ti ti-arrow-left me-1"></i> Back to IPD
-                    </a>
-                </div>
-                <hr>
                 <form action="{{ route('ipd.store') }}" method="POST" class="p-3 border rounded">
                     @csrf
 

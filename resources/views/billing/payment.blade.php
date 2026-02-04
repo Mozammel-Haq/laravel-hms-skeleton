@@ -5,8 +5,20 @@
         $remaining = max($totalAmount - $totalPaid, 0);
     @endphp
 
-    <div class="container-fluid">
-        <!-- Header -->
+    <div class="container-fluid  mt-2 mx-1">
+                        <div class="px-4 pt-4 border-bottom bg-primary-subtle text-primary">
+                            <h4 class="page-title mb-2">Record Payment</h4>
+                            {{-- breadcrumb --}}
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                    <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Invoices</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Record Payment</li>
+                                </ol>
+                            </nav>
+                        </div>
+
+        {{-- <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
                 <h3 class="page-title mb-0">Record Payment</h3>
@@ -15,7 +27,7 @@
             <a href="{{ route('billing.show', $invoice) }}" class="btn btn-outline-primary">
                 <i class="ti ti-arrow-left me-1"></i> Back to Invoice
             </a>
-        </div>
+        </div> --}}
 
         <div class="row">
             <!-- Left Column: Payment Form & Details -->
@@ -26,17 +38,17 @@
                         <h3 class="card-title m-0">Invoice Summary</h3>
                     </div>
                     <div class="card-body">
-                        <div class="row g-3">
+                        <div class="row g-3 justify-content-between">
                             <div class="col-md-6 col-lg-3">
-                                <label class="text-muted small text-uppercase fw-bold">Invoice Number</label>
-                                <div class="fw-bold fs-4">#{{ $invoice->invoice_number ?? $invoice->id }}</div>
+                                <label class="text-muted small text-uppercase fw-bold mb-1">Invoice Number</label>
+                                <div class="fw-bold fs-5">#{{ $invoice->invoice_number ?? $invoice->id }}</div>
                             </div>
                             <div class="col-md-6 col-lg-3">
-                                <label class="text-muted small text-uppercase fw-bold">Patient</label>
+                                <label class="text-muted small text-uppercase fw-bold mb-1">Patient</label>
                                 <div class="fw-bold fs-4">{{ optional($invoice->patient)->name ?? 'Guest' }}</div>
                             </div>
                             <div class="col-md-6 col-lg-3">
-                                <label class="text-muted small text-uppercase fw-bold">Status</label>
+                                <label class="text-muted small text-uppercase fw-bold mb-1">Status</label>
                                 <div>
                                     <span
                                         class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'partial' ? 'warning' : 'secondary') }} fs-5">

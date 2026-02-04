@@ -299,6 +299,36 @@
             color: var(--bs-secondary-color) !important;
             margin-bottom: 0;
         }
+
+        /* Avatar Sizes */
+        .avatar-md {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+        }
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+        }
+        .avatar-xs {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+        }
+        .avatar-lg {
+            width: 64px;
+            height: 64px;
+            min-width: 64px;
+        }
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
     @stack('styles')
 </head>

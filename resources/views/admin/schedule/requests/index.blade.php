@@ -1,16 +1,22 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid px-2 mt-2">
 
-
-        <div class="card border-0 mt-2 mx-2 p-3">
-            <div class="card-body p-0">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex align-items-center px-3 py-3 border-bottom bg-primary-subtle text-primary">
                     <div>
-                        <h3 class="page-title mb-0 text-primary">Schedule Change Requests</h3>
-                        <div class="text-muted text-sm">Review and approve doctor weekly schedule changes</div>
+                        <h3 class="fw-bold mb-2 text-primary">Schedule Change Requests</h3>
+                        {{-- breadcrumb --}}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Schedule Change Requests</li>
+                            </ol>
+                        </nav>
                     </div>
                 </div>
+                <hr>
 
+        <div class="card border-0 mt-2 p-3">
+            <div class="card-body p-0">
                 <form method="GET" action="{{ route('admin.schedule.requests.index') }}" class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-3">

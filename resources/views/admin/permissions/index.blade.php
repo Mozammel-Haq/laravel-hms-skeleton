@@ -1,14 +1,19 @@
 <x-app-layout>
-    <div class="content mx-2">
-        <h6 class="fs-14 mb-3">
-            <a href="{{ route('admin.roles.index') }}">
-                <i class="ti ti-chevron-left me-1"></i>Roles
-            </a>
-        </h6>
+    <div class="content px-2">
 
-        <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
-            <h4 class="fw-bold mb-0">Permissions for Role: {{ $role->name }}</h4>
 
+
+        <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom bg-primary-subtle text-primary">
+            <div>
+            <h4 class="fw-bold mb-2 text-primary">Permissions for Role: {{ $role->name }}</h4>
+                        <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.roles.index') }}" class="text-decoration-none">Roles</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ $role->name }}</li>
+                </ol>
+            </nav>
+            </div>
             <div class="dropdown">
                 <button class="btn bg-white border dropdown-toggle" data-bs-toggle="dropdown">
                     <span class="text-body me-1">Role :</span>
@@ -27,7 +32,7 @@
                 </ul>
             </div>
         </div>
-
+        <hr>
         <form method="POST" action="{{ route('admin.permissions.updateRolePermissions', $role->id) }}">
             @csrf
             @method('PUT')

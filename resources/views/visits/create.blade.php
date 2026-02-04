@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="card mx-2 p-2 mt-2">
         <div class="card-body">
-                <div class="page-header d-flex justify-content-between align-items-center">
+                <div class="page-header d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
         <div class="page-title">
             <h4>Start Visit</h4>
             <p class="text-muted">Create a new visit for a patient</p>
@@ -22,7 +22,7 @@
                         @endforeach
                     </select>
                 </div>
-                
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Discount</label>

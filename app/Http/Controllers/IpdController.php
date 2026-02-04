@@ -195,6 +195,16 @@ class IpdController extends Controller
             'tax' => 'nullable|numeric|min:0',
         ]);
 
+        // Check if patient is already admitted
+        $isAdmitted = Admission::where('patient_id', $request->patient_id)
+            ->where('status', 'admitted')
+            ->exists();
+
+        if ($isAdmitted) {
+            return back()->withErrors(['patient_id' => 'This patient is already currently admitted. Please discharge the patient before creating a new admission.'])
+                ->withInput();
+        }
+
         $patient = Patient::findOrFail($request->patient_id);
 
         $admission = $this->ipdService->admitPatient(

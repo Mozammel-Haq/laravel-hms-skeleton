@@ -5,10 +5,20 @@
 
         <div class="row">
             <div class="col-md-8 offset-md-2">
-                <div class="card mt-2">
-                    <div class="card-header">
-                        <h4 class="card-title">Request Schedule Exception</h4>
+                <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+                    <div>
+                        <h4 class="fw-bold mb-2 text-primary">Request Schedule Exception</h4>
+                        {{-- breadcrumb --}}
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}"
+                                    class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('doctor.schedule.exceptions.index') }}"
+                                    class="text-decoration-none">Schedule Exceptions</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">New Request</li>
+                        </ol>
                     </div>
+                </div>
+                <div class="card mt-2">
                     <div class="card-body">
                         <div class="page-header">
                             <div class="row">

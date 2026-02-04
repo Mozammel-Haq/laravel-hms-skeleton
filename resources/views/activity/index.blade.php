@@ -7,7 +7,7 @@
                     <h3 class="page-title mb-0">Activity Logs</h3>
                     <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">Dashboard</a>
                 </div>
-
+                <hr>
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('activity.index') }}" class="mb-4">
                     <div class="row g-2">

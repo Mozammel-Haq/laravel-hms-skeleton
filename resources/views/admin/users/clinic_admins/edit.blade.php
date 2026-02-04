@@ -1,12 +1,17 @@
 <x-app-layout>
     <div class="card mt-2 mx-2">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Edit Clinic Admin</h5>
-            <a href="{{ route('admin.clinic-admin-users.index') }}" class="btn btn-primary btn-sm">
-                Back
-            </a>
+        <div class="card-header px-3 py-3 border-bottom bg-primary-subtle text-primary">
+            <h4 class="fw-bold mb-0 text-primary">Edit Clinic Admin</h4>
+            {{-- breadcrumb --}}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.clinic-admin-users.index') }}">Clinic Admins</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Clinic Admin</li>
+                </ol>
+            </nav>
         </div>
-        <hr>
+
         <div class="card-body">
             <form method="POST" action="{{ route('admin.clinic-admin-users.update', $user) }}">
                 @csrf

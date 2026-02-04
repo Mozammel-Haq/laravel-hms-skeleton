@@ -53,7 +53,7 @@
                                     }
                                 @endphp
                                 @if ($sidebarClinicLogo)
-                                    <img src="{{ Storage::url($sidebarClinicLogo) }}" alt="Clinic Logo"
+                                    <img src="{{ asset("/") }}/{{ Storage::url($sidebarClinicLogo) }}" alt="Clinic Logo"
                                         class="w-100 h-100 object-fit-contain p-1">
                                 @else
                                     <img src="{{ asset('assets') }}/img/icons/trustcare.svg" alt="Default Logo"

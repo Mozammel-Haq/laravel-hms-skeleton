@@ -1,8 +1,16 @@
 <x-app-layout>
-
     <div class="card mt-3 p-3 mx-2">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Lab Test Catalog</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Lab Test Catalog</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Lab Test Catalog</li>
+                    </ol>
+                </nav>
+            </div>
             <a href="{{ route('lab.catalog.create') }}" class="btn btn-primary">
                 <i class="ti ti-plus me-1"></i> Add Lab Test
             </a>

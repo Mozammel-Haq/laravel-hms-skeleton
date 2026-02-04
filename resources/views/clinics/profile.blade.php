@@ -3,16 +3,25 @@
         $clinic = optional(auth()->user())->clinic;
     @endphp
 
-    <div class="container-fluid">
+    <div class="container-fluid m-1">
         @if($clinic)
-        <div class="card mt-2">
+                          <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+                        <h4 class="fw-bold mb-2 text-primary">Clinic Profile</h4>
+                        {{-- breadcrumb --}}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Clinic Profile</li>
+                            </ol>
+                        </nav>
+            </div>
+        <div class="card">
             <div class="card-body">
-                <h2 class="h4">Clinic Profile</h2>
-                <hr>
+
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="d-flex align-items-center">
                         @if ($clinic->logo_path)
-                            <img src="{{ Storage::url($clinic->logo_path) }}" class="rounded me-3 border" width="80"
+                            <img src="{{ asset("/") }}/{{ Storage::url($clinic->logo_path) }}" class="rounded me-3 border" width="80"
                                 height="80" style="object-fit: cover;">
                         @else
                             <div class="rounded me-3 bg-light border d-flex align-items-center justify-content-center text-secondary"
@@ -124,8 +133,8 @@
                     <div class="row g-3">
                         @foreach ($clinic->images as $image)
                             <div class="col-md-3 col-6">
-                                <a href="{{ Storage::url($image->image_path) }}" target="_blank">
-                                    <img src="{{ Storage::url($image->image_path) }}"
+                                <a href="{{ asset("/") }}/{{ Storage::url($image->image_path) }}" target="_blank">
+                                    <img src="{{ asset("/") }}/{{ Storage::url($image->image_path) }}"
                                         class="img-fluid rounded shadow-sm w-100 border"
                                         style="height: 200px; object-fit: cover;">
                                 </a>

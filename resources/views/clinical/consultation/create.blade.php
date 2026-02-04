@@ -1,9 +1,18 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-3">
-        <div class="d-flex justify-content-between align-items-center mb-4 card-body">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary">
             <div>
-                <h3 class="page-title mb-0">New Consultation</h3>
-                <div class="text-muted">
+                <div>
+                <h4 class="mb-2 fw-bold text-primary">New Consultation</h4>
+                </div>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('appointments.index') }}">Appointments</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">New Consultation</li>
+                    </ol>
+                </nav>
+                <div class="text-muted mt-2">
                     Patient: {{ $patient->name }} |
                     Appointment: {{ $appointment->appointment_date }}
                 </div>
@@ -12,7 +21,6 @@
                 <i class="ti ti-arrow-left me-1"></i> Back
             </a>
         </div>
-        <hr>
 
         <form action="{{ route('clinical.consultations.store', $appointment) }}" method="POST">
             @csrf

@@ -1,13 +1,13 @@
 <x-app-layout>
 
+    <div class="mx-1 d-flex justify-content-between align-items-center my-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
+        <h3 class="page-title mb-0">Pharmacy Sales</h3>
+        <a href="{{ route('pharmacy.create') }}" class="btn btn-primary">
+            <i class="ti ti-shopping-cart-plus me-1"></i> New Sale (POS)
+        </a>
+    </div>
 
-    <div class="card mt-2 mx-2 p-3">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="page-title mb-0">Pharmacy Sales</h3>
-            <a href="{{ route('pharmacy.create') }}" class="btn btn-primary">
-                <i class="ti ti-shopping-cart-plus me-1"></i> New Sale (POS)
-            </a>
-        </div>
+    <div class="card p-3 mx-1">
 
         <!-- Filter Form -->
         <form method="GET" action="{{ route('pharmacy.index') }}" class="mb-4">

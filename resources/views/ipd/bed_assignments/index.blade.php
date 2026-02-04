@@ -1,7 +1,23 @@
 <x-app-layout>
+    <div class="container-fluid py-4 px-2">
+        <!-- Header -->
+        <div class="row align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 mx-2">
+            <div class="col ">
+                <h4 class="mb-1 fw-bold text-dark">Bed Assignments</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Bed Assignments</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row px-2 mt-2">
+            <div class="col-lg-12">
+                <div class="card  p-3">
+                    <h5 class="mb-3">Bed Assignments</h5>
 
-    <div class="card m-2 p-3">
-        <h5 class="mb-3">Bed Assignments</h5>
+    <div class="card p-2">
 
         <!-- Filter Form -->
         <form method="GET" action="{{ route('ipd.bed_assignments.index') }}" class="mb-4">

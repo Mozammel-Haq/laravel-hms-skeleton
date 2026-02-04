@@ -1,12 +1,16 @@
 <x-app-layout>
 
-
-    <div class="card mt-2 mx-2">
-        <div class="card-body">
-            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div class="container py-4">
+                    <div class=" d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
                 <div class="page-title">
                     <h4>Patients</h4>
-                    <p class="text-muted">Manage patient records</p>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Patients</li>
+                        </ol>
+                    </nav>
                 </div>
                 @can('create', \App\Models\Patient::class)
                     <div class="action-btn">
@@ -16,6 +20,8 @@
                     </div>
                 @endcan
             </div>
+    <div class="card">
+        <div class="card-body">
             <!-- Filters -->
             <form method="GET" action="{{ route('patients.index') }}" class="mb-4">
                 <div class="row g-2">

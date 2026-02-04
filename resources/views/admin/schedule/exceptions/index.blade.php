@@ -1,15 +1,23 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid px-2 mt-2">
+        <div class="px-3 py-3 border-bottom bg-primary-subtle text-primary">
+            <div>
+                <h4 class="fw-bold mb-2 text-primary">Schedule Exception Requests</h4>
+            {{-- breadcrumb --}}
+                                <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Schedule Exception Requests</li>
+                        </ol>
+                    </nav>
+            </div>
 
+        </div>
+        <hr>
 
-        <div class="card border-0 mt-2 mx-2 p-3">
+        <div class="card border-0 mt-2  p-3">
             <div class="card-body p-0">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h3 class="page-title mb-0 text-primary">Schedule Exception Requests</h3>
-                        <div class="text-muted text-sm">Review and approve doctor schedule changes</div>
-                    </div>
-                </div>
+
 
                 <!-- Filters -->
                 <form method="GET" action="{{ route('admin.schedule.exceptions.index') }}" class="mb-4">

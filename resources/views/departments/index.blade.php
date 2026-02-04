@@ -7,11 +7,14 @@
     @endif --}}
 
     <div class="card mt-2 mx-2">
-        <div class="card-body">
-            <div class="page-header d-flex justify-content-between align-items-center mb-4">
-                <div class="page-title">
-                    <h4>Departments</h4>
-                    <p class="text-muted">Configure clinical departments for the clinic</p>
+                    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+                <div>
+                    <h4 class="fw-bold mb-2 text-primary">Departments</h4>
+                    {{-- breadcrumb --}}
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Departments</li>
+                    </ol>
                 </div>
                 <div class="d-flex gap-2">
                     @can('create', \App\Models\Department::class)
@@ -23,6 +26,8 @@
                     @endcan
                 </div>
             </div>
+        <div class="card-body">
+
             <!-- Filters -->
             <form method="GET" action="{{ route('departments.index') }}" class="mb-4">
                 <div class="row g-2">

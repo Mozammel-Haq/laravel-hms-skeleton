@@ -6,7 +6,7 @@
             <div class="col-lg-12">
                 <div class="card border-0 mt-2">
                     <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
                             <h3 class="page-title mb-0">Add Staff Member</h3>
                             <a href="{{ route('staff.index') }}" class="btn btn-outline-primary">
                                 <i class="ti ti-arrow-left me-1"></i> Back to List

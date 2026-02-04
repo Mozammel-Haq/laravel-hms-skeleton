@@ -1,15 +1,17 @@
 <x-app-layout>
-    <div class="container-fluid">
-
-        <div class="card m-2">
+    <div class="container-fluid  mt-2 mx-1">
+                        <div class="px-4 pt-4 border-bottom bg-primary-subtle text-primary">
+                            <h4 class="page-title mb-2">Payments</h4>
+                            {{-- breadcrumb --}}
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Payments</li>
+                                </ol>
+                            </nav>
+                        </div>
+        <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="page-title mb-0">Payments</h3>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('billing.index') }}" class="btn btn-outline-primary">Billing</a>
-                    </div>
-                </div>
-                <hr>
 
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('billing.payments.index') }}" class="mb-4">

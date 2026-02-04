@@ -1,14 +1,23 @@
 <x-app-layout>
-    <div class="content pb-0">
+    <div class="content">
 
-        <div class="card mt-2 mx-2 px-2">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">All Clinics</h5>
+        <div class="card">
+            <div class="card-body d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-3 pb-1">
+                <div>
+                <h4 class="fw-bold mb-2 text-primary">All Clinics</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">All Clinics</li>
+                    </ol>
+                </nav>
+                </div>
                 <a href="{{ route('clinics.create') }}" class="btn btn-primary">Create Clinic</a>
             </div>
 
             <!-- Filter Form -->
-            <form method="GET" action="{{ route('clinics.index') }}" class="mb-4 mt-3">
+            <form method="GET" action="{{ route('clinics.index') }}" class="mb-4 mt-3 px-2">
                 <div class="row g-2">
                     <div class="col-md-3">
                         <input type="text" name="search" class="form-control"
@@ -48,7 +57,7 @@
                 </div>
             </form>
             <hr>
-            <div class="table">
+            <div class="table px-2">
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -66,7 +75,7 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         @if ($clinic->logo_path)
-                                            <img src="{{ Storage::url($clinic->logo_path) }}"
+                                            <img src="{{ asset("/") }}/{{ Storage::url($clinic->logo_path) }}"
                                                 class="rounded-circle border" width="32" height="32"
                                                 style="object-fit: cover;">
                                         @else

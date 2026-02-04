@@ -1,19 +1,20 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid m-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Add New Batch</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('pharmacy.inventory.index') }}">Inventory</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Add New Batch</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
 
-
-        <div class="card mt-2 mx-2">
+        <div class="card p-2 mt-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h4 class="mb-1">Add New Batch</h4>
-                        <p class="text-muted mb-0">Register new stock batch for medicines</p>
-                    </div>
-                    <a href="{{ route('pharmacy.inventory.index') }}" class="btn btn-outline-primary">
-                        <i class="ti ti-arrow-left me-1"></i> Back to Inventory
-                    </a>
-                </div>
-                <hr>
                 <form action="{{ route('pharmacy.inventory.store') }}" method="POST">
                     @csrf
 

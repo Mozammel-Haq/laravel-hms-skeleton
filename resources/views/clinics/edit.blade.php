@@ -1,22 +1,20 @@
 <x-app-layout>
-    <div class="content pb-0">
+    <div class="content">
+                  <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+                        <h4 class="fw-bold mb-2 text-primary">Edit Clinic</h4>
+                        {{-- breadcrumb --}}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('clinics.index') }}">Clinics</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Edit Clinic</li>
+                            </ol>
+                        </nav>
+            </div>
 
 
-
-        <div class="card mt-2 mx-2">
+        <div class="card">
             <div class="card-body">
-
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-                <h2 class="h4">Edit Clinic</h2>
-                <hr>
                 <form method="POST" action="{{ route('clinics.update', $clinic) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
@@ -153,7 +151,7 @@
                                 <div class="border rounded p-2"
                                     style="width: 100px; height: 100px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
                                     @if ($clinic->logo_path)
-                                        <img id="logoPreview" src="{{ Storage::url($clinic->logo_path) }}"
+                                        <img id="logoPreview" src="{{ asset("/") }}/{{ Storage::url($clinic->logo_path) }}"
                                             alt="Logo Preview" style="max-width: 100%; max-height: 100%;">
                                         <span id="logoPlaceholder" class="text-muted small" style="display: none;">No
                                             Logo</span>
@@ -180,7 +178,7 @@
                                     <div class="col-md-2 col-4 gallery-item" data-id="{{ $image->id }}">
                                         <div class="position-relative border rounded overflow-hidden group"
                                             style="height: 100px;">
-                                            <img src="{{ Storage::url($image->image_path) }}"
+                                            <img src="{{ asset("/") }}/{{ Storage::url($image->image_path) }}"
                                                 class="w-100 h-100 object-fit-cover">
 
                                             <!-- Controls Overlay -->

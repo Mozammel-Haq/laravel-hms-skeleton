@@ -1,13 +1,12 @@
 <x-app-layout>
-    <div class="container-fluid">
-
-        <div class="card mt-2 mx-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="container-fluid m-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 py-3 pt-3">
                     <h3 class="page-title mb-0">Digital Payments</h3>
                     <a href="{{ route('billing.index') }}" class="btn btn-outline-primary">Billing</a>
                 </div>
-                <hr>
+        <div class="card">
+            <div class="card-body">
+
                 <form class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Invoice</label>

@@ -43,7 +43,7 @@
                 <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
                     <div class="invoice-logo">
                         @if (data_get($prescription, 'clinic.logo_path'))
-                            <img src="{{ Storage::url($prescription->clinic->logo_path) }}" alt="Logo">
+                            <img src="{{ asset("/") }}/{{ Storage::url($prescription->clinic->logo_path) }}" alt="Logo">
                         @else
                             <h3>{{ data_get($prescription, 'clinic.name', 'Clinic') }}</h3>
                         @endif

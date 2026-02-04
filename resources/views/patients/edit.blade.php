@@ -2,14 +2,20 @@
     <div class="container py-4">
 
         <!-- Page Header -->
-
-
-        <div class="card mt-3 mx-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Edit Patient</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('patients.index') }}">Patients</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Edit Patient</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="card mt-3">
             <div class="card-body">
-                <div class="mb-4">
-                    <h4 class="fw-semibold">Edit Patient</h4>
-                </div>
-                <hr>
                 <form method="POST" action="{{ route('patients.update', $patient) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')

@@ -1,13 +1,23 @@
 <x-app-layout>
-
-    <div class="card mt-2 mx-2 p-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Wards</h5>
-            <a href="{{ route('ipd.wards.create') }}" class="btn btn-primary">Add Ward</a>
+    <div class="container-fluid mx-2 my-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Wards</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Wards</li>
+                    </ol>
+                </nav>
+            </div>
+            <div>
+                <a href="{{ route('ipd.wards.create') }}" class="btn btn-primary">Add Ward</a>
+            </div>
         </div>
 
         <!-- Filter Form -->
-        <form method="GET" action="{{ route('ipd.wards.index') }}" class="mb-4">
+        <form method="GET" action="{{ route('ipd.wards.index') }}" class="my-4">
             <div class="row g-2">
                 <div class="col-md-3">
                     <input type="text" name="search" class="form-control" placeholder="Search Ward Name..."

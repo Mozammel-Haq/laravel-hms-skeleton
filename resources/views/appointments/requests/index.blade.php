@@ -1,14 +1,20 @@
 <x-app-layout>
-    <div class="container-fluid">
-        <div class="card m-2">
-            <div class="card-body">
-                <div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div class="container-fluid py-1 mx-1">
+                        <div class="page-header d-flex justify-content-between align-items-center px-3 py-3 border-bottom bg-primary-subtle text-primary">
                     <div class="page-title">
-                        <h4>Appointment Requests</h4>
-                        <p class="text-muted">Manage cancellation and rescheduling requests</p>
+                        <h4 class="fw-bold mb-2 text-primary">Appointment Requests</h4>
+                        {{-- breadcrumb --}}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb breadcrumb-dots mb-0">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Appointment Requests</li>
+                            </ol>
+                        </nav>
                     </div>
                 </div>
-
+                <hr>
+        <div class="card">
+            <div class="card-body">
 
                 <div class="table">
                     <table class="table table-hover align-middle">

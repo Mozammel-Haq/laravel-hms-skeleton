@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container-fluid" x-data="scheduleCalendar()" x-init="init();
     view = '{{ request('view', 'calendar') }}'">
-        <div class="d-flex justify-content-between align-items-center my-3 px-3">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-4">
             <h3 class="page-title mb-0">Doctor Schedules</h3>
             <div class="d-flex gap-2">
                 <div class="btn-group">

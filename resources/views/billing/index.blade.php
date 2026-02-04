@@ -1,17 +1,20 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid  mt-2 mx-1">
+                        <div class="px-4 pt-4 border-bottom bg-primary-subtle text-primary">
+                            <h4 class="page-title mb-2">Invoices</h4>
+                            {{-- breadcrumb --}}
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Invoices</li>
+                                </ol>
+                            </nav>
+                        </div>
 
-        <div class="card mt-3 mx-2">
+
+
+        <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="page-title mb-0">Invoices</h3>
-                    <div class="d-flex gap-2">
-
-                        @can('create', \App\Models\Invoice::class)
-                            <a href="{{ route('billing.create') }}" class="btn btn-primary">Create Invoice</a>
-                        @endcan
-                    </div>
-                </div>
 
                 <!-- Filters -->
                 <form method="GET" action="{{ route('billing.index') }}" class="mb-4">

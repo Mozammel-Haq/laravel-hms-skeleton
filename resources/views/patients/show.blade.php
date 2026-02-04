@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="mb-3 mt-2 d-flex justify-content-between align-items-center card-body">
+    <div class="mb-3 mt-2 d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3">
         <h6 class="fw-bold mb-0 d-flex align-items-center">
             <a href="{{ route('patients.index') }}" class="text-dark">
                 <i class="ti ti-chevron-left me-1"></i> Patients

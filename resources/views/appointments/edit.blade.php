@@ -1,15 +1,17 @@
 <x-app-layout>
-    <div class="container-fluid">
-        <div class="card border-0 mt-2 mx-2">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="container-fluid  mt-2 mx-1">
+                        <div class="px-4 py-3 border-bottom bg-primary-subtle text-primary">
                     <h4 class="page-title mb-0">Edit Appointment</h4>
-                    <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-outline-primary">
-                        <i class="ti ti-arrow-left me-1"></i> Back
-                    </a>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ route('appointments.index') }}">Appointments</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Edit Appointment</li>
+                        </ol>
+                    </nav>
                 </div>
-                <hr>
-
+        <div class="card border-0">
+            <div class="card-body p-4">
                 <form method="POST" action="{{ route('appointments.update', $appointment) }}">
                     @csrf
                     @method('PUT')
@@ -188,7 +190,7 @@
                         // API returns array or { slots: [] } depending on controller
                         // AppointmentController returns direct array
                         const slots = Array.isArray(data) ? data : (data.slots || []);
-                        
+
                         if (slots.length === 0) {
                             noSlotsMsg.classList.remove('d-none');
                         } else {

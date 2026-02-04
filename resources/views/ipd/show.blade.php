@@ -1,25 +1,30 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
-        <div class="d-flex justify-content-between align-items-center mb-4 mt-3">
-            <div>
-                <h4 class="mb-1">Admission Details</h4>
-                <p class="text-muted mb-0">Patient admission record and status</p>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class=" mx-2 row align-items-center mb-4 bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div class="col">
+                <h4 class="mb-1 fw-bold text-dark">Admission Details</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}" class="text-decoration-none">IPD</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Admission #{{ $admission->id }}</li>
+                    </ol>
+                </nav>
             </div>
-            <div class="d-flex gap-2">
+            <div class="col-auto d-flex gap-2">
                 <a href="{{ route('ipd.index') }}" class="btn btn-outline-primary">
-                    <i class="ti ti-arrow-left me-1"></i> Back to IPD
+                    <i class="ti ti-arrow-left me-1"></i> Back
                 </a>
                 @if ($admission->status === 'admitted')
-                    <a href="{{ route('ipd.assign-bed', $admission) }}" class="btn btn-success">
-                        <i class="ti ti-bed me-1"></i> Assign/Transfer Bed
+                    <a href="{{ route('ipd.assign-bed', $admission) }}" class="btn btn-primary">
+                        <i class="ti ti-bed me-1"></i> Transfer Bed
                     </a>
 
                     @if (auth()->user()->hasRole('Doctor'))
                         @if (!$admission->discharge_recommended)
-                            <form action="{{ route('ipd.recommend-discharge', $admission) }}" method="POST"
-                                class="d-inline">
+                            <form action="{{ route('ipd.recommend-discharge', $admission) }}" method="POST" class="d-inline">
                                 @csrf
-                                <button type="submit" class="btn btn-warning">
+                                <button type="submit" class="btn btn-warning text-white">
                                     <i class="ti ti-check me-1"></i> Recommend Discharge
                                 </button>
                             </form>
@@ -39,301 +44,253 @@
             </div>
         </div>
 
-        <div class="row g-4">
-            <!-- Patient & Admission Info -->
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Patient Information</h5>
-                        @if ($admission->patient)
-                            <a href="{{ route('patients.show', $admission->patient) }}"
-                                class="d-flex align-items-center mb-3 text-decoration-none text-body">
-                                <div class="avatar avatar-lg me-3">
-                                    @if ($admission->patient->profile_photo)
-                                        <img src="{{ asset($admission->patient->profile_photo) }}"
-                                            alt="{{ $admission->patient->name }}"
-                                            class="rounded-circle w-100 h-100 object-fit-cover">
-                                    @else
-                                        <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-3">
-                                            {{ substr($admission->patient->name, 0, 1) }}
-                                        </span>
-                                    @endif
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">{{ $admission->patient->name }}</h6>
-                                    <div class="text-muted small">{{ $admission->patient->patient_code }}</div>
-                                </div>
+        <div class="row g-4 mx-0">
+            <!-- Left Column: Patient Profile -->
+            <div class="col-lg-3">
+                <div class="card border border-secondary-subtle shadow-sm mb-4">
+                    <div class="card-body text-center p-4">
+                        <div class="avatar avatar-xl mx-auto mb-3">
+                            @if ($admission->patient && $admission->patient->profile_photo)
+                                <img src="{{ asset($admission->patient->profile_photo) }}"
+                                    alt="{{ $admission->patient->name }}"
+                                    class="rounded-circle w-100 h-100 object-fit-cover border">
+                            @else
+                                <span class="avatar-title rounded-circle bg-primary-subtle text-primary fs-1">
+                                    {{ $admission->patient ? substr($admission->patient->name, 0, 1) : '?' }}
+                                </span>
+                            @endif
+                        </div>
+                        @if($admission->patient)
+                            <h5 class="mb-1 fw-bold text-dark">{{ $admission->patient->name }}</h5>
+                            <p class="text-muted small mb-3">{{ $admission->patient->patient_code }}</p>
+                            <a href="{{ route('patients.show', $admission->patient) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                View Profile
                             </a>
                         @else
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="avatar avatar-lg me-3">
-                                    <span class="avatar-title rounded-circle bg-secondary-subtle text-secondary fs-3">
-                                        ?
-                                    </span>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0">Unknown Patient</h6>
-                                    <div class="text-muted small">N/A</div>
-                                </div>
-                            </div>
+                            <h5 class="mb-1 fw-bold text-dark">Unknown Patient</h5>
+                            <p class="text-muted small mb-3">N/A</p>
                         @endif
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Gender</span>
-                                <span class="fw-semibold">{{ ucfirst($admission->patient->gender) }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Phone</span>
-                                <span class="fw-semibold">{{ $admission->patient->phone }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Blood Group</span>
-                                <span class="fw-semibold">{{ $admission->patient->blood_group ?? 'N/A' }}</span>
-                            </li>
-                        </ul>
+                    </div>
+                    <div class="card-footer bg-white border-top p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted small text-uppercase fw-bold">Gender</span>
+                                <span class="fw-medium text-dark">{{ $admission->patient ? ucfirst($admission->patient->gender) : 'N/A' }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted small text-uppercase fw-bold">Phone</span>
+                                <span class="fw-medium text-dark">{{ $admission->patient->phone ?? 'N/A' }}</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-4">
+                                <span class="text-muted small text-uppercase fw-bold">Blood</span>
+                                <span class="fw-medium text-dark">{{ $admission->patient->blood_group ?? 'N/A' }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Admission Info</h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Status</span>
-                                <span
-                                    class="badge bg-{{ $admission->status === 'admitted' ? 'success' : 'secondary' }}">
-                                    {{ ucfirst($admission->status) }}
-                                </span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Admission Date</span>
-                                <span class="fw-semibold">{{ $admission->admission_date }}</span>
-                            </li>
-                            @if ($admission->discharge_date)
-                                <li class="list-group-item d-flex justify-content-between px-0">
-                                    <span class="text-muted">Discharge Date</span>
-                                    <span class="fw-semibold">{{ $admission->discharge_date }}</span>
-                                </li>
-                            @endif
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span class="text-muted">Attending Doctor</span>
-                                <span class="fw-semibold">Dr.
-                                    {{ $admission->doctor?->user?->name ?? 'Deleted Doctor' }}</span>
-                            </li>
-                        </ul>
+                <!-- Status Card -->
+                <div class="card border border-secondary-subtle shadow-sm">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="mb-0 fw-bold text-dark">Current Status</h6>
                     </div>
-                </div>
-            </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="text-muted">Admission Status</span>
+                            <span class="badge rounded-pill bg-{{ $admission->status === 'admitted' ? 'success' : 'secondary' }} px-3 py-2">
+                                {{ ucfirst($admission->status) }}
+                            </span>
+                        </div>
 
-            <!-- Main Content -->
-            <div class="col-md-8">
-                <!-- Current Bed Status -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-transparent">
-                        <h5 class="card-title mb-0">Bed Assignment</h5>
-                    </div>
-                    <div class="card-body">
                         @php
                             $currentAssignment = $admission->bedAssignments->whereNull('released_at')->last();
                         @endphp
 
                         @if ($currentAssignment)
-                            <div class="alert alert-success d-flex align-items-center mb-0">
-                                <i class="ti ti-bed fs-2 me-3"></i>
-                                <div>
-                                    <h5 class="alert-heading mb-1">Assigned to Bed:
-                                        {{ $currentAssignment->bed->bed_number }}</h5>
-                                    <p class="mb-0">
-                                        Room: {{ $currentAssignment->bed->room->room_number }}
-                                        ({{ $currentAssignment->bed->room->room_type }})<br>
-                                        Ward: {{ $currentAssignment->bed->room->ward->name }}
-                                    </p>
+                            <div class="p-3 bg-light rounded border border-light text-center mt-3">
+                                <div class="text-muted small text-uppercase fw-bold mb-1">Assigned Bed</div>
+                                <h4 class="mb-0 fw-bold text-primary">{{ $currentAssignment->bed->bed_number }}</h4>
+                                <div class="small text-muted mt-1">
+                                    {{ $currentAssignment->bed->room->room_number }} • {{ $currentAssignment->bed->room->ward->name }}
                                 </div>
                             </div>
                         @else
                             @if ($admission->status === 'admitted')
-                                <div class="alert alert-warning d-flex align-items-center mb-0">
-                                    <i class="ti ti-alert-circle fs-2 me-3"></i>
-                                    <div>
-                                        <h5 class="alert-heading mb-1">No Bed Assigned</h5>
-                                        <p class="mb-0">This patient is currently admitted but not assigned to a bed.
-                                            <a href="{{ route('ipd.assign-bed', $admission) }}"
-                                                class="alert-link">Assign a bed now</a>.
-                                        </p>
-                                    </div>
-                                </div>
-                            @else
-                                <div class="alert alert-secondary mb-0">
-                                    Patient discharged.
+                                <div class="alert alert-warning mb-0 border-0 d-flex align-items-center small">
+                                    <i class="ti ti-alert-triangle me-2 fs-5"></i>
+                                    <div>No bed assigned.</div>
                                 </div>
                             @endif
                         @endif
                     </div>
                 </div>
+            </div>
 
-                <!-- Notes -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-transparent">
-                        <h5 class="card-title mb-0">Admission Notes</h5>
+            <!-- Right Column: Details -->
+            <div class="col-lg-9">
+                <!-- Admission Info Grid -->
+                <div class="card border border-secondary-subtle shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="mb-0 fw-bold text-dark">Admission Information</h6>
                     </div>
-                    <div class="card-body">
-                        <p class="card-text">{{ $admission->admission_reason ?? 'No notes provided.' }}</p>
-                    </div>
-                </div>
-
-                <!-- Bed History -->
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-transparent">
-                        <h5 class="card-title mb-0">Bed History</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Bed / Room / Ward</th>
-                                        <th>Assigned At</th>
-                                        <th>Released At</th>
-                                        <th>Duration</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($admission->bedAssignments->sortByDesc('assigned_at') as $assignment)
-                                        <tr>
-                                            <td>
-                                                <div class="fw-semibold">Bed {{ $assignment->bed->bed_number }}</div>
-                                                <div class="small text-muted">{{ $assignment->bed->room->room_number }}
-                                                    - {{ $assignment->bed->room->ward->name }}</div>
-                                            </td>
-                                            <td>{{ $assignment->assigned_at }}</td>
-                                            <td>
-                                                @if ($assignment->released_at)
-                                                    {{ $assignment->released_at }}
-                                                @else
-                                                    <span class="badge bg-success-subtle text-success">Current</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($assignment->released_at)
-                                                    {{ $assignment->assigned_at->diffForHumans($assignment->released_at, true) }}
-                                                @else
-                                                    {{ $assignment->assigned_at->diffForHumans(null, true) }}
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center text-muted">No bed assignments
-                                                recorded.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <div class="col-md-6 p-4 border-bottom border-end">
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">Attending Doctor</label>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xs me-2 rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center">
+                                        <i class="ti ti-stethoscope fs-6"></i>
+                                    </div>
+                                    <span class="fw-medium text-dark">Dr. {{ $admission->doctor?->user?->name ?? 'Deleted Doctor' }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 p-4 border-bottom">
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">Admission Date</label>
+                                <span class="fw-medium text-dark fs-6">{{ $admission->admission_date }}</span>
+                            </div>
+                            <div class="col-md-6 p-4 border-end">
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">Discharge Date</label>
+                                <span class="fw-medium text-dark">{{ $admission->discharge_date ?? 'Not Discharged' }}</span>
+                            </div>
+                            <div class="col-md-6 p-4">
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">Reason for Admission</label>
+                                <span class="fw-medium text-dark">{{ $admission->admission_reason ?? 'N/A' }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Doctor Rounds -->
-                <div class="card border-0 shadow-sm mt-4">
-                    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Doctor Rounds</h5>
-                        @if ($admission->status === 'admitted')
-                            <a href="{{ route('ipd.rounds.create', $admission->id) }}"
-                                class="btn btn-sm btn-outline-primary">
-                                <i class="ti ti-plus me-1"></i> Add Round
-                            </a>
-                        @endif
+                <!-- Bed History Table -->
+                <div class="card border border-secondary-subtle shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-dark">Bed Assignment History</h6>
                     </div>
-                    <div class="card-body">
-                        <div class="table">
-                            <table class="table table-hover">
-                                <thead class="table-light">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom">Bed / Location</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom">Assigned</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom">Released</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom">Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($admission->bedAssignments->sortByDesc('assigned_at') as $assignment)
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Doctor</th>
-                                        <th>Notes</th>
-                                        <th class="text-end">Actions</th>
+                                        <td class="px-4 py-3">
+                                            <div class="fw-bold text-dark">{{ $assignment->bed->bed_number }}</div>
+                                            <div class="small text-muted">{{ $assignment->bed->room->room_number }} • {{ $assignment->bed->room->ward->name }}</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-secondary">{{ $assignment->assigned_at->format('M d, Y H:i') }}</td>
+                                        <td class="px-4 py-3">
+                                            @if ($assignment->released_at)
+                                                <span class="text-secondary">{{ $assignment->released_at->format('M d, Y H:i') }}</span>
+                                            @else
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle">Current</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-secondary">
+                                            @if ($assignment->released_at)
+                                                {{ $assignment->assigned_at->diffForHumans($assignment->released_at, true) }}
+                                            @else
+                                                {{ $assignment->assigned_at->diffForHumans(null, true) }}
+                                            @endif
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($admission->rounds as $round)
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">No bed assignments recorded.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Rounds & Vitals Split -->
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card border border-secondary-subtle shadow-sm h-100">
+                            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 fw-bold text-dark">Doctor Rounds</h6>
+                                @if ($admission->status === 'admitted')
+                                    <a href="{{ route('ipd.rounds.create', $admission->id) }}" class="btn btn-sm btn-light border">
+                                        <i class="ti ti-plus"></i> Add
+                                    </a>
+                                @endif
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
                                         <tr>
-                                            <td>{{ $round->round_date }}</td>
-                                            <td>{{ $round->doctor?->user?->name ?? 'Unknown' }}</td>
-                                            <td>{{ $round->notes }}</td>
-                                            <td class="text-end">
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-light btn-icon" type="button"
-                                                        data-bs-toggle="dropdown">
-                                                        <i class="ti ti-dots-vertical"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <a class="dropdown-item"
-                                                                href="{{ route('vitals.record', ['admission_id' => $admission->id, 'inpatient_round_id' => $round->id]) }}">
-                                                                <i class="ti ti-heart-rate-monitor me-1"></i> Record
-                                                                Vitals
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </td>
+                                            <th class="px-3 py-2 text-uppercase small fw-bold text-muted">Date</th>
+                                            <th class="px-3 py-2 text-uppercase small fw-bold text-muted">Doctor</th>
+                                            <th class="px-3 py-2 text-uppercase small fw-bold text-muted text-end">Action</th>
                                         </tr>
-                                    @empty
+                                    </thead>
+                                    <tbody>
+                                        @forelse($admission->rounds as $round)
+                                            <tr>
+                                                <td class="px-3 py-2 small">{{ $round->round_date }}</td>
+                                                <td class="px-3 py-2 small fw-medium">{{ $round->doctor?->user?->name ?? 'Unknown' }}</td>
+                                                <td class="px-3 py-2 text-end">
+                                                    <a href="{{ route('vitals.record', ['admission_id' => $admission->id, 'inpatient_round_id' => $round->id]) }}"
+                                                       class="btn btn-sm btn-icon btn-ghost-primary"
+                                                       title="Record Vitals">
+                                                        <i class="ti ti-heart-rate-monitor"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center py-3 text-muted small">No rounds recorded.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card border border-secondary-subtle shadow-sm h-100">
+                            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 fw-bold text-dark">Recent Vitals</h6>
+                                @if ($admission->status === 'admitted')
+                                    <a href="{{ route('vitals.record', ['admission_id' => $admission->id]) }}" class="btn btn-sm btn-light border">
+                                        <i class="ti ti-plus"></i> Add
+                                    </a>
+                                @endif
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="bg-light">
                                         <tr>
-                                            <td colspan="4" class="text-center text-muted">No rounds recorded.</td>
+                                            <th class="px-3 py-2 text-uppercase small fw-bold text-muted">Time</th>
+                                            <th class="px-3 py-2 text-uppercase small fw-bold text-muted">BP</th>
+                                            <th class="px-3 py-2 text-uppercase small fw-bold text-muted">Temp</th>
                                         </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($admission->vitals->take(5) as $vital)
+                                            <tr>
+                                                <td class="px-3 py-2 small">{{ $vital->recorded_at?->format('H:i d/m') }}</td>
+                                                <td class="px-3 py-2 small fw-medium">{{ $vital->blood_pressure }}</td>
+                                                <td class="px-3 py-2 small fw-medium">{{ $vital->temperature }}°</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center py-3 text-muted small">No vitals recorded.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Vitals -->
-                <div class="card border-0 shadow-sm mt-4">
-                    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Vitals</h5>
-                        @if ($admission->status === 'admitted')
-                            <a href="{{ route('vitals.record', ['admission_id' => $admission->id]) }}"
-                                class="btn btn-sm btn-outline-success">
-                                <i class="ti ti-heart-rate-monitor me-1"></i> Record Vitals
-                            </a>
-                        @endif
-                    </div>
-                    <div class="card-body">
-                        <div class="table">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Temperature</th>
-                                        <th>Pulse</th>
-                                        <th>BP</th>
-                                        <th>Resp Rate</th>
-                                        <th>Recorded By</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($admission->vitals as $vital)
-                                        <tr>
-                                            <td>{{ $vital->recorded_at?->format('d M Y H:i') }}</td>
-                                            <td>{{ $vital->temperature }}</td>
-                                            <td>{{ $vital->heart_rate }}</td>
-                                            <td>{{ $vital->blood_pressure }}</td>
-                                            <td>{{ $vital->respiratory_rate }}</td>
-                                            <td>{{ $vital->recorder?->name ?? 'Staff' }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center text-muted">No vitals recorded.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

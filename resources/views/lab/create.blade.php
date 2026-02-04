@@ -1,12 +1,19 @@
 <x-app-layout>
-    <div class="container-fluid">
-
-        <div class="card mt-3 mx-2">
+    <div class="container-fluid m-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Order Lab Test</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('lab.index') }}">Lab Tests</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Order Lab Test</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="card p-3">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="page-title mb-0">Order Lab Test</h3>
-                    <a href="{{ route('lab.index') }}" class="btn btn-outline-primary">Back</a>
-                </div>
                 <hr>
                 <form method="post" action="{{ route('lab.store') }}">
                     @csrf

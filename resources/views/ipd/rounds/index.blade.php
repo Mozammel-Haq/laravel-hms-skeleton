@@ -1,13 +1,20 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Rounds Management</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Rounds Management</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
 
-        <div class="card border-0 mt-2">
+        <div class="card border-0">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="page-title mb-0">Rounds Management</h3>
-                    <a href="{{ route('ipd.index') }}" class="btn btn-outline-primary">IPD Dashboard</a>
-                </div>
-                <hr>
 
                 <form method="GET" action="{{ route('ipd.rounds.index') }}" class="mb-4">
                     <div class="row g-2">

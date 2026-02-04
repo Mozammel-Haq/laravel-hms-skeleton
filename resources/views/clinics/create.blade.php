@@ -1,19 +1,18 @@
 <x-app-layout>
-    <div class="content pb-0">
-
-        <div class="card mt-2 mx-2">
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+    <div class="content">
+          <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+                        <h4 class="fw-bold mb-2 text-primary">Create Clinic</h4>
+                        {{-- breadcrumb --}}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('clinics.index') }}">Clinics</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Create Clinic</li>
+                            </ol>
+                        </nav>
+            </div>
+        <div class="card pt-0">
             <div class="card-body">
-                <h2 class="h4">Create Clinic</h2>
-                <hr>
                 <form method="POST" action="{{ route('clinics.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="row g-3">

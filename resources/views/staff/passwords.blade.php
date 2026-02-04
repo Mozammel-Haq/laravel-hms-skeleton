@@ -3,7 +3,7 @@
 
         <div class="card mt-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
                     <h3 class="page-title mb-0">Reset Passwords</h3>
                     <a href="{{ route('staff.index') }}" class="btn btn-outline-primary">Manage Staff</a>
                 </div>

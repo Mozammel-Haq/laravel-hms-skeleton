@@ -125,66 +125,94 @@
         </style>
     @endpush
 
-    <div class="container-fluid mx-2 no-print">
+    <div class="container-fluid py-1 mx-2 no-print">
+        <!-- Breadcrumbs & Header -->
+        <div class="d-flex align-items-center justify-content-between px-4 py-3 bg-primary-subtle text-primary">
+            <div>
+                <h4 class="mb-1 fw-bold text-dark">Invoice Details</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('billing.index') }}" class="text-decoration-none">Billing</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ $invoice->invoice_number }}</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-auto d-flex gap-2">
+                <button onclick="window.print()" class="btn btn-secondary">
+                    <i class="ti ti-printer me-1"></i> Print Receipt
+                </button>
+                <a href="{{ route('billing.index') }}" class="btn btn-outline-primary">
+                    <i class="ti ti-arrow-left me-1"></i> Back
+                </a>
+            </div>
+        </div>
 
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card mt-2">
+        <div class="row px-0">
+            <div class="col-lg-8">
+                <div class="card border border-secondary-subtle shadow-sm mb-4">
+                    <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 fw-bold text-dark">
+                            <i class="ti ti-file-invoice me-2 text-primary"></i> Invoice #{{ $invoice->invoice_number }}
+                        </h5>
+                        <span class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'partial' ? 'warning' : 'secondary') }} fs-6">
+                            {{ ucfirst($invoice->status) }}
+                        </span>
+                    </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h3 class="page-title mb-0">Invoice {{ $invoice->invoice_number }}</h3>
-                            <div>
-                                <button onclick="window.print()" class="btn btn-outline-primary me-2">
-                                    <i class="ti ti-printer me-1"></i> Print
-                                </button>
-                                <a href="{{ route('billing.index') }}" class="btn btn-outline-primary">Back</a>
+                        <!-- Invoice Meta -->
+                        <div class="mb-4 p-3 bg-light rounded border border-secondary-subtle">
+                            <div class="row">
+                                <div class="col-md-6 mb-2 mb-md-0">
+                                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Patient</small>
+                                    <div class="fw-bold text-dark fs-6">{{ optional($invoice->patient)->name ?? 'Walk-in Patient' }}</div>
+                                    @if(optional($invoice->patient)->patient_code)
+                                        <div class="text-muted small">{{ $invoice->patient->patient_code }}</div>
+                                    @endif
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <small class="text-muted text-uppercase fw-bold d-block mb-1">Date</small>
+                                    <div class="fw-bold text-dark fs-6">{{ $invoice->created_at->format('d M Y, h:i A') }}</div>
+                                </div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="mb-3">
-                            <strong>Patient:</strong> {{ optional($invoice->patient)->name ?? 'Patient' }}
-                        </div>
-                        <div class="mb-3">
-                            <strong>Status:</strong>
-                            <span
-                                class="badge bg-{{ $invoice->status === 'paid' ? 'success' : ($invoice->status === 'partial' ? 'warning' : 'secondary') }}">{{ ucfirst($invoice->status) }}</span>
-                        </div>
-                        <div class="table">
-                            <table class="table table-hover align-middle static-table">
-                                <thead>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 border-top">
+                                <thead class="bg-light text-muted small text-uppercase">
                                     <tr>
-                                        <th>Description</th>
-                                        <th>Qty</th>
-                                        <th>Unit Price</th>
-                                        <th>Total</th>
+                                        <th class="ps-4">Description</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Unit Price</th>
+                                        <th class="text-end pe-4">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($invoice->items as $item)
                                         <tr>
-                                            <td>{{ $item->description }}</td>
-                                            <td>{{ $item->quantity }}</td>
-                                            <td>{{ number_format($item->unit_price, 2) }}</td>
-                                            <td>{{ number_format($item->total_price, 2) }}</td>
+                                            <td class="ps-4">{{ $item->description }}</td>
+                                            <td class="text-center">{{ $item->quantity }}</td>
+                                            <td class="text-end">{{ number_format($item->unit_price, 2) }}</td>
+                                            <td class="text-end pe-4 fw-bold">{{ number_format($item->total_price, 2) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
-                                <tfoot>
+                                <tfoot class="border-top">
                                     <tr>
-                                        <th colspan="3" class="text-end">Subtotal</th>
-                                        <th>{{ number_format($invoice->subtotal, 2) }}</th>
+                                        <td colspan="3" class="text-end pt-3 text-muted">Subtotal</td>
+                                        <td class="text-end pe-4 pt-3 fw-bold">{{ number_format($invoice->subtotal, 2) }}</td>
                                     </tr>
                                     <tr>
-                                        <th colspan="3" class="text-end">Discount</th>
-                                        <th>{{ number_format($invoice->discount, 2) }}</th>
+                                        <td colspan="3" class="text-end text-muted">Discount</td>
+                                        <td class="text-end pe-4 text-danger">-{{ number_format($invoice->discount, 2) }}</td>
                                     </tr>
                                     <tr>
-                                        <th colspan="3" class="text-end">Tax</th>
-                                        <th>{{ number_format($invoice->tax, 2) }}</th>
+                                        <td colspan="3" class="text-end text-muted">Tax</td>
+                                        <td class="text-end pe-4">{{ number_format($invoice->tax, 2) }}</td>
                                     </tr>
-                                    <tr>
-                                        <th colspan="3" class="text-end">Total</th>
-                                        <th>{{ number_format($invoice->total_amount, 2) }}</th>
+                                    <tr class="bg-light">
+                                        <td colspan="3" class="text-end py-3 fw-bold text-dark">Total Amount</td>
+                                        <td class="text-end pe-4 py-3 fw-bold text-primary fs-5">{{ number_format($invoice->total_amount, 2) }}</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -192,35 +220,52 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card mt-2">
-                    <div class="card-body">
-                        <h5 class="mb-3">Payments</h5>
-                        <ul class="list-group">
+
+            <div class="col-lg-4">
+                <div class="card border border-secondary-subtle shadow-sm mb-4">
+                    <div class="card-header bg-transparent border-bottom py-3">
+                        <h5 class="card-title mb-0 fw-bold text-dark">
+                            <i class="ti ti-credit-card me-2 text-primary"></i> Payment History
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush">
                             @forelse ($invoice->payments as $p)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    {{ \Carbon\Carbon::parse($p->paid_at)->format('Y-m-d H:i') }}
-                                    ({{ $p->payment_method }})
-                                    <span>৳ {{ number_format($p->amount, 2) }}</span>
+                                <li class="list-group-item px-4 py-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold text-dark">৳ {{ number_format($p->amount, 2) }}</span>
+                                        <span class="badge bg-light text-dark border">{{ $p->payment_method }}</span>
+                                    </div>
+                                    <div class="small text-muted">
+                                        <i class="ti ti-calendar-time me-1"></i>
+                                        {{ \Carbon\Carbon::parse($p->paid_at)->format('d M Y, h:i A') }}
+                                    </div>
                                 </li>
                             @empty
-                                <li class="list-group-item">No payments yet.</li>
+                                <li class="list-group-item px-4 py-4 text-center text-muted">
+                                    <i class="ti ti-credit-card-off fs-1 mb-2 opacity-50"></i>
+                                    <p class="mb-0">No payments recorded.</p>
+                                </li>
                             @endforelse
                         </ul>
-
+                    </div>
+                    <div class="card-footer bg-light p-4">
                         @php
                             $totalPaid = $invoice->payments->sum('amount');
                             $remaining = $invoice->total_amount - $totalPaid;
                         @endphp
 
                         @if ($invoice->status !== 'paid' && $remaining > 0)
-                            <div class="mt-3">
-                                <a href="{{ route('billing.payment.add', $invoice->id) }}"
-                                    class="btn btn-primary w-100">Add Payment</a>
+                            <div class="mb-3 d-flex justify-content-between align-items-center">
+                                <span class="text-muted fw-bold">Remaining Due:</span>
+                                <span class="text-danger fw-bold fs-5">৳ {{ number_format($remaining, 2) }}</span>
                             </div>
+                            <a href="{{ route('billing.payment.add', $invoice->id) }}" class="btn btn-primary w-100">
+                                <i class="ti ti-plus me-1"></i> Add Payment
+                            </a>
                         @else
-                            <div class="mt-3 alert alert-success text-center mb-0">
-                                <i class="ti ti-check-circle me-1"></i> Paid in Full
+                            <div class="alert alert-success text-center mb-0 border-success-subtle">
+                                <i class="ti ti-check-circle me-1 fs-5 align-middle"></i> <span class="align-middle fw-bold">Paid in Full</span>
                             </div>
                         @endif
                     </div>
@@ -233,7 +278,7 @@
     <div class="pos-receipt">
         @if ($invoice->clinic?->logo_path)
             <div style="text-align: center; margin-bottom: 10px;">
-                <img src="{{ Storage::url($invoice->clinic->logo_path) }}"
+                <img src="{{ asset("/") }}/{{ Storage::url($invoice->clinic->logo_path) }}"
                     style="max-height: 60px; max-width: 100%; object-fit: contain;">
             </div>
         @endif

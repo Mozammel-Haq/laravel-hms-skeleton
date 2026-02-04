@@ -1,10 +1,17 @@
 <x-app-layout>
     <div class="card m-2">
         <div class="card-body">
-            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+            <div class="page-header d-flex justify-content-between align-items-center ">
                 <div class="page-title">
-                    <h4>Appointment Details</h4>
-                    <p class="text-muted">View appointment information</p>
+                    <h4 class="fw-bold mb-2 text-primary">Appointment Details</h4>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('appointments.index') }}">Appointments</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Appointment Details</li>
+                        </ol>
+                    </nav>
                 </div>
                 <div class="action-btn">
                     <a href="{{ route('appointments.index') }}" class="btn btn-outline-primary me-2">
@@ -30,13 +37,11 @@
                     @endcan
                 </div>
             </div>
+            <hr>
 
             <div class="row">
                 <div class="col-md-8">
                     <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Appointment Information</h5>
-                        </div>
                         <div class="card-body">
                             <div class="row mb-4">
                                 <div class="col-md-6">

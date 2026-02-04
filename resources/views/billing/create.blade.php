@@ -1,15 +1,20 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid  mt-2 mx-1">
+                        <div class="px-4 pt-3 border-bottom bg-primary-subtle text-primary">
+                            <h4 class="page-title mb-2">Create Invoice</h4>
+                            {{-- breadcrumb --}}
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Create Invoice</li>
+                                </ol>
+                            </nav>
+                        </div>
 
 
-        <div class="card m-2">
+
+        <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="page-title mb-0">Create Invoice</h3>
-
-                    <a href="{{ route('billing.index') }}" class="btn btn-outline-primary">Invoices</a>
-                </div>
-                <hr>
                 <form method="POST" action="{{ route('billing.store') }}">
                     @csrf
 

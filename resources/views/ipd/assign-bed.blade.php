@@ -1,5 +1,18 @@
 <x-app-layout>
-    <div class="container-fluid">
+    <div class="container-fluid mx-2 my-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Assign/Transfer Bed</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Assign/Transfer Bed</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
 
 
         <div class="row g-4">
@@ -10,15 +23,7 @@
                     currentBedId: {{ $admission->current_bed_id ? (int) $admission->current_bed_id : 'null' }}
                 })'>
                     <div class="card-body px-3 py-2">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <h4 class="mb-1">Assign/Transfer Bed</h4>
-                                <p class="text-muted mb-0">Choose an available bed for this admission</p>
-                            </div>
-                            <a href="{{ route('ipd.show', $admission->id) }}" class="btn btn-outline-primary">
-                                <i class="ti ti-arrow-left me-1"></i> Back to Admission
-                            </a>
-                        </div>
+
                         <form method="POST" action="{{ route('ipd.store-bed', $admission->id) }}">
                             @csrf
                             <input type="hidden" name="bed_id" id="bed_id" value="">

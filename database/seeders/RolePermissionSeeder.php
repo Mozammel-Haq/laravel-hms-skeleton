@@ -172,6 +172,11 @@ class RolePermissionSeeder extends Seeder
             'cancel_appointments',
             'view_billing',
             'create_invoices', // Basic billing
+            'view_ipd',
+            'view_admissions',
+            'create_admissions',
+            'discharge_patients',
+            'manage_beds',
         ])->pluck('id'));
 
         // Lab Technician

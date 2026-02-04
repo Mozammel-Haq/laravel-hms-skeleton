@@ -15,7 +15,7 @@ class DoctorPolicy extends BaseTenantPolicy
 
     public function view(User $user, Doctor $doctor): bool
     {
-        return $user->hasPermission('view_doctors')
+        return ($user->hasPermission('view_doctors') || $user->id === $doctor->user_id)
             && $doctor->clinics()->where('clinics.id', TenantContext::getClinicId())->exists();
     }
 

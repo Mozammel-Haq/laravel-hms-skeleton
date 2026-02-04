@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
             <h3 class="page-title mb-0">Profile Settings</h3>
         </div>
 

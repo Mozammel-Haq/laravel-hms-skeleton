@@ -2,16 +2,21 @@
 
     <div class="py-4">
         <div class="container">
-            <div class="card border-0 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3">
+                <div>
+                    <h4 class="font-bold mb-2 text-primary">Add New Patient</h4>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('patients.index') }}">Patients</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add New Patient</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="card border-0">
 
                 <div class="card-body">
-
-                    <!-- Title -->
-                    <h2 class="fw-semibold fs-4 text-dark mb-3">
-                        Add New Patient
-                    </h2>
-                    <hr class="mb-4">
-
                     <form method="POST" action="{{ route('patients.store') }}" enctype="multipart/form-data">
                         @csrf
 

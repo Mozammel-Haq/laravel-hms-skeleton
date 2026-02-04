@@ -1,7 +1,7 @@
 <x-app-layout>
 
     <div class="card mt-2 mx-2 p-3">
-        <div class="d-flex justify-content-between align-items-center mt-3 px-3 mb-2">
+        <div class="d-flex justify-content-between align-items-center mt-3 px-3 mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
             <h5 class="mb-0">Visits</h5>
 
             <div class="d-flex gap-2">

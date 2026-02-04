@@ -29,7 +29,7 @@ class IpdService
     public function admitPatient(Patient $patient, int $doctorId, string $admissionDate, string $reason)
     {
         $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
-        
+
         if (!$clinicId) {
             throw new Exception("Clinic context is required to admit patient.");
         }
@@ -83,7 +83,6 @@ class IpdService
                 'admission_id' => $admission->id,
                 'bed_id' => $bed->id,
                 'assigned_at' => now(),
-                'status' => 'active',
             ]);
 
             $bed->update(['status' => 'occupied']);
@@ -121,7 +120,6 @@ class IpdService
                 'current_bed_id' => null,
                 'discharged_by' => $dischargedBy,
                 'discharge_date' => $dischargeDate,
-                'discharge_reason' => $reason,
             ]);
 
             return $admission;

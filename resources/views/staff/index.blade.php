@@ -3,7 +3,7 @@
 
     <div class="card mt-2 mx-2 p-3">
         <div class="card-body">
-            <div class="page-header d-flex justify-content-between align-items-center mb-4">
+            <div class="page-header d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
                 <div class="page-title">
                     <h4>Staff & Users</h4>
                     <p class="text-muted">Manage clinic user accounts and roles</p>

@@ -1,15 +1,22 @@
 <x-app-layout>
 
-
-    <div class="card border-0 mt-3 mx-2 py-3">
-        <div class="d-flex justify-content-between align-items-center px-3 mb-4">
-            <h3 class="page-title mb-0">Doctors</h3>
-            <div class="d-flex gap-2">
-                <a href="{{ route('doctors.create') }}" class="btn btn-primary">
-                    <i class="ti ti-plus me-1"></i> Add New Doctor
-                </a>
-            </div>
+    <div class="container-fluid mx-2 mt-2">
+        {{-- Page Header --}}
+        <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <h4 class="fw-bold mb-2 text-primary">Doctors</h4>
+            {{-- breadcrumb --}}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Doctors</li>
+                </ol>
+            </nav>
         </div>
+
+
+        <div class="card border-0 pt-3">
+        {{-- Page Header --}}
+
         <!-- Filters -->
         <form method="GET" action="{{ route('doctors.index') }}" class="mb-4 px-3">
             <div class="row g-2">

@@ -1,22 +1,23 @@
 <x-app-layout>
     <div class="container-fluid mx-2">
+        <div class="d-flex justify-content-between align-items-center mb-4 bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Add Round Note</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.show', $admission->id) }}">{{ $admission->patient->name }}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Add Round Note</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
 
-
-        <div class="row justify-content-center">
+        <div class="row justify-content-center px-2">
             <div class="col-lg-8">
                 <div class="card border-0 mt-2">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div>
-                                <h4 class="mb-1">Add Round Note</h4>
-                                <p class="text-muted mb-0">Record a doctor's visit for {{ $admission->patient->name }}
-                                </p>
-                            </div>
-                            <a href="{{ route('ipd.show', $admission->id) }}" class="btn btn-outline-primary">
-                                <i class="ti ti-arrow-left me-1"></i> Back to Admission
-                            </a>
-                        </div>
-                        <hr>
                         <form method="POST" action="{{ route('ipd.rounds.store', $admission->id) }}">
                             @csrf
 

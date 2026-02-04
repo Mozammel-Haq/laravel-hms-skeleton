@@ -1,10 +1,6 @@
 <x-app-layout>
-    <div class="container-fluid">
-
-
-        <div class="card mt-2 mx-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="container-fluid m-2">
+                        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
                     <div>
                         <h4 class="mb-1">Medicine Inventory</h4>
                         <p class="text-muted mb-0">Manage medicine catalog and stock</p>
@@ -18,6 +14,10 @@
                         </a>
                     </div>
                 </div>
+
+        <div class="card p-2">
+            <div class="card-body">
+
                 <!-- Filters -->
                 <form method="GET" action="{{ route('pharmacy.medicines.index') }}" class="mb-4">
                     <div class="row g-2">

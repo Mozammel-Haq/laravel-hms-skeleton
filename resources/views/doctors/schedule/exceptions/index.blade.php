@@ -1,15 +1,19 @@
 <x-app-layout>
-    <div class="container-fluid mx-2">
+    <div class="container-fluid mx-2 mt-2">
 
 
-        <div class="card px-3 py-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="mb-0">My Schedule Exceptions</h4>
-                    <a href="{{ route('doctor.schedule.exceptions.create') }}" class="btn btn-primary">
-                        <i class="ti ti-plus me-1"></i> Request Exception
-                    </a>
+        <div class="card">
+                <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+                    <h4 class="fw-bold mb-2 text-primary">My Schedule Exceptions</h4>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Schedule Exceptions</li>
+                        </ol>
+                    </nav>
                 </div>
+            <div class="card-body">
 
                 <!-- Filters -->
                 <form method="GET" action="{{ route('doctor.schedule.exceptions.index') }}" class="mb-4">

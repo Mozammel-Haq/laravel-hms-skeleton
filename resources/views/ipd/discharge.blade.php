@@ -1,17 +1,21 @@
 <x-app-layout>
     <div class="container-fluid mx-2">
         <div class="card border-0 mt-2 px-3 py-2">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h4 class="mb-1">Discharge Patient</h4>
-                        <p class="text-muted mb-0">Finalize inpatient discharge details</p>
-                    </div>
-                    <a href="{{ route('ipd.show', $admission) }}" class="btn btn-outline-primary">
-                        <i class="ti ti-arrow-left me-1"></i> Back to Admission
-                    </a>
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+                <div>
+                    <h4 class="font-bold mb-2 text-primary">Discharge Patient</h4>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Discharge Patient</li>
+                        </ol>
+                    </nav>
                 </div>
-                <hr>
+            </div>
+
+
+            <div class="card-body">
 
                 <div class="row g-4">
                     <div class="col-md-4">

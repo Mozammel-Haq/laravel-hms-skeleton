@@ -1,9 +1,20 @@
 <x-app-layout>
-
-    <div class="card mt-2 mx-2 p-3">
+    <div class="container-fluid mx-2 mt-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3">
+            <div>
+                <h4 class="font-bold mb-2 text-primary">Create Ward</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('ipd.wards.index') }}">Wards</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Create Ward</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    <div class="card p-3">
         <div class="card-body">
-            <h5 class="mb-3">Create Ward</h5>
-            <hr>
             <form method="post" action="{{ route('ipd.wards.store') }}">
                 @csrf
                 <div class="row g-3">
@@ -42,4 +53,5 @@
             </form>
         </div>
     </div>
+        </div>
 </x-app-layout>
