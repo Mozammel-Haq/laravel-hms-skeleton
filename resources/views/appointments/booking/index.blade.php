@@ -1,6 +1,27 @@
 <x-app-layout>
+    <style>
+        .doctor-card-img {
+            max-width: 80px;
+            max-height: 80px;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .hover-border-primary {
+            transition: border-color 0.2s ease-in-out;
+        }
+        .hover-border-primary:hover {
+            border-color: var(--bs-primary) !important;
+        }
+        .doctor-grid-card {
+            max-width: 250px;
+        }
+    </style>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm">
+
+        <div class="card border-0 shadow-sm rounded-bottom rounded-0">
+            <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm">
             <div>
                 <h5 class="fw-bold mb-1 text-primary">Find a Doctor</h5>
                 <nav aria-label="breadcrumb">
@@ -11,9 +32,7 @@
                 </nav>
             </div>
         </div>
-
-        <div class="card border-0 shadow-sm rounded-bottom rounded-0">
-            <div class="card-body p-4">
+        <hr>
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('appointments.booking.index') }}" class="mb-4">
                     <div class="row g-2 align-items-end">
@@ -71,100 +90,84 @@
 
                 <!-- Doctors Grid -->
                 <div class="row g-3">
-                            @forelse($doctors as $doctor)
-                                <div class="col-xl-3 col-lg-4 col-md-6">
-                                    <div class="card shadow-sm border border-secondary doctor-card ">
+                    @forelse($doctors as $doctor)
+                        <div class="col-xl-3 col-lg-4 col-sm-6">
+                            <div class="card h-100 border rounded-4 overflow-hidden position-relative group hover-border-primary doctor-grid-card mx-auto">
+                                <!-- Status Badge -->
+                                <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
+                                    <span class="badge bg-white text-dark border rounded-pill px-2 py-1 fs-11 fw-medium">
+                                        <i class="fas fa-circle text-{{ $doctor->status === 'active' ? 'success' : 'secondary' }} me-1" style="font-size: 6px; vertical-align: middle;"></i>
+                                        {{ ucfirst($doctor->status ?? 'Active') }}
+                                    </span>
+                                </div>
 
-                                        <!-- Card Body -->
-                                        <div class="card-body text-center p-3">
+                                <div class="card-body p-0">
+                                    <!-- Header Background -->
+                                    <div class="bg-primary-subtle opacity-50" style="height: 70px;"></div>
 
-                                            <!-- Avatar -->
-                                            <a href="{{ route('appointments.booking.show', $doctor) }}"
-                                                class="d-inline-block mb-2">
-                                                <img src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
-                                                    class="rounded-circle border"
-                                                    style="width:90px;height:90px;object-fit:cover;" alt="Doctor">
-                                            </a>
+                                    <div class="text-center px-3 position-relative" style="margin-top: -35px;">
+                                        <!-- Avatar -->
+                                        <a href="{{ route('appointments.booking.show', $doctor) }}" class="d-inline-block position-relative">
+                                            <img src="{{ $doctor->profile_photo ? asset($doctor->profile_photo) : asset('assets/img/doctors/doctor-01.jpg') }}"
+                                                 class="rounded-circle doctor-card-img bg-white"
+                                                 alt="{{ $doctor->user?->name }}">
+                                        </a>
 
-                                            <!-- Dropdown -->
-                                            <div class="dropdown position-absolute top-0 end-0 m-3">
-                                                <button class="btn btn-sm btn-light btn-icon" type="button"
-                                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="ti ti-dots-vertical"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li>
-                                                        <a class="dropdown-item"
-                                                            href="{{ route('doctors.show', $doctor) }}">
-                                                            <i class="ti ti-eye me-1"></i> View Details
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-
-                                            <!-- Name -->
-                                            <h6 class="fw-semibold mb-0">
-                                                <a href="{{ route('appointments.booking.show', $doctor) }}"
-                                                    class="text-dark text-decoration-none">
-                                                    {{ $doctor->user?->name ?? 'Inactive Doctor' }}
+                                        <!-- Info -->
+                                        <div class="mt-2">
+                                            <h6 class="fw-bold text-dark mb-0 text-truncate">
+                                                <a href="{{ route('appointments.booking.show', $doctor) }}" class="text-dark text-decoration-none stretched-link">
+                                                    {{ $doctor->user?->name ?? 'Unknown Doctor' }}
                                                 </a>
                                             </h6>
+                                            <div class="small text-primary fw-medium mb-2">{{ $doctor->department->name ?? 'General' }}</div>
 
-                                            <!-- Department -->
-                                            <small class="text-muted d-block mb-2">
-                                                {{ $doctor->department->name ?? 'General' }}
-                                            </small>
-
-                                            <!-- Location -->
-                                            @if ($doctor->consultation_room_number || $doctor->consultation_floor)
-                                                <div class="mb-2 fs-13 text-muted">
-                                                    @if ($doctor->consultation_room_number)
-                                                        <i class="ti ti-door me-1"></i>Rm:
-                                                        {{ $doctor->consultation_room_number }}
-                                                    @endif
-                                                    @if ($doctor->consultation_floor)
-                                                        <span class="ms-2"><i class="ti ti-stairs-up me-1"></i>Flr:
-                                                            {{ $doctor->consultation_floor }}</span>
-                                                    @endif
-                                                </div>
-                                            @endif
-
-                                            <!-- Clinics -->
-                                            <div class="d-flex flex-wrap gap-2 mb-2 justify-content-center">
-                                                @foreach ($doctor->clinics as $clinic)
-                                                    <div class="d-flex align-items-center gap-1 fs-13 text-muted"
-                                                        title="{{ $clinic->name }}">
-                                                        @if ($clinic->logo_path)
-                                                            <img src="{{ asset("/") }}/{{ Storage::url($clinic->logo_path) }}"
-                                                                class="rounded-circle border"
-                                                                style="width: 16px; height: 16px; object-fit: cover;">
-                                                        @else
-                                                            <i class="fa fa-map-marker"></i>
-                                                        @endif
-                                                        <span class="text-truncate"
-                                                            style="max-width: 100px;">{{ $clinic->name }}</span>
-                                                    </div>
-                                                @endforeach
+                                            <!-- Stats/Meta -->
+                                            <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                                                 @if ($doctor->consultation_room_number)
+                                                    <span class="badge bg-light text-muted border fw-normal rounded-pill px-2" title="Room Number">
+                                                        <i class="ti ti-door small me-1"></i>{{ $doctor->consultation_room_number }}
+                                                    </span>
+                                                @endif
+                                                 <span class="badge bg-light text-muted border fw-normal rounded-pill px-2" title="Consultation Fee">
+                                                    <i class="ti ti-wallet small me-1"></i>${{ number_format($doctor->consultation_fee ?? 0) }}
+                                                </span>
                                             </div>
 
+                                            <!-- Clinics -->
+                                            @if($doctor->clinics->isNotEmpty())
+                                                <div class="d-flex flex-wrap justify-content-center gap-1 mb-1 px-2">
+                                                    @foreach($doctor->clinics as $clinic)
+                                                        <div class="d-inline-flex align-items-center gap-1 bg-light rounded-pill border px-2 py-1" style="font-size: 0.7rem;">
+                                                            <i class="ti ti-map-pin text-secondary" style="font-size: 0.65rem;"></i>
+                                                            <span class="text-secondary fw-medium text-truncate" style="max-width: 100px;">{{ $clinic->name }}</span>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         </div>
-
-                                        <!-- Footer -->
-                                        <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 text-center">
-                                            <a href="{{ route('appointments.booking.show', $doctor) }}"
-                                                class="btn btn-sm btn-outline-primary px-3">
-                                                Book Appointment
-                                            </a>
-                                        </div>
-
                                     </div>
                                 </div>
-                            @empty
-                                <div class="col-12 text-center py-4">
-                                    <p class="text-muted mb-0">No doctors found matching your criteria.</p>
+
+                                <!-- Action Button -->
+                                <div class="card-footer bg-transparent border-0 p-3 pt-0">
+                                    <a href="{{ route('appointments.booking.show', $doctor) }}" class="btn btn-primary w-100 rounded-pill btn-sm fw-medium position-relative" style="z-index: 20;">
+                                        Book Appointment
+                                    </a>
                                 </div>
-                            @endforelse
+                            </div>
                         </div>
+                    @empty
+                        <div class="col-12 text-center py-5">
+                            <div class="mb-3">
+                                <i class="ti ti-search text-muted opacity-25" style="font-size: 3rem;"></i>
+                            </div>
+                            <h5 class="text-muted fw-normal">No doctors found matching your criteria.</h5>
+                            <p class="text-muted small">Try adjusting your filters or search terms.</p>
+                            <a href="{{ route('appointments.booking.index') }}" class="btn btn-sm btn-outline-secondary mt-2">Clear Filters</a>
+                        </div>
+                    @endforelse
+                </div>
 
 
                         <!-- Pagination -->

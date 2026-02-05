@@ -1,7 +1,11 @@
 <x-app-layout>
 
     <div class="content px-2">
-                    <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-2 px-3 py-3 border-bottom bg-primary-subtle text-primary">
+
+        <div class="card p-3">
+            <!-- Page Header -->
+
+                                <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-2 px-3 py-3 border-bottom bg-primary-subtle text-primary">
                 <div class="flex-grow-1">
                     <h4 class="fw-bold mb-2 text-primary">Roles</h4>
                     <nav aria-label="breadcrumb">
@@ -18,10 +22,6 @@
                 </div>
             </div>
             <hr>
-        <div class="card p-3">
-            <!-- Page Header -->
-
-
             <!-- Filter Form -->
             <form method="GET" action="{{ route('admin.roles.index') }}" class="mb-4">
                 <div class="row g-2">

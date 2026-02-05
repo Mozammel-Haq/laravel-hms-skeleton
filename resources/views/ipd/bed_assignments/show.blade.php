@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container-fluid py-4">
         <!-- Header -->
-        <div class="row align-items-center bg-primary-subtle text-primary px-4 py-2 pt-3 mx-2">
+        <div class="row align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 mx-2">
             <div class="col">
                 <h4 class="mb-1 fw-bold text-dark">Bed Assignment Details</h4>
                 <nav aria-label="breadcrumb">
@@ -92,7 +92,7 @@
 
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center">
-                                    <div class="bg-secondary-subtle text-secondary rounded-circle p-2 me-3">
+                                    <div class="bg-secondary-subtle text-gray rounded-circle p-2 me-3">
                                         <i class="ti ti-calendar-minus fs-4"></i>
                                     </div>
                                     <div>

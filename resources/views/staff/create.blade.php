@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
             <div>
                 <h5 class="fw-bold mb-1 text-primary">Add Staff Member</h5>
                 <nav aria-label="breadcrumb">

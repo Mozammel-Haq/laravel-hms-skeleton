@@ -82,7 +82,7 @@
                                                 <span class="badge bg-danger-subtle text-danger fs-6">Unpaid</span>
                                             @endif
                                         @else
-                                            <span class="badge bg-secondary-subtle text-secondary fs-6">Not
+                                            <span class="badge bg-secondary-subtle text-gray fs-6">Not
                                                 Invoiced</span>
                                         @endif
                                     </div>

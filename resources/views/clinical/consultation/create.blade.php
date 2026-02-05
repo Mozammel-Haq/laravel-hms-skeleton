@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-3">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm">
             <div>
                 <div>
                 <h4 class="mb-2 fw-bold text-primary">New Consultation</h4>

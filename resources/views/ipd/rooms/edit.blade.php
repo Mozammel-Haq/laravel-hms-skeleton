@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm mb-0">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
             <div>
                 <h4 class="mb-1 fw-bold text-dark">Edit Room</h4>
                 <nav aria-label="breadcrumb">

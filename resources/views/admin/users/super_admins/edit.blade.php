@@ -1,6 +1,8 @@
 <x-app-layout>
     <div class="card mt-2 mx-1">
-        <div class="card-header px-4 py-2 border-bottom bg-primary-subtle text-primary rounded-top shadow-sm">
+
+        <div class="card-body">
+                    <div class="card-header px-4 py-2 border-bottom bg-primary-subtle text-primary rounded-top shadow-sm">
             <h4 class="fw-bold mb-0 text-primary">Edit Super Admin</h4>
             {{-- breadcrumb --}}
             <nav aria-label="breadcrumb">
@@ -11,7 +13,7 @@
                 </ol>
             </nav>
         </div>
-        <div class="card-body">
+        <hr>
             <form method="POST" action="{{ route('admin.super-admin-users.update', $user) }}">
                 @csrf
                 @method('PUT')

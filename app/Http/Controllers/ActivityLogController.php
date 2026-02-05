@@ -57,6 +57,6 @@ class ActivityLogController extends Controller
         }
 
         $activities = $query->latest()->paginate(20)->withQueryString();
-        return view('activity_logs.index', compact('activities'));
+        return view('activity.index', compact('activities'));
     }
 }

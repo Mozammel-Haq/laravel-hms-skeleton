@@ -3,7 +3,7 @@
 
         <div class="card mt-2 mx-2">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 py-3 rounded">
                     <h3 class="page-title mb-0">Activity Logs</h3>
                     <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">Dashboard</a>
                 </div>
@@ -58,23 +58,23 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($logs as $log)
+                            @forelse($activities as $log)
                                 <tr>
-                                    <td>{{ $log->actor_name }}</td>
+                                    <td>{{ $log->user?->name ?? 'System' }}</td>
                                     <td><span class="badge bg-primary">{{ ucfirst($log->action) }}</span></td>
                                     <td>{{ $log->description }}</td>
                                     <td>{{ $log->created_at->format('M d, Y h:i A') }}</td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6">No activity recorded.</td>
+                                    <td colspan="6" class="text-center p-4 text-muted">No activity recorded.</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
                 <div class="mt-3">
-                    {{ $logs->links() }}
+                    {{ $activities->links() }}
                 </div>
             </div>
         </div>

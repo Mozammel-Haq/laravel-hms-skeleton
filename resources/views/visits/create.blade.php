@@ -4,7 +4,7 @@
             <div class="col-lg-8">
                 <div class="card border-0 mt-2 shadow-sm">
                     <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 bg-primary-subtle text-primary px-4 py-2 rounded-top shadow-sm">
+                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm">
                             <div>
                                 <h4 class="fw-bold text-primary mb-2">Start New Visit</h4>
                                 <nav aria-label="breadcrumb">

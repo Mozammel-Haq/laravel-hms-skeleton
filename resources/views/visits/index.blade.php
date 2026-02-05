@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
         {{-- Page Header --}}
-        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-2 pt-3">
+        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
             <div>
                 <h4 class="fw-bold mb-2 text-primary">Visits Management</h4>
                 <nav aria-label="breadcrumb">

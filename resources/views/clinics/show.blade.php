@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-2 rounded shadow-sm mb-3">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded shadow-sm mb-3">
             <div>
                 <h5 class="fw-bold mb-1 text-primary">Clinic Details</h5>
                 <nav aria-label="breadcrumb">
@@ -148,7 +148,7 @@
                     </div>
                     <div class="card-body">
                         @if($clinic->about)
-                            <p class="text-secondary mb-0">{!! nl2br(e($clinic->about)) !!}</p>
+                            <p class="text-gray mb-0">{!! nl2br(e($clinic->about)) !!}</p>
                         @else
                             <p class="text-muted fst-italic mb-0">No description provided for this clinic.</p>
                         @endif

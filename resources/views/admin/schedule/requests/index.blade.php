@@ -1,7 +1,11 @@
 <x-app-layout>
     <div class="container-fluid px-2 mt-2">
 
-                        <div class="d-flex align-items-center px-3 py-3 border-bottom bg-primary-subtle text-primary">
+
+
+        <div class="card border-0 mt-2 p-3">
+            <div class="card-body p-0">
+                                        <div class="d-flex align-items-center px-3 py-3 border-bottom bg-primary-subtle text-primary">
                     <div>
                         <h3 class="fw-bold mb-2 text-primary">Schedule Change Requests</h3>
                         {{-- breadcrumb --}}
@@ -14,9 +18,6 @@
                     </div>
                 </div>
                 <hr>
-
-        <div class="card border-0 mt-2 p-3">
-            <div class="card-body p-0">
                 <form method="GET" action="{{ route('admin.schedule.requests.index') }}" class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-3">

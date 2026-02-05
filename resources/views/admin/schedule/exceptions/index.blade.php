@@ -1,6 +1,10 @@
 <x-app-layout>
     <div class="container-fluid px-2 mt-2">
-        <div class="px-3 py-3 border-bottom bg-primary-subtle text-primary">
+
+
+        <div class="card border-0 mt-2  p-3">
+            <div class="card-body p-0">
+                        <div class="px-3 py-3 border-bottom bg-primary-subtle text-primary">
             <div>
                 <h4 class="fw-bold mb-2 text-primary">Schedule Exception Requests</h4>
             {{-- breadcrumb --}}
@@ -14,10 +18,6 @@
 
         </div>
         <hr>
-
-        <div class="card border-0 mt-2  p-3">
-            <div class="card-body p-0">
-
 
                 <!-- Filters -->
                 <form method="GET" action="{{ route('admin.schedule.exceptions.index') }}" class="mb-4">

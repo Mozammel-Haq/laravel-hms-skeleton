@@ -1,6 +1,8 @@
 <x-app-layout>
     <div class="card m-2 p-2">
-       <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-primary-subtle text-primary">
+
+        <div class="card-body">
+                   <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-primary-subtle text-primary">
                 <div>
                 <h4 class="fw-bold mb-2 text-primary">All Super Admins</h4>
                 {{-- breadcrumb --}}
@@ -15,7 +17,6 @@
             </div>
 
         <hr>
-        <div class="card-body">
             <!-- Filter Form -->
             <form method="GET" action="{{ route('admin.super-admin-users.index') }}" class="mb-4 mt-3">
                 <div class="row g-2">

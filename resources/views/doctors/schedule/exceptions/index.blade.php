@@ -3,7 +3,7 @@
 
 
         <div class="card">
-                <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+                <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
                     <h4 class="fw-bold mb-2 text-primary">My Schedule Exceptions</h4>
                     {{-- breadcrumb --}}
                     <nav aria-label="breadcrumb">

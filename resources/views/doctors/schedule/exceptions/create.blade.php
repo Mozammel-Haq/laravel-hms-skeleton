@@ -2,7 +2,7 @@
 <div class="container-fluid mx-2 mt-2">
     <div class="row justify-content-center">
         <div class="col-md-12">
-                <div class="bg-primary-subtle text-primary px-4 py-2 pt-3">
+                <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
 
                     <h4 class="fw-bold mb-2 text-primary">Request Schedule Exception</h4>
                     {{-- breadcrumb --}}

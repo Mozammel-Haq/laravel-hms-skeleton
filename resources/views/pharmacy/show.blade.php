@@ -93,7 +93,7 @@
                             </div>
                             <div>
                                 <h5 class="mb-1 fw-bold text-dark">{{ $sale->patient->name }}</h5>
-                                <div class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                <div class="badge bg-secondary-subtle text-gray border border-secondary-subtle">
                                     {{ $sale->patient->patient_code }}
                                 </div>
                             </div>

@@ -1,7 +1,9 @@
 <x-app-layout>
     {{-- Clinic Admin Crud List with delete and Update options --}}
     <div class="card mt-2 mx-1">
-        <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-primary-subtle text-primary">
+
+        <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom bg-primary-subtle text-primary">
             <div>
             <h5 class="fw-bold mb-2 text-primary">All Clinic Admins</h5>
             {{-- breadcrumb --}}
@@ -14,8 +16,7 @@
             </div>
             <a href="{{ route('admin.clinic-admin-users.create') }}" class="btn btn-primary">Create Clinic Admin</a>
         </div>
-        <div class="card-body">
-
+        <hr>
             <!-- Filter Form -->
             <form method="GET" action="{{ route('admin.clinic-admin-users.index') }}" class="mb-4 mt-3">
                 <div class="row g-2">
