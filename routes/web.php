@@ -266,6 +266,7 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');
         Route::get('/rooms/{room}/edit', [RoomController::class, 'edit'])->name('rooms.edit');
         Route::put('/rooms/{room}', [RoomController::class, 'update'])->name('rooms.update');
+        Route::delete('/rooms/{room}', [RoomController::class, 'destroy'])->name('rooms.destroy');
         Route::get('/beds', [BedController::class, 'index'])->name('beds.index');
         Route::get('/beds/create', [BedController::class, 'create'])->name('beds.create');
         Route::post('/beds', [BedController::class, 'store'])->name('beds.store');
@@ -303,6 +304,9 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         Route::get('/catalog', [LabTestController::class, 'index'])->name('catalog.index');
         Route::get('/catalog/create', [LabTestController::class, 'create'])->name('catalog.create');
         Route::post('/catalog', [LabTestController::class, 'store'])->name('catalog.store');
+        Route::get('/catalog/{labTest}/edit', [LabTestController::class, 'edit'])->name('catalog.edit');
+        Route::put('/catalog/{labTest}', [LabTestController::class, 'update'])->name('catalog.update');
+        Route::delete('/catalog/{labTest}', [LabTestController::class, 'destroy'])->name('catalog.destroy');
 
         // Results
         Route::get('/results', [LabResultsController::class, 'index'])->name('results.index');
@@ -322,6 +326,7 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         Route::get('/summary', [ReportController::class, 'summary'])->name('summary');
         Route::get('/doctor-performance', [ReportController::class, 'doctorPerformance'])->name('doctor_performance');
         Route::get('/tax', [ReportController::class, 'tax'])->name('tax');
+        Route::get('/pharmacy-profit', [ReportController::class, 'pharmacyProfit'])->name('pharmacy_profit');
     });
 
     // --- Admin & Settings ---

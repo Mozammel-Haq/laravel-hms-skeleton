@@ -38,6 +38,7 @@ class VisitProcedureInvoiceTest extends TestCase
         $department = \App\Models\Department::create(['name' => 'General Medicine', 'clinic_id' => $clinic->id]);
         $doctor = \App\Models\Doctor::create([
             'user_id' => $doctorUser->id,
+            'clinic_id' => $clinic->id,
             'primary_department_id' => $department->id,
             'specialization' => 'General Physician',
         ]);

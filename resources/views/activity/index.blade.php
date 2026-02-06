@@ -1,13 +1,12 @@
 <x-app-layout>
     <div class="container-fluid">
 
-        <div class="card mt-2 mx-2">
+        <div class="card mt-2 mx-2 shadow-sm border-0 p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 rounded-top">
+                <h3 class="page-title mb-0">Activity Logs</h3>
+                <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">Dashboard</a>
+            </div>
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 py-3 rounded">
-                    <h3 class="page-title mb-0">Activity Logs</h3>
-                    <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">Dashboard</a>
-                </div>
-                <hr>
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('activity.index') }}" class="mb-4">
                     <div class="row g-2">
@@ -47,7 +46,7 @@
                 </form>
 
                 <hr>
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>

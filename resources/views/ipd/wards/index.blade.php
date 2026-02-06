@@ -1,22 +1,22 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
-            <div>
-                <h5 class="fw-bold mb-1 text-primary">Wards</h5>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Wards</li>
-                    </ol>
-                </nav>
+        <div class="card shadow-sm border-0">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
+                <div>
+                    <h5 class="fw-bold mb-1 text-primary">Wards</h5>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Wards</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="{{ route('ipd.wards.create') }}" class="btn btn-primary btn-sm">
+                    <i class="ti ti-plus me-1"></i>Add Ward
+                </a>
             </div>
-            <a href="{{ route('ipd.wards.create') }}" class="btn btn-primary btn-sm">
-                <i class="ti ti-plus me-1"></i>Add Ward
-            </a>
-        </div>
 
-        <div class="card shadow-sm border-0 rounded-bottom mt-0">
             <div class="card-body p-3">
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('ipd.wards.index') }}" class="mb-4">

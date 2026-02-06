@@ -14,8 +14,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
+            StandardDataSeeder::class,
             UserSeeder::class,
-            DefaultClinicUserSeeder::class,
         ]);
     }
 }

@@ -1,19 +1,18 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
-            <div>
-                <h4 class="font-bold mb-2 text-primary">Rounds Management</h4>
-                {{-- breadcrumb --}}
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Rounds Management</li>
-                    </ol>
-                </nav>
+        <div class="card border-0 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
+                <div>
+                    <h4 class="font-bold mb-2 text-primary">Rounds Management</h4>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Rounds Management</li>
+                        </ol>
+                    </nav>
+                </div>
             </div>
-        </div>
-
-        <div class="card border-0">
             <div class="card-body">
 
                 <form method="GET" action="{{ route('ipd.rounds.index') }}" class="mb-4">
@@ -47,7 +46,7 @@
                     </div>
                 </form>
 
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>

@@ -1,20 +1,22 @@
 <x-app-layout>
     <div class="container-fluid" x-data="scheduleCalendar()" x-init="init();
     view = '{{ request('view', 'calendar') }}'">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-4">
-            <h3 class="page-title mb-0">Doctor Schedules</h3>
-            <div class="d-flex gap-2">
-                <div class="btn-group">
-                    <button class="btn" :class="view === 'calendar' ? 'btn-primary' : 'btn-outline-primary'"
-                        @click="view = 'calendar'">
-                        <i class="bi bi-calendar3"></i> Calendar
-                    </button>
-                    <button class="btn" :class="view === 'list' ? 'btn-primary' : 'btn-outline-primary'"
-                        @click="view = 'list'">
-                        <i class="bi bi-list"></i> List
-                    </button>
+        <div class="card shadow-sm">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-4 rounded-top">
+                <h3 class="page-title mb-0">Doctor Schedules</h3>
+                <div class="d-flex gap-2">
+                    <div class="btn-group">
+                        <button class="btn" :class="view === 'calendar' ? 'btn-primary' : 'btn-outline-primary'"
+                            @click="view = 'calendar'">
+                            <i class="bi bi-calendar3"></i> Calendar
+                        </button>
+                        <button class="btn" :class="view === 'list' ? 'btn-primary' : 'btn-outline-primary'"
+                            @click="view = 'list'">
+                            <i class="bi bi-list"></i> List
+                        </button>
+                    </div>
+                    <a href="{{ route('doctors.index') }}" class="btn btn-outline-primary">Back to Doctors</a>
                 </div>
-                <a href="{{ route('doctors.index') }}" class="btn btn-outline-primary">Back to Doctors</a>
             </div>
         </div>
 
@@ -93,7 +95,7 @@
         <div x-show="view === 'list'" style="display: none;">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <div class="table">
+                    <div class="table-responsive">
                         <table class="table table-hover align-middle datatable datatable-server">
                             <thead class="table-light">
                                 <tr>

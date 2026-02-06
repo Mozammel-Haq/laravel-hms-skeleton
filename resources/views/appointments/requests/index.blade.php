@@ -1,22 +1,21 @@
 <x-app-layout>
     <div class="container-fluid py-1 mx-1">
-                        <div class="page-header d-flex justify-content-between align-items-center px-3 py-3 border-bottom bg-primary-subtle text-primary">
-                    <div class="page-title">
-                        <h4 class="fw-bold mb-2 text-primary">Appointment Requests</h4>
-                        {{-- breadcrumb --}}
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb breadcrumb-dots mb-0">
-                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Appointment Requests</li>
-                            </ol>
-                        </nav>
-                    </div>
+        <div class="card p-3">
+            <div class="page-header d-flex justify-content-between align-items-center px-3 py-3 border-bottom bg-primary-subtle text-primary rounded-top">
+                <div class="page-title">
+                    <h4 class="fw-bold mb-2 text-primary">Appointment Requests</h4>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Appointment Requests</li>
+                        </ol>
+                    </nav>
                 </div>
-                <hr>
-        <div class="card">
+            </div>
             <div class="card-body">
 
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>

@@ -3,7 +3,7 @@
 
 
         <div class="card">
-                <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
+                <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top">
                     <h4 class="fw-bold mb-2 text-primary">My Schedule Exceptions</h4>
                     {{-- breadcrumb --}}
                     <nav aria-label="breadcrumb">
@@ -52,7 +52,7 @@
 
                 <hr>
                 @if ($exceptions->count() > 0)
-                    <div class="table">
+                    <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>

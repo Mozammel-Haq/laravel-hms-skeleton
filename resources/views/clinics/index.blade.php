@@ -1,25 +1,27 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
-        <div>
-            <h5 class="fw-bold mb-1 text-primary">All Clinics</h5>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-dots mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">All Clinics</li>
-                </ol>
-            </nav>
-        </div>
-        <a href="{{ route('clinics.create') }}" class="btn btn-sm btn-primary">
-            <i class="ti ti-plus me-1"></i> Create Clinic
-        </a>
-    </div>
 
-    <div class="card shadow-sm border-0 rounded-bottom mt-0">
+    <div class="card shadow-sm border-0 mt-0 p-3">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top mb-0">
+            <div>
+                <h5 class="fw-bold mb-1 text-primary">All Clinics</h5>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-dots mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">All Clinics</li>
+                    </ol>
+                </nav>
+            </div>
+            <a href="{{ route('clinics.create') }}" class="btn btn-sm btn-primary">
+                <i class="ti ti-plus me-1"></i> Create Clinic
+            </a>
+        </div>
+
         <div class="card-body">
-                <!-- Filter Form -->
-                <form method="GET" action="{{ route('clinics.index') }}" class="mb-4">
+
+            <!-- Filter Form -->
+            <form method="GET" action="{{ route('clinics.index') }}" class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-3">
                             <label class="form-label small text-muted">Search</label>

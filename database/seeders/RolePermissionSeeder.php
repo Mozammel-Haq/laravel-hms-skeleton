@@ -42,6 +42,12 @@ class RolePermissionSeeder extends Seeder
             'delete_users',
             'manage_roles',
 
+            // Department Management
+            'view_departments',
+            'create_departments',
+            'edit_departments',
+            'delete_departments',
+
             // Clinic Management (Settings)
             'manage_clinic_settings',
 
@@ -89,17 +95,25 @@ class RolePermissionSeeder extends Seeder
             'create_prescriptions',
             'view_prescriptions',
 
-            // Lab
-            'view_lab',
-            'view_lab_orders',
-            'create_lab_orders',
-            'enter_lab_results',
-
             // Pharmacy
             'view_pharmacy',
             'view_pharmacy_inventory',
             'manage_pharmacy_inventory',
             'process_pharmacy_sales',
+            'view_medicines',
+            'create_medicines',
+            'edit_medicines',
+            'delete_medicines',
+
+            // Lab
+            'view_lab',
+            'view_lab_orders',
+            'create_lab_orders',
+            'enter_lab_results',
+            'view_lab_tests',
+            'create_lab_tests',
+            'edit_lab_tests',
+            'delete_lab_tests',
 
             // Billing
             'view_billing',
@@ -125,6 +139,10 @@ class RolePermissionSeeder extends Seeder
         // Clinic Admin
         $clinicAdmin = Role::firstOrCreate(['name' => 'Clinic Admin', 'description' => 'Administrator for the clinic']);
         $clinicAdmin->permissions()->sync(Permission::all());
+
+        // Admin (Legacy/System support) - ensuring it has full access too
+        $admin = Role::firstOrCreate(['name' => 'Admin', 'description' => 'Administrator']);
+        $admin->permissions()->sync(Permission::all());
 
         // Doctor
         $doctor = Role::firstOrCreate(['name' => 'Doctor', 'description' => 'Medical Doctor']);
@@ -187,6 +205,7 @@ class RolePermissionSeeder extends Seeder
             'view_lab',
             'view_lab_orders',
             'enter_lab_results',
+            'view_lab_tests', // Can view catalog
         ])->pluck('id'));
 
         // Pharmacist
@@ -203,6 +222,7 @@ class RolePermissionSeeder extends Seeder
             'view_invoices',
             'create_invoices',
             'process_payments',
+            'view_medicines', // Can view catalog
         ])->pluck('id'));
 
         // Accountant

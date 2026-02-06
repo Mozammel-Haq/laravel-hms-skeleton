@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
@@ -43,7 +44,7 @@ use Laravel\Sanctum\HasApiTokens;
  */
 class Patient extends Model implements AuthenticatableContract
 {
-    use SoftDeletes, HasApiTokens, AuthenticatableTrait, LogsActivity, Notifiable;
+    use HasFactory, SoftDeletes, HasApiTokens, AuthenticatableTrait, LogsActivity, Notifiable;
 
     public function getActivityDescription($action)
     {
@@ -62,6 +63,10 @@ class Patient extends Model implements AuthenticatableContract
         'password',
         'profile_photo',
         'date_of_birth',
+        'gender',
+        'address',
+        'emergency_contact_name',
+        'emergency_contact_phone',
         'phone',
         'blood_group',
         'nid_number',

@@ -126,7 +126,7 @@ class PatientController extends Controller
         $clinicId = auth()->user()->clinic_id;
 
         // 1. Check for existing patient globally (by NID, Passport, Email, Phone, etc.)
-        $query = Patient::withoutTenant();
+        $query = Patient::withoutTenant()->withTrashed();
 
         $matchFound = false;
         $conditions = [];
@@ -146,6 +146,12 @@ class PatientController extends Controller
         }
 
         if ($existingPatient) {
+            // Restore if soft-deleted
+            if ($existingPatient->trashed()) {
+                $existingPatient->restore();
+                $existingPatient->update(['status' => 'active']);
+            }
+
             // Check if patient is already linked to THIS clinic
             $alreadyLinked = $existingPatient->clinics()->whereKey($clinicId)->exists();
 
@@ -195,7 +201,7 @@ class PatientController extends Controller
         if (isset($data['clinic_id'])) unset($data['clinic_id']);
 
         $patient = Patient::create($data + [
-            'clinic_id'    => null, // Global patient
+            'clinic_id'    => $clinicId,
             'patient_code' => 'TEMP-' . uniqid(),
         ]);
 

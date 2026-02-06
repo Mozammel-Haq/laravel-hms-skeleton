@@ -1,32 +1,54 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-3">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm">
-            <div>
+            <style>
+        .table-responsive {
+            /* Ensure there's space at the bottom for dropdowns to expand without being clipped */
+            padding-bottom: 0px;
+            /* Optional: visible only when scrolling is actually needed?
+               No, because dropdown clipping happens even if x-scroll isn't active but overflow-x is auto.
+               But always adding 80px padding might look ugly.
+
+               Better approach:
+               If the table has few rows, the container height collapses, clipping the dropdown.
+               We enforce a minimum height or padding.
+            */
+            min-height: 0px; /* Ensure enough height for at least one row + dropdown */
+            overflow-y: visible !important; /* Try to allow vertical overflow */
+            overflow-x: auto;
+        }
+
+        /* Fix for last row dropdowns being clipped in responsive tables */
+
+    </style>
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
                 <div>
-                <h4 class="mb-2 fw-bold text-primary">New Consultation</h4>
+                    <div>
+                    <h4 class="mb-2 fw-bold text-primary">New Consultation</h4>
+                    </div>
+                    {{-- breadcrumb --}}
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('appointments.index') }}">Appointments</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">New Consultation</li>
+                        </ol>
+                    </nav>
+                    <div class="text-muted mt-2">
+                        Patient: {{ $patient->name }} |
+                        Appointment: {{ $appointment->appointment_date }}
+                    </div>
                 </div>
-                {{-- breadcrumb --}}
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('appointments.index') }}">Appointments</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">New Consultation</li>
-                    </ol>
-                </nav>
-                <div class="text-muted mt-2">
-                    Patient: {{ $patient->name }} |
-                    Appointment: {{ $appointment->appointment_date }}
-                </div>
+                <a href="{{ route('appointments.index') }}" class="btn btn-outline-primary">
+                    <i class="ti ti-arrow-left me-1"></i> Back
+                </a>
             </div>
-            <a href="{{ route('appointments.index') }}" class="btn btn-outline-primary">
-                <i class="ti ti-arrow-left me-1"></i> Back
-            </a>
-        </div>
 
-        <form action="{{ route('clinical.consultations.store', $appointment) }}" method="POST">
-            @csrf
+            <div class="card-body">
+                <form action="{{ route('clinical.consultations.store', $appointment) }}" method="POST">
+                    @csrf
 
-            <div class="row">
-                <div class="col-lg-8">
+                    <div class="row">
+                        <div class="col-lg-8">
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-transparent py-3">
                             <h5 class="card-title mb-0">Clinical Notes</h5>
@@ -107,7 +129,7 @@
                                     <div class="mb-1">Resp Rate: {{ $history->first()->respiratory_rate }}</div>
                                 </div>
                                 <hr>
-                                <div class="table">
+                                <div class="table-responsive">
                                     <table class="table table-sm table-hover mb-0 datatable">
                                         <thead>
                                             <tr>

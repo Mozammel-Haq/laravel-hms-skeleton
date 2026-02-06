@@ -1,17 +1,18 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-3 min-vh-100">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="page-title mb-0">Super Admin Dashboard</h3>
-            <div class="text-muted">{{ now()->format('l, d M Y') }}</div>
-        </div>
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle p-3 rounded text-primary mb-3">
+                <h4 class="fw-bold text-primary">Super Admin Dashboard</h4>
+                <div class="text-muted">{{ now()->format('l, d M Y') }}</div>
+            </div>
 
-        <div class="alert alert-info">
-            <i class="ti ti-info-circle me-2"></i>
-            Welcome to the Super Admin Dashboard. Use the sidebar to manage clinics, subscriptions, and system-wide
-            settings.
-        </div>
+            <div class="alert alert-info">
+                <i class="ti ti-info-circle me-2"></i>
+                Welcome to the Super Admin Dashboard. Use the sidebar to manage clinics, subscriptions, and system-wide
+                settings.
+            </div>
 
-        <div class="row g-4 mb-4">
+            <div class="row g-4 mb-4">
             <!-- Manage Clinics Card -->
             <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary"
@@ -122,7 +123,7 @@
                                     </div>
                                     <p class="text-muted kpi-footer mb-0">Total Users</p>
                                 </div>
-                                <a href="#" class="btn btn-sm btn-outline-primary stretched-link">View</a>
+                                <a href="{{ route('staff.index') }}" class="btn btn-sm btn-outline-primary stretched-link">View</a>
                             </div>
                         </div>
                     </div>
@@ -157,11 +158,11 @@
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" 
-                                        stroke="var(--primary-color)" stroke-width="1.5" stroke-linecap="round" 
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                                        stroke="var(--primary-color)" stroke-width="1.5" stroke-linecap="round"
                                         stroke-linejoin="round" />
-                                    <circle cx="12" cy="7" r="4" 
-                                        stroke="var(--primary-color)" stroke-width="1.5" stroke-linecap="round" 
+                                    <circle cx="12" cy="7" r="4"
+                                        stroke="var(--primary-color)" stroke-width="1.5" stroke-linecap="round"
                                         stroke-linejoin="round" />
                                 </svg>
                             </div>
@@ -184,6 +185,170 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">System Growth: Clinics vs Patients</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="systemGrowthChart"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">User Roles Distribution</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div id="userRolesChart" class="w-100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var options = {
+                    series: [{
+                        name: 'New Clinics',
+                        type: 'area',
+                        data: @json($chartData['system_growth']['clinics'])
+                    }, {
+                        name: 'New Patients',
+                        type: 'area',
+                        data: @json($chartData['system_growth']['patients'])
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'area',
+                        toolbar: {
+                            show: false
+                        },
+                        animations: {
+                            enabled: true,
+                            easing: 'easeinout',
+                            speed: 800
+                        }
+                    },
+                    stroke: {
+                        width: [2, 2],
+                        curve: 'smooth'
+                    },
+                    markers: {
+                        size: 5,
+                        hover: {
+                            size: 7
+                        }
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.4,
+                            opacityTo: 0.05,
+                            stops: [0, 100]
+                        }
+                    },
+                    xaxis: {
+                        categories: @json($chartData['system_growth']['months']),
+                        labels: {
+                            style: {
+                                colors: 'var(--bs-secondary)'
+                            }
+                        }
+                    },
+                    yaxis: [{
+                        title: {
+                            text: 'New Clinics',
+                            style: { color: 'var(--primary-color)' }
+                        },
+                        labels: {
+                            style: {
+                                colors: 'var(--bs-secondary)'
+                            }
+                        }
+                    }, {
+                        opposite: true,
+                        title: {
+                            text: 'New Patients',
+                            style: { color: 'var(--bs-success)' }
+                        },
+                        labels: {
+                            style: {
+                                colors: 'var(--bs-secondary)'
+                            }
+                        }
+                    }],
+                    colors: ['var(--primary-color)', 'var(--bs-success)'],
+                    tooltip: {
+                        theme: 'light',
+                        shared: true,
+                        intersect: false
+                    },
+                    legend: {
+                        position: 'top',
+                        horizontalAlign: 'right'
+                    }
+                };
+                var chart = new ApexCharts(document.querySelector("#systemGrowthChart"), options);
+                chart.render();
+
+                // User Roles Donut Chart
+                var userRolesOptions = {
+                    series: @json($chartData['user_roles']['counts']),
+                    chart: {
+                        type: 'donut',
+                        height: 350,
+                        animations: {
+                            enabled: true,
+                            easing: 'easeinout',
+                            speed: 800
+                        }
+                    },
+                    labels: @json($chartData['user_roles']['labels']),
+                    colors: ['var(--primary-color)', 'var(--bs-success)', 'var(--bs-warning)', 'var(--bs-danger)', 'var(--bs-info)', '#6f42c1', '#fd7e14'],
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    total: {
+                                        show: true,
+                                        label: 'Total Users',
+                                        formatter: function (w) {
+                                            return w.globals.seriesTotals.reduce((a, b) => {
+                                                return a + b
+                                            }, 0)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        theme: 'light',
+                        y: {
+                            formatter: function(val) {
+                                return val + " Users"
+                            }
+                        }
+                    }
+                };
+                var userRolesChart = new ApexCharts(document.querySelector("#userRolesChart"), userRolesOptions);
+                userRolesChart.render();
+            });
+        </script>
         </div>
     </div>
 </x-app-layout>

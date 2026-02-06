@@ -60,10 +60,10 @@ class DashboardTest extends TestCase
         $doctorUser = User::factory()->create(['clinic_id' => $clinic->id]);
         $doctor = Doctor::create([
             'user_id' => $doctorUser->id,
+            'clinic_id' => $clinic->id,
             'primary_department_id' => $department->id,
             'license_number' => 'DOC001',
             'specialization' => ['General'],
-            'joining_date' => now(),
         ]);
         $clinic->doctors()->attach($doctor->id);
 
@@ -90,8 +90,8 @@ class DashboardTest extends TestCase
             'start_time' => '10:00:00',
             'end_time' => '10:15:00',
             'status' => 'completed',
-            'appointment_type' => 'New Visit',
-            'booking_source' => 'walk-in',
+            'appointment_type' => 'in_person',
+            'booking_source' => 'in_person',
         ]);
 
         // 6. Create Invoice
@@ -102,11 +102,8 @@ class DashboardTest extends TestCase
             'invoice_number' => 'INV-001',
             'subtotal' => 100.00,
             'total_amount' => 100.00,
-            'paid_amount' => 100.00,
-            'due_amount' => 0,
             'status' => 'paid',
-            'issue_date' => now(),
-            'due_date' => now(),
+            'issued_at' => now(),
         ]);
 
         // 7. Visit Dashboard

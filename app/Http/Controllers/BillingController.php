@@ -9,8 +9,9 @@ use App\Models\LabTestOrder;
 use App\Models\PharmacySale;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use App\Models\InvoicePayment;
+use App\Models\Payment;
 use App\Models\Appointment;
+use App\Notifications\PaymentReceivedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
@@ -187,18 +188,22 @@ class BillingController extends Controller
                 }
                 $ref = $modelClass::where('id', $item['reference_id'])->first();
                 if (!$ref) {
-                    throw ValidationException::withMessages(['items' => "Item not found: {$item['description']}"]);
+                    $desc = $item['description'] ?? 'Unknown Item';
+                    throw ValidationException::withMessages(['items' => "Item not found: {$desc}"]);
                 }
                 if (isset($ref->patient_id) && (int)$ref->patient_id !== (int)$request->patient_id) {
-                    throw ValidationException::withMessages(['items' => "Item does not belong to this patient: {$item['description']}"]);
+                    $desc = $item['description'] ?? 'Unknown Item';
+                    throw ValidationException::withMessages(['items' => "Item does not belong to this patient: {$desc}"]);
                 }
 
                 // Check if already invoiced
                 if ($item['item_type'] === 'lab_order' && !empty($ref->invoice_id)) {
-                    throw ValidationException::withMessages(['items' => "Item already invoiced: {$item['description']}"]);
+                    $desc = $item['description'] ?? 'Unknown Item';
+                    throw ValidationException::withMessages(['items' => "Item already invoiced: {$desc}"]);
                 }
                 if ($item['item_type'] === 'consultation' && $ref->invoiceItem()->exists()) {
-                    throw ValidationException::withMessages(['items' => "Item already invoiced: {$item['description']}"]);
+                    $desc = $item['description'] ?? 'Unknown Item';
+                    throw ValidationException::withMessages(['items' => "Item already invoiced: {$desc}"]);
                 }
 
                 $subtotal += $item['quantity'] * $item['unit_price'];
@@ -356,7 +361,7 @@ class BillingController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $invoice) {
-            $invoice->payments()->create([
+            $payment = $invoice->payments()->create([
                 'amount' => $request->amount,
                 'payment_method' => $request->payment_method,
                 'paid_at' => now(),
@@ -384,6 +389,11 @@ class BillingController extends Controller
                 if ($appointment && in_array($appointment->status, ['pending', 'arrived'], true)) {
                     $appointment->update(['status' => 'confirmed']);
                 }
+            }
+
+            // Notify Patient
+            if ($invoice->patient) {
+                $invoice->patient->notify(new PaymentReceivedNotification($payment, $invoice));
             }
         });
 

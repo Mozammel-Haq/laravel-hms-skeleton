@@ -22,7 +22,7 @@ class PharmacyService
     public function processSale($patient, array $items, ?int $prescriptionId = null)
     {
         $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
-        
+
         if (!$clinicId) {
             throw new Exception("Clinic context is required to process sale.");
         }
@@ -53,18 +53,24 @@ class PharmacyService
                 }
 
                 $remainingToDeduct = $item['quantity'];
+                $totalItemCost = 0;
 
                 foreach ($batches as $batch) {
                     if ($remainingToDeduct <= 0) break;
 
+                    $deduct = 0;
+
                     if ($batch->quantity_in_stock >= $remainingToDeduct) {
+                        $deduct = $remainingToDeduct;
                         $batch->decrement('quantity_in_stock', $remainingToDeduct);
                         $remainingToDeduct = 0;
                     } else {
-                        $deducted = $batch->quantity_in_stock;
+                        $deduct = $batch->quantity_in_stock;
                         $batch->update(['quantity_in_stock' => 0]);
-                        $remainingToDeduct -= $deducted;
+                        $remainingToDeduct -= $deduct;
                     }
+
+                    $totalItemCost += $deduct * $batch->purchase_price;
                 }
 
                 // Check for low stock after deduction
@@ -90,6 +96,7 @@ class PharmacyService
                     'quantity' => $item['quantity'],
                     'unit_price' => $medicine->price,
                     'total_price' => $subtotal,
+                    'unit_cost' => $item['quantity'] > 0 ? ($totalItemCost / $item['quantity']) : 0,
                 ];
             }
 
@@ -107,6 +114,7 @@ class PharmacyService
                     'medicine_id' => $saleItem['medicine_id'],
                     'quantity' => $saleItem['quantity'],
                     'unit_price' => $saleItem['unit_price'],
+                    'unit_cost' => $saleItem['unit_cost'],
                 ]);
             }
 

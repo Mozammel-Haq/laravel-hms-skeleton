@@ -1,23 +1,20 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        {{-- Page Header --}}
-        <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
-            <h4 class="fw-bold mb-2 text-primary">Manage Schedule</h4>
-            {{-- breadcrumb --}}
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Manage Schedule</li>
-                </ol>
-            </nav>
-        </div>
-
-
         @php $mode = $mode ?? 'admin'; @endphp
 
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <div class="card border-0 mt-2">
+                    <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top">
+                        <h4 class="fw-bold mb-2 text-primary">Manage Schedule</h4>
+                        {{-- breadcrumb --}}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Manage Schedule</li>
+                            </ol>
+                        </nav>
+                    </div>
                     <div class="card-body p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4 w-100">
                             <div>

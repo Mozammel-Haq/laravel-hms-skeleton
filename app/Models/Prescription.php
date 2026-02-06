@@ -108,5 +108,6 @@ class Prescription extends BaseTenantModel
 
     protected $casts = [
         'created_at' => 'date',
+        'issued_at' => 'datetime',
     ];
 }

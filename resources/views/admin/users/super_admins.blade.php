@@ -8,7 +8,7 @@
                     <a href="{{ route('admin.permissions.index') }}" class="btn btn-outline-primary">Permissions</a>
                 </div>
                 <hr>
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle datatable">
                         <thead>
                             <tr>

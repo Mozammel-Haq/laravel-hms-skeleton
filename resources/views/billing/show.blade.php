@@ -126,30 +126,32 @@
     @endpush
 
     <div class="container-fluid mx-2 mt-2 no-print">
-        <!-- Breadcrumbs & Header -->
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
-            <div>
-                <h5 class="fw-bold mb-1 text-primary">Invoice Details</h5>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ $invoice->invoice_number }}</li>
-                    </ol>
-                </nav>
+        <div class="card p-3">
+            <!-- Breadcrumbs & Header -->
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top mb-0">
+                <div>
+                    <h5 class="fw-bold mb-1 text-primary">Invoice Details</h5>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ $invoice->invoice_number }}</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="d-flex gap-2">
+                    <button onclick="window.print()" class="btn btn-sm btn-secondary">
+                        <i class="ti ti-printer me-1"></i> Print Receipt
+                    </button>
+                    <a href="{{ route('billing.index') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="ti ti-arrow-left me-1"></i> Back
+                    </a>
+                </div>
             </div>
-            <div class="d-flex gap-2">
-                <button onclick="window.print()" class="btn btn-sm btn-secondary">
-                    <i class="ti ti-printer me-1"></i> Print Receipt
-                </button>
-                <a href="{{ route('billing.index') }}" class="btn btn-sm btn-outline-primary">
-                    <i class="ti ti-arrow-left me-1"></i> Back
-                </a>
-            </div>
-        </div>
 
-        <div class="row mt-0">
-            <div class="col-lg-8">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
                 <div class="card border border-secondary-subtle shadow-sm mb-4">
                     <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0 fw-bold text-dark">

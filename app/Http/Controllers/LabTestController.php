@@ -76,4 +76,48 @@ class LabTestController extends Controller
         LabTest::create($request->only('name', 'category', 'description', 'normal_range', 'price', 'status'));
         return redirect()->route('lab.catalog.index')->with('success', 'Lab test added');
     }
+
+    /**
+     * Show the form for editing the specified lab test.
+     *
+     * @param  \App\Models\LabTest  $labTest
+     * @return \Illuminate\View\View
+     */
+    public function edit(LabTest $labTest)
+    {
+        return view('lab.catalog.edit', compact('labTest'));
+    }
+
+    /**
+     * Update the specified lab test in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\LabTest  $labTest
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(Request $request, LabTest $labTest)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'normal_range' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'status' => 'required|in:active,inactive',
+        ]);
+        $labTest->update($request->only('name', 'category', 'description', 'normal_range', 'price', 'status'));
+        return redirect()->route('lab.catalog.index')->with('success', 'Lab test updated');
+    }
+
+    /**
+     * Remove the specified lab test from storage.
+     *
+     * @param  \App\Models\LabTest  $labTest
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(LabTest $labTest)
+    {
+        $labTest->delete();
+        return redirect()->route('lab.catalog.index')->with('success', 'Lab test deleted');
+    }
 }

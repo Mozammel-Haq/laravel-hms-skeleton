@@ -1,26 +1,27 @@
 <x-app-layout>
 
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
-            <div>
-                <h4 class="mb-2 text-primary fw-bold">Patients</h4>
-                {{-- breadcrumb --}}
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Patients</li>
-                    </ol>
-                </nav>
-            </div>
-            @can('create', \App\Models\Patient::class)
-                <a href="{{ route('patients.create') }}" class="btn btn-primary btn-sm">
-                    <i class="ti ti-plus me-1"></i> Add Patient
-                </a>
-            @endcan
-        </div>
-
+        
         <div class="card border-0 shadow-sm">
             <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
+                    <div>
+                        <h4 class="mb-2 text-primary fw-bold">Patients</h4>
+                        {{-- breadcrumb --}}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb breadcrumb-dots mb-0">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Patients</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    @can('create', \App\Models\Patient::class)
+                        <a href="{{ route('patients.create') }}" class="btn btn-primary btn-sm">
+                            <i class="ti ti-plus me-1"></i> Add Patient
+                        </a>
+                    @endcan
+                </div>
+
                 <!-- Filters -->
                 <form method="GET" action="{{ route('patients.index') }}" class="mb-4">
                     <div class="row g-2 align-items-end">

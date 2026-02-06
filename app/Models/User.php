@@ -198,6 +198,7 @@ class User extends BaseTenantModel implements AuthenticatableContract, MustVerif
             $role = Role::where('name', $role)->firstOrFail();
         }
         $this->roles()->syncWithoutDetaching($role);
+        $this->unsetRelation('roles');
     }
 
     /**

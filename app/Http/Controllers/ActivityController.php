@@ -52,7 +52,7 @@ class ActivityController extends Controller
             $query->whereDate('created_at', '<=', request('to'));
         }
 
-        $logs = $query->latest()->paginate(100)->withQueryString();
-        return view('activity.index', compact('logs'));
+        $activities = $query->latest()->paginate(100)->withQueryString();
+        return view('activity.index', compact('activities'));
     }
 }

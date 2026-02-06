@@ -1,23 +1,40 @@
 <x-app-layout>
+        <style>
+        .table-responsive {
+            /* Ensure there's space at the bottom for dropdowns to expand without being clipped */
+            padding-bottom: 0px;
+            /* Optional: visible only when scrolling is actually needed?
+               No, because dropdown clipping happens even if x-scroll isn't active but overflow-x is auto.
+               But always adding 80px padding might look ugly.
+
+               Better approach:
+               If the table has few rows, the container height collapses, clipping the dropdown.
+               We enforce a minimum height or padding.
+            */
+            min-height: 0px; /* Ensure enough height for at least one row + dropdown */
+            overflow-y: visible !important; /* Try to allow vertical overflow */
+            overflow-x: auto;
+        }
+
+        /* Fix for last row dropdowns being clipped in responsive tables */
+
+    </style>
     <div class="content">
 
         <!-- start row -->
         <div class="row m-auto justify-content-center">
             <div class="col-lg-10">
 
-                <!-- Start Page Header -->
-                <div class="d-flex align-items-sm-center flex-sm-row flex-column gap-2 mb-3">
-                    <div class="flex-grow-1">
-                        <h6 class="fw-bold mb-0 d-flex align-items-center">
-                            <a href="{{ route('clinical.prescriptions.index') }}">
-                                <i class="ti ti-chevron-left me-1 fs-14"></i>Prescription
-                            </a>
-                        </h6>
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary-subtle text-primary px-4 py-3 rounded-top">
+                        <div class="d-flex align-items-center">
+                            <h6 class="fw-bold mb-0">
+                                <a href="{{ route('clinical.prescriptions.index') }}" class="text-primary text-decoration-none d-flex align-items-center">
+                                    <i class="ti ti-chevron-left me-1 fs-14"></i>Prescription
+                                </a>
+                            </h6>
+                        </div>
                     </div>
-                </div>
-                <!-- End Page Header -->
-
-                <div class="card">
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
@@ -48,8 +65,13 @@
                                 class="d-flex align-items-center justify-content-between border-1 border-bottom pb-3 mb-3 flex-wrap gap-3">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="avatar avatar-xxl rounded bg-light border p-2">
-                                        <img src="{{ asset('assets/img/icons/trust-care.svg') }}" alt="clinic-logo"
-                                            class="img-fluid">
+                                        @if (optional(auth()->user()->clinic)->logo_path)
+                                            <img src="{{ asset('/') }}/{{ Storage::url(auth()->user()->clinic->logo_path) }}"
+                                                alt="clinic-logo" class="img-fluid" style="max-height: 100%; object-fit: contain;">
+                                        @else
+                                            <img src="{{ asset('assets/img/icons/trust-care.svg') }}" alt="clinic-logo"
+                                                class="img-fluid">
+                                        @endif
                                     </div>
                                     <div>
                                         <h6 class="text-dark fw-semibold mb-1">
@@ -123,7 +145,7 @@
                                         $vitals = isset($vitalsHistory) ? $vitalsHistory : collect();
                                     @endphp
                                     @if ($vitals->isNotEmpty())
-                                        <div class="table">
+                                        <div class="table-responsive">
                                             <table class="table table-sm table-hover mb-0 datatable">
                                                 <thead>
                                                     <tr>

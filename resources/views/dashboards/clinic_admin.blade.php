@@ -1,6 +1,10 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-3">
-        <div class="row g-4 mb-4">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle p-3 rounded text-primary mb-3">
+                <h4 class="fw-bold text-primary">Clinic Admin Dashboard</h4>
+            </div>
+            <div class="row g-4 mb-4">
             <!-- Doctors KPI Card -->
             <div class="col-xl-3 col-md-6">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info"
@@ -188,9 +192,9 @@
                         <div class="d-flex align-items-start justify-content-between mb-3">
                             <div>
                                 <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">REVENUE
-                                    (7 DAYS)</h6>
+                                    (LAST MONTH)</h6>
                                 <h2 class="fw-bold kpi-value mb-0">
-                                    ৳{{ number_format($stats['revenue']['last_7_days'], 2) }}</h2>
+                                    ৳{{ number_format($stats['revenue']['last_month'], 2) }}</h2>
                             </div>
                             <div class="rounded-3 p-2 kpi-icon-container">
                                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
@@ -213,7 +217,7 @@
                                             stroke-linecap="round" />
                                     </svg>
                                 </div>
-                                <p class="text-muted kpi-footer">Last 7 Days</p>
+                                <p class="text-muted kpi-footer">Last Month</p>
                             </div>
                         </div>
                     </div>
@@ -221,6 +225,243 @@
             </div>
         </div>
 
+
+        <div class="row g-4 mb-4">
+            <!-- Clinic Performance Chart (Revenue vs Appointments) -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Clinic Performance</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="clinicPerformanceChart"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Income by Department Chart -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Income by Department</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div id="incomeByDepartmentChart" class="w-100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Top Doctors Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Top Performing Doctors</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="topDoctorsChart"></div>
+                    </div>
+                </div>
+            </div>
+             <!-- Doctor Availability Chart -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Doctor Availability</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div id="doctorAvailabilityChart" class="w-100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Clinic Performance Chart (Revenue vs Appointments)
+                var clinicPerformanceOptions = {
+                    series: [{
+                        name: 'Revenue',
+                        type: 'area',
+                        data: @json($chartData['performance_trend']['revenue'])
+                    }, {
+                        name: 'Appointments',
+                        type: 'area',
+                        data: @json($chartData['performance_trend']['appointments'])
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'area',
+                        toolbar: { show: false },
+                        animations: { enabled: true }
+                    },
+                    stroke: {
+                        width: [2, 2],
+                        curve: 'smooth'
+                    },
+                    markers: {
+                        size: 5,
+                        hover: {
+                            size: 7
+                        }
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.4,
+                            opacityTo: 0.05,
+                            stops: [0, 100]
+                        }
+                    },
+                    dataLabels: { enabled: false },
+                    labels: @json($chartData['performance_trend']['dates']),
+                    xaxis: {
+                        type: 'datetime',
+                        labels: { style: { colors: 'var(--bs-secondary)' } },
+                        axisBorder: { show: false },
+                        axisTicks: { show: false }
+                    },
+                    yaxis: [{
+                        title: {
+                            text: 'Revenue',
+                            style: { color: 'var(--bs-success)' }
+                        },
+                        labels: {
+                            style: { colors: 'var(--bs-success)' },
+                            formatter: function (value) { return "৳" + value.toFixed(0); }
+                        }
+                    }, {
+                        opposite: true,
+                        title: {
+                            text: 'Appointments',
+                            style: { color: 'var(--primary-color)' }
+                        },
+                        labels: { style: { colors: 'var(--primary-color)' } }
+                    }],
+                    colors: ['var(--bs-success)', 'var(--primary-color)'],
+                    grid: {
+                        borderColor: 'var(--bs-border-color)',
+                        strokeDashArray: 4,
+                        xaxis: { lines: { show: false } }
+                    },
+                    tooltip: {
+                        theme: 'light',
+                        y: {
+                            formatter: function (value, { seriesIndex }) {
+                                if(seriesIndex === 0) return "৳" + value.toFixed(2);
+                                return value;
+                            }
+                        }
+                    }
+                };
+                var clinicPerformanceChart = new ApexCharts(document.querySelector("#clinicPerformanceChart"), clinicPerformanceOptions);
+                clinicPerformanceChart.render();
+
+                // Income By Department Chart (Donut)
+                var incomeByDeptOptions = {
+                    series: @json($chartData['income_by_department']['amounts']),
+                    chart: {
+                        type: 'donut',
+                        height: 350,
+                        animations: { enabled: true }
+                    },
+                    labels: @json($chartData['income_by_department']['labels']),
+                    colors: ['var(--primary-color)', 'var(--bs-success)', 'var(--bs-warning)', 'var(--bs-danger)', 'var(--bs-info)'],
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    total: {
+                                        show: true,
+                                        label: 'Total',
+                                        formatter: function (w) {
+                                            return "৳" + w.globals.seriesTotals.reduce((a, b) => a + b, 0).toFixed(0);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    dataLabels: { enabled: false },
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        theme: 'light',
+                        y: {
+                            formatter: function (value) {
+                                return "৳" + value.toFixed(2);
+                            }
+                        }
+                    }
+                };
+                var incomeByDeptChart = new ApexCharts(document.querySelector("#incomeByDepartmentChart"), incomeByDeptOptions);
+                incomeByDeptChart.render();
+
+                // Top Doctors Chart (Bar)
+                var topDoctorsOptions = {
+                    series: [{
+                        name: 'Appointments',
+                        data: @json($chartData['top_doctors']['counts'])
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 350,
+                        toolbar: { show: false },
+                        animations: { enabled: true }
+                    },
+                    plotOptions: {
+                        bar: {
+                            borderRadius: 4,
+                            horizontal: true,
+                        }
+                    },
+                    dataLabels: { enabled: false },
+                    xaxis: {
+                        categories: @json($chartData['top_doctors']['names']),
+                        labels: { style: { colors: 'var(--bs-secondary)' } }
+                    },
+                    yaxis: {
+                        labels: { style: { colors: 'var(--bs-secondary)' } }
+                    },
+                    colors: ['var(--primary-color)'],
+                    tooltip: { theme: 'light' }
+                };
+                var topDoctorsChart = new ApexCharts(document.querySelector("#topDoctorsChart"), topDoctorsOptions);
+                topDoctorsChart.render();
+
+                // Doctor Availability Chart (Radial Bar)
+                var doctorStatusOptions = {
+                    series: @json($chartData['doctor_status']['counts']),
+                    chart: {
+                        type: 'radialBar',
+                        height: 350,
+                        animations: { enabled: true }
+                    },
+                    plotOptions: {
+                        radialBar: {
+                            dataLabels: {
+                                name: { fontSize: '22px' },
+                                value: { fontSize: '16px' },
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    formatter: function (w) {
+                                        return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    labels: @json($chartData['doctor_status']['labels']),
+                    colors: ['var(--bs-success)', 'var(--bs-secondary)'],
+                    tooltip: { theme: 'light' }
+                };
+                var doctorStatusChart = new ApexCharts(document.querySelector("#doctorAvailabilityChart"), doctorStatusOptions);
+                doctorStatusChart.render();
+            });
+        </script>
 
         <div class="row g-4 mb-4">
             <!-- Latest Appointments -->
@@ -231,7 +472,7 @@
                         <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-outline-primary">View
                             All</a>
                     </div>
-                    <div class="table">
+                    <div class="table-responsive">
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
@@ -423,7 +664,7 @@
                         <h5 class="mb-0">Recent Transactions</h5>
                         <a href="{{ route('billing.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
-                    <div class="table">
+                    <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead>
                                 <tr>
@@ -454,7 +695,10 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
             </div>
         </div>
+        </div>
+    </div>
+
+<!-- Old scripts removed -->
 </x-app-layout>

@@ -85,7 +85,7 @@
                                     Schedule</a>
                             @endif
                         </div>
-                        <div class="table">
+                        <div class="table-responsive">
                             <table class="table">
                                 <thead>
                                     <tr>

@@ -51,6 +51,7 @@ class Consultation extends BaseTenantModel
         'follow_up_required',
         'follow_up_date',
         'symptoms',
+        'status',
     ];
 
     protected $casts = [
@@ -99,9 +100,11 @@ class Consultation extends BaseTenantModel
 
     /**
      * Get the invoice item associated with the consultation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function invoiceItem()
     {
-        return $this->hasOne(InvoiceItem::class, 'reference_id')->where('item_type', $this->getTable());
+        return $this->hasOne(InvoiceItem::class, 'reference_id')->where('item_type', 'consultation');
     }
 }

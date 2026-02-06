@@ -6,25 +6,27 @@
     @endphp
 
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
-            <div>
-                <h5 class="fw-bold mb-1 text-primary">Record Payment</h5>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Invoices</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Record Payment</li>
-                    </ol>
-                </nav>
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top mb-0">
+                <div>
+                    <h5 class="fw-bold mb-1 text-primary">Record Payment</h5>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Invoices</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Record Payment</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="{{ route('billing.show', $invoice) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="ti ti-arrow-left me-1"></i> Back to Invoice
+                </a>
             </div>
-            <a href="{{ route('billing.show', $invoice) }}" class="btn btn-sm btn-outline-primary">
-                <i class="ti ti-arrow-left me-1"></i> Back to Invoice
-            </a>
-        </div>
 
-        <div class="row mt-0">
-            <!-- Left Column: Payment Form & Details -->
-            <div class="col-12 col-lg-8">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Left Column: Payment Form & Details -->
+                    <div class="col-12 col-lg-8">
                 <!-- Invoice Summary Card -->
                 <div class="card mb-3 rounded-0 border-top-0 shadow-sm">
                     <div class="card-header bg-light-subtle">

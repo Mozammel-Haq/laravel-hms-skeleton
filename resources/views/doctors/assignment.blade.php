@@ -1,21 +1,18 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-
-        {{-- Page Header --}}
-        <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
-            <h4 class="fw-bold mb-2 text-primary">Doctor Clinic Assignments</h4>
-            {{-- breadcrumb --}}
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Doctor Assignments</li>
-                </ol>
-            </nav>
-
-        </div>
-
-        {{-- Filters --}}
+        
+        {{-- Filters & Header --}}
         <div class="card mb-2 mt-2">
+            <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top">
+                <h4 class="fw-bold mb-2 text-primary">Doctor Clinic Assignments</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Doctor Assignments</li>
+                    </ol>
+                </nav>
+            </div>
             <div class="card-body">
 
                 <form method="GET" action="{{ route('doctors.assignment') }}" class="mb-4">
@@ -62,7 +59,7 @@
         {{-- Doctors Table --}}
         <div class="card">
             <div class="card-body">
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>

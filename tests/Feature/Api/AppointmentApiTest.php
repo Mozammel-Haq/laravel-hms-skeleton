@@ -76,6 +76,7 @@ class AppointmentApiTest extends TestCase
         ]);
         $doctor = Doctor::create([
             'user_id' => $doctorUser->id,
+            'clinic_id' => $clinicB->id,
             'specialization' => '["General"]', // JSON field
             'license_number' => '123',
             'phone' => '123',
@@ -91,7 +92,7 @@ class AppointmentApiTest extends TestCase
             'appointment_date' => now()->addDay()->toDateString(),
             'start_time' => '10:00:00',
             'end_time' => '10:15:00',
-            'status' => 'scheduled',
+            'status' => 'confirmed',
             'visit_type' => 'new',
             'booking_source' => 'online',
             'appointment_type' => 'online',
@@ -159,6 +160,7 @@ class AppointmentApiTest extends TestCase
         ]);
         $doctor = Doctor::create([
             'user_id' => $doctorUser->id,
+            'clinic_id' => $clinicA->id,
             'specialization' => '["General"]', // JSON field
             'license_number' => '123',
             'phone' => '123',
@@ -174,7 +176,7 @@ class AppointmentApiTest extends TestCase
             'appointment_date' => now()->addDay()->toDateString(),
             'start_time' => '10:00:00',
             'end_time' => '10:15:00',
-            'status' => 'scheduled',
+            'status' => 'confirmed',
             'visit_type' => 'new',
             'booking_source' => 'online',
             'appointment_type' => 'online',

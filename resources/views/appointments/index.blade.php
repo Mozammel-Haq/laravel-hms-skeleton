@@ -1,24 +1,24 @@
 <x-app-layout>
     <div class="py-4">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 rounded-top">
-                <div>
-                    <h4 class="fw-bold mb-2 text-primary">Appointments</h4>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb breadcrumb-dots mb-0">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Appointments</li>
-                        </ol>
-                    </nav>
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 rounded-top">
+                    <div>
+                        <h4 class="fw-bold mb-2 text-primary">Appointments</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb breadcrumb-dots mb-0">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Appointments</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    @can('create', \App\Models\Appointment::class)
+                        <a href="{{ route('appointments.booking.index') }}" class="btn btn-sm btn-primary">
+                            <i class="ti ti-plus me-1"></i> Book Appointment
+                        </a>
+                    @endcan
                 </div>
-                @can('create', \App\Models\Appointment::class)
-                    <a href="{{ route('appointments.booking.index') }}" class="btn btn-sm btn-primary">
-                        <i class="ti ti-plus me-1"></i> Book Appointment
-                    </a>
-                @endcan
-            </div>
 
-            <div class="card border-0 shadow-sm rounded-bottom rounded-0">
                 <div class="card-body p-0 pt-3">
                     <!-- Filters -->
                     <form method="GET" action="{{ route('appointments.index') }}" class="mb-4 px-3">

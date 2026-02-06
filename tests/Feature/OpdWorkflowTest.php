@@ -47,6 +47,7 @@ class OpdWorkflowTest extends TestCase
 
         $doctor = Doctor::create([
             'user_id' => $doctorUser->id,
+            'clinic_id' => $clinic->id,
             'primary_department_id' => $department->id,
             'specialization' => 'General Physician',
             'consultation_fee' => 100,
@@ -62,10 +63,19 @@ class OpdWorkflowTest extends TestCase
         ]);
 
         $receptionist = User::factory()->create(['clinic_id' => $clinic->id]);
-        $receptionist->assignRole('Receptionist');
+        $role = \App\Models\Role::firstOrCreate(['name' => 'Receptionist']);
+        // Assign permissions needed for the test
+        $perm1 = \App\Models\Permission::firstOrCreate(['name' => 'view_appointments']);
+        $perm2 = \App\Models\Permission::firstOrCreate(['name' => 'edit_appointments']);
+        $role->permissions()->syncWithoutDetaching([$perm1->id, $perm2->id]);
+        $receptionist->roles()->attach($role);
 
         $accountant = User::factory()->create(['clinic_id' => $clinic->id]);
-        $accountant->assignRole('Accountant');
+        $roleAcc = \App\Models\Role::firstOrCreate(['name' => 'Accountant']);
+        $perm3 = \App\Models\Permission::firstOrCreate(['name' => 'view_invoices']);
+        $perm4 = \App\Models\Permission::firstOrCreate(['name' => 'create_payments']);
+        $roleAcc->permissions()->syncWithoutDetaching([$perm3->id, $perm4->id]);
+        $accountant->roles()->attach($roleAcc);
 
         $appointment = Appointment::create([
             'clinic_id' => $clinic->id,

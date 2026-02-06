@@ -466,7 +466,7 @@
                 <h5 class="card-title mb-0">Tax Breakdown by Invoice</h5>
             </div>
             <div class="card-body">
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>

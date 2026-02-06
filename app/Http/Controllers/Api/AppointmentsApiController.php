@@ -227,6 +227,20 @@ class AppointmentsApiController extends Controller
             'appointment_type' => 'nullable|string',
             'reason_for_visit' => 'nullable|string',
         ]);
+
+        $patientId = $request->user()->id;
+        $appointmentDate = $request->appointment_date;
+
+        // Check if patient already has an appointment on this date
+        $exists = Appointment::where('patient_id', $patientId)
+            ->whereDate('appointment_date', $appointmentDate)
+            ->whereIn('status', ['pending', 'confirmed', 'arrived', 'in_progress'])
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'You already have an active appointment on this date.'], 422);
+        }
+
         $appointment = new Appointment();
         $appointment->doctor_id = $request->doctor_id;
         $appointment->department_id = $request->department_id;

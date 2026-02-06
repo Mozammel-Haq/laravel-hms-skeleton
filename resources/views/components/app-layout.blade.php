@@ -47,6 +47,30 @@
     <!-- Main CSS -->
     <link rel="stylesheet" href="{{ asset('assets') }}/css/style.css" id="app-style">
     <style>
+        /* Table Responsive Fixes */
+        .table-responsive {
+            /* Ensure there's space at the bottom for dropdowns to expand without being clipped */
+            padding-bottom: 80px;
+            /* Optional: visible only when scrolling is actually needed?
+               No, because dropdown clipping happens even if x-scroll isn't active but overflow-x is auto.
+               But always adding 80px padding might look ugly.
+
+               Better approach:
+               If the table has few rows, the container height collapses, clipping the dropdown.
+               We enforce a minimum height or padding.
+            */
+            min-height: 300px; /* Ensure enough height for at least one row + dropdown */
+            overflow-y: visible !important; /* Try to allow vertical overflow */
+            overflow-x: auto;
+        }
+
+        /* Fix for last row dropdowns being clipped in responsive tables */
+        .table-responsive .dropdown-menu {
+            /* This is tricky inside overflow:auto.
+               The best CSS-only fix is usually min-height on the container.
+            */
+        }
+
         /* CSS Variables for theming */
         :root {
             /* Light mode colors */
@@ -396,10 +420,24 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize column filters for all tables (exclude static tables)
-            const tables = document.querySelectorAll('table:not(.static-table)');
+            const tables = document.querySelectorAll('table');
             tables.forEach((table, index) => {
                 // Skip if table has no header
                 if (!table.querySelector('thead')) return;
+
+                // HEURISTIC: Exclude Dashboards and Show Pages
+                // We want to keep it on Index pages.
+                const path = window.location.pathname;
+
+                // Exclude Dashboards
+                if (path.includes('dashboard')) return;
+
+                // Exclude Create/Edit/Show pages
+                if (path.endsWith('/create') || path.endsWith('/edit')) return;
+                if (/\/\d+$/.test(path)) return; // Ends in number (Show page)
+
+                // Also exclude if table explicitly asks for it
+                if (table.classList.contains('no-column-filter')) return;
 
                 // Assign unique ID if missing
                 if (!table.id) {

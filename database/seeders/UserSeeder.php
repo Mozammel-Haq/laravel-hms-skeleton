@@ -4,13 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Clinic;
 use App\Models\Doctor;
 use App\Models\Department;
+use App\Models\Patient;
 
 class UserSeeder extends Seeder
 {
@@ -19,29 +19,24 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Get or Create Default Clinic
-        $clinic = Clinic::firstOrCreate(
-            ['email' => 'dhcchms@citycare.com'],
-            [
-                'name' => 'Dhanmondi CityCare',
-                'code' => 'CC-HMS-1',
-                'registration_number' => '1210784863',
-                'address_line_1' => 'Nizam\'s Shankar Plaza, 72 Satmasjid Road, Dhaka 1209',
+        // 1. Get the Standard Clinic (created in StandardDataSeeder)
+        $clinic = Clinic::first();
+
+        if (!$clinic) {
+            // Fallback if StandardDataSeeder wasn't run (though it should be)
+            $clinic = Clinic::create([
+                'name' => 'Dhaka Medical Center',
+                'code' => 'DMC-001',
+                'address_line_1' => '123 Hospital Road',
                 'city' => 'Dhaka',
                 'country' => 'Bangladesh',
-                'postal_code' => '1209',
-                'phone' => '+8801711223344',
-                'website' => 'citycare.com.bd',
-                'logo_path' => 'dh-cc.png',
                 'timezone' => 'Asia/Dhaka',
                 'currency' => 'BDT',
-                'opening_time' => '08:00:00',
-                'closing_time' => '22:00:00',
                 'status' => 'active'
-            ]
-        );
+            ]);
+        }
 
-        // 2. Define Demo Users
+        // 2. Define Exact Users
         $users = [
             [
                 'name' => 'Super Admin',
@@ -49,32 +44,37 @@ class UserSeeder extends Seeder
                 'role' => 'Super Admin',
             ],
             [
-                'name' => 'Dr. Rahim Ahmed',
+                'name' => 'Clinic Admin',
+                'email' => 'admin@hospital.com',
+                'role' => 'Clinic Admin',
+            ],
+            [
+                'name' => 'Default Doctor',
                 'email' => 'doctor@hospital.com',
                 'role' => 'Doctor',
             ],
             [
-                'name' => 'Fatima Begum',
+                'name' => 'Default Nurse',
                 'email' => 'nurse@hospital.com',
                 'role' => 'Nurse',
             ],
             [
-                'name' => 'Sumaiya Akter',
+                'name' => 'Default Receptionist',
                 'email' => 'receptionist@hospital.com',
                 'role' => 'Receptionist',
             ],
             [
-                'name' => 'Abdul Malek',
+                'name' => 'Default Lab Technician',
                 'email' => 'lab@hospital.com',
                 'role' => 'Lab Technician',
             ],
             [
-                'name' => 'Hassan Mahmud',
+                'name' => 'Default Pharmacist',
                 'email' => 'pharmacist@hospital.com',
                 'role' => 'Pharmacist',
             ],
             [
-                'name' => 'Rafiqul Islam',
+                'name' => 'Default Accountant',
                 'email' => 'accountant@hospital.com',
                 'role' => 'Accountant',
             ],
@@ -103,10 +103,19 @@ class UserSeeder extends Seeder
 
             // If Doctor, create Doctor profile
             if ($userData['role'] === 'Doctor') {
-                $department = Department::firstOrCreate(
-                    ['name' => 'General Medicine', 'clinic_id' => $clinic->id],
-                    ['description' => 'General Medicine Department', 'status' => 'active']
-                );
+                // Try to find a department (e.g., General Medicine or Internal Medicine)
+                $department = Department::where('clinic_id', $clinic->id)
+                    ->where(function($q) {
+                        $q->where('name', 'LIKE', '%Medicine%')
+                          ->orWhere('name', 'LIKE', '%General%');
+                    })->first();
+
+                if (!$department) {
+                    $department = Department::firstOrCreate(
+                        ['name' => 'General Medicine', 'clinic_id' => $clinic->id],
+                        ['description' => 'General Medicine Department', 'status' => 'active']
+                    );
+                }
 
                 $doctor = Doctor::firstOrCreate(
                     ['user_id' => $user->id],
@@ -115,7 +124,9 @@ class UserSeeder extends Seeder
                         'primary_department_id' => $department->id,
                         'specialization' => ['General Physician'],
                         'consultation_fee' => 1000,
-                        'status' => 'active'
+                        'status' => 'active',
+                        'license_number' => 'BMDC-' . rand(10000, 99999),
+                        'experience_years' => 10
                     ]
                 );
 
@@ -124,5 +135,21 @@ class UserSeeder extends Seeder
                 }
             }
         }
+
+        // 3. Create a Patient (Standard Test Patient)
+        Patient::firstOrCreate(
+            ['email' => 'patient@example.com'],
+            [
+                'clinic_id' => $clinic->id,
+                'name' => 'Mr. Patient',
+                'password' => Hash::make('password'),
+                'date_of_birth' => '1990-01-01',
+                'gender' => 'male',
+                'phone' => '01700000000',
+                'blood_group' => 'B+',
+                'address' => 'Dhaka, Bangladesh',
+                'patient_code' => 'PAT-001',
+            ]
+        );
     }
 }

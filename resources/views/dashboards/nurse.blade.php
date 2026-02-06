@@ -1,6 +1,10 @@
 <x-app-layout>
     <div class="container-fluid py-3 mx-2">
-        <div class="row g-4 mb-4">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle p-3 rounded text-primary mb-3">
+                <h4 class="fw-bold text-primary">Nurse Dashboard</h4>
+            </div>
+            <div class="row g-4 mb-4">
             <!-- Active Admissions KPI Card -->
             <div class="col-md-6">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info"
@@ -108,13 +112,142 @@
             </div>
         </div>
 
+        <!-- Charts Section -->
+        <div class="row g-4 mb-4">
+            <!-- Patient Movement Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Patient Movement (Last 7 Days)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="patientMovementChart"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Bed Status Chart -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Bed Status Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="bedStatusChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Patient Movement Chart (Admissions vs Discharges)
+                var patientMovementOptions = {
+                    series: [{
+                        name: 'Admissions',
+                        type: 'area',
+                        data: @json($chartData['patient_movement']['admissions'])
+                    }, {
+                        name: 'Discharges',
+                        type: 'area',
+                        data: @json($chartData['patient_movement']['discharges'])
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'area',
+                        toolbar: { show: false },
+                        animations: { enabled: true }
+                    },
+                    stroke: {
+                        width: [2, 2],
+                        curve: 'smooth'
+                    },
+                    markers: {
+                        size: 5,
+                        hover: {
+                            size: 7
+                        }
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.4,
+                            opacityTo: 0.05,
+                            stops: [0, 100]
+                        }
+                    },
+                    xaxis: {
+                        categories: @json($chartData['patient_movement']['dates']),
+                        labels: { style: { colors: 'var(--bs-secondary)' } },
+                        axisBorder: { show: false },
+                        axisTicks: { show: false }
+                    },
+                    yaxis: [{
+                        title: {
+                            text: 'Admissions',
+                            style: { color: 'var(--primary-color)' }
+                        },
+                        labels: { style: { colors: 'var(--primary-color)' } }
+                    }, {
+                        opposite: true,
+                        title: {
+                            text: 'Discharges',
+                            style: { color: 'var(--bs-success)' }
+                        },
+                        labels: { style: { colors: 'var(--bs-success)' } }
+                    }],
+                    grid: {
+                        borderColor: 'var(--bs-border-color)',
+                        strokeDashArray: 4,
+                        xaxis: { lines: { show: false } }
+                    },
+                    colors: ['var(--primary-color)', 'var(--bs-success)'],
+                    legend: { position: 'top' }
+                };
+                var patientMovementChart = new ApexCharts(document.querySelector("#patientMovementChart"), patientMovementOptions);
+                patientMovementChart.render();
+
+                // Bed Status Chart (Donut)
+                var bedStatusOptions = {
+                    series: @json($chartData['bed_status']['counts']),
+                    labels: @json($chartData['bed_status']['labels']),
+                    chart: {
+                        type: 'donut',
+                        height: 350
+                    },
+                    colors: ['var(--bs-success)', 'var(--bs-danger)', 'var(--bs-warning)', 'var(--bs-secondary)'],
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    total: {
+                                        show: true,
+                                        label: 'Total Beds',
+                                        formatter: function (w) {
+                                            return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    dataLabels: { enabled: false },
+                    legend: { position: 'bottom' }
+                };
+                var bedStatusChart = new ApexCharts(document.querySelector("#bedStatusChart"), bedStatusOptions);
+                bedStatusChart.render();
+            });
+        </script>
+
         <div class="card border-0 shadow-sm mt-3">
             <div class="card-header bg-white d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">Admitted Patients</h5>
                 <a href="{{ route('ipd.index') }}" class="btn btn-sm btn-outline-primary">Manage IPD</a>
             </div>
             <div class="card-body">
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle datatable">
                         <thead class="table-light">
                             <tr>
@@ -181,6 +314,7 @@
                     </table>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </x-app-layout>

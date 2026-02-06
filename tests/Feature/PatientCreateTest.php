@@ -10,8 +10,8 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\Role;
+use App\Models\Permission;
 
 class PatientCreateTest extends TestCase
 {
@@ -21,36 +21,37 @@ class PatientCreateTest extends TestCase
     {
         parent::setUp();
         // Seed permissions if needed or just bypass
-        $this->seed(); 
+        $this->seed();
     }
 
     public function test_patient_can_be_created_with_profile_photo()
     {
         // Create a clinic
-        $clinic = Clinic::create(['name' => 'Test Clinic', 'code' => 'TC', 'address' => 'Test Address']);
-        
+        $clinic = Clinic::create(['name' => 'Test Clinic', 'code' => 'TC', 'address_line_1' => 'Test Address', 'city' => 'City', 'country' => 'Country', 'currency' => 'USD', 'timezone' => 'UTC', 'status' => 'active']);
+
         // Create a user with permission
         $user = User::factory()->create([
             'clinic_id' => $clinic->id,
             'status' => 'active'
         ]);
-        
+
         // Assign role/permissions (assuming Spatie)
         // Ensure user has 'create_patients' or similar permission if policy checks it
         // For now, let's assume Super Admin or Doctor role has access
         // Or mock Gate
-        
+
         // Let's create a role 'Super Admin' which usually has all access
-        $role = Role::firstOrCreate(['name' => 'Super Admin', 'guard_name' => 'web']);
-        $user->assignRole($role);
+        $role = Role::firstOrCreate(['name' => 'Super Admin']);
+        // Assign role using custom user-role relationship if Spatie is not used
+        $user->roles()->attach($role);
 
         $this->actingAs($user);
 
-        Storage::fake('public'); // This fakes the 'public' disk. 
+        Storage::fake('public'); // This fakes the 'public' disk.
         // NOTE: My controller uses public_path() and move(), which bypasses Storage facade.
         // So Storage::fake() might not help catch the file if I use move().
         // However, UploadedFile::fake()->image(...) creates a temp file.
-        
+
         $file = UploadedFile::fake()->image('avatar.jpg');
 
         $response = $this->post(route('patients.store'), [
@@ -59,11 +60,12 @@ class PatientCreateTest extends TestCase
             'gender' => 'male',
             'phone' => '1234567890',
             'address' => '123 Test St',
+            'nid_number' => '1234567890',
             'profile_photo' => $file,
         ]);
 
         $response->assertRedirect();
-        
+
         // Check DB
         $patient = Patient::latest()->first();
         $this->assertNotNull($patient);

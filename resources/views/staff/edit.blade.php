@@ -19,7 +19,7 @@
         <div class="card shadow-sm rounded-bottom mt-0">
             <div class="card-body p-4">
 
-                        <form action="{{ route('staff.update', $user) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('staff.update', $staff) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
 
@@ -29,7 +29,7 @@
                                     <label class="form-label fw-bold mb-3">Profile Photo</label>
                                     <div class="d-flex flex-column align-items-center">
                                         <div class="mb-3 position-relative">
-                                            <img id="photo-preview" src="{{ $user->profile_photo_url }}"
+                                            <img id="photo-preview" src="{{ $staff->profile_photo_url }}"
                                                 class="rounded-circle border shadow-sm object-fit-cover" width="120" height="120"
                                                 alt="Preview">
                                         </div>
@@ -53,7 +53,7 @@
                                         <div class="col-md-6">
                                             <label class="form-label small text-muted">Full Name <span class="text-danger">*</span></label>
                                             <input type="text" name="name" class="form-control form-control-sm"
-                                                value="{{ old('name', $user->name) }}" required placeholder="e.g. John Doe">
+                                                value="{{ old('name', $staff->name) }}" required placeholder="e.g. John Doe">
                                             @error('name')
                                                 <div class="text-danger small mt-1">{{ $message }}</div>
                                             @enderror
@@ -61,7 +61,7 @@
 
                                         <div class="col-md-6">
                                             <label class="form-label small fw-semibold">Email Address (Read Only)</label>
-                                            <input type="email" class="form-control form-control-sm bg-light" value="{{ $user->email }}" readonly disabled>
+                                            <input type="email" class="form-control form-control-sm bg-light" value="{{ $staff->email }}" readonly disabled>
                                         </div>
 
                                         <div class="col-md-6">
@@ -70,7 +70,7 @@
                                                 <option value="">Select Role</option>
                                                 @foreach ($roles as $role)
                                                     <option value="{{ $role->id }}"
-                                                        {{ old('role_id', $user->roles->first()->id ?? '') == $role->id ? 'selected' : '' }}>
+                                                        {{ old('role_id', $staff->roles->first()->id ?? '') == $role->id ? 'selected' : '' }}>
                                                         {{ ucfirst($role->name) }}
                                                     </option>
                                                 @endforeach

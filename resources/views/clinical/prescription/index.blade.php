@@ -1,16 +1,36 @@
 <x-app-layout>
+        <style>
+        .table-responsive {
+            /* Ensure there's space at the bottom for dropdowns to expand without being clipped */
+            padding-bottom: 0px;
+            /* Optional: visible only when scrolling is actually needed?
+               No, because dropdown clipping happens even if x-scroll isn't active but overflow-x is auto.
+               But always adding 80px padding might look ugly.
+
+               Better approach:
+               If the table has few rows, the container height collapses, clipping the dropdown.
+               We enforce a minimum height or padding.
+            */
+            min-height: 0px; /* Ensure enough height for at least one row + dropdown */
+            overflow-y: visible !important; /* Try to allow vertical overflow */
+            overflow-x: auto;
+        }
+
+        /* Fix for last row dropdowns being clipped in responsive tables */
+
+    </style>
     <div class="container-fluid m-2">
-                                <div class="bg-primary-subtle text-primary px-4 py-3 rounded">
-                    <h4 class="fw-bold mb-2 text-primary">Prescriptions</h4>
-                    {{-- breadcrumb --}}
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Prescriiptions</li>
-                        </ol>
-                    </nav>
-                </div>
         <div class="card ">
+            <div class="bg-primary-subtle text-primary px-4 py-3 rounded-top">
+                <h4 class="fw-bold mb-2 text-primary">Prescriptions</h4>
+                {{-- breadcrumb --}}
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Prescriptions</li>
+                    </ol>
+                </nav>
+            </div>
             <div class="card-body">
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('clinical.prescriptions.index') }}" class="mb-4">
@@ -44,7 +64,7 @@
                 </form>
 
                 <hr>
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>

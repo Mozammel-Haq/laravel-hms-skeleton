@@ -42,6 +42,7 @@ class MultiClinicScheduleTest extends TestCase
         $user = User::factory()->create(['clinic_id' => $this->clinicA->id]);
         $this->doctor = Doctor::create([
             'user_id' => $user->id,
+            'clinic_id' => $this->clinicA->id,
             'primary_department_id' => $dept->id,
             'specialization' => 'General',
             'status' => 'active'

@@ -1,34 +1,56 @@
 <x-app-layout>
     <div class="container-fluid py-4">
-        <!-- Header -->
-        <div class="row align-items-center mb-4">
-            <div class="col">
-                <h4 class="mb-2 fw-bold text-dark">Consultation Details</h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('clinical.consultations.index') }}" class="text-decoration-none">Consultations</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">#{{ $consultation->id }}</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="col-auto d-flex gap-2">
-                <a href="{{ route('clinical.consultations.index') }}" class="btn btn-outline-primary">
-                    <i class="ti ti-arrow-left me-1"></i> Back
-                </a>
-                @can('create', App\Models\Prescription::class)
-                    @if ($consultation->status !== 'completed')
-                        <a href="{{ route('clinical.prescriptions.create.withConsultation', $consultation->id) }}" class="btn btn-primary">
-                            <i class="ti ti-prescription me-1"></i> Create Prescription
-                        </a>
-                    @endif
-                @endcan
-            </div>
-        </div>
+            <style>
+        .table-responsive {
+            /* Ensure there's space at the bottom for dropdowns to expand without being clipped */
+            padding-bottom: 0px;
+            /* Optional: visible only when scrolling is actually needed?
+               No, because dropdown clipping happens even if x-scroll isn't active but overflow-x is auto.
+               But always adding 80px padding might look ugly.
 
-        <div class="row">
-            <!-- Left Column: Patient, Doctor, Fee Info -->
-            <div class="col-lg-4">
+               Better approach:
+               If the table has few rows, the container height collapses, clipping the dropdown.
+               We enforce a minimum height or padding.
+            */
+            min-height: 0px; /* Ensure enough height for at least one row + dropdown */
+            overflow-y: visible !important; /* Try to allow vertical overflow */
+            overflow-x: auto;
+        }
+
+        /* Fix for last row dropdowns being clipped in responsive tables */
+
+    </style>
+        <div class="card p-3">
+            <div class="card-body">
+                <!-- Header -->
+                <div class="row align-items-center mb-4">
+                    <div class="col">
+                        <h4 class="mb-2 fw-bold text-dark">Consultation Details</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('clinical.consultations.index') }}" class="text-decoration-none">Consultations</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">#{{ $consultation->id }}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-auto d-flex gap-2">
+                        <a href="{{ route('clinical.consultations.index') }}" class="btn btn-outline-primary">
+                            <i class="ti ti-arrow-left me-1"></i> Back
+                        </a>
+                        @can('create', App\Models\Prescription::class)
+                            @if ($consultation->status !== 'completed')
+                                <a href="{{ route('clinical.prescriptions.create.withConsultation', $consultation->id) }}" class="btn btn-primary">
+                                    <i class="ti ti-prescription me-1"></i> Create Prescription
+                                </a>
+                            @endif
+                        @endcan
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Left Column: Patient, Doctor, Fee Info -->
+                    <div class="col-lg-4">
                 <!-- Patient Info -->
                 <div class="card border border-secondary-subtle shadow-sm mb-4">
                     <div class="card-header bg-transparent border-bottom">

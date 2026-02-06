@@ -1,6 +1,10 @@
 <x-app-layout>
     <div class="container-fluid py-3 mx-2">
-        <div class="row g-4 mb-4">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle p-3 rounded text-primary mb-3">
+                <h4 class="fw-bold text-primary">Lab Technician Dashboard</h4>
+            </div>
+            <div class="row g-4 mb-4">
             <!-- Pending Orders KPI Card -->
             <div class="col-md-6">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" data-bs-theme="light,dark">
@@ -106,13 +110,142 @@
                 </div>
             </div>
         </div>
+
+        <!-- Charts Section -->
+        <div class="row g-4 mb-4">
+            <!-- Lab Activity Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Laboratory Activity (Last 7 Days)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="labActivityChart"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Lab Order Status Chart -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Order Status Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="labOrderStatusChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Lab Activity Chart (Requests vs Completed)
+                var labActivityOptions = {
+                    series: [{
+                        name: 'Total Requests',
+                        type: 'area',
+                        data: @json($chartData['lab_activity']['requests'])
+                    }, {
+                        name: 'Completed Tests',
+                        type: 'area',
+                        data: @json($chartData['lab_activity']['completed'])
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'area',
+                        toolbar: { show: false },
+                        animations: { enabled: true }
+                    },
+                    stroke: {
+                        width: [2, 2],
+                        curve: 'smooth'
+                    },
+                    markers: {
+                        size: 5,
+                        hover: {
+                            size: 7
+                        }
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.4,
+                            opacityTo: 0.05,
+                            stops: [0, 100]
+                        }
+                    },
+                    xaxis: {
+                        categories: @json($chartData['lab_activity']['dates']),
+                        labels: { style: { colors: 'var(--bs-secondary)' } },
+                        axisBorder: { show: false },
+                        axisTicks: { show: false }
+                    },
+                    yaxis: [{
+                        title: {
+                            text: 'Total Requests',
+                            style: { color: 'var(--primary-color)' }
+                        },
+                        labels: { style: { colors: 'var(--primary-color)' } }
+                    }, {
+                        opposite: true,
+                        title: {
+                            text: 'Completed Tests',
+                            style: { color: 'var(--bs-success)' }
+                        },
+                        labels: { style: { colors: 'var(--bs-success)' } }
+                    }],
+                    grid: {
+                        borderColor: 'var(--bs-border-color)',
+                        strokeDashArray: 4,
+                        xaxis: { lines: { show: false } }
+                    },
+                    colors: ['var(--primary-color)', 'var(--bs-success)'],
+                    legend: { position: 'top' }
+                };
+                var labActivityChart = new ApexCharts(document.querySelector("#labActivityChart"), labActivityOptions);
+                labActivityChart.render();
+
+                // Lab Order Status Chart (Donut)
+                var labOrderStatusOptions = {
+                    series: @json($chartData['lab_order_status']['counts']),
+                    labels: @json($chartData['lab_order_status']['labels']),
+                    chart: {
+                        type: 'donut',
+                        height: 350
+                    },
+                    colors: ['var(--bs-success)', 'var(--bs-danger)', 'var(--bs-warning)', 'var(--bs-secondary)'],
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    total: {
+                                        show: true,
+                                        label: 'Total Orders',
+                                        formatter: function (w) {
+                                            return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    dataLabels: { enabled: false },
+                    legend: { position: 'bottom' }
+                };
+                var labOrderStatusChart = new ApexCharts(document.querySelector("#labOrderStatusChart"), labOrderStatusOptions);
+                labOrderStatusChart.render();
+            });
+        </script>
         <div class="card border-0 shadow-sm mt-3">
             <div class="card-header bg-white d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">Recent Lab Orders</h5>
                 <a href="{{ route('lab.index') }}" class="btn btn-sm btn-outline-primary">Manage Lab</a>
             </div>
             <div class="card-body">
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
@@ -153,6 +286,7 @@
                     </table>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </x-app-layout>

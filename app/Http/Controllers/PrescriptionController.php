@@ -61,6 +61,13 @@ class PrescriptionController extends Controller
             $query->where('status', request('status'));
         }
 
+        if (request()->filled('patient_id')) {
+            $patientId = request('patient_id');
+            $query->whereHas('consultation', function ($q) use ($patientId) {
+                $q->where('patient_id', $patientId);
+            });
+        }
+
         if (request()->filled('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {

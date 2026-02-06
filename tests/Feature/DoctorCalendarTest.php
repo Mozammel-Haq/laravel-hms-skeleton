@@ -42,6 +42,7 @@ class DoctorCalendarTest extends TestCase
         $department = Department::create(['name' => 'General Medicine', 'clinic_id' => $clinic->id]);
         $doctor = Doctor::create([
             'user_id' => $user->id,
+            'clinic_id' => $clinic->id,
             'specialization' => 'General',
             'primary_department_id' => $department->id
         ]);

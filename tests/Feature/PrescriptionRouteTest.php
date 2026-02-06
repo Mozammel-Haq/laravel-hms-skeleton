@@ -49,7 +49,7 @@ class PrescriptionRouteTest extends TestCase
         session(['selected_clinic_id' => $clinic->id]);
 
         $department = Department::create(['clinic_id' => $clinic->id, 'name' => 'General', 'status' => 'active']);
-        $doctor = Doctor::create(['user_id' => $user->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
+        $doctor = Doctor::create(['user_id' => $user->id, 'clinic_id' => $clinic->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
 
         $patient = Patient::create(['clinic_id' => $clinic->id, 'name' => 'Patient', 'patient_code' => 'P001', 'date_of_birth' => '1990-01-01', 'gender' => 'male', 'phone' => '1234567890']);
 
@@ -62,8 +62,8 @@ class PrescriptionRouteTest extends TestCase
             'start_time' => '10:00:00',
             'end_time' => '10:30:00',
             'status' => 'confirmed',
-            'appointment_type' => 'Walk-in',
-            'booking_source' => 'Walk-in',
+            'appointment_type' => 'in_person',
+            'booking_source' => 'in_person',
             'created_by' => $user->id
         ]);
 
@@ -135,7 +135,7 @@ class PrescriptionRouteTest extends TestCase
         $this->withSession(['selected_clinic_id' => $clinic->id]);
 
         $department = Department::create(['clinic_id' => $clinic->id, 'name' => 'General', 'status' => 'active']);
-        $doctor = Doctor::create(['user_id' => $user->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
+        $doctor = Doctor::create(['user_id' => $user->id, 'clinic_id' => $clinic->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
         $doctor->clinics()->attach($clinic->id);
         $patient = Patient::create(['clinic_id' => $clinic->id, 'name' => 'Patient', 'patient_code' => 'P001', 'date_of_birth' => '1990-01-01', 'gender' => 'male', 'phone' => '1234567890']);
 
@@ -148,8 +148,8 @@ class PrescriptionRouteTest extends TestCase
             'start_time' => '10:00:00',
             'end_time' => '10:30:00',
             'status' => 'confirmed',
-            'appointment_type' => 'Walk-in',
-            'booking_source' => 'Walk-in',
+            'appointment_type' => 'in_person',
+            'booking_source' => 'in_person',
             'created_by' => $user->id
         ]);
 

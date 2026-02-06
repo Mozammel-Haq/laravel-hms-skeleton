@@ -9,6 +9,12 @@ use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\Ward;
 use App\Notifications\BedAssignedNotification;
+use App\Notifications\PatientAdmittedNotification;
+use App\Notifications\PatientDischargedNotification;
+use App\Notifications\DoctorRoundCreatedNotification;
+use App\Notifications\DischargeRecommendedNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Models\User;
 use App\Services\IpdService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -205,6 +211,13 @@ class IpdController extends Controller
                 ->withInput();
         }
 
+        // Check if bed is available
+        $bed = \App\Models\Bed::find($request->bed_id);
+        if (!$bed || $bed->status !== 'available') {
+            return back()->withErrors(['bed_id' => 'The selected bed is not available.'])
+                ->withInput();
+        }
+
         $patient = Patient::findOrFail($request->patient_id);
 
         $admission = $this->ipdService->admitPatient(
@@ -213,6 +226,13 @@ class IpdController extends Controller
             $request->admission_date,
             $request->admission_reason
         );
+
+        if ($admission->doctor && $admission->doctor->user) {
+            Notification::send($admission->doctor->user, new PatientAdmittedNotification($admission));
+        }
+
+        // Notify Patient
+        $patient->notify(new PatientAdmittedNotification($admission));
 
         try {
             $this->ipdService->assignBed($admission, $request->bed_id);
@@ -325,7 +345,17 @@ class IpdController extends Controller
         ]);
 
         try {
-            $this->ipdService->assignBed($admission, $request->bed_id);
+            $assignment = $this->ipdService->assignBed($admission, $request->bed_id);
+
+            // Notify Nurse and Doctor
+            $admission->notifyRole('Nurse', 'Bed Assigned', "Bed {$assignment->bed->bed_number} assigned to {$admission->patient->name}", route('ipd.show', $admission->id));
+            if ($admission->doctor && $admission->doctor->user) {
+                Notification::send($admission->doctor->user, new BedAssignedNotification($admission, $assignment->bed));
+            }
+
+            // Notify Patient
+            $admission->patient->notify(new BedAssignedNotification($admission, $assignment->bed));
+
             return redirect()->route('ipd.show', $admission)
                 ->with('success', 'Bed assigned successfully.');
         } catch (\Exception $e) {
@@ -350,6 +380,13 @@ class IpdController extends Controller
             'discharge_recommended' => true,
             'discharge_recommended_by' => auth()->id(),
         ]);
+
+        // Notify Receptionist and Nurse
+        $receptionists = User::whereHas('roles', fn($q) => $q->where('name', 'Receptionist'))->get();
+        if ($receptionists->isNotEmpty()) {
+            Notification::send($receptionists, new DischargeRecommendedNotification($admission, auth()->user()));
+        }
+        $admission->notifyRole('Nurse', 'Discharge Recommended', "Dr. " . auth()->user()->name . " recommended discharge for " . $admission->patient->name, route('ipd.show', $admission->id));
 
         return back()->with('success', 'Discharge recommended successfully.');
     }
@@ -400,12 +437,18 @@ class IpdController extends Controller
 
         $request->validate([
             'discharge_date' => ['required', 'date', 'after_or_equal:' . $admission->admission_date],
+            'discharge_reason' => ['nullable', 'string', 'max:255'],
             'discount'       => ['nullable', 'numeric', 'min:0'],
             'tax'            => ['nullable', 'numeric', 'min:0'],
         ]);
 
         DB::transaction(function () use ($request, $admission) {
-            $this->ipdService->dischargePatient($admission, $request->discharge_date);
+            $this->ipdService->dischargePatient(
+                $admission,
+                $request->discharge_date,
+                auth()->id(),
+                $request->discharge_reason
+            );
 
             $this->ipdService->generateDischargeInvoice(
                 $admission,
@@ -414,6 +457,12 @@ class IpdController extends Controller
                 (float)$request->input('tax', 0)
             );
         });
+
+        // Notify Nurse
+        $admission->notifyRole('Nurse', 'Patient Discharged', "Patient {$admission->patient->name} has been discharged.", route('ipd.show', $admission->id));
+
+        // Notify Patient
+        $admission->patient->notify(new PatientDischargedNotification($admission));
 
         return redirect()->route('ipd.index')
             ->with('success', 'Patient discharged and invoice generated successfully.');
@@ -513,7 +562,7 @@ class IpdController extends Controller
         Gate::authorize('update', $admission);
 
         $doctor = Doctor::where('user_id', auth()->id())->first();
-        if (!$doctor || $doctor->id !== $admission->doctor_id) {
+        if (!$doctor || $doctor->id !== $admission->admitting_doctor_id) {
             abort(403, 'Only the assigned doctor can create a round for this patient.');
         }
 
@@ -532,7 +581,7 @@ class IpdController extends Controller
         Gate::authorize('update', $admission);
 
         $doctor = Doctor::where('user_id', auth()->id())->first();
-        if (!$doctor || $doctor->id !== $admission->doctor_id) {
+        if (!$doctor || $doctor->id !== $admission->admitting_doctor_id) {
             abort(403, 'Only the assigned doctor can create a round for this patient.');
         }
 
@@ -541,13 +590,16 @@ class IpdController extends Controller
             'round_date' => 'required|date',
         ]);
 
-        \App\Models\InpatientRound::create([
+        $round = \App\Models\InpatientRound::create([
             'clinic_id' => $admission->clinic_id,
             'admission_id' => $admission->id,
             'doctor_id' => $doctor->id,
             'notes' => $request->notes,
             'round_date' => $request->round_date,
         ]);
+
+        // Notify Nurse
+        $admission->notifyRole('Nurse', 'Doctor Round Completed', "Dr. {$doctor->user->name} completed a round.", route('ipd.show', $admission->id));
 
         return redirect()->route('ipd.show', $admission)->with('success', 'Round note added.');
     }

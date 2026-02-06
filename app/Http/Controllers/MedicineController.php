@@ -57,7 +57,12 @@ class MedicineController extends Controller
             $query->whereDate('created_at', '<=', request('to'));
         }
 
-        $medicines = $query->latest()->paginate(20)->withQueryString();
+        $medicines = $query->withSum(['batches' => function ($q) {
+            $q->where('clinic_id', auth()->user()->clinic_id);
+        }], 'quantity_in_stock')
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
         return view('pharmacy.inventory.index', compact('medicines'));
     }
 

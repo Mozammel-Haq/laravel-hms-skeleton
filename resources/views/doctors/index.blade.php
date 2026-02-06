@@ -1,21 +1,21 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
-            <div>
-                <h4 class="fw-bold mb-2 text-primary">Doctors</h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Doctors</li>
-                    </ol>
-                </nav>
-            </div>
-            <a href="{{ route('doctors.create') }}" class="btn btn-sm btn-primary">
-                <i class="ti ti-plus me-1"></i> Create Doctor
-            </a>
-        </div>
-
         <div class="card border-0 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pb-3 pt-3 rounded-top">
+                <div>
+                    <h4 class="fw-bold mb-2 text-primary">Doctors</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Doctors</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="{{ route('doctors.create') }}" class="btn btn-sm btn-primary">
+                    <i class="ti ti-plus me-1"></i> Create Doctor
+                </a>
+            </div>
+
             <div class="card-body p-0 pt-3">
                     <!-- Filters -->
                     <form method="GET" action="{{ route('doctors.index') }}" class="mb-4 px-3">

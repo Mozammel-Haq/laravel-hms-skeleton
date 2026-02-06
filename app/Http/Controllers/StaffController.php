@@ -142,26 +142,26 @@ class StaffController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\User  $user
+     * @param  \App\Models\User  $staff
      * @return \Illuminate\View\View
      */
-    public function edit(User $user)
+    public function edit(User $staff)
     {
-        Gate::authorize('update', $user);
+        Gate::authorize('update', $staff);
         $roles = Role::all();
-        return view('staff.edit', compact('user', 'roles'));
+        return view('staff.edit', compact('staff', 'roles'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
+     * @param  \App\Models\User  $staff
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $staff)
     {
-        Gate::authorize('update', $user);
+        Gate::authorize('update', $staff);
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -169,20 +169,20 @@ class StaffController extends Controller
             'profile_photo' => 'nullable|image|max:2048',
         ]);
 
-        $user->update(['name' => $request->name]);
+        $staff->update(['name' => $request->name]);
 
         if ($request->hasFile('profile_photo')) {
             $path = $request->file('profile_photo')->store('profile-photos', 'public');
 
             // Delete old photo if exists
-            if ($user->profile_photo_path) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
+            if ($staff->profile_photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($staff->profile_photo_path);
             }
-            $user->profile_photo_path = $path;
-            $user->save();
+            $staff->profile_photo_path = $path;
+            $staff->save();
         }
 
-        $user->roles()->sync([$request->role_id]);
+        $staff->roles()->sync([$request->role_id]);
 
         return redirect()->route('staff.index')->with('success', 'Staff member updated successfully.');
     }
@@ -190,14 +190,14 @@ class StaffController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\User  $user
+     * @param  \App\Models\User  $staff
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(User $user)
+    public function destroy(User $staff)
     {
-        Gate::authorize('delete', $user);
-        $user->update(['status' => 'inactive']);
-        $user->delete();
+        Gate::authorize('delete', $staff);
+        $staff->update(['status' => 'inactive']);
+        $staff->delete();
         return redirect()->route('staff.index')->with('success', 'Staff member deleted successfully.');
     }
 

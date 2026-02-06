@@ -145,6 +145,7 @@ class DoctorController extends Controller
 
             $doctor = Doctor::create([
                 'user_id' => $user->id,
+                'clinic_id' => auth()->user()->clinic_id,
                 'primary_department_id' => $request->primary_department_id,
                 'specialization' => $request->specialization,
                 'license_number' => $request->license_number,

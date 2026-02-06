@@ -1,6 +1,10 @@
 <x-app-layout>
     <div class="container-fluid py-3 mx-2">
-        <div class="row g-4 mb-4">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle p-3 rounded text-primary mb-3">
+                <h4 class="fw-bold mb-2 text-primary">Accountant Dashboard</h4>
+            </div>
+            <div class="row g-4 mb-4">
             <!-- Revenue Today KPI Card -->
             <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success"
@@ -272,6 +276,191 @@
             </div>
         </div>
 
+        <!-- Charts Section -->
+        <div class="row g-4 mb-4">
+            <!-- Financial Performance Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Financial Performance (Last 30 Days)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="financialPerformanceChart"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Invoice Status Chart -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Invoice Status Overview</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div id="invoiceStatusChart" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Financial Performance Chart
+                var financialPerformanceOptions = {
+                    series: [{
+                        name: 'Revenue',
+                        type: 'area',
+                        data: @json($chartData['financial_performance']['revenue'])
+                    }, {
+                        name: 'Invoices',
+                        type: 'area',
+                        data: @json($chartData['financial_performance']['invoices'])
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'area',
+                        toolbar: {
+                            show: false
+                        },
+                        animations: {
+                            enabled: true
+                        }
+                    },
+                    stroke: {
+                        width: [2, 2],
+                        curve: 'smooth'
+                    },
+                    markers: {
+                        size: 5,
+                        hover: {
+                            size: 7
+                        }
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.4,
+                            opacityTo: 0.05,
+                            stops: [0, 100]
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    labels: @json($chartData['financial_performance']['dates']),
+                    xaxis: {
+                        type: 'datetime',
+                        labels: {
+                            format: 'dd MMM',
+                            style: {
+                                colors: 'var(--bs-secondary)'
+                            }
+                        }
+                    },
+                    yaxis: [{
+                        title: {
+                            text: 'Revenue (৳)',
+                            style: {
+                                color: 'var(--primary-color)'
+                            }
+                        },
+                        labels: {
+                            formatter: function (value) {
+                                return "৳" + value.toFixed(0);
+                            },
+                            style: {
+                                colors: 'var(--bs-secondary)'
+                            }
+                        }
+                    }, {
+                        opposite: true,
+                        title: {
+                            text: 'Invoice Count',
+                            style: {
+                                color: 'var(--bs-success)'
+                            }
+                        },
+                        labels: {
+                            style: {
+                                colors: 'var(--bs-secondary)'
+                            }
+                        }
+                    }],
+                    colors: ['var(--primary-color)', 'var(--bs-success)'],
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        y: [{
+                            formatter: function (y) {
+                                if (typeof y !== "undefined") {
+                                    return "৳" + y.toFixed(2);
+                                }
+                                return y;
+                            }
+                        }, {
+                            formatter: function (y) {
+                                if (typeof y !== "undefined") {
+                                    return y.toFixed(0);
+                                }
+                                return y;
+                            }
+                        }]
+                    },
+                    legend: {
+                        position: 'top',
+                        horizontalAlign: 'right'
+                    }
+                };
+
+                var financialPerformanceChart = new ApexCharts(document.querySelector("#financialPerformanceChart"),
+                    financialPerformanceOptions);
+                financialPerformanceChart.render();
+
+                // Invoice Status Chart
+                var invoiceStatusOptions = {
+                    series: @json($chartData['invoice_status']['counts']),
+                    labels: @json($chartData['invoice_status']['labels']),
+                    chart: {
+                        type: 'donut',
+                        height: 350,
+                        animations: {
+                            enabled: true
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    total: {
+                                        show: true,
+                                        label: 'Total',
+                                        formatter: function(w) {
+                                            return w.globals.seriesTotals.reduce((a, b) => {
+                                                return a + b
+                                            }, 0)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    colors: ['var(--bs-warning)', 'var(--bs-success)', 'var(--bs-danger)', 'var(--bs-info)'],
+                    legend: {
+                        position: 'bottom'
+                    },
+                    dataLabels: {
+                        enabled: false
+                    }
+                };
+
+                var invoiceStatusChart = new ApexCharts(document.querySelector("#invoiceStatusChart"),
+                    invoiceStatusOptions);
+                invoiceStatusChart.render();
+            });
+        </script>
+
         <div class="card border-0 shadow-sm mt-3">
             <div class="card-header bg-white">
                 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -310,7 +499,7 @@
                 </form>
             </div>
             <div class="card-body">
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
@@ -374,6 +563,7 @@
                     {{ $invoices->links() }}
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </x-app-layout>

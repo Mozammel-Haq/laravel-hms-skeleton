@@ -88,6 +88,7 @@
 
 
                     <!-- Notification Dropdown -->
+                    @auth
                     <div class="header-item">
                         <div class="dropdown me-3">
 
@@ -153,8 +154,10 @@
                             </div>
                         </div>
                     </div>
+                    @endauth
 
                     <!-- User Dropdown -->
+                    @auth
                     <div class="dropdown profile-dropdown d-flex align-items-center justify-content-center">
                         <a href="javascript:void(0);"
                             class="topbar-link dropdown-toggle drop-arrow-none position-relative"
@@ -223,6 +226,13 @@
                             </div>
                         </div>
                     </div>
+                    @endauth
+
+                    @guest
+                    <div class="header-item">
+                        <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Login</a>
+                    </div>
+                    @endguest
 
                 </div>
             </div>

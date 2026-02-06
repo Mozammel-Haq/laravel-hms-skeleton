@@ -120,6 +120,7 @@ class IpdService
                 'current_bed_id' => null,
                 'discharged_by' => $dischargedBy,
                 'discharge_date' => $dischargeDate,
+                'discharge_reason' => $reason,
             ]);
 
             return $admission;

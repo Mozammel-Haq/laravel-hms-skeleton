@@ -27,7 +27,7 @@ class DoctorAssignmentTest extends TestCase
 
         $doctorUser = User::factory()->create(['clinic_id' => $clinic->id]);
         $department = \App\Models\Department::create(['clinic_id' => $clinic->id, 'name' => 'General', 'status' => 'active']);
-        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
+        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'clinic_id' => $clinic->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
         $doctor->clinics()->attach($clinic->id);
 
         $clinicB = Clinic::create(['name' => 'B', 'code' => 'B1', 'address_line_1' => 'B', 'city' => 'C', 'country' => 'C', 'currency' => 'USD', 'timezone' => 'UTC']);
@@ -59,7 +59,7 @@ class DoctorAssignmentTest extends TestCase
 
         $doctorUser = User::factory()->create(['clinic_id' => $clinicA->id]);
         $department = \App\Models\Department::create(['clinic_id' => $clinicA->id, 'name' => 'General', 'status' => 'active']);
-        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
+        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'clinic_id' => $clinicA->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
         $doctor->clinics()->attach($clinicB->id);
 
         $response = $this->post(route('doctors.assignment.update', $doctor->id), [
@@ -80,7 +80,7 @@ class DoctorAssignmentTest extends TestCase
         $clinic = Clinic::create(['name' => 'A', 'code' => 'A1', 'address_line_1' => 'A', 'city' => 'C', 'country' => 'C', 'currency' => 'USD', 'timezone' => 'UTC']);
         $doctorUser = User::factory()->create(['clinic_id' => $clinic->id]);
         $department = \App\Models\Department::create(['clinic_id' => $clinic->id, 'name' => 'General', 'status' => 'active']);
-        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
+        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'clinic_id' => $clinic->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
 
         $responseAssignment = $this->get(route('doctors.assignment'));
         $responseAssignment->assertRedirect(); // redirected to login due to auth middleware
@@ -105,7 +105,12 @@ class DoctorAssignmentTest extends TestCase
 
         $doctorUser = User::factory()->create(['clinic_id' => $clinicA->id]);
         $department = \App\Models\Department::create(['clinic_id' => $clinicA->id, 'name' => 'General', 'status' => 'active']);
-        $doctor = Doctor::create(['user_id' => $doctorUser->id, 'specialization' => 'General', 'primary_department_id' => $department->id]);
+        $doctor = Doctor::create([
+            'user_id' => $doctorUser->id,
+            'clinic_id' => $clinicA->id,
+            'specialization' => 'General',
+            'primary_department_id' => $department->id
+        ]);
 
         $response = $this->post(route('doctors.assignment.update', $doctor->id), [
             'clinic_ids' => [$clinicB->id],

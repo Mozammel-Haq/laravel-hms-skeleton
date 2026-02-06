@@ -69,6 +69,7 @@ class PharmacySale extends BaseTenantModel
         return $this->belongsTo(Prescription::class);
     }
     protected $casts = [
+        'sale_date' => 'datetime',
         'created_at' => 'date',
     ];
 }

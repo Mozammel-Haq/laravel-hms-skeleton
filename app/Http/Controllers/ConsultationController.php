@@ -242,7 +242,7 @@ class ConsultationController extends Controller
                 'symptoms' => $symptoms,
                 'follow_up_required' => (bool)($data['follow_up_required'] ?? false),
                 'follow_up_date' => $data['follow_up_date'] ?? null,
-                'status' => 'completed',
+                'status' => 'in_progress',
             ]);
 
             $appointment->update(['status' => 'completed']);

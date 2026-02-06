@@ -42,10 +42,19 @@ class BedAssignedNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $title = 'Bed Assigned';
+        $message = "Bed {$this->bed->bed_number} (Room: {$this->bed->room->room_number}) has been assigned.";
+        $link = route('ipd.show', $this->admission->id);
+
+        if ($notifiable instanceof \App\Models\Patient) {
+            $message = "You have been assigned to Bed {$this->bed->bed_number} in Room {$this->bed->room->room_number}.";
+            $link = null;
+        }
+
         return [
-            'title' => 'Bed Assigned',
-            'message' => "Bed {$this->bed->bed_number} (Room: {$this->bed->room->room_number}) has been assigned.",
-            'link' => route('ipd.show', $this->admission->id),
+            'title' => $title,
+            'message' => $message,
+            'link' => $link,
             'type' => 'info',
         ];
     }

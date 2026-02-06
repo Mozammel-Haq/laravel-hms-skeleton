@@ -1,7 +1,8 @@
 <x-app-layout>
     <div class="container-fluid py-4">
+        <div class="card p-3">
         <!-- Header -->
-        <div class="row align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
+        <div class="row align-items-center mx-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
             <div class="col">
                 <h4 class="mb-1 fw-bold text-dark">Visit Details</h4>
                 <nav aria-label="breadcrumb">
@@ -18,7 +19,7 @@
                 </a>
             </div>
         </div>
-
+        </div>
         <div class="row g-4 mb-4">
             <!-- Appointment Details -->
             <div class="col-md-6">

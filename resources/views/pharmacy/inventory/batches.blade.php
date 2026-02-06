@@ -55,7 +55,7 @@
             </div>
         </form>
         <hr class="mt-0">
-        <div class="table">
+        <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>

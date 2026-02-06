@@ -1,22 +1,22 @@
 <x-app-layout>
     <div class="py-4">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 rounded-top">
-                <div>
-                    <h4 class="fw-bold mb-2 text-primary">Edit Appointment</h4>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb breadcrumb-dots mb-0">
-                            <li class="breadcrumb-item"><a href="{{ route('appointments.index') }}">Appointments</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Edit Appointment</li>
-                        </ol>
-                    </nav>
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 rounded-top">
+                    <div>
+                        <h4 class="fw-bold mb-2 text-primary">Edit Appointment</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb breadcrumb-dots mb-0">
+                                <li class="breadcrumb-item"><a href="{{ route('appointments.index') }}">Appointments</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">Edit Appointment</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="ti ti-arrow-left me-1"></i> Back to List
+                    </a>
                 </div>
-                <a href="{{ route('appointments.index') }}" class="btn btn-sm btn-outline-primary">
-                    <i class="ti ti-arrow-left me-1"></i> Back to List
-                </a>
-            </div>
 
-            <div class="card border-0 shadow-sm rounded-bottom rounded-0">
                 <div class="card-body p-4">
                 <form method="POST" action="{{ route('appointments.update', $appointment) }}">
                     @csrf

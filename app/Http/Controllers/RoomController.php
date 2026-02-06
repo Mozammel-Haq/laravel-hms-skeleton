@@ -112,4 +112,16 @@ class RoomController extends Controller
         $room->update($request->only('ward_id', 'room_number', 'room_type', 'daily_rate', 'status'));
         return redirect()->route('ipd.rooms.index')->with('success', 'Room updated');
     }
+
+    /**
+     * Remove the specified room from storage.
+     *
+     * @param  \App\Models\Room  $room
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(Room $room)
+    {
+        $room->delete();
+        return redirect()->route('ipd.rooms.index')->with('success', 'Room deleted');
+    }
 }

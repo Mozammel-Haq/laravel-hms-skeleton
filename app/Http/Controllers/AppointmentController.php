@@ -6,6 +6,8 @@ use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Notifications\AppointmentBookedNotification;
+use App\Notifications\DoctorAppointmentCancelledNotification;
 use App\Services\AppointmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -166,12 +168,42 @@ class AppointmentController extends Controller
 
         $doctor = Doctor::findOrFail($request->doctor_id);
 
+        // Check if patient already has an appointment on this date
+        $exists = Appointment::where('patient_id', $request->patient_id)
+            ->whereDate('appointment_date', $request->appointment_date)
+            ->whereIn('status', ['pending', 'confirmed', 'arrived', 'in_progress'])
+            ->exists();
+
+        if ($exists) {
+            return back()->withErrors(['appointment_date' => 'Patient already has an active appointment on this date.'])->withInput();
+        }
+
+        // Check if doctor is already booked at this time
+        $doctorBooked = Appointment::where('doctor_id', $request->doctor_id)
+            ->whereDate('appointment_date', $request->appointment_date)
+            ->where('start_time', $request->start_time)
+            ->whereIn('status', ['pending', 'confirmed', 'arrived', 'in_progress'])
+            ->exists();
+
+        if ($doctorBooked) {
+            return back()->withErrors(['start_time' => 'Doctor is already booked at this time.'])->withInput();
+        }
+
         // Create the appointment
         // Note: Slot availability should ideally be verified here before creation.
-        $appointment = Appointment::create($request->validated() + [
-            'clinic_id' => auth()->user()->clinic_id,
-            'status' => 'pending',
+        $appointment = Appointment::create([
+            'patient_id' => $request->patient_id,
+            'doctor_id' => $request->doctor_id,
+            'department_id' => $doctor->primary_department_id,
+            'appointment_date' => $request->appointment_date,
+            'start_time' => $request->start_time,
             'end_time' => \Carbon\Carbon::parse($request->start_time)->addMinutes(15)->format('H:i'),
+            'status' => 'pending',
+            'appointment_type' => 'in_person',
+            'booking_source' => 'reception',
+            'visit_type' => ($request->type === 'follow_up') ? 'follow_up' : 'new',
+            'reason_for_visit' => $request->reason ?? null,
+            'created_by' => auth()->id(),
         ]);
 
         // Notify Doctor
@@ -291,6 +323,11 @@ class AppointmentController extends Controller
             $appointment->patient->notify(new \App\Notifications\AppointmentStatusNotification($appointment));
         }
 
+        // Notify Doctor if cancelled
+        if ($appointment->status === 'cancelled' && $oldStatus !== 'cancelled' && $appointment->doctor && $appointment->doctor->user) {
+            $appointment->doctor->user->notify(new DoctorAppointmentCancelledNotification($appointment, auth()->user()->name));
+        }
+
         return redirect()->route('appointments.index')->with('success', 'Appointment updated successfully.');
     }
 
@@ -303,6 +340,12 @@ class AppointmentController extends Controller
     public function destroy(Appointment $appointment)
     {
         Gate::authorize('delete', $appointment);
+
+        // Notify Doctor before deleting (soft delete)
+        if ($appointment->doctor && $appointment->doctor->user) {
+            $appointment->doctor->user->notify(new DoctorAppointmentCancelledNotification($appointment, auth()->user()->name));
+        }
+
         $appointment->delete();
         return redirect()->route('appointments.index')->with('success', 'Appointment cancelled.');
     }
@@ -330,6 +373,11 @@ class AppointmentController extends Controller
 
         if ($appointment->patient) {
             $appointment->patient->notify(new \App\Notifications\AppointmentStatusNotification($appointment));
+        }
+
+        // Notify Doctor if cancelled
+        if ($request->status === 'cancelled' && $appointment->doctor && $appointment->doctor->user) {
+            $appointment->doctor->user->notify(new DoctorAppointmentCancelledNotification($appointment, auth()->user()->name));
         }
 
         return back()->with('success', 'Appointment status updated to ' . ucfirst($request->status));

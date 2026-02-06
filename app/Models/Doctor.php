@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\LogsActivity;
@@ -52,7 +53,7 @@ use App\Models\DoctorEducation;
  */
 class Doctor extends Model
 {
-    use SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     public function getActivityDescription($action)
     {

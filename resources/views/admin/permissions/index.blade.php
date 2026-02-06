@@ -1,8 +1,28 @@
 <x-app-layout>
+    <style>
+        .table-responsive {
+            /* Ensure there's space at the bottom for dropdowns to expand without being clipped */
+            padding-bottom: 0px;
+            /* Optional: visible only when scrolling is actually needed?
+               No, because dropdown clipping happens even if x-scroll isn't active but overflow-x is auto.
+               But always adding 80px padding might look ugly.
+
+               Better approach:
+               If the table has few rows, the container height collapses, clipping the dropdown.
+               We enforce a minimum height or padding.
+            */
+            min-height: 0px; /* Ensure enough height for at least one row + dropdown */
+            overflow-y: visible !important; /* Try to allow vertical overflow */
+            overflow-x: auto;
+        }
+
+        /* Fix for last row dropdowns being clipped in responsive tables */
+
+    </style>
     <div class="content px-2">
 
 
-
+       <div class="card p-3">
         <div class="d-flex align-items-center justify-content-between px-3 py-3 border-bottom bg-primary-subtle text-primary">
             <div>
             <h4 class="fw-bold mb-2 text-primary">Permissions for Role: {{ $role->name }}</h4>
@@ -32,13 +52,13 @@
                 </ul>
             </div>
         </div>
-        <hr>
+        </div>
         <form method="POST" action="{{ route('admin.permissions.updateRolePermissions', $role->id) }}">
             @csrf
             @method('PUT')
 
             @foreach ($permissions as $entity => $actions)
-                <div class="card mb-3">
+                <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="fw-bold mb-0">
                             {{ ucfirst(str_replace('_', ' ', $entity)) }}
@@ -52,7 +72,7 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="table">
+                        <div class="table-responsive">
                             <table class="table table-bordered align-middle mb-0">
                                 <tbody>
                                     <tr>

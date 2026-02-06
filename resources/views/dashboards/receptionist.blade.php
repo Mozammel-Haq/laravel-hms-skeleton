@@ -1,9 +1,10 @@
 <x-app-layout>
     <div class="container-fluid py-3 mx-2">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h3 class="page-title mb-0">Receptionist Dashboard</h3>
-        </div>
-        <div class="row g-4 mb-4">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle p-3 rounded text-primary mb-3">
+                <h4 class="fw-bold text-primary">Receptionist Dashboard</h4>
+            </div>
+            <div class="row g-4 mb-4">
             <!-- Appointments Today KPI Card -->
             <div class="col-md-6">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary"
@@ -111,6 +112,135 @@
             </div>
         </div>
 
+        <div class="row g-4 mb-4">
+            <!-- Front Desk Activity Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Front Desk Activity (Last 7 Days)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="frontDeskActivityChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor Availability Chart -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Doctor Availability</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="doctorAvailabilityChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Front Desk Activity Chart (Registrations vs Appointments)
+                var activityOptions = {
+                    series: [{
+                        name: 'New Registrations',
+                        type: 'area',
+                        data: @json($chartData['front_desk_activity']['registrations'])
+                    }, {
+                        name: 'Appointments',
+                        type: 'area',
+                        data: @json($chartData['front_desk_activity']['appointments'])
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'area',
+                        toolbar: { show: false },
+                        animations: { enabled: true }
+                    },
+                    stroke: {
+                        width: [2, 2],
+                        curve: 'smooth'
+                    },
+                    markers: {
+                        size: 5,
+                        hover: {
+                            size: 7
+                        }
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.4,
+                            opacityTo: 0.05,
+                            stops: [0, 100]
+                        }
+                    },
+                    xaxis: {
+                        categories: @json($chartData['front_desk_activity']['dates']),
+                        labels: { style: { colors: 'var(--bs-secondary)' } },
+                        axisBorder: { show: false },
+                        axisTicks: { show: false }
+                    },
+                    yaxis: [{
+                        title: {
+                            text: 'New Registrations',
+                            style: { color: 'var(--primary-color)' }
+                        },
+                        labels: { style: { colors: 'var(--primary-color)' } }
+                    }, {
+                        opposite: true,
+                        title: {
+                            text: 'Appointments',
+                            style: { color: 'var(--bs-success)' }
+                        },
+                        labels: { style: { colors: 'var(--bs-success)' } }
+                    }],
+                    grid: {
+                        borderColor: 'var(--bs-border-color)',
+                        strokeDashArray: 4,
+                        xaxis: { lines: { show: false } }
+                    },
+                    colors: ['var(--primary-color)', 'var(--bs-success)'],
+                    legend: { position: 'top' }
+                };
+                var activityChart = new ApexCharts(document.querySelector("#frontDeskActivityChart"), activityOptions);
+                activityChart.render();
+
+                // Doctor Availability Chart
+                var doctorOptions = {
+                    series: @json($chartData['doctor_status']['counts']),
+                    labels: @json($chartData['doctor_status']['labels']),
+                    chart: {
+                        type: 'donut',
+                        height: 350
+                    },
+                    colors: ['var(--bs-success)', 'var(--bs-danger)'],
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    total: {
+                                        show: true,
+                                        label: 'Total Doctors',
+                                        formatter: function (w) {
+                                            return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    dataLabels: { enabled: false },
+                    legend: { position: 'bottom' }
+                };
+                var doctorChart = new ApexCharts(document.querySelector("#doctorAvailabilityChart"), doctorOptions);
+                doctorChart.render();
+            });
+        </script>
+
         <div class="row g-3 mt-1">
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm">
@@ -120,7 +250,7 @@
                             All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table">
+                        <div class="table-responsive">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
@@ -167,7 +297,7 @@
                         <a href="{{ route('patients.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table">
+                        <div class="table-responsive">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
@@ -196,6 +326,9 @@
                     </div>
                 </div>
             </div>
+                </div>
+            </div>
+        </div>
         </div>
 
         <div class="modal fade" id="bookModal" tabindex="-1" aria-hidden="true">

@@ -1,23 +1,23 @@
 <x-app-layout>
 
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
-            <div>
-                <h4 class="fw-bold mb-2 text-primary">Add New Patient</h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('patients.index') }}">Patients</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Add New Patient</li>
-                    </ol>
-                </nav>
-            </div>
-            <a href="{{ route('patients.index') }}" class="btn btn-sm btn-outline-primary">
-                <i class="ti ti-arrow-left me-1"></i> Back to List
-            </a>
-        </div>
         <div class="card border-0 shadow-sm">
 
                 <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
+                        <div>
+                            <h4 class="fw-bold mb-2 text-primary">Add New Patient</h4>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-dots mb-0">
+                                    <li class="breadcrumb-item"><a href="{{ route('patients.index') }}">Patients</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Add New Patient</li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <a href="{{ route('patients.index') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="ti ti-arrow-left me-1"></i> Back to List
+                        </a>
+                    </div>
                     <form method="POST" action="{{ route('patients.store') }}" enctype="multipart/form-data">
                         @csrf
 

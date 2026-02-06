@@ -1,41 +1,43 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded shadow-sm mb-3">
-            <div>
-                <h5 class="fw-bold mb-1 text-primary">Clinic Details</h5>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ $clinic->name }}</li>
-                    </ol>
-                </nav>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('clinics.index') }}" class="btn btn-sm btn-outline-primary">
-                    <i class="ti ti-arrow-left me-1"></i> Back
-                </a>
-                @can('update', $clinic)
-                    <a href="{{ route('clinics.edit', $clinic) }}" class="btn btn-sm btn-primary">
-                        <i class="ti ti-edit me-1"></i> Edit
+        <div class="card p-3">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top mb-3">
+                <div>
+                    <h5 class="fw-bold mb-1 text-primary">Clinic Details</h5>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ $clinic->name }}</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('clinics.index') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="ti ti-arrow-left me-1"></i> Back
                     </a>
-                @endcan
-                @can('delete', $clinic)
-                    <form method="POST" action="{{ route('clinics.destroy', $clinic) }}"
-                        onsubmit="return confirm('Delete this clinic?')" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="ti ti-trash me-1"></i> Delete
-                        </button>
-                    </form>
-                @endcan
+                    @can('update', $clinic)
+                        <a href="{{ route('clinics.edit', $clinic) }}" class="btn btn-sm btn-primary">
+                            <i class="ti ti-edit me-1"></i> Edit
+                        </a>
+                    @endcan
+                    @can('delete', $clinic)
+                        <form method="POST" action="{{ route('clinics.destroy', $clinic) }}"
+                            onsubmit="return confirm('Delete this clinic?')" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="ti ti-trash me-1"></i> Delete
+                            </button>
+                        </form>
+                    @endcan
+                </div>
             </div>
-        </div>
 
-        <div class="row g-3">
-            <!-- Left Column: Key Info -->
-            <div class="col-lg-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Left Column: Key Info -->
+                    <div class="col-lg-4">
                 <div class="card border border-secondary-subtle shadow-sm mb-4">
                     <div class="card-body text-center p-4">
                         <div class="mb-3">

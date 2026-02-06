@@ -1,20 +1,20 @@
 <x-app-layout>
-    <div class="mb-3 mt-2 d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3">
-        <h6 class="fw-bold mb-0 d-flex align-items-center">
-            <a href="{{ route('patients.index') }}" class="text-dark">
-                <i class="ti ti-chevron-left me-1"></i> Patients
-            </a>
-        </h6>
-        <div class="d-flex align-items-center gap-2">
-            @can('update', $patient)
-                <a href="{{ route('patients.edit', $patient) }}" class="btn btn-outline-primary btn-sm">
-                    <i class="ti ti-edit me-1"></i> Edit Profile
-                </a>
-            @endcan
-        </div>
-    </div>
-
     <div class="card mt-2 mb-4 mx-2 p-2">
+        <div class="mb-3 mt-2 d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3">
+            <h6 class="fw-bold mb-0 d-flex align-items-center">
+                <a href="{{ route('patients.index') }}" class="text-dark">
+                    <i class="ti ti-chevron-left me-1"></i> Patients
+                </a>
+            </h6>
+            <div class="d-flex align-items-center gap-2">
+                @can('update', $patient)
+                    <a href="{{ route('patients.edit', $patient) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="ti ti-edit me-1"></i> Edit Profile
+                    </a>
+                @endcan
+            </div>
+        </div>
+
         <div class="row align-items-end">
             <div class="col-xl-9 col-lg-8">
                 <div class="d-sm-flex align-items-center position-relative overflow-hidden p-3">
@@ -318,7 +318,7 @@
 
     <div class="tab-content m-3">
         <div class="tab-pane active show" id="appointments" role="tabpanel">
-            <div class="table">
+            <div class="table-responsive">
                 <table class="table table-hover align-middle datatable">
                     <thead>
                         <tr>
@@ -420,7 +420,7 @@
         </div>
 
         <div class="tab-pane" id="transactions" role="tabpanel">
-            <div class="table">
+            <div class="table-responsive">
                 <table class="table table-hover align-middle datatable">
                     <thead class="thead-light">
                         <tr>
@@ -503,7 +503,7 @@
                         </button>
                     @endcan
                 </div>
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
@@ -589,7 +589,7 @@
                         </button>
                     @endcan
                 </div>
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
@@ -670,7 +670,7 @@
                         </button>
                     @endcan
                 </div>
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
@@ -742,7 +742,7 @@
                         </button>
                     @endcan
                 </div>
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>

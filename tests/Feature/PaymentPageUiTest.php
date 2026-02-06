@@ -43,8 +43,10 @@ class PaymentPageUiTest extends TestCase
         $p2 = Permission::firstOrCreate(['name' => 'create_invoices']); // Required by controller Gate::authorize('create', Invoice::class)
         $p3 = Permission::firstOrCreate(['name' => 'view_billing']);
 
-        $role->givePermissionTo([$p1, $p2, $p3]);
-        $this->user->assignRole($role);
+        $role->permissions()->syncWithoutDetaching([$p1->id, $p2->id, $p3->id]);
+        $this->user->roles()->attach($role);
+
+        \App\Support\TenantContext::setClinicId($this->clinic->id);
 
         $this->patient = Patient::create([
             'clinic_id' => $this->clinic->id,
@@ -109,7 +111,8 @@ class PaymentPageUiTest extends TestCase
             'amount' => 1000,
             'payment_method' => 'cash',
             'paid_at' => now(),
-            'received_by' => $this->user->id
+            'received_by' => $this->user->id,
+            'clinic_id' => $this->clinic->id
         ]);
 
         $response = $this->actingAs($this->user)

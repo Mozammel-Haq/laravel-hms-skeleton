@@ -52,6 +52,7 @@ class ConsultationShowFeeTest extends TestCase
         $this->doctorUser = User::factory()->create(['clinic_id' => $this->clinic->id]);
         $this->doctor = Doctor::create([
             'user_id' => $this->doctorUser->id,
+            'clinic_id' => $this->clinic->id,
             'primary_department_id' => $department->id,
             'specialization' => 'Heart',
             'consultation_fee' => 100.00,

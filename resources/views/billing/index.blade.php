@@ -1,24 +1,24 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
-        <div>
-            <h5 class="fw-bold mb-1 text-primary">Invoices</h5>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-dots mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Invoices</li>
-                </ol>
-            </nav>
-        </div>
-        @can('create', \App\Models\Invoice::class)
-            <a href="{{ route('billing.create') }}" class="btn btn-sm btn-primary">
-                <i class="ti ti-plus me-1"></i> Create Invoice
-            </a>
-        @endcan
-    </div>
+        <div class="card shadow-sm border-0 p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top mb-0">
+                <div>
+                    <h5 class="fw-bold mb-1 text-primary">Invoices</h5>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Invoices</li>
+                        </ol>
+                    </nav>
+                </div>
+                @can('create', \App\Models\Invoice::class)
+                    <a href="{{ route('billing.create') }}" class="btn btn-sm btn-primary">
+                        <i class="ti ti-plus me-1"></i> Create Invoice
+                    </a>
+                @endcan
+            </div>
 
-    <div class="card shadow-sm border-0 rounded-bottom mt-0">
-        <div class="card-body">
+            <div class="card-body">
 
                 <!-- Filters -->
                 <form method="GET" action="{{ route('billing.index') }}" class="mb-4">
@@ -64,7 +64,7 @@
                 </form>
 
                 <hr>
-                <div class="table">
+                <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>

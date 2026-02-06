@@ -11,6 +11,7 @@ use App\Models\Visit;
 use App\Models\Payment;
 use App\Models\Consultation;
 use App\Models\Doctor;
+use App\Models\PharmacySaleItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -433,5 +434,51 @@ class ReportController extends Controller
         $invoices = $query->latest()->paginate(20);
 
         return view('reports.tax', compact('invoices', 'totalTax', 'taxTrend', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Generate pharmacy profit report (Revenue vs Cost of Goods Sold).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function pharmacyProfit(Request $request)
+    {
+        Gate::authorize('view_financial_reports');
+        [$startDate, $endDate] = $this->getDateRange($request);
+
+        $query = PharmacySaleItem::with(['pharmacySale', 'medicine'])
+            ->whereHas('pharmacySale', function ($q) use ($startDate, $endDate) {
+                $q->whereBetween('sale_date', [$startDate, $endDate]);
+            });
+
+        // Calculations
+        // We need to clone query or execute aggregation first
+        // Since we need to sum (quantity * unit_price) and (quantity * unit_cost)
+
+        $stats = DB::table('pharmacy_sale_items')
+            ->join('pharmacy_sales', 'pharmacy_sale_items.pharmacy_sale_id', '=', 'pharmacy_sales.id')
+            ->whereBetween('pharmacy_sales.sale_date', [$startDate, $endDate])
+            ->selectRaw('
+                SUM(quantity * unit_price) as total_revenue,
+                SUM(quantity * unit_cost) as total_cost
+            ')
+            ->first();
+
+        $totalRevenue = $stats->total_revenue ?? 0;
+        $totalCost = $stats->total_cost ?? 0;
+        $netProfit = $totalRevenue - $totalCost;
+
+        if ($request->has('export')) {
+             $saleItems = $query->latest()->get();
+             $data = compact('saleItems', 'totalRevenue', 'totalCost', 'netProfit', 'startDate', 'endDate');
+             return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\Reports\PharmacyProfitExport($data), 'pharmacy-profit.xlsx');
+        }
+
+        $saleItems = $query->latest()->paginate(20);
+
+        $data = compact('saleItems', 'totalRevenue', 'totalCost', 'netProfit', 'startDate', 'endDate');
+
+        return view('reports.pharmacy_profit', $data);
     }
 }

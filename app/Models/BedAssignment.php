@@ -33,6 +33,7 @@ class BedAssignment extends BaseTenantModel
     protected $guarded = ['id'];
     protected $casts = [
         'assigned_at' => 'datetime',
+        'released_at' => 'datetime',
     ];
 
     protected static function booted()

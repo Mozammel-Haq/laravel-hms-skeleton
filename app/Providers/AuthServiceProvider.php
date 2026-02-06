@@ -88,6 +88,7 @@ class AuthServiceProvider extends ServiceProvider
                 return true;
             }
         });
+
         Gate::define('view_reports', function ($user) {
             return $user->hasPermission('view_reports');
         });
@@ -106,6 +107,9 @@ class AuthServiceProvider extends ServiceProvider
         });
         Gate::define('view_doctors', function ($user) {
             return $user->hasPermission('view_doctors');
+        });
+        Gate::define('view_lab', function ($user) {
+            return $user->hasPermission('view_lab');
         });
     }
 }

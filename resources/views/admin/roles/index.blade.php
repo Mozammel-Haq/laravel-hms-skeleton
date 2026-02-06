@@ -47,7 +47,7 @@
             <hr>
 
             <!-- Roles Table -->
-            <div class="table">
+            <div class="table-responsive">
                 <table class="table table-nowrap">
                     <thead class="thead-light">
                         <tr>

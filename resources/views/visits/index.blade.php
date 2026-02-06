@@ -1,7 +1,10 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
         {{-- Page Header --}}
-        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
+
+
+        <div class="card border-0 p-3 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
             <div>
                 <h4 class="fw-bold mb-2 text-primary">Visits Management</h4>
                 <nav aria-label="breadcrumb">
@@ -15,8 +18,6 @@
                 <i class="ti ti-plus me-1"></i> New Visit
             </a>
         </div>
-
-        <div class="card border-0 pt-3 shadow-sm">
             <!-- Filter Form -->
             <form method="GET" action="{{ route('visits.index') }}" class="mb-4 px-3">
                 <div class="row g-2 align-items-end">
@@ -56,7 +57,7 @@
                 </div>
             </form>
             <hr class="mt-0">
-        <div class="table">
+        <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>

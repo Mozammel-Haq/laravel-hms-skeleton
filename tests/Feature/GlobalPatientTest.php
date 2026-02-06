@@ -45,9 +45,9 @@ class GlobalPatientTest extends TestCase
 
         // 2. Setup Users
         // Create Role and Permissions
-        $role = \App\Models\Role::create(['name' => 'Test Doctor', 'guard_name' => 'web']);
-        $p1 = \App\Models\Permission::firstOrCreate(['name' => 'create_patients', 'guard_name' => 'web']);
-        $p2 = \App\Models\Permission::firstOrCreate(['name' => 'view_patients', 'guard_name' => 'web']);
+        $role = \App\Models\Role::create(['name' => 'Test Doctor']);
+        $p1 = \App\Models\Permission::firstOrCreate(['name' => 'create_patients']);
+        $p2 = \App\Models\Permission::firstOrCreate(['name' => 'view_patients']);
 
         // Attach permissions to role (assuming relationship exists)
         $role->permissions()->attach([$p1->id, $p2->id]);
@@ -136,5 +136,59 @@ class GlobalPatientTest extends TestCase
         } catch (\Illuminate\Database\QueryException $e) {
             $this->fail("Ambiguous column error detected: " . $e->getMessage());
         }
+    }
+
+    public function test_trashed_patient_restoration_and_linking()
+    {
+        // Setup Clinic 1
+        $clinic1 = Clinic::create([
+            'name' => 'Clinic One',
+            'code' => 'C1',
+            'address_line_1' => 'Address 1',
+            'city' => 'City 1',
+            'country' => 'Country 1',
+            'timezone' => 'UTC',
+            'currency' => 'USD',
+        ]);
+
+        $role = \App\Models\Role::firstOrCreate(['name' => 'Test Doctor']);
+        $p1 = \App\Models\Permission::firstOrCreate(['name' => 'create_patients']);
+        $p2 = \App\Models\Permission::firstOrCreate(['name' => 'view_patients']);
+        $p3 = \App\Models\Permission::firstOrCreate(['name' => 'delete_patients']);
+
+        $role->permissions()->syncWithoutDetaching([$p1->id, $p2->id, $p3->id]);
+
+        $user1 = User::factory()->create(['clinic_id' => $clinic1->id]);
+        $user1->roles()->attach($role->id);
+
+        $this->actingAs($user1);
+
+        $patientData = [
+            'name' => 'Jane Doe',
+            'email' => 'jane@example.com',
+            'phone' => '0987654321',
+            'date_of_birth' => '1995-05-05',
+            'gender' => 'female',
+            'nid_number' => '0987654321',
+            'address' => '456 Test Ave',
+        ];
+
+        // 1. Create Patient
+        $this->post(route('patients.store'), $patientData);
+        $patient = Patient::where('email', 'jane@example.com')->firstOrFail();
+
+        // 2. Delete Patient
+        $patient->delete();
+        $this->assertSoftDeleted($patient);
+
+        // 3. Try to Create Again
+        $response = $this->post(route('patients.store'), $patientData);
+        $response->assertRedirect();
+
+        // 4. Assert Restored and Active
+        $patient->refresh();
+        $this->assertNotSoftDeleted($patient);
+        $this->assertEquals('active', $patient->status);
+        $this->assertTrue($patient->clinics->contains($clinic1->id));
     }
 }

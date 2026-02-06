@@ -1,23 +1,23 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
-            <div>
-                <h4 class="mb-1 fw-bold text-dark">Create Bed</h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('ipd.beds.index') }}">Beds</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Create</li>
-                    </ol>
-                </nav>
+        <div class="card shadow-sm border-0">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
+                <div>
+                    <h4 class="mb-1 fw-bold text-dark">Create Bed</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('ipd.beds.index') }}">Beds</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Create</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="{{ route('ipd.beds.index') }}" class="btn btn-secondary btn-sm">
+                    <i class="ti ti-arrow-left me-1"></i>Back
+                </a>
             </div>
-            <a href="{{ route('ipd.beds.index') }}" class="btn btn-secondary btn-sm">
-                <i class="ti ti-arrow-left me-1"></i>Back
-            </a>
-        </div>
 
-        <div class="card shadow-sm border-0 rounded-bottom mt-0">
             <div class="card-body p-3">
                 <h5 class="card-title mb-4 pb-2 border-bottom">Bed Information</h5>
 

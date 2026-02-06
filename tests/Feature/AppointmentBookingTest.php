@@ -79,6 +79,7 @@ class AppointmentBookingTest extends TestCase
         $this->doctorUser = User::factory()->create(['clinic_id' => $this->clinic->id]);
         $this->doctor = Doctor::create([
             'user_id' => $this->doctorUser->id,
+            'clinic_id' => $this->clinic->id,
             'primary_department_id' => $department->id,
             'specialization' => 'Heart',
             'consultation_fee' => 100.00,
@@ -134,10 +135,18 @@ class AppointmentBookingTest extends TestCase
             'end_time' => '09:30',
         ]);
 
+        // Create another patient to test doctor availability (since same patient cannot book twice on same day)
+        $patient2 = Patient::create([
+            'clinic_id' => $this->clinic->id,
+            'patient_code' => 'P002',
+            'name' => 'Jane Doe',
+            'status' => 'active'
+        ]);
+
         // 2. Try to create overlapping appointment (Same time)
         $response2 = $this->post(route('appointments.booking.store'), [
             'doctor_id' => $this->doctor->id,
-            'patient_id' => $this->patient->id,
+            'patient_id' => $patient2->id,
             'clinic_id' => $this->clinic->id,
             'appointment_date' => $date,
             'start_time' => $startTime, // Same time
@@ -149,7 +158,7 @@ class AppointmentBookingTest extends TestCase
         // 3. Try overlapping appointment (Partial overlap: 09:15)
         $response3 = $this->post(route('appointments.booking.store'), [
             'doctor_id' => $this->doctor->id,
-            'patient_id' => $this->patient->id,
+            'patient_id' => $patient2->id,
             'clinic_id' => $this->clinic->id,
             'appointment_date' => $date,
             'start_time' => '09:15', // Overlaps with 09:00-09:30

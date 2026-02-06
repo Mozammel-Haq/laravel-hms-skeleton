@@ -1,25 +1,27 @@
 <x-app-layout>
     <div class="container-fluid py-4 px-2">
-        <!-- Header -->
-        <div class="row align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 mx-2">
-            <div class="col ">
-                <h4 class="mb-1 fw-bold text-dark">Doctor Profile</h4>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('doctors.index') }}" class="text-decoration-none">Doctors</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ optional($doctor->user)->name ?? 'Doctor' }}</li>
-                    </ol>
-                </nav>
+        <div class="card border-0 shadow-sm">
+            <!-- Header -->
+            <div class="row align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 mx-0 rounded-top">
+                <div class="col ">
+                    <h4 class="mb-1 fw-bold text-dark">Doctor Profile</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('doctors.index') }}" class="text-decoration-none">Doctors</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ optional($doctor->user)->name ?? 'Doctor' }}</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-auto d-flex gap-2">
+                    <a href="{{ route('doctors.schedule', $doctor) }}" class="btn btn-primary">
+                        <i class="ti ti-calendar-time me-1"></i> Manage Schedule
+                    </a>
+                </div>
             </div>
-            <div class="col-auto d-flex gap-2">
-                <a href="{{ route('doctors.schedule', $doctor) }}" class="btn btn-primary">
-                    <i class="ti ti-calendar-time me-1"></i> Manage Schedule
-                </a>
-            </div>
-        </div>
 
-        <div class="row px-2 mt-2">
+            <div class="card-body p-0">
+                <div class="row px-2 mt-2">
             <!-- Left Column: Profile & Info -->
             <div class="col-lg-3">
                 <div class="card border border-secondary-subtle shadow-sm mb-4">

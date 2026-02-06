@@ -1,22 +1,23 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm">
-            <div>
-                <h5 class="fw-bold mb-1 text-primary">Book Appointment</h5>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-dots mb-0">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('appointments.booking.index') }}">Find a Doctor</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Dr. {{ $doctor->user?->name ?? 'Doctor' }}</li>
-                    </ol>
-                </nav>
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
+                <div>
+                    <h5 class="fw-bold mb-1 text-primary">Book Appointment</h5>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('appointments.booking.index') }}">Find a Doctor</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Dr. {{ $doctor->user?->name ?? 'Doctor' }}</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="{{ route('appointments.booking.index') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="ti ti-arrow-left me-1"></i> Back to Search
+                </a>
             </div>
-            <a href="{{ route('appointments.booking.index') }}" class="btn btn-sm btn-outline-primary">
-                <i class="ti ti-arrow-left me-1"></i> Back to Search
-            </a>
-        </div>
-
-        <div class="row g-4 mt-2">
+            <div class="card-body">
+                <div class="row g-4">
             <!-- Doctor Profile Side -->
             <div class="col-lg-4">
                 <div class="card border-0 shadow-sm h-100">

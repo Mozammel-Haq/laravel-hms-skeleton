@@ -1,9 +1,9 @@
 <x-app-layout>
     <div class="container-fluid py-3 mx-2">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h3 class="page-title mb-0">Doctor Dashboard</h3>
-        </div>
         <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle p-3 rounded text-primary mb-3">
+                <h4 class="fw-bold text-primary">Doctor Dashboard</h4>
+            </div>
             <div class="row g-4 mb-2">
                 <!-- Appointments Today -->
                 <div class="col-md-4">
@@ -162,6 +162,33 @@
                 </div>
             </div>
         </div>
+
+        <div class="row g-4 mb-4">
+            <!-- Consultation Activity Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Consultation Activity</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="consultationActivityChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointment Status Chart -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Appointment Status</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div id="appointmentStatusChart" class="w-100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row g-3 mt-1">
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm">
@@ -171,7 +198,7 @@
                             All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table">
+                        <div class="table-responsive">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
@@ -242,7 +269,7 @@
                             class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table">
+                        <div class="table-responsive">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
@@ -295,4 +322,98 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Consultation Activity Chart (Appointments vs Prescriptions)
+            var consultationActivityOptions = {
+                series: [{
+                    name: 'Appointments',
+                    type: 'area',
+                    data: @json($chartData['consultation_activity']['appointments'])
+                }, {
+                    name: 'Prescriptions',
+                    type: 'area',
+                    data: @json($chartData['consultation_activity']['prescriptions'])
+                }],
+                chart: {
+                    height: 350,
+                    type: 'area',
+                    toolbar: { show: false },
+                    animations: { enabled: true }
+                },
+                stroke: {
+                    width: [2, 2],
+                    curve: 'smooth'
+                },
+                markers: {
+                    size: 5,
+                    hover: {
+                        size: 7
+                    }
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.4,
+                        opacityTo: 0.05,
+                        stops: [0, 100]
+                    }
+                },
+                dataLabels: { enabled: false },
+                labels: @json($chartData['consultation_activity']['dates']),
+                xaxis: {
+                    type: 'datetime',
+                    labels: { style: { colors: 'var(--bs-secondary)' } }
+                },
+                yaxis: [{
+                    title: { text: 'Appointments' },
+                    labels: { style: { colors: 'var(--bs-secondary)' } }
+                }, {
+                    opposite: true,
+                    title: { text: 'Prescriptions' },
+                    labels: { style: { colors: 'var(--bs-secondary)' } }
+                }],
+                colors: ['var(--primary-color)', 'var(--bs-info)'],
+                tooltip: { theme: 'light' }
+            };
+            var consultationActivityChart = new ApexCharts(document.querySelector("#consultationActivityChart"), consultationActivityOptions);
+            consultationActivityChart.render();
+
+            // Appointment Status Chart (Donut)
+            var appointmentStatusOptions = {
+                series: @json($chartData['appointment_status']['counts']),
+                chart: {
+                    type: 'donut',
+                    height: 350,
+                    animations: { enabled: true }
+                },
+                labels: @json($chartData['appointment_status']['labels']),
+                colors: ['var(--bs-success)', 'var(--bs-danger)', 'var(--bs-primary)', 'var(--bs-info)', 'var(--bs-warning)'],
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '70%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    formatter: function (w) {
+                                        return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                dataLabels: { enabled: false },
+                legend: { position: 'bottom' },
+                tooltip: { theme: 'light' }
+            };
+            var appointmentStatusChart = new ApexCharts(document.querySelector("#appointmentStatusChart"), appointmentStatusOptions);
+            appointmentStatusChart.render();
+        });
+    </script>
 </x-app-layout>

@@ -62,10 +62,10 @@
                             </span>
                             <div class="ms-2">
                                 <h6 class="fs-14 fw-semibold mb-0">
-                                    {{ optional($currentClinic)->name ?? (auth()->user()->clinic->name ?? 'Trustcare Clinic') }}
+                                    {{ optional($currentClinic)->name ?? (auth()->user()?->clinic?->name ?? 'Trustcare Clinic') }}
                                 </h6>
                                 <p class="fs-13 mb-0">
-                                    {{ optional($currentClinic)->location ?? (auth()->user()->clinic->location ?? 'Location') }}
+                                    {{ optional($currentClinic)->location ?? (auth()->user()?->clinic?->location ?? 'Location') }}
                                 </p>
                             </div>
                         </div>

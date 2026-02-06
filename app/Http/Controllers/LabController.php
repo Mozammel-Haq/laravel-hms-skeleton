@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Appointment;
 use App\Models\LabTest;
 use App\Models\LabTestOrder;
 use App\Models\LabTestResult;

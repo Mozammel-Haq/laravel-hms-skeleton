@@ -120,7 +120,10 @@ class UniqueConstraintTest extends TestCase
             'nid_number' => '1234567890', // Duplicate
         ]);
 
-        $response->assertSessionHasErrors(['nid_number']);
+        // Should redirect to the existing patient with info message
+        $patient = Patient::where('nid_number', '1234567890')->first();
+        $response->assertRedirect(route('patients.show', $patient));
+        $response->assertSessionHas('info', 'Patient is already registered in this clinic.');
     }
 
     public function test_cannot_create_patient_with_duplicate_passport()
@@ -150,7 +153,10 @@ class UniqueConstraintTest extends TestCase
             'passport_number' => 'A1234567', // Duplicate
         ]);
 
-        $response->assertSessionHasErrors(['passport_number']);
+        // Should redirect to the existing patient with info message
+        $patient = Patient::where('passport_number', 'A1234567')->first();
+        $response->assertRedirect(route('patients.show', $patient));
+        $response->assertSessionHas('info', 'Patient is already registered in this clinic.');
     }
 
     public function test_cannot_create_clinic_with_duplicate_registration_number()

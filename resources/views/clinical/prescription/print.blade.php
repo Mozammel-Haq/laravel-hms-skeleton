@@ -92,7 +92,7 @@
                 @if (isset($vitalsHistory) && $vitalsHistory->isNotEmpty())
                     <div class="mb-4">
                         <h6 class="fw-bold border-bottom pb-2">Vitals</h6>
-                        <div class="table">
+                        <div class="table-responsive">
                             <table class="table table-sm table-bordered">
                                 <thead>
                                     <tr>
@@ -123,11 +123,7 @@
                 @if ($prescription->complaints->isNotEmpty())
                     <div class="mb-4">
                         <h6 class="fw-bold border-bottom pb-2">Complaints</h6>
-                        <ul>
-                            @foreach ($prescription->complaints as $complaint)
-                                <li>{{ $complaint->name }}</li>
-                            @endforeach
-                        </ul>
+                        <p>{{ $prescription->complaints->pluck('name')->implode(', ') }}</p>
                     </div>
                 @endif
 

@@ -50,6 +50,7 @@ class DoctorSchedulingEnhancementTest extends TestCase
         $user = User::factory()->create(['clinic_id' => $this->clinic->id]);
         $this->doctor = Doctor::create([
             'user_id' => $user->id,
+            'clinic_id' => $this->clinic->id,
             'primary_department_id' => $this->department->id,
             'specialization' => 'General',
             'status' => 'active'

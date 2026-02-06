@@ -30,12 +30,18 @@ class LabOrderLogicTest extends TestCase
         Model::unguard();
 
         // Create Permissions
-        Permission::create(['name' => 'view_lab']);
+        Permission::firstOrCreate(['name' => 'view_lab']);
+        Permission::firstOrCreate(['name' => 'create']);
 
         // Create Role
-        if (!Role::where('name', 'Doctor')->exists()) {
-            $role = Role::create(['name' => 'Doctor']);
-            $role->givePermissionTo('view_lab');
+        $role = Role::firstOrCreate(['name' => 'Doctor']);
+
+        // Assign permissions if not already assigned
+        if (!$role->permissions()->where('name', 'view_lab')->exists()) {
+             $role->givePermissionTo('view_lab');
+        }
+        if (!$role->permissions()->where('name', 'create')->exists()) {
+             $role->givePermissionTo('create');
         }
 
         // Create Clinic and Department
@@ -58,6 +64,8 @@ class LabOrderLogicTest extends TestCase
             'description' => 'General Department',
             'status' => 'active'
         ]);
+
+        \App\Support\TenantContext::setClinicId($this->clinic->id);
     }
 
     public function test_can_search_eligible_patients()
@@ -69,6 +77,7 @@ class LabOrderLogicTest extends TestCase
 
         $doctor = Doctor::create([
             'user_id' => $user->id,
+            'clinic_id' => $this->clinic->id,
             'primary_department_id' => $this->department->id,
             'specialization' => 'General',
             'status' => 'active',
@@ -94,7 +103,7 @@ class LabOrderLogicTest extends TestCase
             'appointment_date' => now(),
             'start_time' => '10:00:00',
             'end_time' => '10:30:00',
-            'appointment_type' => 'Consultation',
+            'appointment_type' => 'in_person',
             'booking_source' => 'online',
             'created_by' => $user->id,
         ]);
@@ -144,6 +153,7 @@ class LabOrderLogicTest extends TestCase
 
         $doctor = Doctor::create([
             'user_id' => $user->id,
+            'clinic_id' => $this->clinic->id,
             'primary_department_id' => $this->department->id,
             'specialization' => 'General',
             'status' => 'active',
@@ -170,7 +180,7 @@ class LabOrderLogicTest extends TestCase
             'appointment_date' => now(),
             'start_time' => '10:00:00',
             'end_time' => '10:30:00',
-            'appointment_type' => 'Consultation',
+            'appointment_type' => 'in_person',
             'booking_source' => 'online',
             'created_by' => $user->id,
         ]);
@@ -215,6 +225,7 @@ class LabOrderLogicTest extends TestCase
 
         $doctor = Doctor::create([
             'user_id' => $user->id,
+            'clinic_id' => $this->clinic->id,
             'primary_department_id' => $this->department->id,
             'specialization' => 'General',
             'status' => 'active',
@@ -244,14 +255,6 @@ class LabOrderLogicTest extends TestCase
             'lab_test_id' => $test->id,
         ]);
 
-        // dump(session()->all());
-        if (!session()->has('error')) {
-            dump('Session missing error. Session content:', session()->all());
-            // Check if it was success?
-            if (session()->has('success')) {
-                dump('Got SUCCESS instead of ERROR:', session('success'));
-            }
-        }
         $this->assertDatabaseMissing('lab_test_orders', [
             'patient_id' => $patient->id,
         ]);

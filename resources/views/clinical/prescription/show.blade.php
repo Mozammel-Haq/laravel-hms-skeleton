@@ -1,4 +1,22 @@
 <x-app-layout>
+        <style>
+        .table-responsive {
+            /* Ensure there's space at the bottom for dropdowns to expand without being clipped */
+            padding-bottom: 0px;
+            /* Optional: visible only when scrolling is actually needed?
+               No, because dropdown clipping happens even if x-scroll isn't active but overflow-x is auto.
+               But always adding 80px padding might look ugly.
+
+               Better approach:
+               If the table has few rows, the container height collapses, clipping the dropdown.
+               We enforce a minimum height or padding.
+            */
+            min-height: 0px; /* Ensure enough height for at least one row + dropdown */
+        }
+
+        /* Fix for last row dropdowns being clipped in responsive tables */
+
+    </style>
     @push('styles')
         <style>
             @media print {
@@ -58,9 +76,8 @@
         <!-- start row -->
         <div class="row m-auto justify-content-center">
             <div class="col-lg-10">
-
-                <!-- Page Header -->
-                <div class="d-flex align-items-center justify-content-between mb-3 d-print-none">
+                                                                <!-- Page Header -->
+                <div class="d-flex align-items-center justify-content-between d-print-none bg-primary-subtle text-primary p-2">
                     <h6 class="fw-bold mb-0 d-flex align-items-center">
                         <a href="{{ route('clinical.prescriptions.index') }}">
                             <i class="ti ti-chevron-left me-1 fs-14"></i> Prescription
@@ -87,7 +104,7 @@
                         <!-- Clinic & Doctor -->
                         <div
                             class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3 flex-wrap gap-3">
-                            <div class="col-sm-6 text-start mb-3 mb-lg-0">
+                            <div class="col-sm-6 text-start mb-0">
                                 <div class="d-flex gap-3 align-items-center">
                                     @if (data_get($prescription, 'clinic.logo_path'))
                                         <img src="{{ asset("/") }}/{{ Storage::url($prescription->clinic->logo_path) }}"
@@ -134,8 +151,7 @@
                         </div>
 
                         <!-- Patient Details -->
-                        <div class="mb-4">
-                            <h6 class="fs-14 fw-medium mb-2">Patient Details</h6>
+                        <div>
 
                             <div class="px-3 py-2 bg-light rounded d-flex justify-content-between flex-wrap gap-2">
                                 <div class="fw-semibold">
@@ -160,16 +176,17 @@
                                     </p>
                                 </div>
                             </div>
+                            <hr>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <h6 class="mb-2 fs-14 fw-medium">Vitals History (This Visit)</h6>
                             <div class="border rounded p-2">
                                 @php
                                     $vitals = isset($vitalsHistory) ? $vitalsHistory : collect();
                                 @endphp
                                 @if ($vitals->isNotEmpty())
-                                    <div class="table">
+                                    <div class="table-responsive">
                                         <table class="table table-sm table-hover mb-0 static-table">
                                             <thead>
                                                 <tr>
@@ -199,18 +216,14 @@
                             </div>
                         </div>
 
-                        <!-- Complaints -->
-                        <div class="mb-4">
-                            <h6 class="fs-16 fw-bold mb-3">Patient Complaints</h6>
+                      <div class="mb-3">
+    <h6 class="fs-16 fw-bold mb-3">Patient Complaints</h6>
 
-                            <ul class="ps-3">
-                                @forelse($prescription->complaints as $complaint)
-                                    <li>{{ $complaint->name }}</li>
-                                @empty
-                                    <li class="text-muted">No complaints recorded</li>
-                                @endforelse
-                            </ul>
-                        </div>
+    <p class="mb-0">
+        {{ $prescription->complaints->pluck('name')->implode(', ') ?: 'No complaints recorded' }}
+    </p>
+</div>
+
 
                         <!-- Medicines -->
                         <div class="mb-4">
@@ -251,7 +264,7 @@
                         </div>
 
                         <!-- Follow-up & Notes -->
-                        <div class="row border-bottom pb-3 mb-3">
+                        <div class="row border-bottom pb-3 mb-2">
                             <div class="col-lg-4">
                                 <h6 class="fs-16 fw-bold mb-2">Follow Up</h6>
                                 <p>
@@ -265,7 +278,7 @@
                             </div>
 
                             <div class="col-lg-8">
-                                <h6 class="fs-16 fw-bold mb-2">Notes / Advice</h6>
+                                <h6 class="fs-16 fw-bold mb-1">Notes / Advice</h6>
                                 <p>{{ $prescription->notes ?? 'N/A' }}</p>
                             </div>
                         </div>

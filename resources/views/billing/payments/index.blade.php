@@ -1,24 +1,24 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
-        <div>
-            <h5 class="fw-bold mb-1 text-primary">Payments</h5>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-dots mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Payments</li>
-                </ol>
-            </nav>
-        </div>
-        <div>
-                <!-- Optional: Add Create Payment button if applicable, or keep empty if payments are only via invoices -->
-        </div>
-    </div>
+        <!-- Header -->
+        <div class="card shadow-sm border-0 p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top mb-0">
+                <div>
+                    <h5 class="fw-bold mb-1 text-primary">Payments</h5>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-dots mb-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('billing.index') }}">Billing</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Payments</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                        <!-- Optional: Add Create Payment button if applicable, or keep empty if payments are only via invoices -->
+                </div>
+            </div>
 
-    <div class="card shadow-sm border-0 rounded-bottom mt-0">
-        <div class="card-body">
+            <div class="card-body">
 
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('billing.payments.index') }}" class="mb-4">

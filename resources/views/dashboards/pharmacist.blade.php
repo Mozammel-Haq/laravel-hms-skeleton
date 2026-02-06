@@ -1,6 +1,10 @@
 <x-app-layout>
     <div class="container-fluid py-3 mx-2">
-        <div class="row g-4 mb-4">
+        <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center bg-primary-subtle p-3 rounded text-primary mb-3">
+                <h4 class="fw-bold text-primary">Pharmacist Dashboard</h4>
+            </div>
+            <div class="row g-4 mb-4">
             <!-- Active Prescriptions KPI Card -->
             <div class="col-md-6">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-warning"
@@ -107,6 +111,191 @@
             </div>
         </div>
 
+        <!-- Charts Section -->
+        <div class="row g-4 mb-4">
+            <!-- Pharmacy Activity Chart -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Pharmacy Activity (Last 7 Days)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="pharmacyActivityChart"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Prescription Status Chart -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0 fw-bold text-primary">Prescription Status</h5>
+                    </div>
+                    <div class="card-body d-flex align-items-center justify-content-center">
+                        <div id="prescriptionStatusChart" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Pharmacy Activity Chart
+                var pharmacyActivityOptions = {
+                    series: [{
+                        name: 'Sales Amount',
+                        type: 'area',
+                        data: @json($chartData['pharmacy_activity']['sales'])
+                    }, {
+                        name: 'Dispensed Items',
+                        type: 'area',
+                        data: @json($chartData['pharmacy_activity']['dispensed'])
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'area',
+                        toolbar: {
+                            show: false
+                        },
+                        animations: {
+                            enabled: true
+                        }
+                    },
+                    stroke: {
+                        width: [2, 2],
+                        curve: 'smooth'
+                    },
+                    markers: {
+                        size: 5,
+                        hover: {
+                            size: 7
+                        }
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.4,
+                            opacityTo: 0.05,
+                            stops: [0, 100]
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    labels: @json($chartData['pharmacy_activity']['dates']),
+                    xaxis: {
+                        type: 'datetime',
+                        labels: {
+                            format: 'dd MMM',
+                            style: {
+                                colors: 'var(--bs-secondary)'
+                            }
+                        }
+                    },
+                    yaxis: [{
+                        title: {
+                            text: 'Sales Amount (৳)',
+                            style: {
+                                color: 'var(--primary-color)'
+                            }
+                        },
+                        labels: {
+                            formatter: function (value) {
+                                return "৳" + value.toFixed(0);
+                            },
+                            style: {
+                                colors: 'var(--bs-secondary)'
+                            }
+                        }
+                    }, {
+                        opposite: true,
+                        title: {
+                            text: 'Dispensed Count',
+                            style: {
+                                color: 'var(--bs-success)'
+                            }
+                        },
+                        labels: {
+                            style: {
+                                colors: 'var(--bs-secondary)'
+                            }
+                        }
+                    }],
+                    colors: ['var(--primary-color)', 'var(--bs-success)'],
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        y: [{
+                            formatter: function (y) {
+                                if (typeof y !== "undefined") {
+                                    return "৳" + y.toFixed(2);
+                                }
+                                return y;
+                            }
+                        }, {
+                            formatter: function (y) {
+                                if (typeof y !== "undefined") {
+                                    return y.toFixed(0);
+                                }
+                                return y;
+                            }
+                        }]
+                    },
+                    legend: {
+                        position: 'top',
+                        horizontalAlign: 'right'
+                    }
+                };
+
+                var pharmacyActivityChart = new ApexCharts(document.querySelector("#pharmacyActivityChart"),
+                    pharmacyActivityOptions);
+                pharmacyActivityChart.render();
+
+                // Prescription Status Chart
+                var prescriptionStatusOptions = {
+                    series: @json($chartData['prescription_status']['counts']),
+                    labels: @json($chartData['prescription_status']['labels']),
+                    chart: {
+                        type: 'donut',
+                        height: 350,
+                        animations: {
+                            enabled: true
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    total: {
+                                        show: true,
+                                        label: 'Total',
+                                        formatter: function(w) {
+                                            return w.globals.seriesTotals.reduce((a, b) => {
+                                                return a + b
+                                            }, 0)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    colors: ['var(--bs-warning)', 'var(--bs-success)', 'var(--bs-danger)'],
+                    legend: {
+                        position: 'bottom'
+                    },
+                    dataLabels: {
+                        enabled: false
+                    }
+                };
+
+                var prescriptionStatusChart = new ApexCharts(document.querySelector("#prescriptionStatusChart"),
+                    prescriptionStatusOptions);
+                prescriptionStatusChart.render();
+            });
+        </script>
+
         <div class="row g-3 mt-1">
             <div class="col-lg-6">
                 <div class="card border-0 shadow-sm">
@@ -116,7 +305,7 @@
                             class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table">
+                        <div class="table-responsive">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
@@ -166,7 +355,7 @@
                         <a href="{{ route('pharmacy.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                     <div class="card-body">
-                        <div class="table">
+                        <div class="table-responsive">
                             <table class="table table-hover align-middle datatable">
                                 <thead class="table-light">
                                     <tr>
@@ -199,6 +388,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </x-app-layout>

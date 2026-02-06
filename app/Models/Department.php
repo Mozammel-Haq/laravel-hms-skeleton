@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -30,7 +31,7 @@ use App\Models\Concerns\LogsActivity;
 
 class Department extends BaseTenantModel
 {
-    use SoftDeletes, LogsActivity;
+    use HasFactory, SoftDeletes, LogsActivity;
 
     public function getActivityDescription($action)
     {

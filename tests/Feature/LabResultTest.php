@@ -74,6 +74,7 @@ class LabResultTest extends TestCase
 
         $this->doctor = Doctor::create([
             'user_id' => $this->user->id,
+            'clinic_id' => $this->clinic->id,
             'primary_department_id' => $this->department->id,
             'specialization' => 'General',
             'status' => 'active',
@@ -300,9 +301,9 @@ class LabResultTest extends TestCase
         $response->assertSee('Remarks');
         $response->assertSee('Actions');
         $response->assertSee('Everything looks fine');
-        $response->assertSee('View Result');
-        $response->assertSee('Preview Result');
-        $response->assertSee('Download Result');
+        $response->assertSee('View Details');
+        $response->assertSee('Preview PDF');
+        $response->assertSee('Download');
         $response->assertSee('showResultModal');
     }
 }

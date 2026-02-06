@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  *
- * @property-read \App\Models\PharmacySale $sale
+ * @property-read \App\Models\PharmacySale $pharmacySale
  * @property-read \App\Models\Medicine $medicine
  */
 class PharmacySaleItem extends Model
@@ -27,11 +27,11 @@ class PharmacySaleItem extends Model
     public $timestamps = false;
 
     /**
-     * Get the sale associated with the item.
+     * Get the pharmacy sale associated with the item.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function sale(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function pharmacySale(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(PharmacySale::class, 'pharmacy_sale_id');
     }

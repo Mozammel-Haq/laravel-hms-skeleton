@@ -160,6 +160,16 @@ class AppointmentBookingController extends Controller
 
         $appointmentDate = Carbon::parse($validated['appointment_date'])->toDateString();
 
+        // Check if patient already has an appointment on this date
+        $existingPatientAppointment = Appointment::where('patient_id', $validated['patient_id'])
+            ->whereDate('appointment_date', $appointmentDate)
+            ->whereIn('status', ['pending', 'confirmed', 'arrived', 'in_progress'])
+            ->exists();
+
+        if ($existingPatientAppointment) {
+            return back()->withErrors(['appointment_date' => 'This patient already has an active appointment on this date.'])->withInput();
+        }
+
         return DB::transaction(function () use ($validated, $appointmentDate) {
             $doctor = Doctor::where('id', $validated['doctor_id'])
                 ->lockForUpdate()

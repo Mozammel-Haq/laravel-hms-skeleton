@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Doctor;
+use App\Models\Department;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -53,6 +55,15 @@ class DashboardRoleTest extends TestCase
         ]);
         $user = User::factory()->create(['clinic_id' => $clinic->id]);
         $user->assignRole('Doctor');
+
+        $department = Department::create(['name' => 'General', 'clinic_id' => $clinic->id]);
+        Doctor::create([
+            'user_id' => $user->id,
+            'clinic_id' => $clinic->id,
+            'primary_department_id' => $department->id,
+            'specialization' => 'General',
+            'status' => 'active',
+        ]);
 
         $response = $this->actingAs($user)->get('/dashboard');
 

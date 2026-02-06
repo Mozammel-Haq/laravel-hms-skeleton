@@ -19,6 +19,7 @@ class LabTestOrderPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
+        // dd('Policy called', $user->clinic_id);
         return !empty($user->clinic_id);
     }
 
