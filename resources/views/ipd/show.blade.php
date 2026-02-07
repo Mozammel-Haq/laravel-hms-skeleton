@@ -1,5 +1,6 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
+        <div class="card p-3 mb-0">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
         <div>
@@ -43,7 +44,7 @@
             @endif
         </div>
     </div>
-
+</div>
     <div class="row g-4 mt-0">
             <!-- Left Column: Patient Profile -->
             <div class="col-lg-3">

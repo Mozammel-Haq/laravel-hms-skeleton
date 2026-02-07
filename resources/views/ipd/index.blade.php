@@ -1,7 +1,8 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
     <div class="card shadow-sm border-0">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
+        <div class="card-body p-3">
+                    <div class="d-flex mb-3 justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
         <div>
             <h5 class="fw-bold mb-1 text-primary">IPD Dashboard</h5>
             <nav aria-label="breadcrumb">
@@ -20,7 +21,6 @@
             @endcan
         </div>
     </div>
-        <div class="card-body p-3">
             <div class="row mb-4 g-4">
             <!-- Admissions Card -->
             <div class="col-md-3">

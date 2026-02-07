@@ -120,7 +120,7 @@
             <div class="col-lg-8">
                 <div class="row g-3">
                     <div class="col-md-12">
-                        <div class="card">
+                        <div class="card mb-2">
                             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Education</h5>
                             </div>

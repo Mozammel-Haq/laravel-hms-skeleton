@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="card mt-2 mb-4 mx-2 p-2">
+    <div class="card mt-2 mb-2 mx-2 p-2">
         <div class="mb-3 mt-2 d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3">
             <h6 class="fw-bold mb-0 d-flex align-items-center">
                 <a href="{{ route('patients.index') }}" class="text-dark">
@@ -93,7 +93,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row g-2">
         <div class="col-xl-5 d-flex">
             <div class="card mx-2 p-2 flex-fill w-100 mb-4 mb-xl-0">
                 <div class="card-header">

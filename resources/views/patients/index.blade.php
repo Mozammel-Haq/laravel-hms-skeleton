@@ -1,7 +1,7 @@
 <x-app-layout>
 
     <div class="container-fluid mx-2 mt-2">
-        
+
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
@@ -21,7 +21,7 @@
                         </a>
                     @endcan
                 </div>
-
+                <hr>
                 <!-- Filters -->
                 <form method="GET" action="{{ route('patients.index') }}" class="mb-4">
                     <div class="row g-2 align-items-end">

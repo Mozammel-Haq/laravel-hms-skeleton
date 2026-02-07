@@ -1,8 +1,6 @@
 <x-app-layout>
     <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
-            <h3 class="page-title mb-0">Profile Settings</h3>
-        </div>
+
 
         @if (session('status') === 'profile-updated')
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -16,7 +14,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-
+        <div class="card p-3 mb-2">
+                    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3">
+            <h4 class="fw-bold text-primary mb-0">Profile Settings</h4>
+        </div>
+        </div>
         <div class="row g-4">
             <!-- Profile Information -->
             <div class="col-lg-6">

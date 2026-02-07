@@ -1,9 +1,10 @@
 <x-app-layout>
     <div class="container-fluid">
+        <div class="card p-3 mb-2">
         <!-- Header & Controls -->
-        <div class="row mb-4 align-items-center mt-3">
+        <div class="row align-items-center bg-primary-subtle text-primary p-3 rounded mx-1">
             <div class="col-md-6">
-                <h3 class="page-title">Doctor Performance</h3>
+                <h4 class="fw-bold mb-0 text-primary">Doctor Performance</h4>
             </div>
             <div class="col-md-6 text-end d-print-none">
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'true']) }}" class="btn btn-success me-2">
@@ -27,7 +28,7 @@
         </div>
 
         <!-- Custom Date Range Form -->
-        <div class="collapse mb-2 {{ request('range') == 'custom' ? 'show' : '' }}" id="customDateRange">
+        <div class="collapse  {{ request('range') == 'custom' ? 'show' : '' }}" id="customDateRange">
             <div class="card card-body">
                 <form action="{{ route('reports.doctor_performance') }}" method="GET"
                     class="row g-3 align-items-end">
@@ -49,7 +50,7 @@
         </div>
 
         <!-- Report Info -->
-        <div class="alert border-start-4 border-start-primary bg-white rounded-4 mb-5"
+        <div class="alert border-start-4 border-start-primary bg-white rounded-4 p-2 m-0"
             style="border-left-width: 4px!important;">
             <div class="d-flex align-items-center">
                 <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
@@ -65,7 +66,7 @@
                 </div>
             </div>
         </div>
-
+        </div>
         @php
             // Prepare Chart Data
             $top5 = $topDoctors->take(5);

@@ -1,6 +1,10 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
+
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
             <div>
                 <h4 class="font-bold mb-2 text-primary">Pharmacy Sales</h4>
                 <nav aria-label="breadcrumb">
@@ -19,9 +23,7 @@
                 </a>
             </div>
         </div>
-
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
+        <hr>
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('pharmacy.index') }}" class="mb-4">
                     <div class="row g-2 align-items-end">

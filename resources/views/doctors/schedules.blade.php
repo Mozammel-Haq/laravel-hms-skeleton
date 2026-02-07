@@ -1,9 +1,9 @@
 <x-app-layout>
     <div class="container-fluid" x-data="scheduleCalendar()" x-init="init();
     view = '{{ request('view', 'calendar') }}'">
-        <div class="card shadow-sm">
+        <div class="card border-0 mt-2 p-3 mb-2">
             <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 pt-4 rounded-top">
-                <h3 class="page-title mb-0">Doctor Schedules</h3>
+                <h4 class="fw-bold mb-0 text-primary">Doctor Schedules</h4>
                 <div class="d-flex gap-2">
                     <div class="btn-group">
                         <button class="btn" :class="view === 'calendar' ? 'btn-primary' : 'btn-outline-primary'"

@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="container-fluid py-4">
-        <!-- Header -->
+        <div class="card p-3 mb-2">
+                    <!-- Header -->
         <div class="row align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
             <div class="col">
                 <h4 class="mb-1 fw-bold text-dark">Sale Details</h4>
@@ -23,6 +24,8 @@
                     </a>
                 @endif
             </div>
+        </div>
+
         </div>
 
         <div class="row">

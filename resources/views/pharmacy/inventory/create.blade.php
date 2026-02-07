@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
+        <div class="card p-2 mb-2">
+        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary p-3 rounded mx-2 shadow-sm">
             <div>
                 <h4 class="font-bold mb-2 text-primary">{{ isset($medicine) ? 'Edit Medicine' : 'Add New Medicine' }}</h4>
                 <nav aria-label="breadcrumb">
@@ -14,7 +15,7 @@
                 <i class="ti ti-arrow-left me-1"></i> Back to Catalog
             </a>
         </div>
-
+        </div>
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <div class="card border-0 shadow-sm">

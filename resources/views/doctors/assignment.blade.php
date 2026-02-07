@@ -1,9 +1,11 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        
+
         {{-- Filters & Header --}}
         <div class="card mb-2 mt-2">
-            <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top">
+
+            <div class="card-body">
+                            <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top">
                 <h4 class="fw-bold mb-2 text-primary">Doctor Clinic Assignments</h4>
                 {{-- breadcrumb --}}
                 <nav aria-label="breadcrumb">
@@ -13,8 +15,7 @@
                     </ol>
                 </nav>
             </div>
-            <div class="card-body">
-
+            <hr>
                 <form method="GET" action="{{ route('doctors.assignment') }}" class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-3">

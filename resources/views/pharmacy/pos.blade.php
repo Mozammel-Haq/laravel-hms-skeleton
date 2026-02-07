@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded shadow-sm mb-3">
+        <div class="card p-3 mb-2">
+                    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded shadow-sm">
             <div>
                 <h5 class="fw-bold mb-1 text-primary">New Sale (POS)</h5>
                 <nav aria-label="breadcrumb">
@@ -13,6 +14,7 @@
             <a href="{{ route('pharmacy.index') }}" class="btn btn-sm btn-outline-primary">
                 <i class="ti ti-arrow-left me-1"></i> Back to History
             </a>
+        </div>
         </div>
 
         <form action="{{ route('pharmacy.store') }}" method="POST" id="pos-form">

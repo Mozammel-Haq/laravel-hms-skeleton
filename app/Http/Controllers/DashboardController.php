@@ -12,6 +12,7 @@ use App\Models\Admission;
 use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Invoice;
+use App\Models\Expense;
 use App\Models\LeaveRequest;
 use App\Models\Patient;
 use Illuminate\Support\Facades\DB;
@@ -170,6 +171,9 @@ class DashboardController extends Controller
                         ->whereBetween((new Invoice())->getTable() . '.created_at', [now()->subMonth(), now()])->sum('total_amount'),
                     'last_30_days' => $clinic->invoices()
                         ->whereBetween((new Invoice())->getTable() . '.created_at', [now()->subDays(30), now()])->sum('total_amount'),
+                    'expenses_total' => Expense::where('clinic_id', $clinic->id)->sum('amount'),
+                    'expenses_last_30_days' => Expense::where('clinic_id', $clinic->id)
+                        ->whereBetween('expense_date', [now()->subDays(30), now()])->sum('amount'),
                 ],
                 'invoices' => [
                     'total' => $clinic->invoices()->count(),

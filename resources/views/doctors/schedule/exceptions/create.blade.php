@@ -3,7 +3,9 @@
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top">
+
+                <div class="card-body">
+                                    <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top">
 
                     <h4 class="fw-bold mb-2 text-primary">Request Schedule Exception</h4>
                     {{-- breadcrumb --}}
@@ -15,7 +17,7 @@
                         </ol>
                     </nav>
                 </div>
-                <div class="card-body">
+                <hr>
                     <form action="{{ route('doctor.schedule.exceptions.store') }}" method="POST">
                         @csrf
 

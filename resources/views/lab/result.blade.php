@@ -1,6 +1,9 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
+
+        <div class="card shadow-sm rounded-bottom mt-0 border-0">
+            <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
             <div>
                 <h5 class="fw-bold mb-1 text-primary">Record Lab Result</h5>
                 {{-- breadcrumb --}}
@@ -15,8 +18,7 @@
                 <i class="ti ti-arrow-left me-1"></i> Back to List
             </a>
         </div>
-        <div class="card shadow-sm rounded-bottom mt-0 border-0">
-            <div class="card-body p-3">
+        <hr>
                 <form method="post" action="{{ route('lab.result.store', $order) }}" enctype="multipart/form-data">
                     @csrf
 

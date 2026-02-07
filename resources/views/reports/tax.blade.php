@@ -174,10 +174,10 @@
         </style>
     @endpush
     <div class="container-fluid mt-3">
-        <!-- Header & Controls -->
-        <div class="row mb-4 align-items-center">
+        <div class="card p-3 mt-1 mb-2">
+        <div class="row align-items-center bg-primary-subtle text-primary p-3 rounded mx-1">
             <div class="col-md-6">
-                <h3 class="page-title">Tax Report</h3>
+                <h4 class="fw-bold mb-0 text-primary">Tax Report</h4>
             </div>
             <div class="col-md-6 text-end d-print-none">
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'true']) }}" class="btn btn-success me-2">
@@ -201,7 +201,7 @@
         </div>
 
         <!-- Custom Date Range Form -->
-        <div class="collapse mb-4 {{ request('range') == 'custom' ? 'show' : '' }}" id="customDateRange">
+        <div class="collapse {{ request('range') == 'custom' ? 'show' : '' }}" id="customDateRange">
             <div class="card card-body">
                 <form action="{{ route('reports.tax') }}" method="GET" class="row g-3 align-items-end">
                     <input type="hidden" name="range" value="custom">
@@ -222,7 +222,7 @@
         </div>
 
         <!-- Report Info -->
-        <div class="alert border-start-4 border-start-primary bg-white rounded-4 mb-5"
+        <div class="alert border-start-4 border-start-primary bg-white rounded-4 p-2 m-0"
             style="border-left-width: 4px!important;">
             <div class="d-flex align-items-center">
                 <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
@@ -238,15 +238,15 @@
                 </div>
             </div>
         </div>
-
+        </div>
         @php
             $taxableAmount = $invoices->sum('total_amount'); // Base Amount
             $taxAmount = $totalTax; // Calculated in controller
             $grandTotal = $taxableAmount + $taxAmount;
         @endphp
-
+        <div class="card p-3 mb-2">
         <!-- KPIs -->
-        <div class="row mb-5 g-4">
+        <div class="row g-4">
             <!-- Taxable Amount Card -->
             <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-secondary"
@@ -444,7 +444,7 @@
                 </div>
             </div>
         </div>
-
+        </div>
         <!-- Charts Row -->
         <div class="row mb-4">
             <!-- Tax Trend -->

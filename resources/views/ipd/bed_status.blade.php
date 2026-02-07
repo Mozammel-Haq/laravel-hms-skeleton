@@ -2,12 +2,12 @@
     <div class="container-fluid">
 
         {{-- TOP STATS (BOOTSTRAP ONLY – NO LEGEND) --}}
-        <div class="row g-3 mb-2">
+        <div class="row g-3 mb-0">
 
             <div class="row g-3">
                 {{-- BED DASHBOARD --}}
                 <div class="col-xl-6 col-md-12">
-                    <div class="card shadow-sm rounded-2">
+                    <div class="card rounded-2">
                         <div class="card-body d-flex flex-column justify-content-between">
                             <div>
                                 <h5 class="mb-1">Bed Status</h5>
@@ -73,7 +73,7 @@
         </div>
 
 
-        <div class="card"
+        <div class="card mt-0"
             x-data='bedStatusMatrix({ wards: @json($wards), bedAdmissions: @json($bedAdmissions) })'>
             <div class="card-body">
 

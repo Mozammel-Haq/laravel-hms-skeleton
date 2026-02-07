@@ -1,6 +1,10 @@
 <x-app-layout>
-    <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
+    <div class="container-fluid mx-2 mt-2"></div>
+
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
             <div>
                 <h4 class="fw-bold mb-2 text-primary">Reset Passwords</h4>
                 <nav aria-label="breadcrumb">
@@ -15,11 +19,9 @@
                 <i class="ti ti-users me-1"></i> Manage Staff
             </a>
         </div>
-
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
+        <hr>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle datatable">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Name</th>

@@ -1,5 +1,8 @@
 <x-app-layout>
-    <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
+
+
+    <div class="card border-0 p-3 mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
         <div>
             <h4 class="fw-bold mb-2 text-primary">Inventory Batches</h4>
             <nav aria-label="breadcrumb">
@@ -19,8 +22,7 @@
             </a>
         </div>
     </div>
-
-    <div class="card border-0 pt-3 shadow-sm mx-2">
+    <hr>
         <!-- Filter Form -->
         <form method="GET" action="{{ route('pharmacy.inventory.index') }}" class="mb-4 px-3">
             <div class="row g-2 align-items-end">

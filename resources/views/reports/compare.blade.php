@@ -1,9 +1,10 @@
 <x-app-layout>
     <div class="container-fluid mt-3">
+        <div class="card p-3 mb-2">
         <!-- Header -->
-        <div class="row mb-4 align-items-center">
+        <div class="row align-items-center bg-primary-subtle text-primary p-3 mx-1">
             <div class="col-md-6">
-                <h3 class="page-title">Clinic Comparison</h3>
+                <h4 class="fw-bold mb-0 text-primary">Clinic Comparison</h4>
 
             </div>
             <div class="col-md-6 text-end d-print-none">
@@ -15,9 +16,9 @@
                 </button>
             </div>
         </div>
-
+        </div>
         <!-- Selection Form -->
-        <div class="card mb-4 d-print-none">
+        <div class="card p-3 mb-2 d-print-none">
             <div class="card-header bg-white">
                 <h5 class="card-title mb-0">Select Clinics to Compare</h5>
             </div>

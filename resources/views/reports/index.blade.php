@@ -74,12 +74,11 @@
         </style>
     @endpush
     <div class="container-fluid mx-2">
-        <div class="card mb-3 mt-3">
+        <div class="card mb-3 mt-1">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3 class="page-title mb-0">Reports</h3>
+                <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary p-3 rounded">
+                    <h4 class="fw-bold mb-0 text-primary">Reports</h4>
                 </div>
-                <hr>
             </div>
         </div>
         <div class="row mb-5 g-4">
@@ -322,6 +321,40 @@
                             </div>
                             <h5 class="fw-bold mb-2 text-dark">Tax Report</h5>
                             <p class="text-muted small mb-0">Tax collection summary and detailed breakdown.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Pharmacy Profit Report -->
+            <div class="col-md-4">
+                <a href="{{ route('reports.pharmacy_profit') }}" class="text-decoration-none">
+                    <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success"
+                        data-bs-theme="light,dark">
+                        <!-- Pattern Background -->
+                        <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+                            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <pattern id="pattern-cross-pharmacy" x="0" y="0" width="20" height="20"
+                                        patternUnits="userSpaceOnUse">
+                                        <path d="M0 0L20 20M20 0L0 20" stroke="var(--success-color)" stroke-width="0.5" stroke-opacity="0.2"/>
+                                    </pattern>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#pattern-cross-pharmacy)" />
+                            </svg>
+                        </div>
+
+                        <!-- Decorative Shape -->
+                        <div class="position-absolute bottom-0 end-0 w-50 h-50 decorative-shape"
+                            style="background: radial-gradient(circle at bottom right, var(--success-color) 0%, transparent 70%); opacity: 0.1;">
+                        </div>
+
+                        <div class="card-body position-relative z-1 p-4 text-center">
+                            <div class="mb-4 kpi-icon-container mx-auto" style="width: 64px; height: 64px;">
+                                <i class="ti ti-pill fs-1 text-success"></i>
+                            </div>
+                            <h5 class="fw-bold mb-2 text-dark">Pharmacy Profit</h5>
+                            <p class="text-muted small mb-0">Revenue, costs, and profit margins from medicine sales.</p>
                         </div>
                     </div>
                 </a>

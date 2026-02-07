@@ -2,17 +2,24 @@
     <div class="container-fluid mx-2 mt-2">
 
 
-        <div class="card">
-                <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top">
-                    <h4 class="fw-bold mb-2 text-primary">My Schedule Exceptions</h4>
-                    {{-- breadcrumb --}}
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+        <div class="card p-3">
+                <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="fw-bold mb-2 text-primary">My Schedule Exceptions</h4>
+                        {{-- breadcrumb --}}
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
                             <li class="breadcrumb-item active" aria-current="page">Schedule Exceptions</li>
                         </ol>
                     </nav>
                 </div>
+                {{-- create button --}}
+                    <div class="flex align-items-center">
+                        <a href="{{ route('doctor.schedule.exceptions.create') }}" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Create Exception</a>
+                    </div>
+            </div>
+            {{-- card body --}}
             <div class="card-body">
 
                 <!-- Filters -->

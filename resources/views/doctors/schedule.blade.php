@@ -4,8 +4,8 @@
 
         <div class="row justify-content-center">
             <div class="col-lg-12">
-                <div class="card border-0 mt-2">
-                    <div class="bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded-top">
+                <div class="card border-0 mt-2 p-3">
+                    <div class="bg-primary-subtle text-primary mb-2 p-3 rounded mx-2">
                         <h4 class="fw-bold mb-2 text-primary">Manage Schedule</h4>
                         {{-- breadcrumb --}}
                         <nav aria-label="breadcrumb">
@@ -15,7 +15,7 @@
                             </ol>
                         </nav>
                     </div>
-                    <div class="card-body p-4">
+                    <div class="card-body pt-1 mt-1">
                         <div class="d-flex justify-content-between align-items-center mb-4 w-100">
                             <div>
                                 <div class="text-muted fw-bold">Dr. {{ $doctor->user?->name ?? 'Deleted Doctor' }}

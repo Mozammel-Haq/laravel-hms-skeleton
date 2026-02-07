@@ -1,7 +1,12 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
+
+
+        <!-- Form Card -->
+        <div class="card shadow-sm rounded-bottom mt-0">
+            <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
             <div>
                 <h5 class="fw-bold mb-1 text-primary">Create Clinic</h5>
                 <nav aria-label="breadcrumb">
@@ -16,10 +21,7 @@
                 <i class="ti ti-arrow-left me-1"></i> Back to List
             </a>
         </div>
-
-        <!-- Form Card -->
-        <div class="card shadow-sm rounded-bottom mt-0">
-            <div class="card-body p-4">
+        <hr>
                 <form method="POST" action="{{ route('clinics.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="row g-4">

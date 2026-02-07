@@ -1,6 +1,10 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <!-- Header -->
+
+        <!-- Form Card -->
+        <div class="card shadow-sm rounded-bottom mt-0">
+            <div class="card-body p-4">
+                        <!-- Header -->
         <div
             class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
             <div>
@@ -23,10 +27,7 @@
                 </a>
             @endcan
         </div>
-
-        <!-- Form Card -->
-        <div class="card shadow-sm rounded-bottom mt-0">
-            <div class="card-body p-4">
+<hr>
                 <form method="POST" action="{{ route('clinics.update', $clinic) }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')

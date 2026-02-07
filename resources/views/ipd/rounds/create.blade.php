@@ -3,7 +3,9 @@
         <div class="row justify-content-center px-2">
             <div class="col-lg-8">
                 <div class="card border-0 shadow-sm mt-2">
-                    <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
+
+                    <div class="card-body p-3">
+                                            <div class="d-flex mb-2 justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
                         <div>
                             <h4 class="font-bold mb-2 text-primary">Add Round Note</h4>
                             {{-- breadcrumb --}}
@@ -16,7 +18,7 @@
                             </nav>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <hr>
                         <form method="POST" action="{{ route('ipd.rounds.store', $admission->id) }}">
                             @csrf
 

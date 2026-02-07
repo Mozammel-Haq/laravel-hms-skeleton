@@ -1,6 +1,9 @@
 <x-app-layout>
     <div class="container-fluid p-4">
-        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 py-3 pt-3">
             <div>
                 <h4 class="mb-1 text-dark fw-bold">
                     @if (isset($patient) && $patient)
@@ -22,9 +25,7 @@
                 </a>
             </div>
         </div>
-
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-body p-4">
+        <hr>
                 <!-- Filter Form (Optional - assuming there might be search later, keeping it simple for now or adding if route supports it) -->
                 <!-- Assuming standard search might be available or just displaying the list -->
 

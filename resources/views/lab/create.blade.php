@@ -1,7 +1,9 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
         <div class="card shadow-sm border-0">
-            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
+
+            <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
                 <div>
                     <h5 class="fw-bold mb-1 text-primary">Order Lab Test</h5>
                     <nav aria-label="breadcrumb">
@@ -16,7 +18,7 @@
                 </a>
             </div>
 
-            <div class="card-body p-3">
+            <hr>
                 <form method="post" action="{{ route('lab.store') }}">
                     @csrf
                     <input type="hidden" name="appointment_id" value="{{ $appointmentId ?? '' }}">

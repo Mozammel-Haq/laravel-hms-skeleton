@@ -1,6 +1,9 @@
 <x-app-layout>
     <div class="container-fluid m-2">
-        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
+
+        <div class="card">
+            <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
             <div>
                 <h4 class="font-bold mb-2 text-primary">Nursing Notes</h4>
                 {{-- breadcrumb --}}
@@ -12,9 +15,7 @@
                 </nav>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body">
-
+        <hr>
                 <form action="{{ route('nursing.notes.index') }}" method="GET" class="mb-4">
                     <div class="row g-2">
                         <div class="col-md-3">

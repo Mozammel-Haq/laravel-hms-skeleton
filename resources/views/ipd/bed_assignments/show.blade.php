@@ -1,10 +1,11 @@
 <x-app-layout>
     <div class="container-fluid py-4">
         <div class="card shadow-sm border-0">
-            <!-- Header -->
+            <div class="card-body p-3">
+                            <!-- Header -->
             <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 rounded-top">
                 <div>
-                    <h4 class="mb-1 fw-bold text-dark">Bed Assignment Details</h4>
+                    <h4 class="fw-bold text-primary mb-2">Bed Assignment Details</h4>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb breadcrumb-dots mb-0">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>
@@ -23,8 +24,7 @@
                     </a>
                 </div>
             </div>
-
-            <div class="card-body p-4">
+<hr>
                 <div class="row g-4">
                     <!-- Bed Info -->
                     <div class="col-md-6">

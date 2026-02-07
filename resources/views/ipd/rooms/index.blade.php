@@ -1,10 +1,12 @@
 <x-app-layout>
     <div class="container-fluid py-4 px-4">
         <div class="card shadow-sm border-0">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 rounded-top">
+
+            <div class="card-body p-3">
+                            <!-- Header -->
+            <div class="d-flex mb-2 justify-content-between align-items-center bg-primary-subtle text-primary px-4 py-3 rounded-top">
                 <div>
-                    <h4 class="mb-1 fw-bold text-dark">Rooms</h4>
+                    <h4 class="fw-bold text-primary mb-2">Rooms</h4>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb breadcrumb-dots mb-0">
                             <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
@@ -17,7 +19,6 @@
                 </a>
             </div>
 
-            <div class="card-body p-4">
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('ipd.rooms.index') }}" class="mb-4">
                     <div class="row g-2 align-items-end">

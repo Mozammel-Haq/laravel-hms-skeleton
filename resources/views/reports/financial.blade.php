@@ -259,9 +259,9 @@
                 </form>
             </div>
         </div>
-
+        <div class="card p-3 mb-2">
         <!-- KPI Cards -->
-        <div class="row mb-5 g-4">
+        <div class="row g-4">
             <!-- Total Revenue Card -->
             <div class="col-md-3">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary"
@@ -325,6 +325,89 @@
                 </div>
             </div>
 
+            <!-- Total Expenses Card -->
+            <div class="col-md-3">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-warning"
+                    data-bs-theme="light,dark">
+                    <!-- Pattern Background -->
+                    <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <pattern id="pattern-diagonal-exp" x="0" y="0" width="20" height="20"
+                                    patternUnits="userSpaceOnUse">
+                                    <path d="M0 20L20 0" stroke="var(--bs-danger)" stroke-width="0.5" stroke-opacity="0.2"/>
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#pattern-diagonal-exp)" />
+                        </svg>
+                    </div>
+                    
+                    <div class="card-body position-relative z-1 p-4">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div>
+                                <h6 class="card-title fw-medium mb-1 kpi-label text-uppercase" style="letter-spacing: 0.5px;">
+                                    Total Expenses
+                                </h6>
+                                <h2 class="fw-bold kpi-value text-danger mb-0">৳{{ number_format($expenses, 2) }}</h2>
+                            </div>
+                            <div class="rounded-3 p-2 kpi-icon-container bg-danger-subtle border-danger-subtle">
+                                <i class="ti ti-shopping-cart-off fs-2 text-danger"></i>
+                            </div>
+                        </div>
+                        <div class="border-top pt-3 mt-3 kpi-divider border-danger-subtle">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-danger-subtle p-1 me-2 border border-danger-subtle kpi-small-icon">
+                                    <i class="ti ti-arrow-down-right text-danger" style="width: 16px; height: 16px;"></i>
+                                </div>
+                                <p class="text-muted kpi-footer">Purchases & overheads</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Net Income Card -->
+            <div class="col-md-3">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card {{ $netIncome >= 0 ? 'kpi-success' : 'kpi-danger' }}"
+                    data-bs-theme="light,dark">
+                    <!-- Pattern Background -->
+                    <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <pattern id="pattern-net" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <path d="M0 40L40 0H20L0 20M40 40V20L20 40" stroke="{{ $netIncome >= 0 ? 'var(--bs-success)' : 'var(--bs-danger)' }}" stroke-width="2" fill="none" stroke-opacity="0.1"/>
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#pattern-net)" />
+                        </svg>
+                    </div>
+
+                    <div class="card-body position-relative z-1 p-4">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div>
+                                <h6 class="card-title fw-medium mb-1 kpi-label text-uppercase" style="letter-spacing: 0.5px;">
+                                    Net Income
+                                </h6>
+                                <h2 class="fw-bold kpi-value {{ $netIncome >= 0 ? 'text-success' : 'text-danger' }} mb-0">
+                                    ৳{{ number_format($netIncome, 2) }}
+                                </h2>
+                            </div>
+                            <div class="rounded-3 p-2 kpi-icon-container {{ $netIncome >= 0 ? 'bg-success-subtle border-success-subtle' : 'bg-danger-subtle border-danger-subtle' }}">
+                                <i class="ti ti-wallet fs-2 {{ $netIncome >= 0 ? 'text-success' : 'text-danger' }}"></i>
+                            </div>
+                        </div>
+                        <div class="border-top pt-3 mt-3 kpi-divider {{ $netIncome >= 0 ? 'border-success-subtle' : 'border-danger-subtle' }}">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle {{ $netIncome >= 0 ? 'bg-success-subtle border-success-subtle' : 'bg-danger-subtle border-danger-subtle' }} p-1 me-2 border kpi-small-icon">
+                                    <i class="ti ti-chart-pie {{ $netIncome >= 0 ? 'text-success' : 'text-danger' }}" style="width: 16px; height: 16px;"></i>
+                                </div>
+                                <p class="text-muted kpi-footer">Revenue - Expenses</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Collected (Paid) Card -->
             <div class="col-md-3">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success"
@@ -524,7 +607,7 @@
                 </div>
             </div>
         </div>
-
+        </div>
 
         <!-- Charts Row 1 -->
         <div class="row g-3 mb-4">

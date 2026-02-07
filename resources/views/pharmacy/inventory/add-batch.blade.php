@@ -1,5 +1,9 @@
 <x-app-layout>
-    <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
+
+
+    <div class="container-fluid">
+        <div class="card p-3 mb-0">
+                <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
         <div>
             <h4 class="fw-bold mb-2 text-primary">Add New Batch</h4>
             <nav aria-label="breadcrumb">
@@ -13,10 +17,9 @@
             <i class="ti ti-arrow-left me-1"></i> Back to Batches
         </a>
     </div>
-
-    <div class="container-fluid">
+        </div>
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-lg-12">
                 <div class="card border-0 shadow-sm mt-3">
                     <div class="card-body p-4">
                         <form action="{{ route('pharmacy.inventory.store') }}" method="POST">

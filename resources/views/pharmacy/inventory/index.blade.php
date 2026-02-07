@@ -1,6 +1,10 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
-        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
+
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
             <div>
                 <h4 class="font-bold mb-2 text-primary">Medicine Inventory</h4>
                 <nav aria-label="breadcrumb">
@@ -19,9 +23,7 @@
                 </a>
             </div>
         </div>
-
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
+        <hr>
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('pharmacy.medicines.index') }}" class="mb-4">
                     <div class="row g-2 align-items-end">
@@ -68,6 +70,7 @@
                                 <th>Generic Name</th>
                                 <th>Manufacturer</th>
                                 <th>Type</th>
+                                <th>Stock</th>
                                 <th>Price</th>
                                 <th>Status</th>
                                 <th class="text-end">Actions</th>
@@ -86,6 +89,13 @@
                                         <span class="badge bg-light text-dark border">
                                             {{ $medicine->dosage_form ?? 'N/A' }}
                                         </span>
+                                    </td>
+                                    <td>
+                                        @if($medicine->batches_sum_quantity_in_stock > 0)
+                                            <span class="badge bg-success-subtle text-success">{{ $medicine->batches_sum_quantity_in_stock }}</span>
+                                        @else
+                                            <span class="badge bg-danger-subtle text-danger">Out of Stock</span>
+                                        @endif
                                     </td>
                                     <td>{{ number_format($medicine->price, 2) }}</td>
                                     <td>

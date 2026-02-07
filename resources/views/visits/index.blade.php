@@ -18,6 +18,7 @@
                 <i class="ti ti-plus me-1"></i> New Visit
             </a>
         </div>
+        <hr>
             <!-- Filter Form -->
             <form method="GET" action="{{ route('visits.index') }}" class="mb-4 px-3">
                 <div class="row g-2 align-items-end">

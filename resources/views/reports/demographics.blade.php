@@ -2,10 +2,11 @@
     @push('styles')
     @endpush
     <div class="container-fluid mt-3">
+        <div class="card p-3 mb-2">
         <!-- Header & Controls -->
-        <div class="row mb-4 align-items-center">
+        <div class="row align-items-center bg-primary-subtle text-primary p-3 mx-1">
             <div class="col-md-6">
-                <h3 class="page-title">Patient Demographics</h3>
+                <h4 class="fw-bold mb-0 text-primary">Patient Demographics</h4>
             </div>
             <div class="col-md-6 text-end d-print-none">
                 <a href="{{ request()->fullUrlWithQuery(['export' => 'true']) }}" class="btn btn-success me-2">
@@ -30,7 +31,7 @@
         </div>
 
         <!-- Custom Date Range Form -->
-        <div class="collapse mb-4 {{ request('range') == 'custom' ? 'show' : '' }}" id="customDateRange">
+        <div class="collapse  {{ request('range') == 'custom' ? 'show' : '' }}" id="customDateRange">
             <div class="card card-body">
                 <form action="{{ route('reports.demographics') }}" method="GET" class="row g-3 align-items-end">
                     <input type="hidden" name="range" value="custom">
@@ -51,7 +52,7 @@
         </div>
 
         <!-- Report Info -->
-        <div class="alert border-start-4 border-start-primary bg-white rounded-4 mb-5"
+        <div class="alert border-start-4 border-start-primary bg-white rounded-4 p-2 m-0"
             style="border-left-width: 4px!important;">
             <div class="d-flex align-items-center">
                 <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
@@ -67,9 +68,10 @@
                 </div>
             </div>
         </div>
-
+        </div>
+        <div class="card p-3 mb-2">
         <!-- KPIs -->
-        <div class="row mb-5 g-4">
+        <div class="row g-4">
             <!-- New Patients Card -->
             <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary" data-bs-theme="light,dark">
@@ -294,7 +296,7 @@
                 </div>
             </div>
         </div>
-
+        </div>
         <!-- Charts Row 1 -->
         <div class="row mb-4">
             <!-- Registration Trend -->

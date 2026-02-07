@@ -1,10 +1,13 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
         <div class="card shadow-sm border-0">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
+
+
+            <div class="card-body p-3">
+                            <!-- Header -->
+            <div class="d-flex mb-2 justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
                 <div>
-                    <h4 class="mb-1 fw-bold text-dark">Edit Bed</h4>
+                    <h4 class="fw-bold text-primary mb-2">Edit Bed</h4>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb breadcrumb-dots mb-0">
                             <li class="breadcrumb-item"><a href="{{ route('ipd.index') }}">IPD</a></li>
@@ -13,12 +16,11 @@
                         </ol>
                     </nav>
                 </div>
-                <a href="{{ route('ipd.beds.index') }}" class="btn btn-secondary btn-sm">
+                <a href="{{ route('ipd.beds.index') }}" class="btn btn-outline-primary btn-sm">
                     <i class="ti ti-arrow-left me-1"></i>Back
                 </a>
             </div>
-
-            <div class="card-body p-3">
+            <hr>
                 <h5 class="card-title mb-4 pb-2 border-bottom">Bed Information</h5>
 
                 <form method="post" action="{{ route('ipd.beds.update', $bed) }}">

@@ -3,7 +3,7 @@
     <div class="container-fluid mx-2 mt-2">
         <div class="card border-0 shadow-sm">
 
-                <div class="card-body p-4">
+                <div class="card-body p-3">
                     <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
                         <div>
                             <h4 class="fw-bold mb-2 text-primary">Add New Patient</h4>
@@ -18,6 +18,7 @@
                             <i class="ti ti-arrow-left me-1"></i> Back to List
                         </a>
                     </div>
+                    <hr>
                     <form method="POST" action="{{ route('patients.store') }}" enctype="multipart/form-data">
                         @csrf
 
@@ -203,14 +204,22 @@
 
                 input.addEventListener('change', function (e) {
                     const file = e.target.files[0];
-                    if (!file) {
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview.src = e.target.result;
+                            preview.style.display = 'block';
+                            // Remove d-flex to ensure it hides (Bootstrap !important override)
+                            placeholder.classList.remove('d-flex');
+                            placeholder.style.display = 'none';
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
                         preview.style.display = 'none';
-                        placeholder.style.display = 'flex';
-                        return;
+                        // Restore d-flex
+                        placeholder.classList.add('d-flex');
+                        placeholder.style.display = '';
                     }
-                    preview.src = URL.createObjectURL(file);
-                    preview.style.display = 'block';
-                    placeholder.style.display = 'none';
                 });
             });
         </script>

@@ -1,8 +1,9 @@
 <x-app-layout>
-    <div class="container-fluid py-4 px-2">
+    <div class="container-fluid py-2 px-2">
         <div class="card border-0 shadow-sm">
-            <!-- Header -->
-            <div class="row align-items-center bg-primary-subtle text-primary px-4 py-3 pt-3 mx-0 rounded-top">
+            <div class="card-body p-0">
+                            <!-- Header -->
+            <div class="row align-items-center bg-primary-subtle text-primary p-3 m-2 rounded-top">
                 <div class="col ">
                     <h4 class="mb-1 fw-bold text-dark">Doctor Profile</h4>
                     <nav aria-label="breadcrumb">
@@ -19,8 +20,7 @@
                     </a>
                 </div>
             </div>
-
-            <div class="card-body p-0">
+            <hr>
                 <div class="row px-2 mt-2">
             <!-- Left Column: Profile & Info -->
             <div class="col-lg-3">

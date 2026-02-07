@@ -12,6 +12,7 @@ use App\Models\Payment;
 use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Models\PharmacySaleItem;
+use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -126,6 +127,14 @@ class ReportController extends Controller
         // KPIs
         $revenue = (clone $query)->sum('total_amount');
 
+        // Expenses
+        $expenses = Expense::where('clinic_id', auth()->user()->clinic_id)
+            ->whereBetween('expense_date', [$startDate, $endDate])
+            ->sum('amount');
+
+        // Net Income (Revenue - Expenses)
+        $netIncome = $revenue - $expenses;
+
         // Collected (Paid) - Based on actual payments received in the date range
         $paidQuery = Payment::whereBetween('paid_at', [$startDate, $endDate]);
 
@@ -142,6 +151,10 @@ class ReportController extends Controller
         });
 
         $invoiceCount = (clone $query)->count();
+
+        // Pass variables to view
+        // Note: Compact is usually easier but we have specific names
+        // data array construction logic below...
 
         // Revenue by Type (Pie Chart)
         $byType = (clone $query)
@@ -164,7 +177,7 @@ class ReportController extends Controller
             ->groupBy('payment_method')
             ->pluck('total', 'payment_method');
 
-        $data = compact('revenue', 'paid', 'pending', 'invoiceCount', 'startDate', 'endDate', 'byType', 'daily', 'paymentMethods');
+        $data = compact('revenue', 'expenses', 'netIncome', 'paid', 'pending', 'invoiceCount', 'startDate', 'endDate', 'byType', 'daily', 'paymentMethods');
 
         if ($request->has('export')) {
             return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\Reports\FinancialExport($data), 'financial-report.xlsx');
@@ -459,6 +472,7 @@ class ReportController extends Controller
         $stats = DB::table('pharmacy_sale_items')
             ->join('pharmacy_sales', 'pharmacy_sale_items.pharmacy_sale_id', '=', 'pharmacy_sales.id')
             ->whereBetween('pharmacy_sales.sale_date', [$startDate, $endDate])
+            ->where('pharmacy_sales.clinic_id', auth()->user()->clinic_id)
             ->selectRaw('
                 SUM(quantity * unit_price) as total_revenue,
                 SUM(quantity * unit_cost) as total_cost
