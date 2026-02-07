@@ -1,6 +1,19 @@
 <x-app-layout>
     <div class="container-fluid mx-2 mt-2">
         <div class="card p-3 mb-0">
+    <!-- Payment Status Alerts -->
+    @if(request('payment_status') == 'success')
+        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            <strong>Success!</strong> {{ request('message', 'Payment successful!') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @elseif(request('payment_status') == 'error')
+        <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <strong>Error!</strong> {{ request('message', 'Payment failed.') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top shadow-sm mb-0">
         <div>
@@ -103,6 +116,37 @@
                             </span>
                         </div>
 
+                        <div class="d-flex align-items-center justify-content-between mb-3 pt-2 border-top">
+                            <span class="text-muted">Total Deposit</span>
+                            <span class="fw-bold text-dark">৳{{ number_format($admission->deposits->where('status', 'success')->sum('amount'), 2) }}</span>
+                        </div>
+
+                        @if($admission->status === 'admitted')
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">Add Deposit (Online)</label>
+                                <form action="{{ route('online-payment.initiate') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="type" value="admission_deposit">
+                                    <input type="hidden" name="id" value="{{ $admission->id }}">
+
+                                    <div class="mb-2">
+                                        <select name="gateway" class="form-select form-select-sm">
+                                            <option value="stripe">Stripe</option>
+                                            <option value="sslcommerz">SSLCommerz</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">৳</span>
+                                        <input type="number" name="amount" class="form-control" placeholder="Amount" min="1" required>
+                                        <button class="btn btn-success" type="submit">
+                                            <i class="ti ti-credit-card me-1"></i> Pay
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        @endif
+
                         @php
                             $currentAssignment = $admission->bedAssignments->whereNull('released_at')->last();
                         @endphp
@@ -153,9 +197,44 @@
                                 <label class="text-muted small text-uppercase fw-bold d-block mb-1">Discharge Date</label>
                                 <span class="fw-medium text-dark">{{ $admission->discharge_date ?? 'Not Discharged' }}</span>
                             </div>
-                            <div class="col-md-6 p-4">
+                            <div class="col-md-6 p-4 border-bottom">
                                 <label class="text-muted small text-uppercase fw-bold d-block mb-1">Reason for Admission</label>
                                 <span class="fw-medium text-dark">{{ $admission->admission_reason ?? 'N/A' }}</span>
+                            </div>
+                            <div class="col-md-12 p-4">
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">Financials</label>
+                                <div class="d-flex gap-4">
+                                    <div>
+                                        <small class="text-muted d-block">Total Deposit Paid</small>
+                                        <span class="fw-bold text-success fs-6">
+                                            {{ number_format($admission->deposits->where('status', 'success')->sum('amount'), 2) }}
+                                        </span>
+                                    </div>
+                                    @if($admission->invoice)
+                                    <div>
+                                        <small class="text-muted d-block">Final Invoice Amount</small>
+                                        <span class="fw-bold text-dark fs-6">
+                                            {{ number_format($admission->invoice->total_amount, 2) }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Due Amount</small>
+                                        <span class="fw-bold text-dark fs-6">
+                                            @php
+                                                $paid = $admission->deposits->where('status', 'success')->sum('amount');
+                                                $due = max(0, $admission->invoice->total_amount - $paid);
+                                            @endphp
+                                            {{ number_format($due, 2) }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Payment Status</small>
+                                        <span class="badge bg-{{ $admission->invoice->status === 'paid' ? 'success' : ($admission->invoice->status === 'partial' ? 'warning' : 'danger') }}">
+                                            {{ ucfirst($admission->invoice->status) }}
+                                        </span>
+                                    </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>

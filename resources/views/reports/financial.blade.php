@@ -263,7 +263,7 @@
         <!-- KPI Cards -->
         <div class="row g-4">
             <!-- Total Revenue Card -->
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary"
                     data-bs-theme="light,dark">
                     <!-- Pattern Background -->
@@ -326,7 +326,7 @@
             </div>
 
             <!-- Total Expenses Card -->
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-warning"
                     data-bs-theme="light,dark">
                     <!-- Pattern Background -->
@@ -341,7 +341,7 @@
                             <rect width="100%" height="100%" fill="url(#pattern-diagonal-exp)" />
                         </svg>
                     </div>
-                    
+
                     <div class="card-body position-relative z-1 p-4">
                         <div class="d-flex align-items-start justify-content-between mb-3">
                             <div>
@@ -367,7 +367,7 @@
             </div>
 
             <!-- Net Income Card -->
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card {{ $netIncome >= 0 ? 'kpi-success' : 'kpi-danger' }}"
                     data-bs-theme="light,dark">
                     <!-- Pattern Background -->
@@ -407,9 +407,9 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Collected (Paid) Card -->
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success"
                     data-bs-theme="light,dark">
                     <!-- Pattern Background -->
@@ -469,7 +469,7 @@
             </div>
 
             <!-- Pending (Unpaid) Card -->
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-warning"
                     data-bs-theme="light,dark">
                     <!-- Pattern Background -->
@@ -533,7 +533,7 @@
             </div>
 
             <!-- Total Invoices Card -->
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info"
                     data-bs-theme="light,dark">
                     <!-- Pattern Background -->

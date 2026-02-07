@@ -74,7 +74,7 @@
                                 <tr>
                                     <td><span class="fw-medium">{{ $room->room_number }}</span></td>
                                     <td>{{ $room->room_type }}</td>
-                                    <td>{{ number_format($room->daily_rate, 2) }}</td>
+                                    <td>৳{{ number_format($room->daily_rate, 2) }}</td>
                                     <td>
                                         @php
                                             $statusClass = match($room->status) {

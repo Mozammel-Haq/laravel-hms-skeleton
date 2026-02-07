@@ -40,7 +40,13 @@ class DashboardController extends Controller
         $user = Auth::user();
         // dd($user);
         $clinic = $user->clinic;
-        if ($user->hasRole('Super Admin')) {
+
+        // Super Admin Context Switch
+        if ($user->hasRole('Super Admin') && \Illuminate\Support\Facades\Session::has('selected_clinic_id')) {
+            $clinic = \App\Models\Clinic::find(\Illuminate\Support\Facades\Session::get('selected_clinic_id'));
+        }
+
+        if ($user->hasRole('Super Admin') && !$clinic) {
             $stats = [
                 'clinics_total' => \App\Models\Clinic::count(),
                 'clinics_active' => \App\Models\Clinic::where('status', 'active')->count(),
@@ -98,7 +104,7 @@ class DashboardController extends Controller
             return view('dashboards.super_admin', compact('stats', 'chartData'));
         }
 
-        if ($user->hasRole('Clinic Admin')) {
+        if (($user->hasRole('Clinic Admin') || ($user->hasRole('Super Admin') && $clinic)) && $clinic) {
             $clinicId = $clinic->id;
             $stats = [
                 'doctors' => [

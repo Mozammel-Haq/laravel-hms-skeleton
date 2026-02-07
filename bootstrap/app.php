@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => EnsureClinicContext::class,
             'api.tenant' => EnsureTokenClinicContext::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'stripe/webhook',
+            'sslcommerz/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

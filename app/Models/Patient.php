@@ -115,14 +115,22 @@ class Patient extends Model implements AuthenticatableContract
 
         // Global Scope to filter patients by the current user's clinic
         static::addGlobalScope('clinic_access', function (Builder $builder) {
-            if (auth()->check() && auth()->user()->clinic_id) {
+            $clinicId = null;
+
+            if (\App\Support\TenantContext::hasClinic()) {
+                $clinicId = \App\Support\TenantContext::getClinicId();
+            } elseif (auth()->check() && auth()->user()->clinic_id) {
+                $clinicId = auth()->user()->clinic_id;
+            }
+
+            if ($clinicId) {
                 // Filter patients that belong to the current user's clinic
                 // OR patients created by this clinic (legacy clinic_id)
-                $builder->where(function ($q) use ($builder) {
-                    $q->whereHas('clinics', function ($q2) {
-                        $q2->where($q2->qualifyColumn('id'), auth()->user()->clinic_id);
+                $builder->where(function ($q) use ($builder, $clinicId) {
+                    $q->whereHas('clinics', function ($q2) use ($clinicId) {
+                        $q2->where($q2->qualifyColumn('id'), $clinicId);
                     })
-                        ->orWhere($builder->qualifyColumn('clinic_id'), auth()->user()->clinic_id);
+                        ->orWhere($builder->qualifyColumn('clinic_id'), $clinicId);
                 });
             }
         });

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * AdmissionDeposit Model
@@ -19,13 +20,16 @@ use App\Models\Base\BaseTenantModel;
  * @property int|null $received_by
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  *
  * @property-read \App\Models\Admission $admission
  * @property-read \App\Models\User|null $receiver
  */
 class AdmissionDeposit extends BaseTenantModel
 {
-    protected $guarded = ['id'];
+    use SoftDeletes;
+    
+    protected $guarded = ['id', 'clinic_id'];
 
     /**
      * Get the admission associated with the deposit.

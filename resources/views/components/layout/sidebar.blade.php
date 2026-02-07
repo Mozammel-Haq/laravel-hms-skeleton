@@ -321,7 +321,9 @@
                         <ul style="{{ request()->routeIs('billing.*') ? 'display: block;' : 'display: none;' }}">
                             <li><a href="{{ route('billing.index') }}"
                                     class="{{ request()->routeIs('billing.*') ? 'active' : '' }}">Invoices</a></li>
-                            <li><a href="{{ route('billing.payments.index') }}">Payments</a></li>
+                            <li><a href="{{ route('payments.cash') }}">Cash Payments</a></li>
+                            <li><a href="{{ route('payments.digital') }}">Digital Payments</a></li>
+                            <li><a href="{{ route('billing.payments.index') }}">Payment History</a></li>
                         </ul>
                     </li>
 
@@ -398,8 +400,7 @@
                         </a>
                         <ul
                             style="{{ request()->routeIs('clinical.consultations.*') ? 'display: block;' : 'display: none;' }}">
-                            <li><a href="{{ route('appointments.create') }}">New</a></li>
-                            <li><a href="{{ route('visits.index') }}">History</a></li>
+                            <li><a href="{{ route('clinical.consultations.index') }}">History</a></li>
                         </ul>
                     </li>
 

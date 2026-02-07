@@ -3,94 +3,58 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+use App\Models\Concerns\NotifiesRoles;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Concerns\LogsActivity;
 
 /**
  * Admission Model
  *
- * Represents an IPD admission.
- * Tracks patient stay, bed assignments, and services.
+ * Represents an IPD (In-Patient Department) admission.
+ * Tracks patient stay, assigned bed, and attending doctor.
  *
  * @property int $id
  * @property int $clinic_id
  * @property int $patient_id
  * @property int $admitting_doctor_id
- * @property \Illuminate\Support\Carbon $admission_date
+ * @property string $admission_date
+ * @property string|null $discharge_date
  * @property string $admission_reason
- * @property int|null $current_bed_id
- * @property string $status 'admitted', 'transferred', 'discharged'
- * @property bool $discharge_recommended
- * @property int|null $discharge_recommended_by
- * @property int|null $discharged_by
- * @property \Illuminate\Support\Carbon|null $discharge_date
+ * @property string|null $discharge_reason
+ * @property string $status 'admitted', 'discharged'
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
  *
  * @property-read \App\Models\Patient $patient
  * @property-read \App\Models\Doctor $doctor
- * @property-read \App\Models\Bed|null $currentBed
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\BedAssignment[] $bedAssignments
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\AdmissionDeposit[] $deposits
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\InpatientService[] $services
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\InpatientRound[] $rounds
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PatientVital[] $vitals
  */
-
-use App\Models\Concerns\NotifiesRoles;
-
 class Admission extends BaseTenantModel
 {
-    use SoftDeletes, LogsActivity, NotifiesRoles;
+    use HasFactory, SoftDeletes, NotifiesRoles;
 
-    protected static function booted()
-    {
-        static::created(function ($admission) {
-            $admission->notifyRole('Nurse', 'New Admission', "Patient {$admission->patient?->name} admitted.");
-        });
-    }
-
-    public function getActivityDescription($action)
-    {
-        $patientName = $this->patient ? $this->patient->name : 'Unknown Patient';
-        $doctorName = $this->doctor ? $this->doctor->user->name : 'Unknown Doctor';
-        return ucfirst($action) . " admission for {$patientName} (Dr. {$doctorName})";
-    }
+    protected $guarded = ['id'];
 
     /**
      * Get the patient associated with the admission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function patient()
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(Patient::class)->withTrashed();
     }
 
     /**
-     * Get the doctor who admitted the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Get the doctor attending the admission.
      */
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class, 'admitting_doctor_id');
+        return $this->belongsTo(Doctor::class, 'admitting_doctor_id')->withTrashed();
     }
 
     /**
-     * Get the current bed assigned to the admission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function currentBed()
-    {
-        return $this->belongsTo(Bed::class, 'current_bed_id');
-    }
-
-    /**
-     * Get the bed assignments for this admission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Get the bed assignments for the admission.
      */
     public function bedAssignments()
     {
@@ -98,9 +62,20 @@ class Admission extends BaseTenantModel
     }
 
     /**
-     * Get the services provided during this admission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Get the deposits for the admission.
+     */
+    public function deposits()
+    {
+        return $this->hasMany(AdmissionDeposit::class);
+    }
+
+    public function rounds()
+    {
+        return $this->hasMany(InpatientRound::class);
+    }
+
+    /**
+     * Get the services for the admission.
      */
     public function services()
     {
@@ -108,25 +83,26 @@ class Admission extends BaseTenantModel
     }
 
     /**
-     * Get the doctor rounds for this admission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function rounds()
-    {
-        return $this->hasMany(InpatientRound::class);
-    }
-
-    /**
-     * Get the vitals recorded during this admission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Get the vitals for the admission.
      */
     public function vitals()
     {
         return $this->hasMany(PatientVital::class);
     }
-    protected $casts = [
-        'created_at' => 'date',
-    ];
+
+    /**
+     * Get the final invoice for the admission.
+     */
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
+
+    public function getCurrentBedAttribute()
+    {
+        return $this->bedAssignments()
+            ->whereNull('released_at')
+            ->with(['bed.room.ward'])
+            ->first()?->bed;
+    }
 }

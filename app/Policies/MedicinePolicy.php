@@ -11,7 +11,9 @@ class MedicinePolicy
     {
         return $user->hasPermission('view_pharmacy')
             || $user->hasPermission('view_pharmacy_inventory')
-            || $user->hasPermission('manage_pharmacy_inventory');
+            || $user->hasPermission('manage_pharmacy_inventory')
+            || $user->hasPermission('create_prescriptions')
+            || $user->hasRole('Doctor');
     }
 
     public function view(User $user, Medicine $medicine): bool

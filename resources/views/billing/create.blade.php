@@ -48,13 +48,17 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-semibold">Discount</label>
-                            <input type="number" name="discount" id="discount" class="form-control form-control-sm" step="0.01"
-                                value="0">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">৳</span>
+                                <input type="number" name="discount" id="discount" class="form-control" step="0.01" value="0">
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label small fw-semibold">Tax (%)</label>
-                            <input type="number" name="tax" id="tax" class="form-control form-control-sm" step="0.01"
-                                value="0">
+                            <div class="input-group input-group-sm">
+                                <input type="number" name="tax" id="tax" class="form-control" step="0.01" value="0">
+                                <span class="input-group-text">%</span>
+                            </div>
                         </div>
                     </div>
 
@@ -79,19 +83,19 @@
                         <tfoot>
                             <tr>
                                 <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
-                                <td colspan="2" id="subtotal">0.00</td>
+                                <td colspan="2" class="text-end fw-bold">৳ <span id="subtotal">0.00</span></td>
                             </tr>
                             <tr>
                                 <td colspan="4" class="text-end"><strong>Discount:</strong></td>
-                                <td colspan="2" id="discountAmount">0.00</td>
+                                <td colspan="2" class="text-end text-danger">-৳ <span id="discountAmount">0.00</span></td>
                             </tr>
                             <tr>
                                 <td colspan="4" class="text-end"><strong>Tax:</strong></td>
-                                <td colspan="2" id="taxAmount">0.00</td>
+                                <td colspan="2" class="text-end">৳ <span id="taxAmount">0.00</span></td>
                             </tr>
                             <tr>
                                 <td colspan="4" class="text-end"><strong>Grand Total:</strong></td>
-                                <td colspan="2" id="grandTotal">0.00</td>
+                                <td colspan="2" class="text-end fw-bold text-primary">৳ <span id="grandTotal">0.00</span></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -125,12 +129,18 @@
                     value="1">
             </td>
             <td>
-                <input type="number" name="items[][unit_price]" class="form-control form-control-sm unitPrice" step="0.01"
-                    value="0">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">৳</span>
+                    <input type="number" name="items[][unit_price]" class="form-control unitPrice" step="0.01"
+                        value="0">
+                </div>
             </td>
             <td>
-                <input type="number" name="items[][total]" class="form-control form-control-sm total" step="0.01" value="0"
-                    readonly>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">৳</span>
+                    <input type="number" name="items[][total]" class="form-control total" step="0.01" value="0"
+                        readonly>
+                </div>
             </td>
             <td>
                 <button type="button" class="btn btn-danger btn-sm removeItemBtn">Remove</button>

@@ -194,16 +194,45 @@
                         delay: 250,
                         data: function(params) {
                             return {
-                                term: params.term || ''
+                                term: params.term || '',
+                                mode: 'all' // Show all medicines even if out of stock
                             };
                         },
                         processResults: function(data) {
-                            return data;
+                            return {
+                                results: data.results,
+                                pagination: {
+                                    more: data.pagination.more
+                                }
+                            };
                         },
                         cache: true
                     },
-                    minimumInputLength: 1
+                    minimumInputLength: 0,
+                    templateResult: formatMedicine,
+                    templateSelection: formatMedicineSelection
                 });
+            }
+
+            function formatMedicine(medicine) {
+                if (medicine.loading) {
+                    return medicine.text;
+                }
+                var stockText = medicine.stock !== undefined ? 'Stock: ' + medicine.stock : '';
+                // Highlight stock if low/zero
+                var badgeClass = medicine.stock > 0 ? 'bg-light text-dark' : 'bg-danger text-white';
+                
+                var $container = $(
+                    "<div class='d-flex justify-content-between align-items-center'>" +
+                        "<span>" + medicine.text + "</span>" +
+                        "<span class='badge " + badgeClass + "'>" + stockText + "</span>" +
+                    "</div>"
+                );
+                return $container;
+            }
+
+            function formatMedicineSelection(medicine) {
+                return medicine.text;
             }
 
             function addItem(prefill = null) {

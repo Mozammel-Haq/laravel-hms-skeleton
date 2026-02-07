@@ -23,7 +23,7 @@
 
         <!-- start row -->
         <div class="row m-auto justify-content-center">
-            <div class="col-lg-10">
+            <div class="col-lg-12">
 
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-primary-subtle text-primary px-4 py-3 rounded-top">
@@ -146,7 +146,7 @@
                                     @endphp
                                     @if ($vitals->isNotEmpty())
                                         <div class="table-responsive">
-                                            <table class="table table-sm table-hover mb-0 datatable">
+                                            <table class="table table-sm table-hover mb-0">
                                                 <thead>
                                                     <tr>
                                                         <th>Date</th>
@@ -214,12 +214,8 @@
                                             <tr>
                                                 <td class="row-index">1</td>
                                                 <td>
-                                                    <select name="items[0][medicine_id]" class="form-select">
+                                                    <select name="items[0][medicine_id]" class="form-select select2-medicine" required>
                                                         <option value="">Select medicine</option>
-                                                        @foreach ($medicines as $med)
-                                                            <option value="{{ $med->id }}">{{ $med->name }}
-                                                            </option>
-                                                        @endforeach
                                                     </select>
                                                 </td>
                                                 <td><input type="text" name="items[0][dosage]" class="form-control">
@@ -287,6 +283,9 @@
     @push('scripts')
         <script>
             document.addEventListener("DOMContentLoaded", function() {
+                // Initialize Select2 on the first row
+                initMedicineSelect2($('.select2-medicine'));
+
                 let rowIndex = 1;
                 const tbody = document.getElementById('medicine-rows');
 
@@ -298,11 +297,8 @@
                         row.innerHTML = `
                 <td class="row-index">${rowIndex + 1}</td>
                 <td>
-                    <select name="items[${rowIndex}][medicine_id]" class="form-select">
+                    <select name="items[${rowIndex}][medicine_id]" class="form-select select2-medicine" required>
                         <option value="">Select medicine</option>
-                        @foreach ($medicines as $med)
-                            <option value="{{ $med->id }}">{{ $med->name }}</option>
-                        @endforeach
                     </select>
                 </td>
                 <td>
@@ -325,12 +321,22 @@
             `;
 
                         tbody.appendChild(row);
+
+                        // Initialize Select2 on the new row
+                        initMedicineSelect2($(row).find('.select2-medicine'));
+
                         rowIndex++;
                         updateRowNumbers();
                     }
 
                     // Remove row
                     if (e.target.closest('.remove-row')) {
+                        // Destroy select2 before removing to prevent leaks (though not strictly necessary for simple removal)
+                        const select = e.target.closest('tr').querySelector('.select2-medicine');
+                        if ($(select).data('select2')) {
+                            $(select).select2('destroy');
+                        }
+
                         e.target.closest('tr').remove();
                         updateRowNumbers();
                     }
@@ -340,6 +346,56 @@
                     document.querySelectorAll('.row-index').forEach((td, index) => {
                         td.textContent = index + 1;
                     });
+                }
+
+                function initMedicineSelect2(element) {
+                    element.select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        placeholder: 'Search medicine...',
+                        allowClear: true,
+                        ajax: {
+                            url: '{{ route('pharmacy.medicines.search') }}',
+                            dataType: 'json',
+                            delay: 250,
+                            data: function(params) {
+                                return {
+                                    term: params.term || '',
+                                    mode: 'all' // Show all medicines even if out of stock
+                                };
+                            },
+                            processResults: function(data) {
+                                return {
+                                    results: data.results,
+                                    pagination: {
+                                        more: data.pagination.more
+                                    }
+                                };
+                            },
+                            cache: true
+                        },
+                        minimumInputLength: 0,
+                        templateResult: formatMedicine,
+                        templateSelection: formatMedicineSelection
+                    });
+                }
+
+                function formatMedicine(medicine) {
+                    if (medicine.loading) {
+                        return medicine.text;
+                    }
+                    var stockText = medicine.stock !== undefined ? 'Stock: ' + medicine.stock : '';
+                    var $container = $(
+                        "<div class='d-flex justify-content-between align-items-center'>" +
+                            "<span>" + medicine.text + "</span>" +
+                            "<span class='badge bg-light text-dark'>" + stockText + "</span>" +
+                        "</div>"
+                    );
+                    return $container;
+                }
+
+                function formatMedicineSelection(medicine) {
+                    return medicine.text;
                 }
             });
         </script>

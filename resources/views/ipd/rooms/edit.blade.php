@@ -49,7 +49,7 @@
                         <div class="col-md-6">
                             <label class="form-label small text-muted">Daily Rate <span class="text-danger">*</span></label>
                             <div class="input-group input-group-sm">
-                                <span class="input-group-text">$</span>
+                                <span class="input-group-text">৳</span>
                                 <input type="number" step="0.01" name="daily_rate" class="form-control"
                                     value="{{ $room->daily_rate }}" required placeholder="0.00">
                             </div>

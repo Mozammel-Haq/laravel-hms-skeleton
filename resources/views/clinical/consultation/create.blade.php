@@ -21,7 +21,8 @@
 
     </style>
         <div class="card p-3">
-            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
+            <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top">
                 <div>
                     <div>
                     <h4 class="mb-2 fw-bold text-primary">New Consultation</h4>
@@ -42,8 +43,7 @@
                     <i class="ti ti-arrow-left me-1"></i> Back
                 </a>
             </div>
-
-            <div class="card-body">
+            <hr>
                 <form action="{{ route('clinical.consultations.store', $appointment) }}" method="POST">
                     @csrf
 

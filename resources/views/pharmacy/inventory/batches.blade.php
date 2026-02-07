@@ -98,7 +98,7 @@
                                         </span>
                                     </td>
                                     <td class="px-4 py-3">
-                                        <span class="fw-medium text-dark">${{ number_format($batch->purchase_price, 2) }}</span>
+                                        <span class="fw-medium text-dark">৳{{ number_format($batch->purchase_price, 2) }}</span>
                                     </td>
                                     <td class="px-4 py-3">
                                         @if ($batch->expiry_date->isPast())

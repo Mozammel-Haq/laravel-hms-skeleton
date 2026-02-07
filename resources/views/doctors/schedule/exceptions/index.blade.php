@@ -111,7 +111,7 @@
                                             @if ($exception->status == 'pending')
                                                 <div class="dropdown">
                                                     <button
-                                                        class="btn btn-sm btn-light btn-icon dropdown-toggle hide-arrow"
+                                                        class="btn btn-sm btn-light btn-icon"
                                                         type="button" data-bs-toggle="dropdown">
                                                         <i class="ti ti-dots-vertical"></i>
                                                     </button>

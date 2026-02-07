@@ -121,7 +121,7 @@
                                         @endphp
                                         <span class="badge bg-{{ $color }}">{{ ucfirst($status) }}</span>
                                     </td>
-                                    <td>{{ number_format($inv->total_amount, 2) }}</td>
+                                    <td>৳ {{ number_format($inv->total_amount, 2) }}</td>
                                     <td>{{ \Carbon\Carbon::parse($inv->issued_at)->format('Y-m-d H:i') }}</td>
                                     <td class="text-end">
                                         <div class="dropdown">

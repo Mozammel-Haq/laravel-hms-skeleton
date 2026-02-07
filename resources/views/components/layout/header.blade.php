@@ -204,10 +204,12 @@
 
 
                             <!-- Item-->
-                            <a href="transactions.html" class="dropdown-item">
+                            @can('view_billing')
+                            <a href="{{ route('transactions.index') }}" class="dropdown-item">
                                 <i class="ti ti-transition-right me-1 align-middle"></i>
                                 <span class="align-middle">Transactions</span>
                             </a>
+                            @endcan
 
 
 

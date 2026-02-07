@@ -1,6 +1,5 @@
 <x-app-layout>
 
-
     <div class="container-fluid">
         <div class="card p-3 mb-0">
                 <div class="d-flex justify-content-between align-items-center mb-2 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3">
@@ -29,14 +28,18 @@
                             <div class="row g-3 mb-4">
                                 <div class="col-md-12">
                                     <label class="form-label small fw-bold text-dark">Select Medicine <span class="text-danger">*</span></label>
-                                    <select id="medicine_id" name="medicine_id" class="form-select form-select-sm" required>
+                                    <select id="medicine_id" name="medicine_id" class="form-select form-select-sm select2-medicine" required>
                                         <option value="">Select a medicine...</option>
-                                        @foreach ($medicines as $medicine)
-                                            <option value="{{ $medicine->id }}"
-                                                {{ old('medicine_id') == $medicine->id ? 'selected' : '' }}>
-                                                {{ $medicine->name }} ({{ $medicine->strength }}) - {{ $medicine->dosage_form }}
-                                            </option>
-                                        @endforeach
+                                        @if(old('medicine_id'))
+                                            @php
+                                                $oldMed = $medicines->firstWhere('id', old('medicine_id'));
+                                            @endphp
+                                            @if($oldMed)
+                                                <option value="{{ $oldMed->id }}" selected>
+                                                    {{ $oldMed->name }} ({{ $oldMed->strength }}) - {{ $oldMed->dosage_form }}
+                                                </option>
+                                            @endif
+                                        @endif
                                     </select>
                                     @error('medicine_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                                     @if ($medicines->isEmpty())
@@ -94,4 +97,61 @@
             </div>
         </div>
     </div>
+    @push('scripts')
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                initMedicineSelect2($('.select2-medicine'));
+
+                function initMedicineSelect2(element) {
+                    element.select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        placeholder: 'Search medicine...',
+                        allowClear: true,
+                        ajax: {
+                            url: '{{ route('pharmacy.medicines.search') }}',
+                            dataType: 'json',
+                            delay: 250,
+                            data: function(params) {
+                                return {
+                                    term: params.term || '',
+                                    mode: 'all' // We need to see all medicines to add stock
+                                };
+                            },
+                            processResults: function(data) {
+                                return {
+                                    results: data.results,
+                                    pagination: {
+                                        more: data.pagination.more
+                                    }
+                                };
+                            },
+                            cache: true
+                        },
+                        minimumInputLength: 0,
+                        templateResult: formatMedicine,
+                        templateSelection: formatMedicineSelection
+                    });
+                }
+
+                function formatMedicine(medicine) {
+                    if (medicine.loading) {
+                        return medicine.text;
+                    }
+                    var stockText = medicine.stock !== undefined ? 'Stock: ' + medicine.stock : '';
+                    var $container = $(
+                        "<div class='d-flex justify-content-between align-items-center'>" +
+                            "<span>" + medicine.text + "</span>" +
+                            "<span class='badge bg-light text-dark'>" + stockText + "</span>" +
+                        "</div>"
+                    );
+                    return $container;
+                }
+
+                function formatMedicineSelection(medicine) {
+                    return medicine.text;
+                }
+            });
+        </script>
+    @endpush
 </x-app-layout>

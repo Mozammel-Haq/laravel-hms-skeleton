@@ -210,21 +210,21 @@
                                         <h5 class="text-primary fw-bold mb-3 border-bottom pb-2">Practice Details</h5>
                                         <div class="row g-3">
                                             <div class="col-md-6">
-                                                <label class="form-label small fw-semibold">Consultation Fee</label>
-                                                <div class="input-group input-group-sm">
-                                                    <span class="input-group-text">$</span>
-                                                    <input type="number" step="0.01" name="consultation_fee"
-                                                        class="form-control form-control-sm" value="{{ old('consultation_fee', $doctor->consultation_fee) }}">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label small fw-semibold">Follow-up Fee</label>
-                                                <div class="input-group input-group-sm">
-                                                    <span class="input-group-text">$</span>
-                                                    <input type="number" step="0.01" name="follow_up_fee"
-                                                        class="form-control form-control-sm" value="{{ old('follow_up_fee', $doctor->follow_up_fee) }}">
-                                                </div>
-                                            </div>
+                                        <label class="form-label small fw-semibold">Consultation Fee</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">৳</span>
+                                            <input type="number" step="0.01" name="consultation_fee"
+                                                class="form-control form-control-sm" value="{{ old('consultation_fee', $doctor->consultation_fee) }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-semibold">Follow-up Fee</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">৳</span>
+                                            <input type="number" step="0.01" name="follow_up_fee"
+                                                class="form-control form-control-sm" value="{{ old('follow_up_fee', $doctor->follow_up_fee) }}">
+                                        </div>
+                                    </div>
                                             <div class="col-md-6">
                                                 <label class="form-label small fw-semibold">Consultation Room</label>
                                                 <input type="text" name="consultation_room_number"

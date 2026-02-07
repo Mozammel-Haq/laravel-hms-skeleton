@@ -21,7 +21,9 @@
     </style>
     <div class="container-fluid m-2">
         <div class="card ">
-            <div class="bg-primary-subtle text-primary px-4 py-3 rounded-top">
+
+            <div class="card-body">
+                            <div class="bg-primary-subtle text-primary px-4 py-3 rounded-top">
                 <h4 class="fw-bold mb-2 text-primary">Prescriptions</h4>
                 {{-- breadcrumb --}}
                 <nav aria-label="breadcrumb">
@@ -31,7 +33,7 @@
                     </ol>
                 </nav>
             </div>
-            <div class="card-body">
+            <hr>
                 <!-- Filter Form -->
                 <form method="GET" action="{{ route('clinical.prescriptions.index') }}" class="mb-4">
                     <div class="row g-2">

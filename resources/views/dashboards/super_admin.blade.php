@@ -179,7 +179,7 @@
                                     </div>
                                     <p class="text-muted kpi-footer mb-0">System Patients</p>
                                 </div>
-                                <a href="#" class="btn btn-sm btn-outline-primary stretched-link">View</a>
+                                <a href="{{ route('patients.index') }}" class="btn btn-sm btn-outline-primary stretched-link">View</a>
                             </div>
                         </div>
                     </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Medicine;
+use App\Support\TenantContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -199,31 +200,42 @@ class MedicineController extends Controller
         try {
             Gate::authorize('viewAny', Medicine::class);
             $term = trim((string) $request->get('term', ''));
-            $clinicId = optional(auth()->user())->clinic_id;
 
-            if (!$clinicId || !Schema::hasTable('medicine_batches')) {
-                return response()->json([
+            // Resolve clinic ID: TenantContext (Super Admin switched) or User's Clinic
+            $clinicId = TenantContext::getClinicId() ?? optional(auth()->user())->clinic_id;
+
+            // If no clinic context, we can't check stock, but we might still want to return medicines (e.g. for global admin)
+            // For now, if no clinic, we return empty to be safe, unless we decide otherwise.
+            if (!$clinicId) {
+                // Optional: Allow global search if no clinic?
+                // For now, let's assume we need a clinic context for stock.
+                // If the user is Super Admin and hasn't selected a clinic, they shouldn't be here typically.
+                 return response()->json([
                     'results' => [],
                     'pagination' => ['more' => false],
                 ]);
             }
 
             $quantityColumn = null;
-
-            if (Schema::hasColumn('medicine_batches', 'quantity_in_stock')) {
-                $quantityColumn = 'quantity_in_stock';
-            } elseif (Schema::hasColumn('medicine_batches', 'quantity')) {
-                $quantityColumn = 'quantity';
+            if (Schema::hasTable('medicine_batches')) {
+                if (Schema::hasColumn('medicine_batches', 'quantity_in_stock')) {
+                    $quantityColumn = 'quantity_in_stock';
+                } elseif (Schema::hasColumn('medicine_batches', 'quantity')) {
+                    $quantityColumn = 'quantity';
+                }
             }
 
-            $query = Medicine::query()
-                ->where('status', 'active')
-                ->whereHas('batches', function ($q) use ($clinicId, $quantityColumn) {
+            $query = Medicine::query()->where('status', 'active');
+
+            // Check mode: 'strict' (default, stock > 0) or 'all' (all active medicines)
+            $mode = $request->get('mode', 'strict');
+
+            if ($mode !== 'all' && $quantityColumn) {
+                $query->whereHas('batches', function ($q) use ($clinicId, $quantityColumn) {
                     $q->where('medicine_batches.clinic_id', $clinicId);
-                    if ($quantityColumn) {
-                        $q->where("medicine_batches.$quantityColumn", '>', 0);
-                    }
+                    $q->where("medicine_batches.$quantityColumn", '>', 0);
                 });
+            }
 
             if ($quantityColumn) {
                 $query->withSum(['batches as stock' => function ($q) use ($clinicId, $quantityColumn) {

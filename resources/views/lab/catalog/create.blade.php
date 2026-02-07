@@ -42,11 +42,11 @@
                 <h5 class="card-title mb-4 pb-2 border-bottom">Pricing & Status</h5>
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
-                        <label class="form-label small text-muted">Price <span class="text-danger">*</span></label>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text">$</span>
-                            <input type="number" step="0.01" name="price" class="form-control form-control-sm" required>
-                        </div>
+                        <label class="form-label required">Price</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">৳</span>
+                                <input type="number" step="0.01" name="price" class="form-control form-control-sm" required>
+                            </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small text-muted">Status <span class="text-danger">*</span></label>

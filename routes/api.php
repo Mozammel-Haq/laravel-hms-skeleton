@@ -17,6 +17,12 @@ use App\Http\Controllers\Api\VitalsApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Public Payment Callbacks (SSLCommerz) - Defined in API to avoid Session/CSRF issues
+Route::post('/sslcommerz/success', [\App\Http\Controllers\OnlinePaymentController::class, 'sslCommerzSuccess'])->name('online-payment.sslcommerz.success');
+Route::post('/sslcommerz/fail', [\App\Http\Controllers\OnlinePaymentController::class, 'sslCommerzFail'])->name('online-payment.sslcommerz.fail');
+Route::post('/sslcommerz/cancel', [\App\Http\Controllers\OnlinePaymentController::class, 'sslCommerzCancel'])->name('online-payment.sslcommerz.cancel');
+Route::post('/sslcommerz/ipn', [\App\Http\Controllers\OnlinePaymentController::class, 'sslCommerzIpn'])->name('online-payment.sslcommerz.ipn');
+
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');

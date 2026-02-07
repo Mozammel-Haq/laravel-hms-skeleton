@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
 use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * InvoiceItem Model
@@ -22,12 +23,15 @@ use App\Models\Concerns\LogsActivity;
  * @property string $total_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  *
  * @property-read \App\Models\Invoice $invoice
+ * @property-read \Illuminate\Database\Eloquent\Model|null $billable
  */
 class InvoiceItem extends BaseTenantModel
 {
-    use LogsActivity;
+    use LogsActivity, SoftDeletes;
+
     /**
      * Get the invoice associated with the item.
      *
@@ -37,6 +41,17 @@ class InvoiceItem extends BaseTenantModel
     {
         return $this->belongsTo(Invoice::class);
     }
+
+    /**
+     * Get the billable entity (consultation, lab test, medicine, etc.).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     */
+    public function billable()
+    {
+        return $this->morphTo('billable', 'item_type', 'reference_id');
+    }
+
     protected $casts = [
         'created_at' => 'date',
     ];

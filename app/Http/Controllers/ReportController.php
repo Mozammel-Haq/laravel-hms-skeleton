@@ -128,7 +128,8 @@ class ReportController extends Controller
         $revenue = (clone $query)->sum('total_amount');
 
         // Expenses
-        $expenses = Expense::where('clinic_id', auth()->user()->clinic_id)
+        $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id;
+        $expenses = Expense::where('clinic_id', $clinicId)
             ->whereBetween('expense_date', [$startDate, $endDate])
             ->sum('amount');
 
@@ -160,7 +161,8 @@ class ReportController extends Controller
         $byType = (clone $query)
             ->selectRaw('invoice_type, SUM(total_amount) as total')
             ->groupBy('invoice_type')
-            ->pluck('total', 'invoice_type');
+            ->pluck('total', 'invoice_type')
+            ->map(fn($item) => (float)$item);
 
         // Revenue Over Time (Line Chart)
         $groupBy = $request->get('range') == 'year' ? 'DATE_FORMAT(created_at, "%Y-%m")' : 'DATE(created_at)';
@@ -169,13 +171,19 @@ class ReportController extends Controller
             ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('date')
             ->orderBy('date')
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->total = (float)$item->total;
+                $item->paid_amount = (float)$item->paid_amount;
+                return $item;
+            });
 
         // Payment Methods (Donut Chart)
         $paymentMethods = Payment::whereBetween('paid_at', [$startDate, $endDate])
             ->selectRaw('payment_method, SUM(amount) as total')
             ->groupBy('payment_method')
-            ->pluck('total', 'payment_method');
+            ->pluck('total', 'payment_method')
+            ->map(fn($item) => (float)$item);
 
         $data = compact('revenue', 'expenses', 'netIncome', 'paid', 'pending', 'invoiceCount', 'startDate', 'endDate', 'byType', 'daily', 'paymentMethods');
 
@@ -469,10 +477,11 @@ class ReportController extends Controller
         // We need to clone query or execute aggregation first
         // Since we need to sum (quantity * unit_price) and (quantity * unit_cost)
 
+        $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id;
         $stats = DB::table('pharmacy_sale_items')
             ->join('pharmacy_sales', 'pharmacy_sale_items.pharmacy_sale_id', '=', 'pharmacy_sales.id')
             ->whereBetween('pharmacy_sales.sale_date', [$startDate, $endDate])
-            ->where('pharmacy_sales.clinic_id', auth()->user()->clinic_id)
+            ->where('pharmacy_sales.clinic_id', $clinicId)
             ->selectRaw('
                 SUM(quantity * unit_price) as total_revenue,
                 SUM(quantity * unit_cost) as total_cost

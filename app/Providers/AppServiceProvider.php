@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,6 +28,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Relation::morphMap([
+            'consultation' => 'App\Models\Consultation',
+            'lab' => 'App\Models\LabTest',
+            'medicine' => 'App\Models\Medicine',
+            'bed' => 'App\Models\Bed',
+            'service' => 'App\Models\InpatientService',
+        ]);
+
         Blade::if('role', function ($role) {
             return auth()->check() && auth()->user()->hasRole($role);
         });

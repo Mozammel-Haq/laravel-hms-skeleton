@@ -77,6 +77,21 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @php
+                                $dosageStyles = [
+                                    'Tablet' => 'primary',
+                                    'Capsule' => 'info',
+                                    'Syrup' => 'warning',
+                                    'Injection' => 'danger',
+                                    'Ointment' => 'success',
+                                    'Cream' => 'success',
+                                    'Drops' => 'secondary',
+                                    'Inhaler' => 'dark',
+                                    'Suspension' => 'warning',
+                                    'Solution' => 'info',
+                                    'Suppository' => 'secondary',
+                                ];
+                            @endphp
                             @forelse($medicines as $medicine)
                                 <tr>
                                     <td>
@@ -86,7 +101,11 @@
                                     <td>{{ $medicine->generic_name ?? '-' }}</td>
                                     <td>{{ $medicine->manufacturer ?? '-' }}</td>
                                     <td>
-                                        <span class="badge bg-light text-dark border">
+                                        @php
+                                            $color = $dosageStyles[$medicine->dosage_form] ?? 'light';
+                                            $badgeClass = $color === 'light' ? 'bg-light text-dark border' : "bg-{$color}-subtle text-{$color}";
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}">
                                             {{ $medicine->dosage_form ?? 'N/A' }}
                                         </span>
                                     </td>

@@ -70,7 +70,7 @@
                                 <tr>
                                     <td>{{ $test->name }}</td>
                                     <td>{{ $test->category }}</td>
-                                    <td>{{ number_format($test->price, 2) }}</td>
+                                    <td>৳{{ number_format($test->price, 2) }}</td>
                                     <td>
                                         @php
                                             $statusClass = match($test->status) {

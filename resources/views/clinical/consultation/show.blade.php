@@ -23,9 +23,9 @@
         <div class="card p-3">
             <div class="card-body">
                 <!-- Header -->
-                <div class="row align-items-center mb-4">
+                <div class="row align-items-center mb-3 bg-primary-subtle text-primary p-3 rounded">
                     <div class="col">
-                        <h4 class="mb-2 fw-bold text-dark">Consultation Details</h4>
+                        <h4 class="mb-2 fw-bold text-primary">Consultation Details</h4>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb mb-0">
                                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none">Dashboard</a></li>

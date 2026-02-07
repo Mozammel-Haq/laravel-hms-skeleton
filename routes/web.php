@@ -38,6 +38,8 @@ Route::view('/', 'auth.login');
 require __DIR__ . '/auth.php';
 
 // Public/Signed Routes (No Auth Required)
+Route::post('/stripe/webhook', [\App\Http\Controllers\OnlinePaymentController::class, 'handleWebhook'])->name('stripe.webhook');
+
 Route::get('patient/prescriptions/{prescription}/print', [PrescriptionController::class, 'patientPrint'])
     ->name('patient.prescriptions.print');
 Route::get('patient/lab-results/{result}/download', [\App\Http\Controllers\LabResultsController::class, 'patientDownload'])
@@ -227,6 +229,19 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         Route::get('/digital', [PaymentController::class, 'digital'])->name('digital');
     });
 
+    // All Transactions
+    Route::get('/transactions', [PaymentController::class, 'index'])->name('transactions.index');
+
+    // Online Payments
+    Route::post('/online-payment/initiate', [\App\Http\Controllers\OnlinePaymentController::class, 'initiate'])->name('online-payment.initiate');
+    Route::get('/online-payment/stripe/success', [\App\Http\Controllers\OnlinePaymentController::class, 'stripeSuccess'])->name('online-payment.stripe.success');
+    Route::get('/online-payment/stripe/cancel', [\App\Http\Controllers\OnlinePaymentController::class, 'stripeCancel'])->name('online-payment.stripe.cancel');
+
+
+    // Shared Pharmacy Routes (accessible by Doctors for prescriptions)
+    Route::prefix('pharmacy')->name('pharmacy.')->group(function () {
+        Route::get('/medicines/search', [MedicineController::class, 'search'])->name('medicines.search');
+    });
 
     // Pharmacy & Inventory
     Route::prefix('pharmacy')->name('pharmacy.')->middleware('can:view_pharmacy')->group(function () {
@@ -247,8 +262,9 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
 
         // Medicine Catalog
-        Route::get('/medicines/search', [MedicineController::class, 'search'])->name('medicines.search');
-        Route::resource('medicines', MedicineController::class);
+        Route::resource('medicines', MedicineController::class)->except(['index', 'show']);
+        Route::get('/medicines', [MedicineController::class, 'index'])->name('medicines.index');
+        Route::get('/medicines/{medicine}', [MedicineController::class, 'show'])->name('medicines.show');
     });
 
     // IPD (Inpatient Department)

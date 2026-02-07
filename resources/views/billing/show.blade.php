@@ -127,6 +127,19 @@
 
     <div class="container-fluid mx-2 mt-2 no-print">
         <div class="card p-3">
+            <!-- Payment Status Alerts -->
+            @if(request('payment_status') == 'success')
+                <div class="alert alert-success alert-dismissible fade show mx-4 mt-3" role="alert">
+                    <strong>Success!</strong> {{ request('message', 'Payment successful!') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @elseif(request('payment_status') == 'error')
+                <div class="alert alert-danger alert-dismissible fade show mx-4 mt-3" role="alert">
+                    <strong>Error!</strong> {{ request('message', 'Payment failed.') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <!-- Breadcrumbs & Header -->
             <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-4 pb-3 rounded-top mb-0">
                 <div>
@@ -194,27 +207,27 @@
                                         <tr>
                                             <td class="ps-4">{{ $item->description }}</td>
                                             <td class="text-center">{{ $item->quantity }}</td>
-                                            <td class="text-end">{{ number_format($item->unit_price, 2) }}</td>
-                                            <td class="text-end pe-4 fw-bold">{{ number_format($item->total_price, 2) }}</td>
+                                            <td class="text-end">৳ {{ number_format($item->unit_price, 2) }}</td>
+                                            <td class="text-end pe-4 fw-bold">৳ {{ number_format($item->total_price, 2) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot class="border-top">
                                     <tr>
                                         <td colspan="3" class="text-end pt-3 text-muted">Subtotal</td>
-                                        <td class="text-end pe-4 pt-3 fw-bold">{{ number_format($invoice->subtotal, 2) }}</td>
+                                        <td class="text-end pe-4 pt-3 fw-bold">৳ {{ number_format($invoice->subtotal, 2) }}</td>
                                     </tr>
                                     <tr>
                                         <td colspan="3" class="text-end text-muted">Discount</td>
-                                        <td class="text-end pe-4 text-danger">-{{ number_format($invoice->discount, 2) }}</td>
+                                        <td class="text-end pe-4 text-danger">-৳ {{ number_format($invoice->discount, 2) }}</td>
                                     </tr>
                                     <tr>
                                         <td colspan="3" class="text-end text-muted">Tax</td>
-                                        <td class="text-end pe-4">{{ number_format($invoice->tax, 2) }}</td>
+                                        <td class="text-end pe-4">৳ {{ number_format($invoice->tax, 2) }}</td>
                                     </tr>
                                     <tr class="bg-light">
                                         <td colspan="3" class="text-end py-3 fw-bold text-dark">Total Amount</td>
-                                        <td class="text-end pe-4 py-3 fw-bold text-primary fs-5">{{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td class="text-end pe-4 py-3 fw-bold text-primary fs-5">৳ {{ number_format($invoice->total_amount, 2) }}</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -262,9 +275,28 @@
                                 <span class="text-muted fw-bold">Remaining Due:</span>
                                 <span class="text-danger fw-bold fs-5">৳ {{ number_format($remaining, 2) }}</span>
                             </div>
-                            <a href="{{ route('billing.payment.add', $invoice->id) }}" class="btn btn-primary w-100">
-                                <i class="ti ti-plus me-1"></i> Add Payment
+                            <a href="{{ route('billing.payment.add', $invoice->id) }}" class="btn btn-primary w-100 mb-2">
+                                <i class="ti ti-plus me-1"></i> Add Manual Payment
                             </a>
+
+                            <!-- Online Payment -->
+                            <form action="{{ route('online-payment.initiate') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="type" value="invoice">
+                                <input type="hidden" name="id" value="{{ $invoice->id }}">
+                                <input type="hidden" name="amount" value="{{ $remaining }}">
+
+                                <div class="mb-2">
+                                    <select name="gateway" class="form-select form-select-sm">
+                                        <option value="stripe">Stripe</option>
+                                        <option value="sslcommerz">SSLCommerz</option>
+                                    </select>
+                                </div>
+
+                                <button class="btn btn-success w-100" type="submit">
+                                    <i class="ti ti-credit-card me-1"></i> Pay Online ({{ number_format($remaining, 2) }})
+                                </button>
+                            </form>
                         @else
                             <div class="alert alert-success text-center mb-0 border-success-subtle">
                                 <i class="ti ti-check-circle me-1 fs-5 align-middle"></i> <span class="align-middle fw-bold">Paid in Full</span>

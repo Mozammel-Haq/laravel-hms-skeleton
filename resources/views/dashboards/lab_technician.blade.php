@@ -7,7 +7,7 @@
             <div class="row g-4 mb-4">
             <!-- Pending Orders KPI Card -->
             <div class="col-md-6">
-                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" data-bs-theme="light,dark">
+                <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-warning" data-bs-theme="light,dark">
                     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                             <defs>
