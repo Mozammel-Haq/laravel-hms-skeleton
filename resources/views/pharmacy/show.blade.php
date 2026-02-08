@@ -146,12 +146,38 @@
                                 <i class="ti ti-printer me-1"></i> Print Invoice
                             </a>
 
-                            {{-- Pharmacists might not have explicit process_payments permission, but should be able to pay --}}
-                            {{-- @can('process_payments') --}}
-                            <a href="{{ route('billing.payment.add', $invoice->id) }}" class="btn btn-success w-100">
-                                <i class="ti ti-cash me-1"></i> Add Payment
-                            </a>
-                            {{-- @endcan --}}
+                            @if($invoice->status !== 'paid')
+                                <a href="{{ route('billing.payment.add', $invoice->id) }}" class="btn btn-success w-100 mb-2">
+                                    <i class="ti ti-credit-card me-1"></i> Make Manual Payment
+                                </a>
+
+                                @php
+                                    $paid = $invoice->payments->sum('amount');
+                                    $due = max(0, $invoice->total_amount - $paid);
+                                @endphp
+
+                                <form action="{{ route('online-payment.initiate') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="type" value="invoice">
+                                    <input type="hidden" name="id" value="{{ $invoice->id }}">
+                                    <input type="hidden" name="amount" value="{{ $due }}">
+
+                                    <div class="mb-2">
+                                        <select name="gateway" class="form-select form-select-sm">
+                                            <option value="stripe">Stripe</option>
+                                            <option value="sslcommerz">SSLCommerz</option>
+                                        </select>
+                                    </div>
+
+                                    <button class="btn btn-primary w-100" type="submit">
+                                        <i class="ti ti-world me-1"></i> Pay Online (৳{{ number_format($due, 2) }})
+                                    </button>
+                                </form>
+                            @else
+                                <div class="alert alert-success p-2 text-center mb-0">
+                                    <i class="ti ti-check-circle me-1"></i> Paid in Full
+                                </div>
+                            @endif
                         @else
                             <button class="btn btn-secondary w-100 mb-2" disabled>
                                 <i class="ti ti-printer me-1"></i> Invoice Not Generated

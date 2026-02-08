@@ -79,9 +79,32 @@
                         <div class="mt-3">
                             @if ($order->invoice)
                                 @if ($order->invoice->status !== 'paid')
-                                    <a href="{{ route('billing.payment.add', $order->invoice) }}" class="btn btn-success w-100">
-                                        <i class="ti ti-credit-card me-1"></i> Make Payment
+                                    <a href="{{ route('billing.payment.add', $order->invoice) }}" class="btn btn-success w-100 mb-2">
+                                        <i class="ti ti-credit-card me-1"></i> Make Manual Payment
                                     </a>
+
+                                    @php
+                                        $paid = $order->invoice->payments->sum('amount');
+                                        $due = max(0, $order->invoice->total_amount - $paid);
+                                    @endphp
+
+                                    <form action="{{ route('online-payment.initiate') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="type" value="invoice">
+                                        <input type="hidden" name="id" value="{{ $order->invoice->id }}">
+                                        <input type="hidden" name="amount" value="{{ $due }}">
+
+                                        <div class="mb-2">
+                                            <select name="gateway" class="form-select form-select-sm">
+                                                <option value="stripe">Stripe</option>
+                                                <option value="sslcommerz">SSLCommerz</option>
+                                            </select>
+                                        </div>
+
+                                        <button class="btn btn-primary w-100" type="submit">
+                                            <i class="ti ti-world me-1"></i> Pay Online (৳{{ number_format($due, 2) }})
+                                        </button>
+                                    </form>
                                 @else
                                     <div class="alert alert-success py-2 mb-0 text-center small">
                                         <i class="ti ti-check-circle me-1"></i> Payment Complete
