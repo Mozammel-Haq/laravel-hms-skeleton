@@ -352,7 +352,7 @@ class BillingController extends Controller
         Gate::authorize('create', Invoice::class);
 
         $invoiceTotal = $invoice->total_amount ?? $invoice->total ?? 0;
-        $alreadyPaid = $invoice->payments()->sum('amount');
+        $alreadyPaid = $invoice->payments()->where('status', 'success')->sum('amount');
         $remaining = max($invoiceTotal - $alreadyPaid, 0);
 
         $request->validate([
@@ -366,12 +366,14 @@ class BillingController extends Controller
                 'payment_method' => $request->payment_method,
                 'paid_at' => now(),
                 'received_by' => auth()->id(),
+                'status' => 'success',
             ]);
 
             $invoice->refresh();
 
             $invoiceTotal = $invoice->total_amount ?? $invoice->total ?? 0;
-            $totalPaid = $invoice->payments()->sum('amount');
+            // Only sum successful payments
+            $totalPaid = $invoice->payments()->where('status', 'success')->sum('amount');
             $remaining = max($invoiceTotal - $totalPaid, 0);
 
             if ($remaining <= 0) {

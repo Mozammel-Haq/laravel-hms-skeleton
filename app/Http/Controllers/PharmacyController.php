@@ -129,10 +129,12 @@ class PharmacyController extends Controller
         Gate::authorize('create', PharmacySale::class);
 
         $request->validate([
-            'prescription_id' => 'required|exists:prescriptions,id',
+            'prescription_id' => 'nullable|exists:prescriptions,id',
             'patient_id' => 'required|exists:patients,id',
             'discount' => 'nullable|numeric|min:0',
             'tax' => 'nullable|numeric|min:0',
+            'paid_amount' => 'nullable|numeric|min:0',
+            'payment_method' => 'nullable|string',
             'items' => 'required|array|min:1',
             'items.*.medicine_id' => 'required|exists:medicines,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -141,38 +143,20 @@ class PharmacyController extends Controller
         $patient = Patient::findOrFail($request->patient_id);
 
         try {
-            $sale = DB::transaction(function () use ($request, $patient) {
-                $sale = $this->pharmacyService->processSale($patient, $request->items, (int)$request->prescription_id);
+            $paymentData = [
+                'discount' => $request->input('discount', 0),
+                'tax' => $request->input('tax', 0),
+                'paid_amount' => $request->input('paid_amount', 0),
+                'payment_method' => $request->input('payment_method', 'cash'),
+                'transaction_reference' => $request->input('transaction_reference'),
+            ];
 
-                // Create a separate Pharmacy invoice linked to the OPD visit (if possible)
-                $prescription = Prescription::find((int)$request->prescription_id);
-                $visitId = optional($prescription?->consultation)->visit_id;
-                $appointmentId = optional($prescription?->consultation?->visit)->appointment_id;
-                $items = collect($request->items)->map(function ($it) {
-                    $medicine = Medicine::find($it['medicine_id']);
-                    return [
-                        'item_type' => 'medicine',
-                        'reference_id' => $medicine?->id,
-                        'description' => $medicine?->name ?? 'Medicine',
-                        'quantity' => (int)$it['quantity'],
-                        'unit_price' => (float)($medicine?->price ?? 0),
-                    ];
-                })->all();
-
-                app(BillingService::class)->createInvoice(
-                    $patient,
-                    $items,
-                    $appointmentId,
-                    discount: (float)$request->input('discount', 0),
-                    tax: (float)$request->input('tax', 0),
-                    visitId: $visitId,
-                    invoiceType: 'pharmacy',
-                    createdBy: auth()->id(),
-                    finalize: true
-                );
-
-                return $sale;
-            });
+            $sale = $this->pharmacyService->processSale(
+                $patient,
+                $request->items,
+                $request->filled('prescription_id') ? (int)$request->prescription_id : null,
+                $paymentData
+            );
 
             return redirect()->route('pharmacy.show', $sale)
                 ->with('success', 'Sale processed and invoice generated.');

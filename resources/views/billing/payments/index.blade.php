@@ -72,6 +72,7 @@
                                 <th>Patient</th>
                                 <th>Amount</th>
                                 <th>Method</th>
+                                <th>Status</th>
                                 <th>Paid At</th>
                                 <th class="text-end">Actions</th>
                             </tr>
@@ -84,6 +85,17 @@
                                     </td>
                                     <td>{{ number_format($payment->amount, 2) }}</td>
                                     <td>{{ $payment->payment_method }}</td>
+                                    <td>
+                                        @if($payment->status === 'success')
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle">Paid</span>
+                                        @elseif($payment->status === 'pending')
+                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle">Pending</span>
+                                        @elseif($payment->status === 'failed')
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Failed</span>
+                                        @else
+                                            <span class="badge bg-light text-dark border">{{ ucfirst($payment->status) }}</span>
+                                        @endif
+                                    </td>
                                     <td>{{ optional($payment->paid_at)->format('Y-m-d H:i') }}</td>
                                     <td class="text-end">
                                         <div class="dropdown">

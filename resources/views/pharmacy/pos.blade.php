@@ -28,7 +28,7 @@
                             <i class="ti ti-plus me-1"></i> Add Item
                         </button>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-2">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0" id="items-table">
                                 <thead class="table-light">
@@ -90,10 +90,10 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Prescription ID <span class="text-danger">*</span></label>
+                            <label class="form-label small fw-bold">Prescription ID <span class="text-muted fw-normal">(Optional)</span></label>
                             <input type="number" name="prescription_id" class="form-control form-control-sm"
-                                value="{{ $prefilledPrescriptionId }}" placeholder="Enter Prescription ID" required>
-                            <div class="form-text small">Required for record keeping.</div>
+                                value="{{ $prefilledPrescriptionId }}" placeholder="Enter Prescription ID">
+                            <div class="form-text small">Required only if linked to a prescription.</div>
                             @error('prescription_id')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -104,17 +104,64 @@
                                 <label class="form-label small fw-bold">Discount</label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text">৳</span>
-                                    <input type="number" name="discount" class="form-control" step="0.01"
+                                    <input type="number" name="discount" id="discount" class="form-control" step="0.01"
                                         min="0" value="0">
                                 </div>
                             </div>
                             <div class="col-6">
                                 <label class="form-label small fw-bold">Tax (%)</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="number" name="tax" class="form-control" step="0.01"
+                                    <input type="number" name="tax" id="tax" class="form-control" step="0.01"
                                         min="0" value="0">
                                     <span class="input-group-text">%</span>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Paid Amount</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">৳</span>
+                                <input type="number" name="paid_amount" id="paid_amount" class="form-control" step="0.01" min="0" value="0">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Payment Method</label>
+                            <select name="payment_method" class="form-select form-select-sm">
+                                <option value="cash">Cash</option>
+                                <option value="card">Card</option>
+                                <option value="mobile_payment">Mobile Payment</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="check">Check</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="mt-4 border-top pt-3 bg-light p-3 rounded">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span class="fw-bold">৳ <span id="subtotal-display">0.00</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Discount:</span>
+                                <span class="text-danger">- ৳ <span id="discount-display">0.00</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tax:</span>
+                                <span class="text-muted">+ ৳ <span id="tax-display">0.00</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 border-top pt-2">
+                                <span class="h5 fw-bold">Total:</span>
+                                <span class="h5 fw-bold text-primary">৳ <span id="total-display">0.00</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Paid:</span>
+                                <span class="text-success">৳ <span id="paid-display">0.00</span></span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Due:</span>
+                                <span class="text-danger fw-bold">৳ <span id="due-display">0.00</span></span>
                             </div>
                         </div>
 
@@ -176,6 +223,7 @@
                             'medicine_id' => $item->medicine->id,
                             'medicine_text' => $label,
                             'quantity' => 1,
+                            'price' => $item->medicine->price,
                         ];
                     }
                 }
@@ -212,6 +260,17 @@
                     templateResult: formatMedicine,
                     templateSelection: formatMedicineSelection
                 });
+
+                $el.on('select2:select', function(e) {
+                    var data = e.params.data;
+                    $(this).closest('tr').attr('data-price', data.price || 0);
+                    calculateTotals();
+                });
+
+                $el.on('select2:unselect', function(e) {
+                    $(this).closest('tr').attr('data-price', 0);
+                    calculateTotals();
+                });
             }
 
             function formatMedicine(medicine) {
@@ -221,7 +280,7 @@
                 var stockText = medicine.stock !== undefined ? 'Stock: ' + medicine.stock : '';
                 // Highlight stock if low/zero
                 var badgeClass = medicine.stock > 0 ? 'bg-light text-dark' : 'bg-danger text-white';
-                
+
                 var $container = $(
                     "<div class='d-flex justify-content-between align-items-center'>" +
                         "<span>" + medicine.text + "</span>" +
@@ -264,12 +323,48 @@
                     selectEl.appendChild(option);
                     $(selectEl).trigger('change');
                 }
+                if (prefill && prefill.price) {
+                    tr.setAttribute('data-price', prefill.price);
+                }
                 if (prefill && prefill.quantity) {
                     quantityInput.value = prefill.quantity;
                 }
+                calculateTotals();
+            }
+
+            function calculateTotals() {
+                let subtotal = 0;
+
+                $('#items-container tr').each(function() {
+                    const price = parseFloat($(this).attr('data-price') || 0);
+                    const quantity = parseFloat($(this).find('input[type="number"]').val() || 0);
+                    subtotal += price * quantity;
+                });
+
+                const discount = parseFloat($('#discount').val() || 0);
+                const taxPercent = parseFloat($('#tax').val() || 0);
+
+                const taxAmount = Math.max(0, subtotal - discount) * (taxPercent / 100);
+                const total = Math.max(0, subtotal - discount + taxAmount);
+
+                const paid = parseFloat($('#paid_amount').val() || 0);
+                const due = Math.max(0, total - paid);
+
+                $('#subtotal-display').text(subtotal.toFixed(2));
+                $('#discount-display').text(discount.toFixed(2));
+                $('#tax-display').text(taxAmount.toFixed(2));
+                $('#total-display').text(total.toFixed(2));
+                $('#paid-display').text(paid.toFixed(2));
+                $('#due-display').text(due.toFixed(2));
             }
 
             document.addEventListener('DOMContentLoaded', function() {
+                // Attach listeners to static inputs
+                $('#discount, #tax, #paid_amount').on('input', calculateTotals);
+
+                // Attach listener to dynamic quantity inputs
+                $('#items-container').on('input', 'input[type="number"]', calculateTotals);
+
                 if (Array.isArray(preloadedItems) && preloadedItems.length > 0) {
                     preloadedItems.forEach(function(item) {
                         addItem(item);

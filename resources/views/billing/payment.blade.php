@@ -1,6 +1,6 @@
 <x-app-layout>
     @php
-        $totalPaid = $invoice->payments->sum('amount');
+        $totalPaid = $invoice->payments->where('status', 'success')->sum('amount');
         $totalAmount = $invoice->total_amount ?? ($invoice->total ?? 0);
         $remaining = max($totalAmount - $totalPaid, 0);
     @endphp

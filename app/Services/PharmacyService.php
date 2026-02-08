@@ -6,20 +6,30 @@ use App\Models\Medicine;
 use App\Models\MedicineBatch;
 use App\Models\PharmacySale;
 use App\Models\PharmacySaleItem;
+use App\Models\Prescription;
 use Illuminate\Support\Facades\DB;
 use Exception;
 
 class PharmacyService
 {
+    protected $billingService;
+
+    public function __construct(BillingService $billingService)
+    {
+        $this->billingService = $billingService;
+    }
+
     /**
      * Process a pharmacy sale.
      *
      * @param mixed $patient
      * @param array $items Array of ['medicine_id', 'quantity']
+     * @param int|null $prescriptionId
+     * @param array $paymentData Array containing 'discount', 'tax', 'paid_amount', 'payment_method'
      * @return PharmacySale
      * @throws Exception
      */
-    public function processSale($patient, array $items, ?int $prescriptionId = null)
+    public function processSale($patient, array $items, ?int $prescriptionId = null, array $paymentData = [])
     {
         $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
 
@@ -27,7 +37,7 @@ class PharmacyService
             throw new Exception("Clinic context is required to process sale.");
         }
 
-        return DB::transaction(function () use ($patient, $items, $prescriptionId, $clinicId) {
+        return DB::transaction(function () use ($patient, $items, $prescriptionId, $clinicId, $paymentData) {
             $totalAmount = 0;
             $saleItems = [];
 
@@ -97,6 +107,7 @@ class PharmacyService
                     'unit_price' => $medicine->price,
                     'total_price' => $subtotal,
                     'unit_cost' => $item['quantity'] > 0 ? ($totalItemCost / $item['quantity']) : 0,
+                    'medicine_name' => $medicine->name,
                 ];
             }
 
@@ -116,6 +127,53 @@ class PharmacyService
                     'unit_price' => $saleItem['unit_price'],
                     'unit_cost' => $saleItem['unit_cost'],
                 ]);
+            }
+
+            // Create Invoice
+            $invoiceItems = collect($saleItems)->map(function ($it) {
+                return [
+                    'item_type' => 'medicine',
+                    'reference_id' => $it['medicine_id'],
+                    'description' => $it['medicine_name'],
+                    'quantity' => $it['quantity'],
+                    'unit_price' => $it['unit_price'],
+                ];
+            })->all();
+
+            $appointmentId = null;
+            $visitId = null;
+
+            if ($prescriptionId) {
+                $prescription = Prescription::find($prescriptionId);
+                $visitId = optional($prescription?->consultation)->visit_id;
+                $appointmentId = optional($prescription?->consultation?->visit)->appointment_id;
+            }
+
+            $discount = $paymentData['discount'] ?? 0;
+            $tax = $paymentData['tax'] ?? 0;
+
+            $invoice = $this->billingService->createInvoice(
+                $patient,
+                $invoiceItems,
+                $appointmentId,
+                (float)$discount,
+                (float)$tax,
+                $visitId,
+                'pharmacy',
+                auth()->id(),
+                true,
+                $clinicId
+            );
+
+            // Record Payment
+            if (!empty($paymentData['paid_amount']) && $paymentData['paid_amount'] > 0) {
+                $this->billingService->recordPayment(
+                    $invoice,
+                    (float)$paymentData['paid_amount'],
+                    $paymentData['payment_method'] ?? 'cash',
+                    auth()->user(),
+                    $paymentData['transaction_reference'] ?? null
+                );
             }
 
             return $sale;

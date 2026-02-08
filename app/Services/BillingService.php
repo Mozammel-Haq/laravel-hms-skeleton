@@ -109,7 +109,7 @@ class BillingService
             // So it should include the new payment.
 
             // Re-fetch total paid
-            $totalPaid = $invoice->payments()->sum('amount');
+            $totalPaid = $invoice->payments()->where('status', 'success')->sum('amount');
 
             if ($totalPaid >= $invoice->total_amount) {
                 $invoice->update(['status' => 'paid']);

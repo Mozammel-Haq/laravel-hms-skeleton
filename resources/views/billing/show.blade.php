@@ -248,8 +248,19 @@
                             @forelse ($invoice->payments as $p)
                                 <li class="list-group-item px-4 py-3">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <span class="fw-bold text-dark">৳ {{ number_format($p->amount, 2) }}</span>
-                                        <span class="badge bg-light text-dark border">{{ $p->payment_method }}</span>
+                                        <span class="fw-bold {{ $p->status === 'failed' ? 'text-decoration-line-through text-muted' : 'text-dark' }}">
+                                            ৳ {{ number_format($p->amount, 2) }}
+                                        </span>
+                                        <div>
+                                            @if($p->status === 'success')
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle me-1">Paid</span>
+                                            @elseif($p->status === 'pending')
+                                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle me-1">Pending</span>
+                                            @elseif($p->status === 'failed')
+                                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle me-1">Failed</span>
+                                            @endif
+                                            <span class="badge bg-light text-dark border">{{ $p->payment_method }}</span>
+                                        </div>
                                     </div>
                                     <div class="small text-muted">
                                         <i class="ti ti-calendar-time me-1"></i>
@@ -266,8 +277,8 @@
                     </div>
                     <div class="card-footer bg-light p-4">
                         @php
-                            $totalPaid = $invoice->payments->sum('amount');
-                            $remaining = $invoice->total_amount - $totalPaid;
+                            $totalPaid = $invoice->payments->where('status', 'success')->sum('amount');
+                            $remaining = max($invoice->total_amount - $totalPaid, 0);
                         @endphp
 
                         @if ($invoice->status !== 'paid' && $remaining > 0)

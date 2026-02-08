@@ -137,7 +137,7 @@ class ReportController extends Controller
         $netIncome = $revenue - $expenses;
 
         // Collected (Paid) - Based on actual payments received in the date range
-        $paidQuery = Payment::whereBetween('paid_at', [$startDate, $endDate]);
+        $paidQuery = Payment::where('status', 'success')->whereBetween('paid_at', [$startDate, $endDate]);
 
         if ($request->filled('status') && $request->status !== 'all') {
             $paidQuery->whereHas('invoice', function ($q) use ($request) {
@@ -179,7 +179,8 @@ class ReportController extends Controller
             });
 
         // Payment Methods (Donut Chart)
-        $paymentMethods = Payment::whereBetween('paid_at', [$startDate, $endDate])
+        $paymentMethods = Payment::where('status', 'success')
+            ->whereBetween('paid_at', [$startDate, $endDate])
             ->selectRaw('payment_method, SUM(amount) as total')
             ->groupBy('payment_method')
             ->pluck('total', 'payment_method')
