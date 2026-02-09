@@ -28,7 +28,7 @@ const LocationDetails = () => {
       type: "Clinic", // or based on code/status later
       address: `${clinic.address_line_1}, ${clinic.city}`,
       phone: clinic.phone,
-      hours: `${clinic.opening_time.slice(0, 5)} - ${clinic.closing_time.slice(0, 5)}`,
+      hours: `${(clinic.opening_time ? String(clinic.opening_time).slice(0, 5) : '00:00')} - ${(clinic.closing_time ? String(clinic.closing_time).slice(0, 5) : '00:00')}`,
       description: clinic.about,
       services: clinic.services || [],
       image: clinic.images?.length
@@ -64,7 +64,7 @@ const LocationDetails = () => {
       </div>
     );
   }
-  
+
   if (!location) {
     return (
       <div className="min-h-screen bg-secondary-50 dark:bg-secondary-950 flex flex-col items-center justify-center pt-20 transition-colors duration-300">
@@ -80,9 +80,9 @@ const LocationDetails = () => {
     <div className="pt-20 min-h-screen bg-secondary-50 dark:bg-secondary-950 transition-colors duration-300">
       {/* Hero Section with Image */}
       <div className="relative h-[300px] md:h-[400px]">
-        <img 
-          src={location.image} 
-          alt={location.name} 
+        <img
+          src={location.image}
+          alt={location.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-secondary-900/90 via-secondary-900/50 to-transparent"></div>
@@ -110,7 +110,7 @@ const LocationDetails = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-12">
-            
+
             {/* About Section */}
             <section>
               <h2 className="text-2xl font-bold text-secondary-900 dark:text-white mb-6">About This Center</h2>
@@ -137,15 +137,15 @@ const LocationDetails = () => {
               <h2 className="text-2xl font-bold text-secondary-900 dark:text-white mb-6">Facility Gallery</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {location.gallery.map((img, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`relative rounded-xl overflow-hidden cursor-pointer group ${index === 0 ? 'col-span-2 row-span-2' : ''}`}
                     onClick={() => setSelectedImage(img)}
                   >
                     <div className="aspect-square w-full h-full">
-                       <img 
-                        src={img} 
-                        alt={`Gallery ${index + 1}`} 
+                       <img
+                        src={img}
+                        alt={`Gallery ${index + 1}`}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300"></div>
@@ -160,7 +160,7 @@ const LocationDetails = () => {
           <div className="lg:col-span-1">
             <div className="bg-white dark:bg-secondary-900 rounded-2xl p-8 shadow-sm border border-secondary-200 dark:border-secondary-800 sticky top-24">
               <h3 className="text-xl font-bold text-secondary-900 dark:text-white mb-6">Contact Information</h3>
-              
+
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center shrink-0">
@@ -210,15 +210,15 @@ const LocationDetails = () => {
       {/* Lightbox Modal */}
       {selectedImage && (
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
-          <button 
+          <button
             className="absolute top-4 right-4 text-white hover:text-primary-400 transition-colors"
             onClick={() => setSelectedImage(null)}
           >
             <X className="w-8 h-8" />
           </button>
-          <img 
-            src={selectedImage} 
-            alt="Gallery Preview" 
+          <img
+            src={selectedImage}
+            alt="Gallery Preview"
             className="max-w-full max-h-[90vh] object-contain rounded-lg animate-fade-in"
             onClick={(e) => e.stopPropagation()}
           />

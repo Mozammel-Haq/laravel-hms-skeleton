@@ -54,7 +54,7 @@ class PatientAppointmentRequestController extends Controller
             'appointment_id' => 'required|exists:appointments,id',
             'type' => 'required|in:cancel,reschedule',
             'reason' => 'required|string|max:1000',
-            'desired_date' => 'required_if:type,reschedule|nullable|date|after:today',
+            'desired_date' => 'required_if:type,reschedule|nullable|date|after_or_equal:today',
             'desired_time' => 'required_if:type,reschedule|nullable|date_format:H:i',
         ]);
 

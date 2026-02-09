@@ -65,9 +65,16 @@ class AppointmentsApiController extends Controller
 
         if ($request->filled('status') && $request->status !== 'all') {
             if ($request->status === 'upcoming') {
-                $query->whereIn('status', ['confirmed', 'pending', 'arrived', 'scheduled', 'checked in']);
+                $query->whereIn('status', ['confirmed', 'pending', 'arrived', 'scheduled', 'checked in'])
+                      ->whereDate('appointment_date', '>=', Carbon::today());
             } elseif ($request->status === 'past') {
-                $query->whereIn('status', ['completed', 'cancelled', 'noshow', 'checked out']);
+                $query->where(function ($q) {
+                    $q->whereIn('status', ['completed', 'cancelled', 'noshow', 'checked out'])
+                      ->orWhere(function ($sub) {
+                          $sub->whereIn('status', ['confirmed', 'pending', 'arrived', 'scheduled', 'checked in'])
+                              ->whereDate('appointment_date', '<', Carbon::today());
+                      });
+                });
             } else {
                 $query->where('status', $request->status);
             }
@@ -134,8 +141,31 @@ class AppointmentsApiController extends Controller
         $date = $request->date;
         $clinicId = $request->clinic_id;
 
+        // Resolve Timezone
+        $timezone = config('app.timezone');
+        
+        if ($clinicId) {
+            $clinic = DB::table('clinics')->where('id', $clinicId)->first();
+            if ($clinic && $clinic->timezone) {
+                $timezone = $clinic->timezone;
+            }
+        } else {
+             // Try to find via doctor
+             $doctorDept = DB::table('doctors')
+                ->join('departments', 'doctors.primary_department_id', '=', 'departments.id')
+                ->join('clinics', 'departments.clinic_id', '=', 'clinics.id')
+                ->where('doctors.id', $doctorId)
+                ->select('clinics.timezone')
+                ->first();
+             if ($doctorDept && $doctorDept->timezone) {
+                 $timezone = $doctorDept->timezone;
+             }
+        }
+
         // 1. Day of week (1 = Monday, 7 = Sunday)
-        $dayOfWeek = Carbon::parse($date)->dayOfWeekIso;
+        // Parse date in the target timezone
+        $requestDate = Carbon::parse($date, $timezone);
+        $dayOfWeek = $requestDate->dayOfWeekIso;
 
         // 2. Doctor schedule
         $schedule = DB::table('doctor_schedules')
@@ -153,8 +183,10 @@ class AppointmentsApiController extends Controller
         }
 
         // 3. Generate all possible slots
-        $scheduleStart = Carbon::parse($schedule->start_time);
-        $scheduleEnd   = Carbon::parse($schedule->end_time);
+        // Start/End times are date-agnostic in DB, but we must combine with Date in the correct Timezone
+        $dateStr = $requestDate->format('Y-m-d');
+        $scheduleStart = Carbon::parse($dateStr . ' ' . $schedule->start_time, $timezone);
+        $scheduleEnd   = Carbon::parse($dateStr . ' ' . $schedule->end_time, $timezone);
         $duration      = (int) $schedule->slot_duration_minutes;
 
         $allSlots = [];
@@ -171,7 +203,7 @@ class AppointmentsApiController extends Controller
 
         // 4. Fetch booked appointments (time ranges)
         $bookedAppointments = Appointment::where('doctor_id', $doctorId)
-            ->where('appointment_date', $date)
+            ->where('appointment_date', $dateStr)
             ->where('status', '!=', 'cancelled')
             ->get(['start_time', 'end_time']);
 
@@ -179,8 +211,14 @@ class AppointmentsApiController extends Controller
         $availableSlots = [];
 
         foreach ($allSlots as $slot) {
-            $slotStart = Carbon::parse($slot['start']);
-            $slotEnd   = Carbon::parse($slot['end']);
+            // Re-parse slot times in the correct timezone for comparison
+            $slotStart = Carbon::parse($dateStr . ' ' . $slot['start'], $timezone);
+            $slotEnd   = Carbon::parse($dateStr . ' ' . $slot['end'], $timezone);
+
+            // Filter out past slots if the date is today
+            if ($requestDate->isToday() && $slotEnd->lte(Carbon::now($timezone))) {
+                continue;
+            }
 
             $isOverlapping = false;
 

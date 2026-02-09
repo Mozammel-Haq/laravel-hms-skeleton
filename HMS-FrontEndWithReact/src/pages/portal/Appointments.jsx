@@ -13,6 +13,7 @@ import {
   Activity,
   Pill,
   Stethoscope,
+  AlertCircle,
 } from "lucide-react";
 import Button from "../../components/common/Button";
 import { useAuth } from "../../context/AuthContext";
@@ -81,9 +82,39 @@ const Appointments = () => {
   console.log(appointments);
   const filteredAppointments = appointments.filter((apt) => {
     const status = apt.status?.toLowerCase().trim();
-    const matchesFilter = filter === "upcoming"
-      ? ["confirmed", "pending", "arrived"].includes(status)
-      : ["completed", "cancelled"].includes(status);
+
+    // Helper to check if date is strictly in the past (Yesterday or before)
+    const isPastDate = (() => {
+        try {
+             if (!apt.appointment_date) return false;
+             const dateStr = apt.appointment_date.toString().split('T')[0].split(' ')[0];
+             const [yStr, mStr, dStr] = dateStr.split('-');
+             const year = parseInt(yStr);
+             const month = parseInt(mStr) - 1;
+             const day = parseInt(dStr);
+
+             const aptDate = new Date(year, month, day);
+             const today = new Date();
+             today.setHours(0, 0, 0, 0); // Normalize to start of today
+
+             return aptDate < today;
+        } catch (e) {
+             return false;
+        }
+    })();
+
+    const isActiveStatus = ["confirmed", "pending", "arrived"].includes(status);
+    const isInactiveStatus = ["completed", "cancelled"].includes(status);
+
+    let matchesFilter = false;
+
+    if (filter === "upcoming") {
+        // Upcoming = Active Status AND (Date is Today or Future)
+        matchesFilter = isActiveStatus && !isPastDate;
+    } else {
+        // Past = (Inactive Status) OR (Active Status but Date is Past)
+        matchesFilter = isInactiveStatus || (isActiveStatus && isPastDate);
+    }
 
     if (!matchesFilter) return false;
 
@@ -267,23 +298,66 @@ const Appointments = () => {
             const hasPendingRequest = apt.requests && apt.requests.length > 0;
             const pendingRequestType = hasPendingRequest ? apt.requests[0].type : null;
 
+            // Check if appointment time has passed
+            const isTimePassed = isUpcoming && (() => {
+                try {
+                    if (!apt.appointment_date || !apt.end_time) return false;
+
+                    // Robust parsing for YYYY-MM-DD
+                    const dateStr = apt.appointment_date.toString().split('T')[0].split(' ')[0];
+                    const [yStr, mStr, dStr] = dateStr.split('-');
+
+                    // Robust parsing for HH:mm:ss
+                    const timeStr = apt.end_time.toString().trim();
+                    const [hStr, minStr] = timeStr.split(':');
+
+                    const year = parseInt(yStr);
+                    const month = parseInt(mStr) - 1; // 0-based
+                    const day = parseInt(dStr);
+                    const hour = parseInt(hStr);
+                    const minute = parseInt(minStr);
+
+                    const aptDate = new Date(year, month, day, hour, minute);
+
+                    if (isNaN(aptDate.getTime())) return false;
+
+                    return aptDate < new Date();
+                } catch (e) {
+                    return false;
+                }
+            })();
+
             return (
               <div
                 key={apt.id}
-                className="group bg-white dark:bg-secondary-900 rounded-xl border border-secondary-200 dark:border-secondary-700 overflow-hidden hover:shadow-sm hover:border-primary-400 dark:hover:border-primary-500 transition-all duration-200"
+                className={`group bg-white dark:bg-secondary-900 rounded-xl border overflow-hidden hover:shadow-sm transition-all duration-200 ${
+                    isTimePassed
+                    ? 'border-red-200 dark:border-red-900/50 hover:border-red-300 dark:hover:border-red-800'
+                    : 'border-secondary-200 dark:border-secondary-700 hover:border-primary-400 dark:hover:border-primary-500'
+                }`}
               >
                 <div className="p-5 sm:p-6">
                   <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                     {/* Date Badge */}
                     <div className="flex-shrink-0">
-                      <div className="inline-flex sm:flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 rounded-2xl border-2 border-primary-200 dark:border-primary-700 p-4 min-w-[88px] shadow-sm">
-                        <span className="text-xs font-bold text-primary-600 dark:text-primary-400 uppercase tracking-wide">
+                      <div className={`inline-flex sm:flex flex-col items-center justify-center bg-gradient-to-br rounded-2xl border-2 p-4 min-w-[88px] shadow-sm ${
+                          isTimePassed
+                          ? 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-red-200 dark:border-red-700'
+                          : 'from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-700'
+                      }`}>
+                        <span className={`text-xs font-bold uppercase tracking-wide ${
+                            isTimePassed ? 'text-red-600 dark:text-red-400' : 'text-primary-600 dark:text-primary-400'
+                        }`}>
                           {month}
                         </span>
-                        <span className="text-3xl font-bold text-primary-700 dark:text-primary-300 leading-none my-1">
+                        <span className={`text-3xl font-bold leading-none my-1 ${
+                            isTimePassed ? 'text-red-700 dark:text-red-300' : 'text-primary-700 dark:text-primary-300'
+                        }`}>
                           {day}
                         </span>
-                        <span className="text-xs font-medium text-primary-600/70 dark:text-primary-400/70">
+                        <span className={`text-xs font-medium ${
+                            isTimePassed ? 'text-red-600/70 dark:text-red-400/70' : 'text-primary-600/70 dark:text-primary-400/70'
+                        }`}>
                           {year}
                         </span>
                       </div>
@@ -313,6 +387,11 @@ const Appointments = () => {
                             >
                               {apt.status}
                             </span>
+                            {isTimePassed && (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-700">
+                                    Passed
+                                </span>
+                            )}
                           </div>
 
                           <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -362,11 +441,20 @@ const Appointments = () => {
                         </div>
                       </div>
 
+                      {isTimePassed && (
+                        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-lg flex items-center gap-3">
+                            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+                            <div className="text-sm text-red-700 dark:text-red-300">
+                                <span className="font-semibold">Missed Appointment?</span> The scheduled time for this appointment has passed. Please reschedule or book a new appointment.
+                            </div>
+                        </div>
+                      )}
+
                       {/* Actions */}
                       <div className="flex flex-wrap gap-2 pt-3 border-t border-secondary-100 dark:border-secondary-800">
                         {isUpcoming ? (
                           <>
-                            {status === 'pending' && (
+                            {(status === 'pending' || (isTimePassed && status !== 'arrived')) && (
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -388,11 +476,11 @@ const Appointments = () => {
                                 disabled={hasPendingRequest}
                               >
                                 <Calendar className="w-4 h-4 mr-2" />
-                                Reschedule
+                                {isTimePassed ? 'Reschedule / Book New' : 'Reschedule'}
                               </Button>
                             )}
 
-                            {status === 'pending' && (
+                            {status === 'pending' && !isTimePassed && (
                               <Button
                                 variant="danger"
                                 size="sm"

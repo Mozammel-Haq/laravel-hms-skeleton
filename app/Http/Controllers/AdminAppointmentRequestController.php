@@ -97,7 +97,7 @@ class AdminAppointmentRequestController extends Controller
                         'appointment_date' => $appointmentRequest->desired_date,
                         'start_time' => $newStart->format('H:i:s'),
                         'end_time' => $newEnd->format('H:i:s'),
-                        'status' => 'confirmed' // Or pending, but usually rescheduling implies approval of new slot
+                        'status' => 'pending'
                     ]);
                 }
             }

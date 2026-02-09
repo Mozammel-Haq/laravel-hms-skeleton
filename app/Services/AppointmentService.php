@@ -17,14 +17,26 @@ class AppointmentService
      */
     public function getAvailableSlots(Doctor $doctor, string $date, ?int $clinic_id = null): array
     {
-        $date = Carbon::parse($date);
-        $dayOfWeek = $date->dayOfWeek; // 0 (Sunday) to 6 (Saturday)
+        // Resolve Timezone
+        $timezone = config('app.timezone');
+
+        if ($clinic_id) {
+            $clinic = \App\Models\Clinic::find($clinic_id);
+            if ($clinic && $clinic->timezone) {
+                $timezone = $clinic->timezone;
+            }
+        } elseif ($doctor->primaryDepartment && $doctor->primaryDepartment->clinic && $doctor->primaryDepartment->clinic->timezone) {
+            $timezone = $doctor->primaryDepartment->clinic->timezone;
+        }
+
+        $dateObj = Carbon::parse($date, $timezone);
+        $dayOfWeek = $dateObj->dayOfWeek; // 0 (Sunday) to 6 (Saturday)
 
         $startTime = null;
         $endTime = null;
         $slotDuration = 15; // Default
 
-        $dateStr = $date->format('Y-m-d');
+        $dateStr = $dateObj->format('Y-m-d');
 
         // 1. Check for Exceptions (Day Off or Time Change)
         // Range-based check: start_date <= date <= end_date
@@ -45,14 +57,14 @@ class AppointmentService
             }
             // Use exception times if available
             if ($exception->start_time && $exception->end_time) {
-                $startTime = Carbon::parse($dateStr . ' ' . $exception->start_time);
-                $endTime = Carbon::parse($dateStr . ' ' . $exception->end_time);
+                $startTime = Carbon::parse($dateStr . ' ' . $exception->start_time, $timezone);
+                $endTime = Carbon::parse($dateStr . ' ' . $exception->end_time, $timezone);
             }
         }
 
         // 2. Get Schedule for the day
         // Priority: Specific Date > Weekly Pattern
-        
+
         // A. Check for specific date schedule
         $scheduleQuery = $doctor->schedules()
             ->where('schedule_date', $dateStr)
@@ -74,7 +86,7 @@ class AppointmentService
             if ($clinic_id) {
                 $weeklyQuery->where('clinic_id', $clinic_id);
             }
-            
+
             $schedule = $weeklyQuery->first();
         }
 
@@ -86,8 +98,8 @@ class AppointmentService
             $slotDuration = $schedule->slot_duration_minutes;
             // If start/end not set by exception, use schedule
             if (!$startTime) {
-                $startTime = Carbon::parse($dateStr . ' ' . $schedule->start_time);
-                $endTime = Carbon::parse($dateStr . ' ' . $schedule->end_time);
+                $startTime = Carbon::parse($dateStr . ' ' . $schedule->start_time, $timezone);
+                $endTime = Carbon::parse($dateStr . ' ' . $schedule->end_time, $timezone);
             }
         } else {
             // Exception exists but no regular schedule (e.g., working on a weekend)
@@ -106,7 +118,7 @@ class AppointmentService
 
         // 4. Get Booked Appointments
         $bookedAppointments = Appointment::where('doctor_id', $doctor->id)
-            ->whereDate('appointment_date', $date->format('Y-m-d'))
+            ->whereDate('appointment_date', $dateStr)
             ->whereIn('status', ['pending', 'confirmed'])
             ->get(['start_time', 'end_time']);
 
@@ -115,6 +127,15 @@ class AppointmentService
 
             if ($slotEnd->gt($endTime)) {
                 break;
+            }
+
+            // Filter out past slots if the date is today
+            // User requirement: "like if only between 9.00-9.30 the appointment can be made not after 9.30"
+            // So we allow booking until the slot ends.
+            // Comparison using clinic timezone
+            if ($dateObj->isToday() && $slotEnd->lte(Carbon::now($timezone))) {
+                $currentSlot->addMinutes($slotDuration);
+                continue;
             }
 
             $currentStartStr = $currentSlot->format('H:i:00');
