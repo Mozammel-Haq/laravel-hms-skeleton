@@ -56,6 +56,16 @@ class DoctorsApiController extends Controller
             return response()->json(['message' => 'Doctor not found'], 404);
         }
         $doctor->load(['department', 'educations', 'clinics', 'schedules', 'user:id,name']);
+
+        if (TenantContext::hasClinic()) {
+            $clinicId = TenantContext::getClinicId();
+            $doctor->loadCount(['appointments' => function ($q) use ($clinicId) {
+                $q->where('appointments.clinic_id', $clinicId);
+            }]);
+        } else {
+            $doctor->loadCount('appointments');
+        }
+
         return response()->json($doctor);
     }
 }

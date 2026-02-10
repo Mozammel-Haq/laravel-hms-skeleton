@@ -10,11 +10,14 @@ import {
   User,
   Settings,
   LogOut,
-  X
+  X,
+  CreditCard,
+  Bed
 } from 'lucide-react';
 import { useUI } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
 import { clsx } from 'clsx';
+import Logo from '../common/Logo';
 
 const Sidebar = () => {
   const { isSidebarOpen, closeSidebar } = useUI();
@@ -24,11 +27,12 @@ const Sidebar = () => {
   const links = [
     { name: 'Dashboard', path: '/portal/dashboard', icon: LayoutDashboard },
     { name: 'Appointments', path: '/portal/appointments', icon: Calendar },
+    { name: 'My Stay', path: '/portal/my-stay', icon: Bed },
     { name: 'Medical History', path: '/portal/history', icon: FileText },
     { name: 'Vitals', path: '/portal/vitals', icon: Activity },
     { name: 'Prescriptions', path: '/portal/prescriptions', icon: Pill },
     { name: 'Lab Results', path: '/portal/lab-results', icon: TestTube },
-    { name: 'Profile', path: '/portal/profile', icon: User },
+    { name: 'Invoices', path: '/portal/invoices', icon: CreditCard },
     { name: 'Settings', path: '/portal/settings', icon: Settings },
   ];
 
@@ -56,12 +60,9 @@ const Sidebar = () => {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="h-16 flex items-center px-6 border-b border-secondary-200 dark:border-white/10">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                CC
-              </div>
-              <span className="text-lg font-bold text-secondary-900 dark:text-white">Patient Portal</span>
-            </Link>
+                      <Link to="/" className="block">
+            <Logo textClassName="md:hidden min-[1050px]:flex" />
+          </Link>
             <button
               onClick={closeSidebar}
               className="ml-auto lg:hidden text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white"

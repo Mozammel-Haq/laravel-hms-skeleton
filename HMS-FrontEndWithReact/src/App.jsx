@@ -29,6 +29,8 @@ import LabResults from './pages/portal/LabResults';
 import Profile from './pages/portal/Profile';
 import Settings from './pages/portal/Settings';
 import Vitals from './pages/portal/Vitals';
+import Invoices from './pages/portal/Invoices';
+import MyStay from './pages/portal/MyStay';
 import ForgotPassword from './pages/portal/ForgotPassword';
 import ServiceDetail from './pages/landing/ServiceDetail';
 import BlogPost from './pages/landing/BlogPost';
@@ -82,6 +84,8 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
           <Route path="vitals" element={<Vitals />} />
+          <Route path="invoices" element={<Invoices />} />
+          <Route path="my-stay" element={<MyStay />} />
         </Route>
 
         {/* Catch all */}

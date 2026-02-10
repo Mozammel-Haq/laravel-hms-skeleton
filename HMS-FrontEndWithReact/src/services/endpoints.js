@@ -55,6 +55,17 @@ export const API_ENDPOINTS = {
         LAB_RESULT_DOWNLOAD: (id) => `/patient/lab-results/${id}/download`,
         VITALS: "/patient/vitals",
 
+        // Billing
+        INVOICES: "/patient/invoices",
+        INVOICE_DETAILS: (id) => `/patient/invoices/${id}`,
+        PAY_INVOICE: (id) => `/patient/invoices/${id}/pay`,
+
+        // IPD (Inpatient)
+        IPD_ADMISSION: "/patient/ipd/current-admission",
+        IPD_ROUNDS: "/patient/ipd/rounds",
+        IPD_BILLING: "/patient/ipd/billing",
+        IPD_DEPOSIT: "/patient/ipd/deposit",
+
         // Clinic Context
         AVAILABLE_CLINICS: "/patient/clinics",
 

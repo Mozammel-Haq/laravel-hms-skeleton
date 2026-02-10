@@ -56,6 +56,17 @@ Route::prefix('patient')->group(function () {
         Route::get('vitals', [VitalsApiController::class, 'index']);
         Route::get('medical-history', [MedicalHistoryApiController::class, 'index']);
 
+        // Billing
+        Route::get('invoices', [\App\Http\Controllers\Api\PatientBillingController::class, 'index']);
+        Route::get('invoices/{id}', [\App\Http\Controllers\Api\PatientBillingController::class, 'show']);
+        Route::post('invoices/{id}/pay', [\App\Http\Controllers\Api\PatientBillingController::class, 'pay']);
+
+        // IPD
+        Route::get('ipd/current-admission', [\App\Http\Controllers\Api\PatientIpdController::class, 'currentAdmission']);
+        Route::get('ipd/rounds', [\App\Http\Controllers\Api\PatientIpdController::class, 'rounds']);
+        Route::get('ipd/billing', [\App\Http\Controllers\Api\PatientIpdController::class, 'billing']);
+        Route::post('ipd/deposit', [\App\Http\Controllers\Api\PatientIpdController::class, 'payDeposit']);
+
         // Notifications
         Route::get('notifications', [PatientNotificationController::class, 'index']);
         Route::post('notifications/{id}/read', [PatientNotificationController::class, 'markAsRead']);

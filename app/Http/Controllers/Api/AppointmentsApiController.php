@@ -46,7 +46,7 @@ class AppointmentsApiController extends Controller
 
         // 2. Fetch Appointments
         $query = Appointment::withoutGlobalScopes()
-            ->with(['doctor', 'doctor.user:id,name,email', 'requests' => function ($q) {
+            ->with(['doctor', 'doctor.user:id,name,email', 'visit.invoices', 'requests' => function ($q) {
                 $q->where('status', 'pending');
             }])
             ->where('appointments.clinic_id', $selectedClinicId)
@@ -143,11 +143,13 @@ class AppointmentsApiController extends Controller
 
         // Resolve Timezone
         $timezone = config('app.timezone');
-        
+
+        $dbTimezone = null;
+
         if ($clinicId) {
             $clinic = DB::table('clinics')->where('id', $clinicId)->first();
             if ($clinic && $clinic->timezone) {
-                $timezone = $clinic->timezone;
+                $dbTimezone = $clinic->timezone;
             }
         } else {
              // Try to find via doctor
@@ -158,8 +160,19 @@ class AppointmentsApiController extends Controller
                 ->select('clinics.timezone')
                 ->first();
              if ($doctorDept && $doctorDept->timezone) {
-                 $timezone = $doctorDept->timezone;
+                 $dbTimezone = $doctorDept->timezone;
              }
+        }
+
+        if ($dbTimezone) {
+            // Validate timezone
+            try {
+                Carbon::now($dbTimezone);
+                $timezone = $dbTimezone;
+            } catch (\Exception $e) {
+                // Fallback to app timezone if invalid
+                \Illuminate\Support\Facades\Log::warning("Invalid timezone found in DB: {$dbTimezone}. Using default.");
+            }
         }
 
         // 1. Day of week (1 = Monday, 7 = Sunday)

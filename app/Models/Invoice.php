@@ -47,6 +47,12 @@ class Invoice extends BaseTenantModel
 {
     use SoftDeletes, LogsActivity, NotifiesRoles;
 
+    protected $casts = [
+        'issued_at' => 'datetime',
+        'finalized_at' => 'datetime',
+        'created_at' => 'datetime',
+    ];
+
     protected static function booted()
     {
         static::created(function ($invoice) {
@@ -119,7 +125,4 @@ class Invoice extends BaseTenantModel
     {
         return $this->belongsTo(Admission::class);
     }
-    protected $casts = [
-        'created_at' => 'date',
-    ];
 }

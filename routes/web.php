@@ -46,6 +46,8 @@ Route::get('patient/lab-results/{result}/download', [\App\Http\Controllers\LabRe
     ->name('patient.lab-results.download');
 Route::get('patient/medical-history/{patient}/download', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'patientDownload'])
     ->name('patient.medical-history.download');
+Route::get('patient/invoices/{invoice}/download', [\App\Http\Controllers\BillingController::class, 'patientPrint'])
+    ->name('patient.invoices.download');
 
 /**
  * --------------------------------------------------------------------------
@@ -296,6 +298,10 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         // Bed Management
         Route::get('/{admission}/assign-bed', [IpdController::class, 'assignBed'])->whereNumber('admission')->name('assign-bed');
         Route::post('/{admission}/assign-bed', [IpdController::class, 'storeBedAssignment'])->whereNumber('admission')->name('store-bed');
+
+        // Services
+        Route::post('/{admission}/service', [IpdController::class, 'storeService'])->whereNumber('admission')->name('service.store');
+
         Route::get('/bed-assignments', [BedAssignmentController::class, 'index'])->name('bed_assignments.index');
         Route::get('/bed-assignments/{bedAssignment}', [BedAssignmentController::class, 'show'])->name('bed_assignments.show');
 

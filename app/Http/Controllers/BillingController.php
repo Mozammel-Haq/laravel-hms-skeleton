@@ -321,6 +321,23 @@ class BillingController extends Controller
     }
 
     /**
+     * Download/Print the invoice for the patient.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Invoice $invoice
+     * @return \Illuminate\View\View
+     */
+    public function patientPrint(Request $request, Invoice $invoice)
+    {
+        if (! $request->hasValidSignature()) {
+            abort(403, 'Invalid or expired link.');
+        }
+
+        $invoice->load(['patient', 'items', 'payments']);
+        return view('billing.patient-print', compact('invoice'));
+    }
+
+    /**
      * Show the payment form for a specific invoice.
      *
      * @param \App\Models\Invoice $invoice

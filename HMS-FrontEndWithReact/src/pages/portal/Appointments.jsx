@@ -14,9 +14,12 @@ import {
   Pill,
   Stethoscope,
   AlertCircle,
+  Video,
+  CreditCard,
 } from "lucide-react";
 import Button from "../../components/common/Button";
 import { useAuth } from "../../context/AuthContext";
+import { useUI } from "../../context/UIContext";
 import api from "../../services/api";
 import API_ENDPOINTS from "../../services/endpoints";
 import { useClinic } from "../../context/ClinicContext";
@@ -29,6 +32,28 @@ const Appointments = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const {activeClinicId} = useClinic();
+  const { addToast } = useUI();
+  const [processingPayment, setProcessingPayment] = useState(null);
+
+  const handlePay = async (invoiceId, gateway) => {
+    setProcessingPayment(invoiceId);
+    try {
+        const response = await api.post(API_ENDPOINTS.PATIENT.PAY_INVOICE(invoiceId), {
+            gateway: gateway
+        });
+
+        if (response.data.payment_url) {
+            window.location.href = response.data.payment_url;
+        } else {
+            addToast('error', 'Failed to initiate payment');
+        }
+    } catch (error) {
+        console.error('Payment error', error);
+        addToast('error', error.response?.data?.message || 'Payment initialization failed');
+    } finally {
+        setProcessingPayment(null);
+    }
+  };
 
   // Summary Modal State
   const [isSummaryModalOpen, setIsSummaryModalOpen] = useState(false);
@@ -298,6 +323,46 @@ const Appointments = () => {
             const hasPendingRequest = apt.requests && apt.requests.length > 0;
             const pendingRequestType = hasPendingRequest ? apt.requests[0].type : null;
 
+            // Invoice Logic
+            const invoice = apt.visit?.invoices?.length > 0 ? apt.visit.invoices[0] : null;
+            const isUnpaid = invoice && ['unpaid', 'partial'].includes(invoice.status?.toLowerCase());
+
+            // Telemedicine: Check if joinable (15 mins before start until end time)
+            const isOnline = apt.appointment_type?.toLowerCase() === 'online' || !!apt.meeting_link;
+
+            const joinStatus = (() => {
+                if (!isOnline) return 'not_online';
+                if (!apt.meeting_link) return 'no_link';
+                // Allow pending appointments to see the link status, but maybe not join?
+                // For user friendlyness, let's allow joining if link exists, or at least show it.
+                // If strictly following rules:
+                if (status !== 'confirmed' && status !== 'pending') return 'not_active';
+
+                try {
+                    const dateStr = apt.appointment_date.toString().split('T')[0].split(' ')[0];
+                    const [y, m, d] = dateStr.split('-');
+                    const [sh, sm] = apt.start_time.split(':');
+                    const [eh, em] = apt.end_time.split(':');
+
+                    const start = new Date(y, m - 1, d, sh, sm);
+                    const end = new Date(y, m - 1, d, eh, em);
+                    const now = new Date();
+
+                    const diffMinutes = (start - now) / (1000 * 60);
+
+                    if (now > end) return 'ended';
+                    if (diffMinutes > 15) return 'too_early';
+
+                    // If pending, technically shouldn't join, but if link is there...
+                    // Let's restrict joining to confirmed only, but SHOW the button as disabled for pending.
+                    if (status !== 'confirmed') return 'pending_confirmation';
+
+                    return 'joinable';
+                } catch (e) {
+                    return 'error';
+                }
+            })();
+
             // Check if appointment time has passed
             const isTimePassed = isUpcoming && (() => {
                 try {
@@ -452,6 +517,59 @@ const Appointments = () => {
 
                       {/* Actions */}
                       <div className="flex flex-wrap gap-2 pt-3 border-t border-secondary-100 dark:border-secondary-800">
+                        {/* Payment Actions */}
+                        {isUnpaid && (
+                             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto mb-2 sm:mb-0 mr-2">
+                                 <Button
+                                     size="sm"
+                                     onClick={() => handlePay(invoice.id, 'stripe')}
+                                     disabled={processingPayment === invoice.id}
+                                     className="flex-1 sm:flex-none bg-indigo-600 hover:bg-indigo-700 text-white border-none"
+                                     title="Pay with Stripe"
+                                 >
+                                     <CreditCard className="w-4 h-4 mr-2" />
+                                     Stripe
+                                 </Button>
+                                 <Button
+                                     size="sm"
+                                     onClick={() => handlePay(invoice.id, 'sslcommerz')}
+                                     disabled={processingPayment === invoice.id}
+                                     className="flex-1 sm:flex-none bg-orange-600 hover:bg-orange-700 text-white border-none"
+                                     title="Pay with SSLCommerz"
+                                 >
+                                     <CreditCard className="w-4 h-4 mr-2" />
+                                     SSLCommerz
+                                 </Button>
+                                 <span className="text-sm font-bold text-secondary-700 dark:text-secondary-300 ml-1">
+                                    ${Number(invoice.due_amount ?? invoice.total_amount).toFixed(2)}
+                                 </span>
+                             </div>
+                        )}
+                        {/* Telemedicine Actions */}
+                        {joinStatus === 'joinable' && (
+                          <a
+                            href={apt.meeting_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm hover:shadow-md"
+                          >
+                            <Video className="w-4 h-4" />
+                            Join Call
+                          </a>
+                        )}
+                        {joinStatus === 'too_early' && (
+                             <div className="flex items-center gap-2 px-4 py-2 bg-secondary-100 dark:bg-secondary-800 text-secondary-500 dark:text-secondary-400 text-sm font-medium rounded-lg cursor-not-allowed" title="Link becomes available 15 minutes before appointment">
+                                <Video className="w-4 h-4" />
+                                Available Soon
+                             </div>
+                        )}
+                        {joinStatus === 'pending_confirmation' && (
+                             <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 text-sm font-medium rounded-lg cursor-not-allowed" title="Wait for appointment confirmation">
+                                <Video className="w-4 h-4" />
+                                Waiting Confirmation
+                             </div>
+                        )}
+
                         {isUpcoming ? (
                           <>
                             {(status === 'pending' || (isTimePassed && status !== 'arrived')) && (

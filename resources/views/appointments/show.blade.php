@@ -215,6 +215,14 @@
                                 <div>
                                     @if ($appointment->appointment_type === 'online')
                                         <span class="badge bg-info">Online</span>
+                                        @if($appointment->meeting_link)
+                                            <div class="mt-2">
+                                                <a href="{{ $appointment->meeting_link }}" target="_blank" class="btn btn-sm btn-outline-info">
+                                                    <i class="ti ti-video me-1"></i> Join Meeting
+                                                </a>
+                                                <small class="d-block text-muted mt-1">{{ $appointment->meeting_link }}</small>
+                                            </div>
+                                        @endif
                                     @else
                                         <span class="badge bg-secondary">In-Person Visit</span>
                                     @endif
@@ -243,7 +251,7 @@
                                     </form>
                                 @endif
 
-                                @if ($appointment->status === 'arrived' && !$appointment->visit)
+                                @if (in_array($appointment->status, ['arrived', 'confirmed']) && !$appointment->visit)
                                     <form action="{{ route('visits.store') }}" method="POST">
                                         @csrf
                                         <input type="hidden" name="appointment_id" value="{{ $appointment->id }}">

@@ -44,6 +44,12 @@ class Appointment extends BaseTenantModel
 
     protected static function booted()
     {
+        static::saving(function ($appointment) {
+            if ($appointment->appointment_type === 'online' && empty($appointment->meeting_link)) {
+                $appointment->meeting_link = 'https://meet.jit.si/HMS-' . \Illuminate\Support\Str::random(10);
+            }
+        });
+
         static::created(function ($appointment) {
             // Notify Doctor
             if ($appointment->doctor && $appointment->doctor->user) {
@@ -117,6 +123,24 @@ class Appointment extends BaseTenantModel
     }
 
     public $timestamps = true;
+
+    protected $fillable = [
+        'clinic_id',
+        'patient_id',
+        'doctor_id',
+        'department_id',
+        'appointment_date',
+        'start_time',
+        'end_time',
+        'appointment_type',
+        'reason_for_visit',
+        'meeting_link',
+        'booking_source',
+        'status',
+        'fee',
+        'visit_type',
+        'created_by',
+    ];
 
     protected $casts = [
         'appointment_date' => 'date',

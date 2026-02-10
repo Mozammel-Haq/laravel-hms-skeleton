@@ -40,7 +40,7 @@ const Header = () => {
               : 'bg-white dark:bg-secondary-950/90 backdrop-blur-sm border-b border-secondary-200 dark:border-secondary-800/50 py-3'
           }`}
     >
-      <div className="max-w-7xl mx-auto px-4 md:px-4 lg:px-2">
+      <div className="max-w-7xl mx-auto px-4 md:px-4 lg:px-2 py-1.5">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="block">
@@ -73,7 +73,7 @@ const Header = () => {
               </Button>
             </Link>
             <Link to="/portal/login">
-              <Button size="sm" className="bg-primary-600 text-white hover:bg-primary-700 shadow-lg shadow-primary-900/20 border-transparent">
+              <Button size="sm" className="bg-primary-600 text-white hover:bg-primary-700 shadow shadow-primary-900/20 border-transparent">
                 Book Appointment
               </Button>
             </Link>

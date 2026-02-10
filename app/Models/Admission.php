@@ -35,6 +35,11 @@ class Admission extends BaseTenantModel
 {
     use HasFactory, SoftDeletes, NotifiesRoles;
 
+    protected $casts = [
+        'admission_date' => 'datetime',
+        'discharge_date' => 'datetime',
+    ];
+
     protected $guarded = ['id'];
 
     /**

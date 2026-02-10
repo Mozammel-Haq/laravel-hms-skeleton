@@ -6,7 +6,7 @@ const Logo = ({ className = "", iconSize = "w-10 h-10", textSize = "text-xl", su
       {/* Logo Icon */}
       <div className={`${iconSize} relative flex items-center justify-center`}>
         {/* Main Background Shape */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-primary-700 to-primary-500 rounded-xl shadow-lg shadow-primary-900/20"></div>
+        <div className="absolute inset-0 bg-primary-600 rounded-xl shadow-sm shadow-primary-900/20"></div>
 
         {/* SVG Icon */}
         <svg

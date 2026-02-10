@@ -171,6 +171,7 @@ class OnlinePaymentController extends Controller
     {
         $transactionId = $request->transaction_id;
         $type = $request->type;
+        $redirectUrl = $request->input('redirect_url');
 
         try {
             DB::beginTransaction();
@@ -180,7 +181,7 @@ class OnlinePaymentController extends Controller
                 if ($deposit->status !== 'success') {
                     $deposit->update(['status' => 'success']);
                 }
-                $redirectRoute = route('ipd.show', $deposit->admission_id);
+                $redirectRoute = $redirectUrl ? urldecode($redirectUrl) : route('ipd.show', $deposit->admission_id);
 
             } elseif ($type === 'invoice') {
                 $payment = Payment::findOrFail($transactionId);
@@ -199,7 +200,7 @@ class OnlinePaymentController extends Controller
                         $invoice->update(['status' => 'partial']);
                     }
                 }
-                $redirectRoute = route('billing.show', $payment->invoice_id);
+                $redirectRoute = $redirectUrl ? urldecode($redirectUrl) : route('billing.show', $payment->invoice_id);
             }
 
             DB::commit();
@@ -246,13 +247,14 @@ class OnlinePaymentController extends Controller
         $card_brand = $request->input('card_brand');
         $card_issuer_country = $request->input('card_issuer_country');
         $card_issuer_country_code = $request->input('card_issuer_country_code');
+        $redirectUrl = $request->input('value_a'); // Use value_a for redirect_url
 
         // Validation logic (can call validate API here)
         if ($status !== 'VALID') {
              return redirect('/?error=Payment validation failed');
         }
 
-        return $this->processSslCommerzPayment($tran_id, $val_id);
+        return $this->processSslCommerzPayment($tran_id, $val_id, false, $redirectUrl);
     }
 
     public function sslCommerzFail(Request $request)
@@ -282,7 +284,7 @@ class OnlinePaymentController extends Controller
         }
     }
 
-    protected function processSslCommerzPayment($tran_id, $val_id, $isIpn = false)
+    protected function processSslCommerzPayment($tran_id, $val_id, $isIpn = false, $redirectUrl = null)
     {
         // Identify record by tran_id
         $record = null;
@@ -325,7 +327,8 @@ class OnlinePaymentController extends Controller
 
             if ($type === 'admission_deposit') {
                 // $record->admission->increment('deposit_amount', $record->amount); // Column does not exist
-                $redirectResponse = redirect()->route('ipd.show', ['admission' => $record->admission_id, 'payment_status' => 'success']);
+                $route = $redirectUrl ? urldecode($redirectUrl) : route('ipd.show', ['admission' => $record->admission_id, 'payment_status' => 'success']);
+                $redirectResponse = redirect($route);
             } else {
                 $invoice = $record->invoice;
                 // $invoice->increment('paid_amount', $record->amount); // Removed as column might not exist
@@ -337,7 +340,8 @@ class OnlinePaymentController extends Controller
                 } else {
                     $invoice->update(['status' => 'partial']);
                 }
-                $redirectResponse = redirect()->route('billing.show', ['invoice' => $record->invoice_id, 'payment_status' => 'success']);
+                $route = $redirectUrl ? urldecode($redirectUrl) : route('billing.show', ['invoice' => $record->invoice_id, 'payment_status' => 'success']);
+                $redirectResponse = redirect($route);
             }
 
             DB::commit();

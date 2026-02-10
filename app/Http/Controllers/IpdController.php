@@ -15,6 +15,8 @@ use App\Notifications\DoctorRoundCreatedNotification;
 use App\Notifications\DischargeRecommendedNotification;
 use Illuminate\Support\Facades\Notification;
 use App\Models\User;
+use App\Models\Service;
+use App\Models\InpatientService;
 use App\Services\IpdService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -263,7 +265,9 @@ class IpdController extends Controller
                 visitId: null,
                 invoiceType: 'ipd_admission_fee',
                 createdBy: auth()->id(),
-                finalize: true
+                finalize: true,
+                clinicId: null,
+                admissionId: $admission->id
             );
         }
 
@@ -300,8 +304,17 @@ class IpdController extends Controller
     public function show(Admission $admission)
     {
         Gate::authorize('view', $admission);
-        $admission->load(['patient', 'bedAssignments.bed', 'rounds.doctor', 'vitals']);
-        return view('ipd.show', compact('admission'));
+        $admission->load(['patient', 'bedAssignments.bed', 'rounds.doctor', 'vitals', 'services']);
+
+        // Load Lab Orders during admission
+        $labOrders = $admission->patient ? \App\Models\LabTestOrder::where('patient_id', $admission->patient_id)
+            ->whereDate('created_at', '>=', $admission->admission_date)
+            ->with(['test', 'results'])
+            ->latest()
+            ->get() : collect();
+
+        $availableServices = Service::where('status', 'active')->orderBy('name')->get();
+        return view('ipd.show', compact('admission', 'availableServices', 'labOrders'));
     }
 
     /**
@@ -410,6 +423,47 @@ class IpdController extends Controller
             ->exists();
 
         return view('ipd.discharge', compact('admission', 'unpaidInvoices'));
+    }
+
+    /**
+     * Store a service/procedure for the admission.
+     *
+     * @param Request $request
+     * @param Admission $admission
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeService(Request $request, Admission $admission)
+    {
+        Gate::authorize('update', $admission);
+
+        $request->validate([
+            'service_id' => 'nullable|exists:services,id',
+            'custom_service_name' => 'required_without:service_id|nullable|string|max:255',
+            'custom_price' => 'required_without:service_id|nullable|numeric|min:0',
+            'quantity' => 'required|integer|min:1',
+            'service_date' => 'required|date',
+        ]);
+
+        if ($request->service_id) {
+            $serviceCatalog = Service::findOrFail($request->service_id);
+            $name = $serviceCatalog->name;
+            $price = $serviceCatalog->price;
+        } else {
+            $name = $request->custom_service_name;
+            $price = $request->custom_price;
+        }
+
+        InpatientService::create([
+            'clinic_id' => $admission->clinic_id,
+            'admission_id' => $admission->id,
+            'service_name' => $name,
+            'service_date' => $request->service_date,
+            'quantity' => $request->quantity,
+            'unit_price' => $price,
+            'total_price' => $price * $request->quantity,
+        ]);
+
+        return back()->with('success', 'Service added successfully.');
     }
 
     /**

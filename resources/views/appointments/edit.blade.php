@@ -52,6 +52,19 @@
                             @enderror
                         </div>
 
+                        <!-- Meeting Link -->
+                        <div class="col-md-6">
+                            <label for="meeting_link" class="form-label small fw-semibold">Meeting Link</label>
+                            <input id="meeting_link" type="url" name="meeting_link"
+                                class="form-control form-control-sm @error('meeting_link') is-invalid @enderror"
+                                value="{{ old('meeting_link', $appointment->meeting_link) }}"
+                                placeholder="https://meet.jit.si/..."
+                                {{ old('appointment_type', $appointment->appointment_type) == 'in_person' ? 'disabled' : '' }}>
+                            @error('meeting_link')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <!-- Doctor Selection -->
                         <div class="col-md-6">
                             <label for="doctor_id" class="form-label small fw-semibold">Doctor</label>
@@ -157,6 +170,23 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const appointmentTypeSelect = document.getElementById('appointment_type');
+            const meetingLinkInput = document.getElementById('meeting_link');
+
+            function toggleMeetingLink() {
+                if (appointmentTypeSelect.value === 'online') {
+                    meetingLinkInput.disabled = false;
+                } else {
+                    meetingLinkInput.disabled = true;
+                }
+            }
+
+            appointmentTypeSelect.addEventListener('change', toggleMeetingLink);
+            // toggleMeetingLink(); // Don't run initially as PHP handles the initial state and we don't want to override it if user edits (actually PHP sets disabled attr, so we are good).
+            // Wait, if PHP sets disabled, and we change to online, we need to remove it.
+            // If PHP doesn't set disabled, and we change to in_person, we need to add it.
+            // So running it initially is fine/good to sync JS state.
+
             const doctorSelect = document.getElementById('doctor_id');
             const dateInput = document.getElementById('appointment_date');
             const slotsContainer = document.getElementById('slots-container');

@@ -66,7 +66,7 @@ class PaymentGatewayService
     /**
      * Initiate SSLCommerz Payment
      */
-    public function initiateSslCommerzPayment($amount, $currency, $description, $tran_id, $successUrl, $failUrl, $cancelUrl, $customerDetails = [])
+    public function initiateSslCommerzPayment($amount, $currency, $description, $tran_id, $successUrl, $failUrl, $cancelUrl, $customerDetails = [], $extraParams = [])
     {
         $url = $this->sslIsSandbox
             ? 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php'
@@ -97,6 +97,11 @@ class PaymentGatewayService
             'product_category' => 'Healthcare',
             'product_profile' => 'general',
         ];
+
+        // Merge extra parameters (e.g., value_a for redirect_url)
+        if (!empty($extraParams)) {
+            $postData = array_merge($postData, $extraParams);
+        }
 
         try {
             $response = Http::asForm()->post($url, $postData);

@@ -10,6 +10,7 @@ import {
     Info,
     CheckCircle,
     AlertCircle,
+    Video,
 } from "lucide-react";
 import {
     format,
@@ -822,6 +823,70 @@ const BookAppointment = () => {
                                         </span>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Visit Mode Selection */}
+                            <div>
+                                <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                                    Visit Mode
+                                </label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div
+                                        onClick={() => setValue("visitMode", "in_person")}
+                                        className={`cursor-pointer rounded-lg border p-4 flex items-center justify-center space-x-2 transition-all ${
+                                            watch("visitMode") === "in_person"
+                                                ? "bg-primary-50 dark:bg-primary-900/20 border-primary-500 ring-1 ring-primary-500"
+                                                : "bg-white dark:bg-secondary-800 border-secondary-200 dark:border-secondary-700 hover:border-primary-200"
+                                        }`}
+                                    >
+                                        <User
+                                            className={`w-5 h-5 ${
+                                                watch("visitMode") === "in_person"
+                                                    ? "text-primary-600"
+                                                    : "text-secondary-500"
+                                            }`}
+                                        />
+                                        <span
+                                            className={`font-medium ${
+                                                watch("visitMode") === "in_person"
+                                                    ? "text-primary-900 dark:text-white"
+                                                    : "text-secondary-700 dark:text-secondary-300"
+                                            }`}
+                                        >
+                                            In-Person Visit
+                                        </span>
+                                    </div>
+                                    <div
+                                        onClick={() => setValue("visitMode", "online")}
+                                        className={`cursor-pointer rounded-lg border p-4 flex items-center justify-center space-x-2 transition-all ${
+                                            watch("visitMode") === "online"
+                                                ? "bg-primary-50 dark:bg-primary-900/20 border-primary-500 ring-1 ring-primary-500"
+                                                : "bg-white dark:bg-secondary-800 border-secondary-200 dark:border-secondary-700 hover:border-primary-200"
+                                        }`}
+                                    >
+                                        <Video
+                                            className={`w-5 h-5 ${
+                                                watch("visitMode") === "online"
+                                                    ? "text-primary-600"
+                                                    : "text-secondary-500"
+                                            }`}
+                                        />
+                                        <span
+                                            className={`font-medium ${
+                                                watch("visitMode") === "online"
+                                                    ? "text-primary-900 dark:text-white"
+                                                    : "text-secondary-700 dark:text-secondary-300"
+                                            }`}
+                                        >
+                                            Online Consultation
+                                        </span>
+                                    </div>
+                                </div>
+                                {errors.visitMode && (
+                                    <p className="mt-1 text-sm text-red-500 dark:text-red-400">
+                                        {errors.visitMode.message}
+                                    </p>
+                                )}
                             </div>
 
                             <div>

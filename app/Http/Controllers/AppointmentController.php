@@ -199,7 +199,7 @@ class AppointmentController extends Controller
             'start_time' => $request->start_time,
             'end_time' => \Carbon\Carbon::parse($request->start_time)->addMinutes(15)->format('H:i'),
             'status' => 'pending',
-            'appointment_type' => 'in_person',
+            'appointment_type' => $request->appointment_type ?? 'in_person',
             'booking_source' => 'reception',
             'visit_type' => ($request->type === 'follow_up') ? 'follow_up' : 'new',
             'reason_for_visit' => $request->reason ?? null,
@@ -308,6 +308,9 @@ class AppointmentController extends Controller
             ],
             'start_time' => 'required',
             'status' => 'required|in:pending,confirmed,cancelled,completed,arrived,noshow',
+            'appointment_type' => 'required|in:online,in_person',
+            'meeting_link' => 'nullable|url',
+            'reason_for_visit' => 'nullable|string|max:1000',
         ]);
 
         // If doctor changed, we might want to re-validate availability or just trust the admin/staff

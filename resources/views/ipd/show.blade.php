@@ -202,41 +202,318 @@
                                 <span class="fw-medium text-dark">{{ $admission->admission_reason ?? 'N/A' }}</span>
                             </div>
                             <div class="col-md-12 p-4">
-                                <label class="text-muted small text-uppercase fw-bold d-block mb-1">Financials</label>
-                                <div class="d-flex gap-4">
-                                    <div>
-                                        <small class="text-muted d-block">Total Deposit Paid</small>
-                                        <span class="fw-bold text-success fs-6">
-                                            {{ number_format($admission->deposits->where('status', 'success')->sum('amount'), 2) }}
-                                        </span>
+                                <label class="text-muted small text-uppercase fw-bold d-block mb-3">Financial Overview</label>
+                                <div class="row g-3">
+                                    @php
+                                        // Calculate Financials
+                                        $invoice = $admission->invoice;
+                                        $totalDeposited = $admission->deposits->where('status', 'success')->sum('amount');
+
+                                        // Find Admission Fee Invoice
+                                        $admissionFeeInvoices = \App\Models\Invoice::where('patient_id', $admission->patient_id)
+                                            ->where('invoice_type', 'ipd_admission_fee')
+                                            ->where(function($q) use ($admission) {
+                                                $q->where('admission_id', $admission->id)
+                                                  ->orWhereBetween('created_at', [
+                                                      \Carbon\Carbon::parse($admission->admission_date)->subHours(12),
+                                                      \Carbon\Carbon::parse($admission->admission_date)->addHours(24)
+                                                  ]);
+                                            })
+                                            ->get();
+                                        $admissionFeeTotal = $admissionFeeInvoices->sum('total_amount');
+                                        $admissionFeePaid = 0;
+                                        foreach($admissionFeeInvoices as $inv) {
+                                             $admissionFeePaid += $inv->payments()->where('status', 'success')->sum('amount');
+                                        }
+
+                                        if ($invoice) {
+                                            // Final Invoice + Admission Fee
+                                            $totalBill = $invoice->total_amount + $admissionFeeTotal;
+
+                                            $finalInvoicePaid = $invoice->payments->where('status', 'success')->sum('amount');
+                                            $totalPaid = $finalInvoicePaid + $admissionFeePaid;
+
+                                            $dueAmount = max(0, $totalBill - $totalPaid);
+
+                                            $status = ucfirst($invoice->status);
+                                            // Check if admission fee is effectively unpaid/partial
+                                            if ($admissionFeeTotal > $admissionFeePaid && $status === 'Paid') {
+                                                $status = 'Partial';
+                                                $statusColor = 'warning';
+                                            } else {
+                                                $statusColor = $invoice->status === 'paid' ? 'success' : ($invoice->status === 'partial' ? 'warning' : 'danger');
+                                            }
+                                            $billLabel = "Final Bill (+ Adm Fee)";
+                                        } else {
+                                            // Running Bill Estimation
+                                            $serviceCharges = $admission->services->sum('total_price');
+                                            $roomCharges = 0;
+                                            foreach($admission->bedAssignments as $assignment) {
+                                                $start = \Carbon\Carbon::parse($assignment->assigned_at);
+                                                $end = $assignment->released_at ? \Carbon\Carbon::parse($assignment->released_at) : now();
+                                                $days = max(1, $start->diffInDays($end));
+                                                $roomCharges += $days * ($assignment->bed->room->daily_rate ?? 0);
+                                            }
+                                            $totalBill = $serviceCharges + $roomCharges + $admissionFeeTotal;
+                                            $totalPaid = $totalDeposited + $admissionFeePaid;
+                                            $dueAmount = max(0, $totalBill - $totalPaid);
+                                            $status = 'Running';
+                                            $statusColor = 'info';
+                                            $billLabel = "Estimated Total Bill";
+                                        }
+                                    @endphp
+
+                                    <div class="col-6 col-md-3">
+                                        <small class="text-muted d-block mb-1">{{ $billLabel }}</small>
+                                        <span class="fw-bold text-dark fs-5">৳{{ number_format($totalBill, 2) }}</span>
                                     </div>
-                                    @if($admission->invoice)
-                                    <div>
-                                        <small class="text-muted d-block">Final Invoice Amount</small>
-                                        <span class="fw-bold text-dark fs-6">
-                                            {{ number_format($admission->invoice->total_amount, 2) }}
-                                        </span>
+                                    <div class="col-6 col-md-3">
+                                        <small class="text-muted d-block mb-1">Total Deposited</small>
+                                        <span class="fw-bold text-primary fs-5">৳{{ number_format($totalDeposited, 2) }}</span>
                                     </div>
-                                    <div>
-                                        <small class="text-muted d-block">Due Amount</small>
-                                        <span class="fw-bold text-dark fs-6">
-                                            @php
-                                                $paid = $admission->deposits->where('status', 'success')->sum('amount');
-                                                $due = max(0, $admission->invoice->total_amount - $paid);
-                                            @endphp
-                                            {{ number_format($due, 2) }}
-                                        </span>
+                                    <div class="col-6 col-md-3">
+                                        <small class="text-muted d-block mb-1">Total Paid</small>
+                                        <span class="fw-bold text-success fs-5">৳{{ number_format($totalPaid, 2) }}</span>
+                                        @if($invoice && $totalPaid > $totalDeposited)
+                                            <small class="text-muted d-block" style="font-size: 0.75rem;">(Incl. payments)</small>
+                                        @endif
                                     </div>
-                                    <div>
-                                        <small class="text-muted d-block">Payment Status</small>
-                                        <span class="badge bg-{{ $admission->invoice->status === 'paid' ? 'success' : ($admission->invoice->status === 'partial' ? 'warning' : 'danger') }}">
-                                            {{ ucfirst($admission->invoice->status) }}
-                                        </span>
+                                    <div class="col-6 col-md-3">
+                                        <small class="text-muted d-block mb-1">Due Amount</small>
+                                        <span class="fw-bold text-danger fs-5">৳{{ number_format($dueAmount, 2) }}</span>
                                     </div>
-                                    @endif
+                                    <div class="col-12 pt-2">
+                                        <div class="d-flex align-items-center justify-content-between bg-light p-2 rounded">
+                                            <span class="text-muted small">Billing Status</span>
+                                            <span class="badge bg-{{ $statusColor }} px-3">{{ $status }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Services / Procedures -->
+                <div class="card border border-secondary-subtle shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-dark">Services & Procedures</h6>
+                        @if($admission->status === 'admitted')
+                            <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#addServiceForm" aria-expanded="false" aria-controls="addServiceForm">
+                                <i class="ti ti-plus me-1"></i> Add Service
+                            </button>
+                        @endif
+                    </div>
+
+                    <div class="collapse {{ $errors->any() ? 'show' : '' }}" id="addServiceForm">
+                        <div class="card-body bg-light border-bottom" x-data="{ custom: false }">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="customServiceCheck" x-model="custom">
+                                <label class="form-check-label user-select-none" for="customServiceCheck">
+                                    Enter Custom Service / Procedure
+                                </label>
+                            </div>
+                            <form action="{{ route('ipd.service.store', $admission) }}" method="POST" class="row g-3 align-items-end">
+                                @csrf
+                                <div class="col-md-6" x-show="!custom">
+                                    <label class="form-label small text-muted fw-bold">Service/Procedure</label>
+                                    <select name="service_id" class="form-select" :required="!custom">
+                                        <option value="">Select Service...</option>
+                                        @foreach($availableServices as $service)
+                                            <option value="{{ $service->id }}">
+                                                {{ $service->name }} (৳{{ number_format($service->price, 2) }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4" x-show="custom" style="display: none;">
+                                    <label class="form-label small text-muted fw-bold">Custom Service Name</label>
+                                    <input type="text" name="custom_service_name" class="form-control" placeholder="e.g. Extra Care" :required="custom">
+                                </div>
+                                <div class="col-md-2" x-show="custom" style="display: none;">
+                                    <label class="form-label small text-muted fw-bold">Price (৳)</label>
+                                    <input type="number" name="custom_price" class="form-control" step="0.01" min="0" placeholder="0.00" :required="custom">
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label small text-muted fw-bold">Quantity</label>
+                                    <input type="number" name="quantity" class="form-control" value="1" min="1" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small text-muted fw-bold">Date</label>
+                                    <input type="date" name="service_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="ti ti-check"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom">Service</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom">Date</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom text-center">Qty</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom text-end">Price</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($admission->services as $service)
+                                    <tr>
+                                        <td class="px-4 py-3">
+                                            <span class="fw-medium text-dark">{{ $service->service_name }}</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-muted small">
+                                            {{ \Carbon\Carbon::parse($service->service_date)->format('M d, Y') }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            {{ $service->quantity }}
+                                        </td>
+                                        <td class="px-4 py-3 text-end text-muted">
+                                            ৳{{ number_format($service->unit_price, 2) }}
+                                        </td>
+                                        <td class="px-4 py-3 text-end fw-bold text-dark">
+                                            ৳{{ number_format($service->total_price, 2) }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-4 py-3 text-center text-muted">
+                                            No services or procedures recorded.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                            @if($admission->services->count() > 0)
+                                <tfoot class="bg-light">
+                                    <tr>
+                                        <td colspan="4" class="px-4 py-3 text-end fw-bold text-muted">Total Service Charges</td>
+                                        <td class="px-4 py-3 text-end fw-bold text-primary">
+                                            ৳{{ number_format($admission->services->sum('total_price'), 2) }}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            @endif
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Lab Orders Card -->
+                <div class="card border border-secondary-subtle shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-dark">Lab Orders (During Admission)</h6>
+                        @if($admission->status === 'admitted')
+                            <a href="{{ route('lab.create', ['patient_id' => $admission->patient_id]) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="ti ti-flask me-1"></i> Order Lab Test
+                            </a>
+                        @endif
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom">Test Name</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom">Date</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom text-center">Status</th>
+                                    <th class="px-4 py-3 text-uppercase small fw-bold text-muted border-bottom text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($labOrders as $order)
+                                    <tr>
+                                        <td class="px-4 py-3">
+                                            <span class="fw-medium text-dark">{{ $order->test->name }}</span>
+                                            @if($order->results->isNotEmpty())
+                                                <span class="badge bg-success-subtle text-success ms-2">Result Ready</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-muted small">
+                                            {{ $order->created_at->format('M d, Y H:i') }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                             <span class="badge bg-{{ $order->status === 'completed' ? 'success' : 'warning' }}">
+                                                {{ ucfirst($order->status) }}
+                                             </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-end">
+                                            <a href="{{ route('lab.show', $order->id) }}" class="btn btn-sm btn-icon btn-ghost-primary" title="View Details">
+                                                <i class="ti ti-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-4 py-3 text-center text-muted">
+                                            No lab orders found during this admission.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Lab Orders (Redundancy Check) -->
+                <div class="card border border-secondary-subtle shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-dark">Lab Orders (During Admission)</h6>
+                        @if($admission->status === 'admitted')
+                            <a href="{{ route('lab.create', ['patient_id' => $admission->patient_id]) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="ti ti-flask me-1"></i> Order Lab Test
+                            </a>
+                        @endif
+                    </div>
+                    <div class="card-body p-0">
+                        @if($labOrders->isEmpty())
+                            <div class="p-4 text-center text-muted">
+                                <i class="ti ti-test-pipe fs-2 mb-2 d-block"></i>
+                                No lab orders found for this admission.
+                            </div>
+                        @else
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0 align-middle">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="ps-4">Date</th>
+                                            <th>Test Name</th>
+                                            <th>Status</th>
+                                            <th class="text-end pe-4">Price</th>
+                                            <th class="text-end pe-4">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($labOrders as $order)
+                                            <tr>
+                                                <td class="ps-4 text-muted small">{{ $order->created_at->format('M d, Y H:i') }}</td>
+                                                <td class="fw-medium text-dark">
+                                                    {{ $order->test->name ?? 'Unknown Test' }}
+                                                    <br>
+                                                    <small class="text-muted">{{ $order->test->code ?? '' }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-{{ $order->status === 'completed' ? 'success' : ($order->status === 'pending' ? 'warning' : 'secondary') }}">
+                                                        {{ ucfirst($order->status) }}
+                                                    </span>
+                                                </td>
+                                                <td class="text-end pe-4 fw-bold">৳{{ number_format($order->test->price ?? 0, 2) }}</td>
+                                                <td class="text-end pe-4">
+                                                    <a href="{{ route('lab.show', $order->id) }}" class="btn btn-sm btn-icon btn-ghost-primary" title="View Details">
+                                                        <i class="ti ti-eye"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
