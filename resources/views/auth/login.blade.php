@@ -226,7 +226,7 @@
                                                         @if (Route::has('password.request'))
                                                             <a class="text-danger"
                                                                 href="{{ route('password.request') }}">
-                                                                {{ __('Forgot Your Password?') }}
+                                                                {{ __('auth.forgot_password') }}
                                                             </a>
                                                         @endif
                                                     </div>

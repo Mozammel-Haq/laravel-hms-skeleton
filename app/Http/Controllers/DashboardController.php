@@ -39,7 +39,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         // dd($user);
-        $clinic = $user->clinic;
+        $clinic = $user->hasRole('Super Admin') ? null : $user->clinic;
 
         // Super Admin Context Switch
         if ($user->hasRole('Super Admin') && \Illuminate\Support\Facades\Session::has('selected_clinic_id')) {
@@ -220,12 +220,25 @@ class DashboardController extends Controller
                 'inactive' => $clinic->doctors()->join('doctor_clinic as dc', 'dc.doctor_id', '=', 'doctors.id')
                     ->where('dc.clinic_id', $clinicId)->where((new Doctor())->getTable() . '.status', 'inactive')->count(),
             ];
-            $incomeByDepartment = $clinic->invoices()->where((new Invoice())->getTable() . '.clinic_id', $clinicId)
-                ->join('appointments', 'invoices.appointment_id', '=', 'appointments.id')
-                ->join('departments', 'appointments.department_id', '=', 'departments.id')
-                ->selectRaw($prefix . 'departments.name as department, COUNT(' . $prefix . (new Invoice())->getTable() . '.id) as total_invoices, SUM(' . $prefix . (new Invoice())->getTable() . '.total_amount) as revenue')
-                ->groupBy(DB::raw($prefix . 'departments.name'))
-                ->get();
+            $incomeByDepartment = $clinic->invoices()
+                ->where((new Invoice())->getTable() . '.clinic_id', $clinicId)
+                ->leftJoin('appointments', 'invoices.appointment_id', '=', 'appointments.id')
+                ->leftJoin('admissions', 'invoices.admission_id', '=', 'admissions.id')
+                ->leftJoin('doctors', 'admissions.admitting_doctor_id', '=', 'doctors.id')
+                ->leftJoin(DB::raw($prefix . 'departments as d1'), 'appointments.department_id', '=', DB::raw('d1.id'))
+                ->leftJoin(DB::raw($prefix . 'departments as d2'), 'doctors.primary_department_id', '=', DB::raw('d2.id'))
+                ->where(function ($q) {
+                    $q->whereNotNull('invoices.appointment_id')
+                        ->orWhereNotNull('invoices.admission_id');
+                })
+                ->selectRaw('COALESCE(d1.name, d2.name) as department, COUNT(' . $prefix . 'invoices.id) as total_invoices, SUM(' . $prefix . 'invoices.total_amount) as revenue')
+                ->groupBy(DB::raw('COALESCE(d1.name, d2.name)'))
+                ->havingRaw('department IS NOT NULL')
+                ->get()
+                ->map(function ($item) {
+                    $item->revenue = (float) $item->revenue;
+                    return $item;
+                });
             $latestAppointments = $clinic->appointments()
                 ->with(['doctor', 'patient'])
                 ->latest()
@@ -256,7 +269,10 @@ class DashboardController extends Controller
                 ->where('created_at', '>=', now()->subDays(30))
                 ->selectRaw("DATE(created_at) as date, sum(total_amount) as total")
                 ->groupBy('date')
-                ->pluck('total', 'date');
+                ->get()
+                ->mapWithKeys(function ($item) {
+                    return [$item->date => (float) $item->total];
+                });
 
             $appointmentData = $clinic->appointments()
                 ->where('created_at', '>=', now()->subDays(30))
@@ -270,14 +286,15 @@ class DashboardController extends Controller
                 'appointments' => $dates->map(fn($date) => $appointmentData[$date] ?? 0)->toArray(),
             ];
 
-            $incomeByDepartmentChart = $clinic->invoices()
-                ->join('appointments', 'invoices.appointment_id', '=', 'appointments.id')
-                ->join('departments', 'appointments.department_id', '=', 'departments.id')
-                ->selectRaw($prefix . 'departments.name as name, SUM(' . $prefix . (new Invoice())->getTable() . '.total_amount) as total')
-                ->groupBy(DB::raw($prefix . 'departments.name'))
-                ->orderByDesc('total')
+            $incomeByDepartmentChart = $incomeByDepartment
+                ->sortByDesc('revenue')
                 ->take(5)
-                ->get();
+                ->map(function ($item) {
+                    return (object)[
+                        'name' => $item->department,
+                        'total' => $item->revenue
+                    ];
+                });
 
             $topDoctorsChart = $popularDoctors->map(function ($doctor) {
                 return [
