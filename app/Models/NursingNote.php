@@ -17,7 +17,6 @@ use App\Models\Base\BaseTenantModel;
  * @property \Illuminate\Support\Carbon $recorded_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Admission $admission
  * @property-read \App\Models\User $nurse
  */

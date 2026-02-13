@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Department;
 use App\Models\Doctor;
-use App\Models\DoctorSchedule;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -44,13 +43,13 @@ class DoctorController extends Controller
             $search = request('search');
             $query->where(function ($q) use ($search) {
                 $q->whereHas('user', function ($sub) use ($search) {
-                    $sub->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%');
+                    $sub->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('email', 'like', '%'.$search.'%');
                 })->orWhereHas('department', function ($sub) use ($search) {
-                    $sub->where('name', 'like', '%' . $search . '%');
-                })->orWhere('specialization', 'like', '%' . $search . '%')
-                    ->orWhere('status', 'like', '%' . $search . '%')
-                    ->orWhere('consultation_room_number', 'like', '%' . $search . '%');
+                    $sub->where('name', 'like', '%'.$search.'%');
+                })->orWhere('specialization', 'like', '%'.$search.'%')
+                    ->orWhere('status', 'like', '%'.$search.'%')
+                    ->orWhere('consultation_room_number', 'like', '%'.$search.'%');
             });
         }
 
@@ -76,6 +75,7 @@ class DoctorController extends Controller
     {
         Gate::authorize('create', Doctor::class);
         $departments = Department::all();
+
         return view('doctors.create', compact('departments'));
     }
 
@@ -85,7 +85,6 @@ class DoctorController extends Controller
      * Creates a User account, assigns Role, creates Doctor profile, and links to Clinic.
      * Wrapped in a transaction to ensure data integrity.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -120,15 +119,15 @@ class DoctorController extends Controller
 
             if ($request->hasFile('profile_photo')) {
                 $file = $request->file('profile_photo');
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$file->getClientOriginalName();
                 $destination = public_path('assets/img/doctors');
 
-                if (!is_dir($destination)) {
+                if (! is_dir($destination)) {
                     mkdir($destination, 0755, true);
                 }
 
                 $file->move($destination, $filename);
-                $photoPath = 'assets/img/doctors/' . $filename;
+                $photoPath = 'assets/img/doctors/'.$filename;
             }
 
             $user = User::create([
@@ -173,7 +172,6 @@ class DoctorController extends Controller
     /**
      * Display the specified doctor details.
      *
-     * @param  \App\Models\Doctor  $doctor
      * @return \Illuminate\View\View
      */
     public function show(Doctor $doctor)
@@ -195,13 +193,13 @@ class DoctorController extends Controller
     /**
      * Show the form for editing the specified doctor.
      *
-     * @param  \App\Models\Doctor  $doctor
      * @return \Illuminate\View\View
      */
     public function edit(Doctor $doctor)
     {
         Gate::authorize('update', $doctor);
         $departments = Department::all();
+
         return view('doctors.edit', compact('doctor', 'departments'));
     }
 
@@ -211,8 +209,6 @@ class DoctorController extends Controller
      * Updates both the Doctor profile and associated User account (phone).
      * Handles profile photo upload and replacement.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Doctor  $doctor
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Doctor $doctor)
@@ -224,8 +220,8 @@ class DoctorController extends Controller
             'primary_department_id' => 'required|exists:departments,id',
             'specialization' => 'required|array',
             'specialization.*' => 'string',
-            'license_number' => 'required|string|unique:doctors,license_number,' . $doctor->id,
-            'registration_number' => 'nullable|string|max:255|unique:doctors,registration_number,' . $doctor->id,
+            'license_number' => 'required|string|unique:doctors,license_number,'.$doctor->id,
+            'registration_number' => 'nullable|string|max:255|unique:doctors,registration_number,'.$doctor->id,
             'experience_years' => 'nullable|integer|min:0',
             'gender' => 'nullable|in:male,female,other',
             'blood_group' => 'nullable|string|max:5',
@@ -252,15 +248,15 @@ class DoctorController extends Controller
 
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $destination = public_path('assets/img/doctors');
 
-            if (!is_dir($destination)) {
+            if (! is_dir($destination)) {
                 mkdir($destination, 0755, true);
             }
 
             $file->move($destination, $filename);
-            $photoPath = 'assets/img/doctors/' . $filename;
+            $photoPath = 'assets/img/doctors/'.$filename;
         }
 
         $doctor->update([
@@ -288,7 +284,6 @@ class DoctorController extends Controller
     /**
      * Soft delete the specified doctor.
      *
-     * @param \App\Models\Doctor $doctor
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Doctor $doctor)
@@ -317,7 +312,7 @@ class DoctorController extends Controller
     /**
      * Restore a soft-deleted doctor.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
     public function restore($id)
@@ -342,7 +337,6 @@ class DoctorController extends Controller
     /**
      * Manage doctor schedule.
      *
-     * @param \App\Models\Doctor $doctor
      * @return \Illuminate\View\View
      */
     public function schedule(Doctor $doctor)
@@ -364,10 +358,6 @@ class DoctorController extends Controller
      *
      * Validates schedule slots against clinic opening hours.
      * Replaces existing schedules for the current clinic with new ones.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Doctor  $doctor
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateSchedule(Request $request, Doctor $doctor): \Illuminate\Http\RedirectResponse
     {
@@ -378,7 +368,7 @@ class DoctorController extends Controller
         Log::info('Schedule update initiated', [
             'doctor_id' => $doctor->id,
             'clinic_id' => auth()->user()->clinic_id,
-            'user_id' => auth()->id()
+            'user_id' => auth()->id(),
         ]);
 
         $request->validate([
@@ -394,7 +384,7 @@ class DoctorController extends Controller
                         $start = Carbon::parse($value);
                         $clinicOpen = Carbon::parse($clinic->opening_time);
                         if ($start->lt($clinicOpen)) {
-                            $fail('Schedule start time must be on or after clinic opening time (' . $clinic->opening_time . ').');
+                            $fail('Schedule start time must be on or after clinic opening time ('.$clinic->opening_time.').');
                         }
                     }
                 },
@@ -408,7 +398,7 @@ class DoctorController extends Controller
                         $end = Carbon::parse($value);
                         $clinicClose = Carbon::parse($clinic->closing_time);
                         if ($end->gt($clinicClose)) {
-                            $fail('Schedule end time must be on or before clinic closing time (' . $clinic->closing_time . ').');
+                            $fail('Schedule end time must be on or before clinic closing time ('.$clinic->closing_time.').');
                         }
                     }
                 },
@@ -448,13 +438,15 @@ class DoctorController extends Controller
             });
 
             Log::info('Schedule update completed successfully', ['doctor_id' => $doctor->id]);
+
             return back()->with('success', 'Schedule updated successfully.');
         } catch (\Exception $e) {
             Log::error('Schedule update failed', [
                 'doctor_id' => $doctor->id,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
+
             return back()->with('error', 'Failed to update schedule. Please try again.');
         }
     }

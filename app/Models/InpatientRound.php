@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * InpatientRound Model
@@ -20,7 +20,6 @@ use App\Models\Concerns\LogsActivity;
  * @property \Illuminate\Support\Carbon $round_date
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Admission $admission
  * @property-read \App\Models\Doctor $doctor
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PatientVital[] $vitals
@@ -34,15 +33,14 @@ class InpatientRound extends BaseTenantModel
     public function getActivityDescription($action)
     {
         $doctorName = $this->doctor ? $this->doctor->user->name : 'Unknown Doctor';
-        return ucfirst($action) . " round check for Admission #{$this->admission_id} by Dr. {$doctorName}";
+
+        return ucfirst($action)." round check for Admission #{$this->admission_id} by Dr. {$doctorName}";
     }
 
     /**
      * Get the admission record associated with this round.
      *
      * Relationship: Belongs to Admission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function admission(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -53,8 +51,6 @@ class InpatientRound extends BaseTenantModel
      * Get the doctor who performed the round.
      *
      * Relationship: Belongs to Doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -66,13 +62,12 @@ class InpatientRound extends BaseTenantModel
      *
      * Relationship: Has Many.
      * Vitals taken specifically during this round.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function vitals(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(PatientVital::class, 'inpatient_round_id');
     }
+
     protected $casts = [
         'round_date' => 'datetime',
         'created_at' => 'datetime',

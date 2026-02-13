@@ -4,6 +4,15 @@
         <div class="card border-0 shadow-sm">
 
                 <div class="card-body p-3">
+                    <div id="global-search-alert" class="alert alert-info border-0 shadow-sm mb-3 d-none">
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-info-circle fs-4 me-2"></i>
+                            <div>
+                                <span id="alert-message"></span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-between align-items-center mb-3 bg-primary-subtle text-primary px-4 pt-4 pb-3 pt-3 rounded shadow-sm">
                         <div>
                             <h4 class="fw-bold mb-2 text-primary">Add New Patient</h4>
@@ -105,7 +114,7 @@
                                     <label class="form-label small fw-semibold">Phone Number <span class="text-danger">*</span></label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text"><i class="ti ti-phone"></i></span>
-                                        <input type="text" name="phone" value="{{ old('phone') }}"
+                                        <input type="text" name="phone" value="{{ request('phone', old('phone')) }}"
                                                class="form-control form-control-sm @error('phone') is-invalid @enderror"
                                                placeholder="e.g. 01700000000" required>
                                     </div>
@@ -157,7 +166,7 @@
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <label class="form-label small fw-semibold">NID Number</label>
-                                    <input type="text" name="nid_number" value="{{ old('nid_number') }}"
+                                    <input type="text" name="nid_number" value="{{ request('nid', old('nid_number')) }}"
                                            class="form-control form-control-sm @error('nid_number') is-invalid @enderror">
                                     @error('nid_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                 </div>
@@ -221,6 +230,49 @@
                         placeholder.style.display = '';
                     }
                 });
+
+                // Global Patient Existence Check
+                const phoneInput = document.querySelector('input[name="phone"]');
+                const nidInput = document.querySelector('input[name="nid_number"]');
+                const alertBox = document.getElementById('global-search-alert');
+                const alertMsg = document.getElementById('alert-message');
+
+                async function checkPatient(field, value) {
+                    if (!value || value.length < 5) return;
+
+                    try {
+                        const params = new URLSearchParams();
+                        params.append(field, value);
+
+                        const response = await fetch(`{{ route('patients.check') }}?${params.toString()}`);
+                        const data = await response.json();
+
+                        if (data.exists) {
+                            alertBox.classList.remove('d-none');
+                            alertBox.classList.add('alert-warning');
+                            alertBox.classList.remove('alert-info');
+
+                            let message = `<strong>Existing Patient Found!</strong> ${data.patient.name} (${data.patient.code})`;
+                            if (data.patient.is_current_clinic) {
+                                message += `<br>This patient is already registered in your clinic. You can search them in the list.`;
+                            } else {
+                                message += `<br>This patient is registered in another clinic. Saving this form will automatically link them to your clinic.`;
+                            }
+                            alertMsg.innerHTML = message;
+                        } else {
+                            // alertBox.classList.add('d-none'); // Don't hide if something was found before, or handle appropriately
+                        }
+                    } catch (error) {
+                        console.error('Error checking patient:', error);
+                    }
+                }
+
+                phoneInput.addEventListener('blur', (e) => checkPatient('phone', e.target.value));
+        nidInput.addEventListener('blur', (e) => checkPatient('nid', e.target.value));
+
+        // Trigger check on load if values exist (e.g. from Global Search redirect)
+        if (phoneInput.value) checkPatient('phone', phoneInput.value);
+        else if (nidInput.value) checkPatient('nid', nidInput.value);
             });
         </script>
     @endpush

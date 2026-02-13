@@ -19,9 +19,6 @@ class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
      */
     public function edit(Request $request): View
     {
@@ -35,9 +32,6 @@ class ProfileController extends Controller
      *
      * Handles name, email, and profile photo updates.
      * Resets email verification if email is changed.
-     *
-     * @param  \App\Http\Requests\ProfileUpdateRequest  $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -46,7 +40,7 @@ class ProfileController extends Controller
 
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
             $path = $file->storeAs('profile-photos', $filename, 'public');
 
             // Delete old photo if exists
@@ -70,9 +64,6 @@ class ProfileController extends Controller
      *
      * Permanently deletes the user account and associated data.
      * Requires password confirmation.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Request $request): RedirectResponse
     {

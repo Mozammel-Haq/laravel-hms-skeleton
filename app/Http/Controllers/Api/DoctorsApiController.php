@@ -7,7 +7,6 @@ use App\Models\Clinic;
 use App\Models\Department;
 use App\Models\Doctor;
 use App\Support\TenantContext;
-use Illuminate\Http\Request;
 
 /**
  * DoctorsApiController
@@ -39,15 +38,14 @@ class DoctorsApiController extends Controller
         $doctors = $query->get();
         $clinics = Clinic::all();
         $departments = Department::all();
+
         return response()->json(compact('doctors', 'clinics', 'departments'));
     }
-
 
     /**
      * Display the specified doctor details.
      * Includes department, education, clinics, and schedules.
      *
-     * @param  \App\Models\Doctor  $doctor
      * @return \Illuminate\Http\JsonResponse
      */
     public function show(Doctor $doctor)

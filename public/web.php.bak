@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\AdminUsersController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\BedAssignmentController;
+use App\Http\Controllers\BedController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
@@ -10,58 +13,74 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\IpdController;
 use App\Http\Controllers\LabController;
+use App\Http\Controllers\LabResultsController;
 use App\Http\Controllers\LabTestController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PharmacyController;
 use App\Http\Controllers\PrescriptionController;
-use App\Http\Controllers\WardController;
-use App\Http\Controllers\RoomController;
-use App\Http\Controllers\BedController;
-use App\Http\Controllers\VisitController;
-use App\Http\Controllers\BedAssignmentController;
-use App\Http\Controllers\ClinicController;
-use App\Http\Controllers\LabResultsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\SystemController;
+use App\Http\Controllers\VisitController;
+use App\Http\Controllers\WardController;
 use App\Http\Middleware\EnsureClinicContext;
 use App\Models\Clinic;
-use GuzzleHttp\Promise\Create;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'auth.login');
-require __DIR__ . '/auth.php';
+Route::redirect('/', '/login');
+require __DIR__.'/auth.php';
 
-// Route::middleware(['auth', 'verified', EnsureClinicContext::class])->group(function () {
+// Public/Signed Routes (No Auth Required)
+Route::post('/stripe/webhook', [\App\Http\Controllers\OnlinePaymentController::class, 'handleWebhook'])->name('stripe.webhook');
+
+Route::get('patient/prescriptions/{prescription}/print', [PrescriptionController::class, 'patientPrint'])
+    ->name('patient.prescriptions.print');
+Route::get('patient/lab-results/{result}/download', [\App\Http\Controllers\LabResultsController::class, 'patientDownload'])
+    ->name('patient.lab-results.download');
+Route::get('patient/medical-history/{patient}/download', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'patientDownload'])
+    ->name('patient.medical-history.download');
+Route::get('patient/invoices/{invoice}/download', [\App\Http\Controllers\BillingController::class, 'patientPrint'])
+    ->name('patient.invoices.download');
+
+/**
+ * --------------------------------------------------------------------------
+ * Authenticated Routes (Clinic Context Required)
+ * --------------------------------------------------------------------------
+ */
 Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
-
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Notifications
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-all-read', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
     Route::post('/notifications/{id}/mark-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::delete('/notifications/delete-all', [\App\Http\Controllers\NotificationController::class, 'destroyAll'])->name('notifications.deleteAll');
+    Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/notifications', [\App\Http\Controllers\NotificationController::class, 'destroyAll'])->name('notifications.destroyAllGeneral');
 
     // Activity Logs
     Route::get('/activity-logs', [\App\Http\Controllers\ActivityLogController::class, 'index'])->name('activity_logs.index');
 
-    //=====Switch Clinic=======
+    // =====Switch Clinic=======
     Route::get('/system/switch-clinic/{clinic}', [SystemController::class, 'switchClinic'])->name('system.switch-clinic');
     Route::get('/system/clear-clinic', [SystemController::class, 'clearClinicContext'])->name('system.clear-clinic');
 
     Route::get('/doctor/switch-clinic/{clinic}', function (Clinic $clinic) {
         $user = auth()->user();
-        if (!$user || !$user->hasRole('Doctor')) {
+        if (! $user || ! $user->hasRole('Doctor')) {
             abort(403);
         }
-        if (!$user->doctor || !$user->doctor->clinics()->whereKey($clinic->id)->exists()) {
+        if (! $user->doctor || ! $user->doctor->clinics()->whereKey($clinic->id)->exists()) {
             abort(403);
         }
         session(['selected_clinic_id' => $clinic->id]);
+
         return redirect()->route('dashboard');
     })->name('doctor.switch-clinic');
 
@@ -75,9 +94,25 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
     Route::resource('patients', PatientController::class)->middleware('can:view_patients');
     Route::post('patients/{id}/restore', [PatientController::class, 'restore'])->name('patients.restore')->middleware('can:delete_patients');
 
+    // Medical History Management
+    Route::post('patients/{patient}/medical-history/condition', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'storeCondition'])->name('patients.medical-history.condition.store');
+    Route::delete('medical-history/condition/{history}', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'destroyCondition'])->name('patients.medical-history.condition.destroy');
+
+    Route::post('patients/{patient}/medical-history/allergy', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'storeAllergy'])->name('patients.medical-history.allergy.store');
+    Route::delete('medical-history/allergy/{allergy}', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'destroyAllergy'])->name('patients.medical-history.allergy.destroy');
+
+    Route::post('patients/{patient}/medical-history/surgery', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'storeSurgery'])->name('patients.medical-history.surgery.store');
+    Route::delete('medical-history/surgery/{surgery}', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'destroySurgery'])->name('patients.medical-history.surgery.destroy');
+
+    Route::post('patients/{patient}/medical-history/immunization', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'storeImmunization'])->name('patients.medical-history.immunization.store');
+    Route::delete('medical-history/immunization/{immunization}', [\App\Http\Controllers\PatientMedicalHistoryController::class, 'destroyImmunization'])->name('patients.medical-history.immunization.destroy');
+
     // Appointments
     Route::get('appointments/requests', [\App\Http\Controllers\AdminAppointmentRequestController::class, 'index'])->name('appointments.requests.index');
     Route::patch('appointments/requests/{appointmentRequest}', [\App\Http\Controllers\AdminAppointmentRequestController::class, 'update'])->name('appointments.requests.update');
+
+    // Patient Portal Signed Routes
+    // Route::get('patient/lab-results/{result}/download', [\App\Http\Controllers\LabResultsController::class, 'patientDownload'])->name('patient.lab-results.download.auth');
 
     Route::resource('appointments', AppointmentController::class)->middleware('can:view_appointments');
     Route::post('appointments/{id}/restore', [AppointmentController::class, 'restore'])->name('appointments.restore')->middleware('can:delete_appointments');
@@ -128,11 +163,9 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         )->name('prescriptions.store')
             ->middleware('can:create,App\Models\Prescription');
 
-
         Route::resource('prescriptions', PrescriptionController::class)->only(['index', 'show', 'destroy'])
             ->middleware('can:view_prescriptions');
         Route::post('prescriptions/{id}/restore', [PrescriptionController::class, 'restore'])->name('prescriptions.restore')->middleware('can:create,App\Models\Prescription');
-
 
         Route::get('prescriptions/{prescription}/print', [PrescriptionController::class, 'print'])
             ->name('prescriptions.print')
@@ -192,9 +225,30 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
             ->name('patient-items');
     });
 
+    // Payment Methods Routes (Cash/Digital)
+    Route::prefix('payments')->name('payments.')->middleware('can:process_payments')->group(function () {
+        Route::get('/cash', [PaymentController::class, 'cash'])->name('cash');
+        Route::get('/digital', [PaymentController::class, 'digital'])->name('digital');
+    });
+
+    // All Transactions
+    Route::get('/transactions', [PaymentController::class, 'index'])->name('transactions.index');
+
+    // Online Payments
+    Route::post('/online-payment/initiate', [\App\Http\Controllers\OnlinePaymentController::class, 'initiate'])->name('online-payment.initiate');
+    Route::get('/online-payment/stripe/success', [\App\Http\Controllers\OnlinePaymentController::class, 'stripeSuccess'])->name('online-payment.stripe.success');
+    Route::get('/online-payment/stripe/cancel', [\App\Http\Controllers\OnlinePaymentController::class, 'stripeCancel'])->name('online-payment.stripe.cancel');
+
+    // Shared Pharmacy Routes (accessible by Doctors for prescriptions)
+    Route::prefix('pharmacy')->name('pharmacy.')->group(function () {
+        Route::get('/medicines/search', [MedicineController::class, 'search'])->name('medicines.search');
+    });
 
     // Pharmacy & Inventory
     Route::prefix('pharmacy')->name('pharmacy.')->middleware('can:view_pharmacy')->group(function () {
+        // Prescriptions (for Pharmacist fulfillment)
+        Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
+
         // POS (Point of Sale)
         Route::get('/', [PharmacyController::class, 'index'])->name('index');
         Route::get('/pos', [PharmacyController::class, 'create'])->name('create'); // POS Screen
@@ -209,8 +263,9 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
 
         // Medicine Catalog
-        Route::get('/medicines/search', [MedicineController::class, 'search'])->name('medicines.search');
-        Route::resource('medicines', MedicineController::class);
+        Route::resource('medicines', MedicineController::class)->except(['index', 'show']);
+        Route::get('/medicines', [MedicineController::class, 'index'])->name('medicines.index');
+        Route::get('/medicines/{medicine}', [MedicineController::class, 'show'])->name('medicines.show');
     });
 
     // IPD (Inpatient Department)
@@ -228,6 +283,7 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');
         Route::get('/rooms/{room}/edit', [RoomController::class, 'edit'])->name('rooms.edit');
         Route::put('/rooms/{room}', [RoomController::class, 'update'])->name('rooms.update');
+        Route::delete('/rooms/{room}', [RoomController::class, 'destroy'])->name('rooms.destroy');
         Route::get('/beds', [BedController::class, 'index'])->name('beds.index');
         Route::get('/beds/create', [BedController::class, 'create'])->name('beds.create');
         Route::post('/beds', [BedController::class, 'store'])->name('beds.store');
@@ -241,6 +297,10 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         // Bed Management
         Route::get('/{admission}/assign-bed', [IpdController::class, 'assignBed'])->whereNumber('admission')->name('assign-bed');
         Route::post('/{admission}/assign-bed', [IpdController::class, 'storeBedAssignment'])->whereNumber('admission')->name('store-bed');
+
+        // Services
+        Route::post('/{admission}/service', [IpdController::class, 'storeService'])->whereNumber('admission')->name('service.store');
+
         Route::get('/bed-assignments', [BedAssignmentController::class, 'index'])->name('bed_assignments.index');
         Route::get('/bed-assignments/{bedAssignment}', [BedAssignmentController::class, 'show'])->name('bed_assignments.show');
 
@@ -265,6 +325,9 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         Route::get('/catalog', [LabTestController::class, 'index'])->name('catalog.index');
         Route::get('/catalog/create', [LabTestController::class, 'create'])->name('catalog.create');
         Route::post('/catalog', [LabTestController::class, 'store'])->name('catalog.store');
+        Route::get('/catalog/{labTest}/edit', [LabTestController::class, 'edit'])->name('catalog.edit');
+        Route::put('/catalog/{labTest}', [LabTestController::class, 'update'])->name('catalog.update');
+        Route::delete('/catalog/{labTest}', [LabTestController::class, 'destroy'])->name('catalog.destroy');
 
         // Results
         Route::get('/results', [LabResultsController::class, 'index'])->name('results.index');
@@ -284,6 +347,7 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         Route::get('/summary', [ReportController::class, 'summary'])->name('summary');
         Route::get('/doctor-performance', [ReportController::class, 'doctorPerformance'])->name('doctor_performance');
         Route::get('/tax', [ReportController::class, 'tax'])->name('tax');
+        Route::get('/pharmacy-profit', [ReportController::class, 'pharmacyProfit'])->name('pharmacy_profit');
     });
 
     // --- Admin & Settings ---
@@ -291,6 +355,7 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
     // System Clinics (Super Admin only via policy)
     Route::delete('/clinics/images/{image}', [ClinicController::class, 'destroyImage'])->name('clinics.images.destroy');
     Route::post('/clinics/{id}/restore', [ClinicController::class, 'restore'])->name('clinics.restore');
+    Route::get('/clinics/profile', [ClinicController::class, 'profile'])->name('clinics.profile');
     Route::resource('clinics', ClinicController::class);
 
     // Doctors Management
@@ -314,6 +379,9 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
     Route::post('doctors/{id}/restore', [DoctorController::class, 'restore'])->name('doctors.restore')->middleware('can:view_doctors');
     Route::get('doctors/{doctor}/schedule', [DoctorController::class, 'schedule'])->name('doctors.schedule')->middleware('can:manage_doctor_schedule');
     Route::put('doctors/{doctor}/schedule', [DoctorController::class, 'updateSchedule'])->name('doctors.schedule.update')->middleware('can:manage_doctor_schedule');
+
+    // Staff extras
+    Route::get('/staff/passwords', [StaffController::class, 'passwords'])->name('staff.passwords')->middleware('can:view_staff');
 
     // Staff Management (Users & Roles)
     Route::resource('staff', StaffController::class)->middleware('can:view_staff');
@@ -344,8 +412,6 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
         )->parameters(['clinic-admin-users' => 'user']);
     });
 
-
-
     // Departments
     Route::resource('departments', DepartmentController::class)->except(['create', 'edit', 'show']); // simplified
     Route::post('departments/{id}/restore', [DepartmentController::class, 'restore'])->name('departments.restore');
@@ -358,10 +424,7 @@ Route::middleware(['auth', EnsureClinicContext::class])->group(function () {
     });
 
     // Clinic Profile
-    Route::view('/clinic/profile', 'clinics.profile')->name('clinics.profile');
-
-    // Staff extras
-    Route::get('/staff/passwords', [StaffController::class, 'passwords'])->name('staff.passwords')->middleware('can:view_staff');
+    // Route::view('/clinic/profile', 'clinics.profile')->name('clinics.profile'); // Removed in favor of controller method
 
     // Billing payments index
     Route::prefix('billing')->name('billing.')->middleware('can:view_billing')->group(function () {

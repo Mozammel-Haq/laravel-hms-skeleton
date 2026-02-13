@@ -17,19 +17,17 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $unit_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\PharmacySale $pharmacySale
  * @property-read \App\Models\Medicine $medicine
  */
 class PharmacySaleItem extends Model
 {
     protected $guarded = ['id'];
+
     public $timestamps = false;
 
     /**
      * Get the pharmacy sale associated with the item.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function pharmacySale(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -38,13 +36,12 @@ class PharmacySaleItem extends Model
 
     /**
      * Get the medicine associated with the item.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function medicine(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Medicine::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

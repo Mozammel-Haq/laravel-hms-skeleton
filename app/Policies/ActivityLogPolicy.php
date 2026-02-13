@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\ActivityLog;
+use App\Models\User;
 
 class ActivityLogPolicy extends BaseTenantPolicy
 {
@@ -14,7 +14,7 @@ class ActivityLogPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->clinic_id);
+        return ! empty($user->clinic_id);
     }
 
     public function update(User $user, ActivityLog $activityLog): bool

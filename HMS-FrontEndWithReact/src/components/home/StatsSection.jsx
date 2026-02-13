@@ -52,8 +52,9 @@ const StatsSection = () => {
   );
 };
 
-const StatItem = ({ icon: Icon, target, label, suffix, isVisible, delay }) => {
+const StatItem = ({ icon, target, label, suffix, isVisible, delay }) => {
   const [count, setCount] = useState(0);
+  const Icon = icon;
 
   useEffect(() => {
     if (!isVisible) return;

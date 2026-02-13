@@ -32,7 +32,7 @@ class DoctorSelfScheduleController extends Controller
     {
         $doctor = optional(auth()->user())->doctor;
 
-        if (!$doctor) {
+        if (! $doctor) {
             abort(403, 'User is not associated with a doctor profile.');
         }
 
@@ -89,7 +89,7 @@ class DoctorSelfScheduleController extends Controller
     {
         $doctor = optional(auth()->user())->doctor;
 
-        if (!$doctor) {
+        if (! $doctor) {
             abort(403, 'User is not associated with a doctor profile.');
         }
 
@@ -111,14 +111,13 @@ class DoctorSelfScheduleController extends Controller
     /**
      * Process the schedule update request from the doctor.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function requestUpdate(Request $request)
     {
         $doctor = optional(auth()->user())->doctor;
 
-        if (!$doctor) {
+        if (! $doctor) {
             abort(403, 'User is not associated with a doctor profile.');
         }
 
@@ -137,7 +136,7 @@ class DoctorSelfScheduleController extends Controller
                         $start = Carbon::parse($value);
                         $clinicOpen = Carbon::parse($clinic->opening_time);
                         if ($start->lt($clinicOpen)) {
-                            $fail('Schedule start time must be on or after clinic opening time (' . $clinic->opening_time . ').');
+                            $fail('Schedule start time must be on or after clinic opening time ('.$clinic->opening_time.').');
                         }
                     }
                 },
@@ -151,7 +150,7 @@ class DoctorSelfScheduleController extends Controller
                         $end = Carbon::parse($value);
                         $clinicClose = Carbon::parse($clinic->closing_time);
                         if ($end->gt($clinicClose)) {
-                            $fail('Schedule end time must be on or before clinic closing time (' . $clinic->closing_time . ').');
+                            $fail('Schedule end time must be on or before clinic closing time ('.$clinic->closing_time.').');
                         }
                     }
                 },

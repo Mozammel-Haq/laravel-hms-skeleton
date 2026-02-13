@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-
 /**
  * BedAssignment Model
  *
@@ -18,7 +17,6 @@ use App\Models\Base\BaseTenantModel;
  * @property \Illuminate\Support\Carbon|null $released_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Bed $bed
  * @property-read \App\Models\Admission $admission
  */
@@ -31,6 +29,7 @@ class BedAssignment extends BaseTenantModel
     use LogsActivity, NotifiesRoles;
 
     protected $guarded = ['id'];
+
     protected $casts = [
         'assigned_at' => 'datetime',
         'released_at' => 'datetime',
@@ -47,7 +46,8 @@ class BedAssignment extends BaseTenantModel
     {
         $bedNumber = $this->bed ? $this->bed->bed_number : 'Unknown Bed';
         $patientName = $this->admission && $this->admission->patient ? $this->admission->patient->name : 'Unknown Patient';
-        return ucfirst($action) . " bed {$bedNumber} to {$patientName}";
+
+        return ucfirst($action)." bed {$bedNumber} to {$patientName}";
     }
 
     /**

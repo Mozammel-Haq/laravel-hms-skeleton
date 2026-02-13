@@ -47,11 +47,11 @@
                                 <div class="col-md-6">
                                     <label class="text-muted mb-1">Date & Time</label>
                                     <div class="fw-bold fs-5">
-                                        {{ $appointment->appointment_date }}
+                                        {{ $appointment->appointment_date ? $appointment->appointment_date->format('d M Y') : 'N/A' }}
                                     </div>
                                     <div class="text-primary">
-                                        {{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }} -
-                                        {{ \Carbon\Carbon::parse($appointment->end_time)->format('h:i A') }}
+                                        {{ $appointment->start_time ? $appointment->start_time->format('h:i A') : 'N/A' }} -
+                                        {{ $appointment->end_time ? $appointment->end_time->format('h:i A') : 'N/A' }}
                                     </div>
                                 </div>
                                 <div class="col-md-6 text-md-end">

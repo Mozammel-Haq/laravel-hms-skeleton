@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
-use Illuminate\Http\Request;
 
 /**
  * ActivityLogController
@@ -25,7 +24,7 @@ class ActivityLogController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->hasAnyRole(['Clinic Admin', 'Super Admin'])) {
+        if (! auth()->user()->hasAnyRole(['Clinic Admin', 'Super Admin'])) {
             abort(403);
         }
 
@@ -57,6 +56,7 @@ class ActivityLogController extends Controller
         }
 
         $activities = $query->latest()->paginate(20)->withQueryString();
+
         return view('activity.index', compact('activities'));
     }
 }

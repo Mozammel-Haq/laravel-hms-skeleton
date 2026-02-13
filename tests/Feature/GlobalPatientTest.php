@@ -6,7 +6,6 @@ use App\Models\Clinic;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class GlobalPatientTest extends TestCase
@@ -60,6 +59,7 @@ class GlobalPatientTest extends TestCase
 
         // 3. Create Patient in Clinic 1
         $this->actingAs($user1);
+        \App\Support\TenantContext::setClinicId($clinic1->id);
 
         $patientData = [
             'name' => 'John Doe',
@@ -84,6 +84,7 @@ class GlobalPatientTest extends TestCase
 
         // 4. Try to "Create" same patient in Clinic 2
         $this->actingAs($user2);
+        \App\Support\TenantContext::setClinicId($clinic2->id);
 
         // We use the same identifying data (e.g. NID or Email)
         $response2 = $this->post(route('patients.store'), $patientData);
@@ -102,10 +103,12 @@ class GlobalPatientTest extends TestCase
 
         // Clinic 1 can see patient
         $this->actingAs($user1);
+        \App\Support\TenantContext::setClinicId($clinic1->id);
         $this->assertNotNull(Patient::find($patient->id));
 
         // Clinic 2 can see patient
         $this->actingAs($user2);
+        \App\Support\TenantContext::setClinicId($clinic2->id);
         $this->assertNotNull(Patient::find($patient->id));
 
         // Clinic 3 (Unrelated)
@@ -121,11 +124,13 @@ class GlobalPatientTest extends TestCase
         $user3 = User::factory()->create(['clinic_id' => $clinic3->id]);
 
         $this->actingAs($user3);
+        \App\Support\TenantContext::setClinicId($clinic3->id);
         $this->assertNull(Patient::find($patient->id)); // Should be filtered out by global scope
 
         // 6. Verify Ambiguity Fix (Clinic -> Patients relationship query)
         // This mimics the query that caused the "ambiguous column" error
         $this->actingAs($user1);
+        \App\Support\TenantContext::setClinicId($clinic1->id);
         try {
             $count = $clinic1->patients()->count();
             $this->assertEquals(1, $count);
@@ -134,7 +139,7 @@ class GlobalPatientTest extends TestCase
             $patients = $clinic1->patients()->get();
             $this->assertTrue($patients->contains($patient->id));
         } catch (\Illuminate\Database\QueryException $e) {
-            $this->fail("Ambiguous column error detected: " . $e->getMessage());
+            $this->fail('Ambiguous column error detected: '.$e->getMessage());
         }
     }
 

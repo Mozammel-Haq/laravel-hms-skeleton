@@ -20,7 +20,6 @@ class TenantContext
     {
         // Tenant scoping applies whenever a clinic id is explicitly set
         // including Super Admin when switching to a specific clinic context
-        return !is_null(self::$clinicId);
+        return ! is_null(self::$clinicId);
     }
-
 }

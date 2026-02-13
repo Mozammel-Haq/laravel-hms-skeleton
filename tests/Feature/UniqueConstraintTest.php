@@ -2,14 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Clinic;
-use App\Models\Patient;
-use App\Models\Doctor;
 use App\Models\Department;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use App\Models\Role;
 
 class UniqueConstraintTest extends TestCase
 {

@@ -20,20 +20,18 @@ use App\Models\Base\BaseTenantModel;
  * @property string|null $instructions
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Medicine $medicine
  */
 class PrescriptionItem extends BaseTenantModel
 {
     /**
      * Get the medicine associated with the prescription item.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function medicine(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Medicine::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

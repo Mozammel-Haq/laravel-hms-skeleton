@@ -53,6 +53,7 @@ class ActivityController extends Controller
         }
 
         $activities = $query->latest()->paginate(100)->withQueryString();
+
         return view('activity.index', compact('activities'));
     }
 }

@@ -10,8 +10,8 @@ use App\Models\DoctorScheduleException;
 use App\Models\User;
 use App\Services\AppointmentService;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DoctorSchedulingEnhancementTest extends TestCase
@@ -19,8 +19,11 @@ class DoctorSchedulingEnhancementTest extends TestCase
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $doctor;
+
     protected $service;
+
     protected $department;
 
     protected function setUp(): void
@@ -36,14 +39,14 @@ class DoctorSchedulingEnhancementTest extends TestCase
             'city' => 'Test City',
             'country' => 'Test Country',
             'currency' => 'USD',
-            'timezone' => 'UTC'
+            'timezone' => 'UTC',
         ]);
 
         // Create Department
         $this->department = Department::create([
             'clinic_id' => $this->clinic->id,
             'name' => 'General',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // Create Doctor
@@ -53,11 +56,11 @@ class DoctorSchedulingEnhancementTest extends TestCase
             'clinic_id' => $this->clinic->id,
             'primary_department_id' => $this->department->id,
             'specialization' => 'General',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $this->doctor->clinics()->attach($this->clinic->id);
-        $this->service = new AppointmentService();
+        $this->service = new AppointmentService;
     }
 
     /** @test */
@@ -72,7 +75,7 @@ class DoctorSchedulingEnhancementTest extends TestCase
             'start_time' => '09:00:00',
             'end_time' => '10:00:00',
             'slot_duration_minutes' => 60, // 1 slot
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $nextMonday = Carbon::parse('next Monday');
@@ -92,7 +95,7 @@ class DoctorSchedulingEnhancementTest extends TestCase
             'start_time' => '13:00:00',
             'end_time' => '14:00:00',
             'slot_duration_minutes' => 60,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // Verify Specific Schedule overrides Weekly
@@ -119,7 +122,7 @@ class DoctorSchedulingEnhancementTest extends TestCase
             'start_time' => '09:00:00',
             'end_time' => '17:00:00',
             'slot_duration_minutes' => 60,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $nextMonday = Carbon::parse('next Monday');
@@ -137,7 +140,7 @@ class DoctorSchedulingEnhancementTest extends TestCase
             'end_date' => $nextMonday->copy()->addDay()->format('Y-m-d'),   // Tuesday
             'is_available' => false,
             'reason' => 'Conference',
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         // Verify Monday is blocked
@@ -157,7 +160,7 @@ class DoctorSchedulingEnhancementTest extends TestCase
             'start_time' => '09:00:00',
             'end_time' => '17:00:00',
             'slot_duration_minutes' => 60,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $nextMonday = Carbon::parse('next Monday');
@@ -173,7 +176,7 @@ class DoctorSchedulingEnhancementTest extends TestCase
             'start_time' => '10:00:00',
             'end_time' => '12:00:00',
             'reason' => 'Short Hours',
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         // Verify Monday has new hours

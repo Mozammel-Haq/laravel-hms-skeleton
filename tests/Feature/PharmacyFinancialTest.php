@@ -2,29 +2,28 @@
 
 namespace Tests\Feature;
 
+use App\Models\Appointment;
 use App\Models\Clinic;
+use App\Models\Consultation;
 use App\Models\Expense;
+use App\Models\Invoice;
 use App\Models\Medicine;
 use App\Models\MedicineBatch;
 use App\Models\Patient;
-use App\Models\User;
-use App\Models\Role;
-use App\Models\Prescription;
-use App\Models\Consultation;
-use App\Models\Visit;
-use App\Models\Appointment;
-use App\Models\Invoice;
-use App\Models\PharmacySale;
 use App\Models\PharmacySaleItem;
+use App\Models\Prescription;
+use App\Models\User;
+use App\Models\Visit;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Database\Seeders\RolePermissionSeeder;
 
 class PharmacyFinancialTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $admin;
 
     protected function setUp(): void
@@ -56,7 +55,7 @@ class PharmacyFinancialTest extends TestCase
         $medicine = Medicine::create([
             'name' => 'Test Medicine',
             'generic_name' => 'Generic Test',
-            'form' => 'Tablet',
+            'dosage_form' => 'Tablet',
             'strength' => '500mg',
             'price' => 20.00,
             'manufacturer' => 'Test Pharma',
@@ -100,7 +99,7 @@ class PharmacyFinancialTest extends TestCase
         $medicine = Medicine::create([
             'name' => 'Test Medicine',
             'generic_name' => 'Generic Test',
-            'form' => 'Tablet',
+            'dosage_form' => 'Tablet',
             'strength' => '500mg',
             'price' => 20.00,
             'manufacturer' => 'Test Pharma',
@@ -131,11 +130,8 @@ class PharmacyFinancialTest extends TestCase
             'clinic_id' => $this->clinic->id,
             'user_id' => $doctor->id,
             'primary_department_id' => $department->id,
-            'first_name' => 'Doctor',
-            'last_name' => 'Test',
-            'specialization' => 'General',
+            'specialization' => ['General'],
             'license_number' => 'DOC123',
-            'phone' => '1234567890',
             'status' => 'active',
         ]);
         // Link doctor to clinic
@@ -165,7 +161,7 @@ class PharmacyFinancialTest extends TestCase
             'doctor_id' => $doctorProfile->id,
             'patient_id' => $patient->id,
             'clinic_id' => $this->clinic->id,
-            'notes' => 'Test notes',
+            'doctor_notes' => 'Test notes',
         ]);
 
         $prescription = Prescription::create([
@@ -185,9 +181,9 @@ class PharmacyFinancialTest extends TestCase
             'items' => [
                 [
                     'medicine_id' => $medicine->id,
-                    'quantity' => 5
-                ]
-            ]
+                    'quantity' => 5,
+                ],
+            ],
         ]);
 
         $response->assertSessionHas('success');

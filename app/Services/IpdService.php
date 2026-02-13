@@ -6,32 +6,26 @@ use App\Models\Admission;
 use App\Models\AdmissionDeposit;
 use App\Models\Bed;
 use App\Models\BedAssignment;
-use App\Models\Patient;
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
-use App\Services\BillingService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use App\Models\Patient;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class IpdService
 {
     /**
      * Admit a patient.
      *
-     * @param Patient $patient
-     * @param int $doctorId
-     * @param string $admissionDate
-     * @param string $reason
      * @return Admission
      */
     public function admitPatient(Patient $patient, int $doctorId, string $admissionDate, string $reason)
     {
         $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
 
-        if (!$clinicId) {
-            throw new Exception("Clinic context is required to admit patient.");
+        if (! $clinicId) {
+            throw new Exception('Clinic context is required to admit patient.');
         }
 
         return Admission::create([
@@ -48,9 +42,8 @@ class IpdService
     /**
      * Assign a bed to an admission.
      *
-     * @param Admission $admission
-     * @param int $bedId
      * @return BedAssignment
+     *
      * @throws Exception
      */
     public function assignBed(Admission $admission, int $bedId)
@@ -58,12 +51,12 @@ class IpdService
         return DB::transaction(function () use ($admission, $bedId) {
             $bed = Bed::lockForUpdate()->find($bedId);
 
-            if (!$bed) {
-                throw new Exception("Bed not found.");
+            if (! $bed) {
+                throw new Exception('Bed not found.');
             }
 
             if ($bed->status !== 'available') {
-                throw new Exception("Bed is not available.");
+                throw new Exception('Bed is not available.');
             }
 
             // End current active assignment if any
@@ -95,10 +88,6 @@ class IpdService
     /**
      * Discharge a patient.
      *
-     * @param Admission $admission
-     * @param string $dischargeDate
-     * @param int|null $dischargedBy
-     * @param string|null $reason
      * @return Admission
      */
     public function dischargePatient(Admission $admission, string $dischargeDate, ?int $dischargedBy = null, ?string $reason = null)
@@ -130,10 +119,6 @@ class IpdService
     /**
      * Generate discharge invoice for admission.
      *
-     * @param Admission $admission
-     * @param string|null $dischargeDate
-     * @param float $discount
-     * @param float $tax
      * @return Invoice
      */
     public function generateDischargeInvoice(Admission $admission, ?string $dischargeDate = null, float $discount = 0, float $tax = 0)
@@ -209,7 +194,7 @@ class IpdService
                     $amountToApply,
                     method: 'cash', // Adjusted from deposit
                     receivedBy: auth()->user(),
-                    reference: 'ADJ-DEP-' . Str::upper(Str::random(10))
+                    reference: 'ADJ-DEP-'.Str::upper(Str::random(10))
                 );
             }
 

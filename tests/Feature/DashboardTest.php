@@ -12,7 +12,6 @@ use App\Models\Role;
 use App\Models\User;
 use App\Support\TenantContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class DashboardTest extends TestCase
@@ -24,7 +23,7 @@ class DashboardTest extends TestCase
         parent::setUp();
 
         // Create roles
-        if (!Role::where('name', 'Clinic Admin')->exists()) {
+        if (! Role::where('name', 'Clinic Admin')->exists()) {
             Role::create(['name' => 'Clinic Admin', 'description' => 'Clinic Administrator']);
         }
     }

@@ -11,6 +11,7 @@ class DischargeRecommendedNotification extends Notification
     use Queueable;
 
     public $admission;
+
     public $recommendingDoctor;
 
     public function __construct(Admission $admission, $recommendingDoctor)
@@ -31,7 +32,7 @@ class DischargeRecommendedNotification extends Notification
             'message' => "Dr. {$this->recommendingDoctor->name} recommended discharge for {$this->admission->patient->name}.",
             'link' => route('ipd.discharge', $this->admission->id),
             'type' => 'warning', // Warning to attract attention
-            'admission_id' => $this->admission->id
+            'admission_id' => $this->admission->id,
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Consultation;
+use App\Models\User;
 
 class ConsultationPolicy extends BaseTenantPolicy
 {
@@ -14,7 +14,7 @@ class ConsultationPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->clinic_id) && $user->hasRole('Doctor');
+        return ! empty($user->clinic_id) && $user->hasRole('Doctor');
     }
 
     public function update(User $user, Consultation $consultation): bool

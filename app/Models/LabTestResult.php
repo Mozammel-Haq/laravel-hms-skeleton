@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-
 /**
  * LabTestResult Model
  *
@@ -23,7 +22,6 @@ use App\Models\Base\BaseTenantModel;
  * @property \Illuminate\Support\Carbon $reported_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\LabTestOrder $order
  */
 
@@ -56,7 +54,8 @@ class LabTestResult extends BaseTenantModel
     {
         $patientName = $this->order && $this->order->patient ? $this->order->patient->name : 'Unknown Patient';
         $testName = $this->test ? $this->test->name : 'Unknown Test';
-        return ucfirst($action) . " lab result for {$patientName} (Test: {$testName})";
+
+        return ucfirst($action)." lab result for {$patientName} (Test: {$testName})";
     }
 
     protected $casts = [
@@ -67,8 +66,6 @@ class LabTestResult extends BaseTenantModel
      * Get the order associated with the result.
      *
      * Relationship: Belongs to LabTestOrder.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function order(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -79,8 +76,6 @@ class LabTestResult extends BaseTenantModel
      * Get the lab test associated with the result.
      *
      * Relationship: Belongs to LabTest.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function test(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

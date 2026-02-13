@@ -20,7 +20,6 @@ use App\Models\Base\BaseTenantModel;
  * @property string|null $ip_address
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\User|null $user
  */
 class ActivityLog extends BaseTenantModel
@@ -55,13 +54,15 @@ class ActivityLog extends BaseTenantModel
         if ($this->user) {
             // For staff/admins, show Name + Role
             $role = $this->user->roles->first()->name ?? 'User';
-            return $this->user->name . " ({$role})";
+
+            return $this->user->name." ({$role})";
         }
 
         // For patient portal actions (where user_id is null but entity_type is Patient)
         if ($this->entity_type === 'App\Models\Patient' && in_array($this->action, ['login', 'logout'])) {
             $patient = $this->subject;
-            return $patient ? $patient->name . ' (Patient)' : 'Patient';
+
+            return $patient ? $patient->name.' (Patient)' : 'Patient';
         }
 
         return 'System';

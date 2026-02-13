@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Concerns\LogsActivity;
 /**
  * Medicine Model
  *
@@ -20,12 +19,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $status 'active', 'inactive'
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\MedicineBatch[] $batches
  * @property-read \App\Models\InvoiceItem|null $invoiceItem
  */
 
-use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class Medicine extends Model
 {
@@ -33,10 +31,11 @@ class Medicine extends Model
 
     public function getActivityDescription($action)
     {
-        return ucfirst($action) . " medicine {$this->name} ({$this->generic_name})";
+        return ucfirst($action)." medicine {$this->name} ({$this->generic_name})";
     }
 
     protected $guarded = ['id'];
+
     public $timestamps = false;
 
     /**
@@ -44,8 +43,6 @@ class Medicine extends Model
      *
      * Relationship: Has Many.
      * Tracks different production batches/expiry dates.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function batches(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -57,13 +54,12 @@ class Medicine extends Model
      *
      * Relationship: Has One (Polymorphic-like).
      * Links to invoice item where item_type matches table name.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(InvoiceItem::class, 'reference_id')->where('item_type', $this->getTable());
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

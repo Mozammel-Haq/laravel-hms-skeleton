@@ -5,15 +5,14 @@ namespace Tests\Feature;
 use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Consultation;
+use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Patient;
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-
-use App\Models\Department;
 
 class ConsultationPrescriptionFlowTest extends TestCase
 {

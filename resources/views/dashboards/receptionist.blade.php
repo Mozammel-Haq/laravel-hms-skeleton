@@ -202,7 +202,8 @@
                         xaxis: { lines: { show: false } }
                     },
                     colors: ['var(--primary-color)', 'var(--bs-success)'],
-                    legend: { position: 'top' }
+                    legend: { position: 'top' },
+                    tooltip: { theme: 'dark' }
                 };
                 var activityChart = new ApexCharts(document.querySelector("#frontDeskActivityChart"), activityOptions);
                 activityChart.render();
@@ -234,7 +235,8 @@
                         }
                     },
                     dataLabels: { enabled: false },
-                    legend: { position: 'bottom' }
+                    legend: { position: 'bottom' },
+                    tooltip: { theme: 'dark' }
                 };
                 var doctorChart = new ApexCharts(document.querySelector("#doctorAvailabilityChart"), doctorOptions);
                 doctorChart.render();
@@ -265,7 +267,7 @@
                                         <tr>
                                             <td>{{ $a->patient->name ?? 'Patient' }}</td>
                                             <td>{{ $a->doctor->user->name ?? 'Doctor' }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($a->appointment_date)->format('M d, Y') }}</td>
+                                            <td>{{ $a->appointment_date->format('M d, Y') }}</td>
                                             <td>
                                                 @php
                                                     $aStatus = $a->status ?? 'pending';

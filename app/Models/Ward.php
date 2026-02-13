@@ -19,20 +19,18 @@ use App\Models\Base\BaseTenantModel;
  * @property string $status 'active', 'inactive'
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Room[] $rooms
  */
 class Ward extends BaseTenantModel
 {
     /**
      * Get the rooms in the ward.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function rooms(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Room::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

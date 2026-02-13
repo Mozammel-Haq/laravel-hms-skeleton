@@ -7,8 +7,8 @@ use App\Models\MedicineBatch;
 use App\Models\PharmacySale;
 use App\Models\PharmacySaleItem;
 use App\Models\Prescription;
-use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class PharmacyService
 {
@@ -22,19 +22,19 @@ class PharmacyService
     /**
      * Process a pharmacy sale.
      *
-     * @param mixed $patient
-     * @param array $items Array of ['medicine_id', 'quantity']
-     * @param int|null $prescriptionId
-     * @param array $paymentData Array containing 'discount', 'tax', 'paid_amount', 'payment_method'
+     * @param  mixed  $patient
+     * @param  array  $items  Array of ['medicine_id', 'quantity']
+     * @param  array  $paymentData  Array containing 'discount', 'tax', 'paid_amount', 'payment_method'
      * @return PharmacySale
+     *
      * @throws Exception
      */
     public function processSale($patient, array $items, ?int $prescriptionId = null, array $paymentData = [])
     {
         $clinicId = \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
 
-        if (!$clinicId) {
-            throw new Exception("Clinic context is required to process sale.");
+        if (! $clinicId) {
+            throw new Exception('Clinic context is required to process sale.');
         }
 
         return DB::transaction(function () use ($patient, $items, $prescriptionId, $clinicId, $paymentData) {
@@ -44,8 +44,8 @@ class PharmacyService
             foreach ($items as $item) {
                 $medicine = Medicine::find($item['medicine_id']);
 
-                if (!$medicine) {
-                    throw new Exception("Medicine not found: " . $item['medicine_id']);
+                if (! $medicine) {
+                    throw new Exception('Medicine not found: '.$item['medicine_id']);
                 }
 
                 // Get batches for this clinic, ordered by expiry (FIFO)
@@ -59,14 +59,16 @@ class PharmacyService
                 $totalStock = $batches->sum('quantity_in_stock');
 
                 if ($totalStock < $item['quantity']) {
-                    throw new Exception("Insufficient stock for medicine: " . $medicine->name . " (Requested: " . $item['quantity'] . ", Available: " . $totalStock . ")");
+                    throw new Exception('Insufficient stock for medicine: '.$medicine->name.' (Requested: '.$item['quantity'].', Available: '.$totalStock.')');
                 }
 
                 $remainingToDeduct = $item['quantity'];
                 $totalItemCost = 0;
 
                 foreach ($batches as $batch) {
-                    if ($remainingToDeduct <= 0) break;
+                    if ($remainingToDeduct <= 0) {
+                        break;
+                    }
 
                     $deduct = 0;
 
@@ -94,7 +96,7 @@ class PharmacyService
                     })->where('clinic_id', $clinicId)->get();
 
                     foreach ($pharmacists as $pharmacist) {
-                        $pharmacist->notify(new \App\Notifications\LowStockNotification($medicine, (int)$newTotalStock));
+                        $pharmacist->notify(new \App\Notifications\LowStockNotification($medicine, (int) $newTotalStock));
                     }
                 }
 
@@ -156,8 +158,8 @@ class PharmacyService
                 $patient,
                 $invoiceItems,
                 $appointmentId,
-                (float)$discount,
-                (float)$tax,
+                (float) $discount,
+                (float) $tax,
                 $visitId,
                 'pharmacy',
                 auth()->id(),
@@ -166,10 +168,10 @@ class PharmacyService
             );
 
             // Record Payment
-            if (!empty($paymentData['paid_amount']) && $paymentData['paid_amount'] > 0) {
+            if (! empty($paymentData['paid_amount']) && $paymentData['paid_amount'] > 0) {
                 $this->billingService->recordPayment(
                     $invoice,
-                    (float)$paymentData['paid_amount'],
+                    (float) $paymentData['paid_amount'],
                     $paymentData['payment_method'] ?? 'cash',
                     auth()->user(),
                     $paymentData['transaction_reference'] ?? null

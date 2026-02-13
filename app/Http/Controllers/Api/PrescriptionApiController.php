@@ -22,7 +22,6 @@ class PrescriptionApiController extends Controller
      * Display a listing of prescriptions for the authenticated patient.
      * Supports filtering by status and search.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -36,8 +35,12 @@ class PrescriptionApiController extends Controller
             $foundPatient = Patient::withoutTenant()
                 ->where('clinic_id', $requestedClinicId)
                 ->where(function ($q) use ($user) {
-                    if ($user->email) $q->where('email', $user->email);
-                    if ($user->phone) $q->orWhere('phone', $user->phone);
+                    if ($user->email) {
+                        $q->where('email', $user->email);
+                    }
+                    if ($user->phone) {
+                        $q->orWhere('phone', $user->phone);
+                    }
                 })
                 ->first();
 
@@ -119,7 +122,7 @@ class PrescriptionApiController extends Controller
         }
 
         return response()->json([
-            'prescriptions' => $medications
+            'prescriptions' => $medications,
         ]);
     }
 }

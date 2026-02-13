@@ -2,18 +2,19 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\PharmacySale;
-use App\Models\PharmacySaleItem;
+use App\Exports\Reports\PharmacyProfitExport;
+use App\Models\Clinic;
 use App\Models\Medicine;
 use App\Models\Patient;
-use App\Models\Clinic;
-use App\Exports\Reports\PharmacyProfitExport;
+use App\Models\PharmacySale;
+use App\Models\PharmacySaleItem;
+use Illuminate\Console\Command;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TestPharmacyExport extends Command
 {
     protected $signature = 'test:pharmacy-export';
+
     protected $description = 'Test pharmacy export with missing medicine';
 
     public function handle()
@@ -22,7 +23,7 @@ class TestPharmacyExport extends Command
 
         // Ensure we have a clinic
         $clinic = Clinic::first();
-        if (!$clinic) {
+        if (! $clinic) {
             $clinic = Clinic::create([
                 'name' => 'Test Clinic',
                 'code' => 'TEST',
@@ -49,12 +50,12 @@ class TestPharmacyExport extends Command
         ]);
 
         $patient = Patient::first() ?? Patient::create([
-             'clinic_id' => $clinic->id,
-             'name' => 'Test Patient',
-             'patient_code' => 'P-TEST',
-             'date_of_birth' => '1990-01-01',
-             'gender' => 'male',
-             'contact_number' => '1234567890',
+            'clinic_id' => $clinic->id,
+            'name' => 'Test Patient',
+            'patient_code' => 'P-TEST',
+            'date_of_birth' => '1990-01-01',
+            'gender' => 'male',
+            'contact_number' => '1234567890',
         ]);
 
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
@@ -99,7 +100,7 @@ class TestPharmacyExport extends Command
             Excel::store(new PharmacyProfitExport($data), 'test_pharmacy_export.xlsx');
             $this->info('Export successful!');
         } catch (\Exception $e) {
-            $this->error('Export failed: ' . $e->getMessage());
+            $this->error('Export failed: '.$e->getMessage());
             $this->error($e->getTraceAsString());
         }
     }

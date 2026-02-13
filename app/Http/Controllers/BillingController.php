@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Patient;
+use App\Models\Appointment;
 use App\Models\Consultation;
-use App\Models\LabTestOrder;
-use App\Models\PharmacySale;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\LabTestOrder;
+use App\Models\Patient;
 use App\Models\Payment;
-use App\Models\Appointment;
+use App\Models\PharmacySale;
 use App\Notifications\PaymentReceivedNotification;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Manages invoice generation, viewing, and payments.
@@ -59,10 +59,10 @@ class BillingController extends Controller
         if (request()->filled('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {
-                $q->where('invoice_number', 'like', '%' . $search . '%')
+                $q->where('invoice_number', 'like', '%'.$search.'%')
                     ->orWhereHas('patient', function ($sub) use ($search) {
-                        $sub->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                        $sub->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('patient_code', 'like', '%'.$search.'%');
                     });
             });
         }
@@ -76,19 +76,20 @@ class BillingController extends Controller
         }
 
         $invoices = $query->paginate(20)->withQueryString();
+
         return view('billing.index', compact('invoices'));
     }
 
     /**
      * Soft delete the specified invoice.
      *
-     * @param \App\Models\Invoice $invoice
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Invoice $invoice)
     {
         Gate::authorize('delete', $invoice);
         $invoice->delete();
+
         return redirect()->route('billing.index')->with('success', 'Invoice deleted successfully.');
     }
 
@@ -100,20 +101,20 @@ class BillingController extends Controller
      * - Invoice items (services, meds, etc.)
      * - Payment history
      *
-     * @param \App\Models\Invoice $invoice
      * @return \Illuminate\View\View
      */
     public function show(Invoice $invoice)
     {
         Gate::authorize('view', $invoice);
         $invoice->load(['patient', 'items', 'payments']);
+
         return view('billing.show', compact('invoice'));
     }
 
     /**
      * Restore a soft-deleted invoice.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
     public function restore($id)
@@ -121,13 +122,13 @@ class BillingController extends Controller
         $invoice = Invoice::withTrashed()->findOrFail($id);
         Gate::authorize('delete', $invoice);
         $invoice->restore();
+
         return redirect()->route('billing.index')->with('success', 'Invoice restored successfully.');
     }
 
     /**
      * Show the form for creating a new invoice.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
     public function create(Request $request)
@@ -141,6 +142,7 @@ class BillingController extends Controller
                 $patients->push($patient);
             }
         }
+
         return view('billing.create', compact('patients'));
     }
 
@@ -155,7 +157,6 @@ class BillingController extends Controller
      * - Updates source records (Consultation, LabTest, etc.) with invoice_id
      * - Wraps operations in a database transaction
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -164,13 +165,13 @@ class BillingController extends Controller
 
         $request->validate([
             'patient_id' => 'required|exists:patients,id',
-            'discount'   => 'nullable|numeric|min:0',
-            'tax'        => 'nullable|numeric|min:0',
-            'items'      => 'required|array|min:1',
+            'discount' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
+            'items' => 'required|array|min:1',
             'items.*.reference_id' => 'required',
-            'items.*.item_type'    => 'required|string',
-            'items.*.quantity'     => 'required|numeric|min:1',
-            'items.*.unit_price'   => 'required|numeric|min:0',
+            'items.*.item_type' => 'required|string',
+            'items.*.quantity' => 'required|numeric|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -179,25 +180,25 @@ class BillingController extends Controller
             foreach ($request->items as $item) {
                 $modelClass = match ($item['item_type']) {
                     'consultation' => Consultation::class,
-                    'lab_order'    => LabTestOrder::class,
-                    'pharmacy_sale'=> PharmacySale::class,
-                    default        => null,
+                    'lab_order' => LabTestOrder::class,
+                    'pharmacy_sale' => PharmacySale::class,
+                    default => null,
                 };
-                if (!$modelClass) {
+                if (! $modelClass) {
                     throw ValidationException::withMessages(['items' => "Invalid item type: {$item['item_type']}"]);
                 }
                 $ref = $modelClass::where('id', $item['reference_id'])->first();
-                if (!$ref) {
+                if (! $ref) {
                     $desc = $item['description'] ?? 'Unknown Item';
                     throw ValidationException::withMessages(['items' => "Item not found: {$desc}"]);
                 }
-                if (isset($ref->patient_id) && (int)$ref->patient_id !== (int)$request->patient_id) {
+                if (isset($ref->patient_id) && (int) $ref->patient_id !== (int) $request->patient_id) {
                     $desc = $item['description'] ?? 'Unknown Item';
                     throw ValidationException::withMessages(['items' => "Item does not belong to this patient: {$desc}"]);
                 }
 
                 // Check if already invoiced
-                if ($item['item_type'] === 'lab_order' && !empty($ref->invoice_id)) {
+                if ($item['item_type'] === 'lab_order' && ! empty($ref->invoice_id)) {
                     $desc = $item['description'] ?? 'Unknown Item';
                     throw ValidationException::withMessages(['items' => "Item already invoiced: {$desc}"]);
                 }
@@ -215,13 +216,13 @@ class BillingController extends Controller
             $grandTotal = $subtotal - $discount + $taxAmount;
 
             $invoice = Invoice::create([
-                'invoice_number' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
+                'invoice_number' => 'INV-'.date('Ymd').'-'.strtoupper(Str::random(6)),
                 'patient_id' => $request->patient_id,
-                'subtotal'   => $subtotal,
-                'discount'   => $discount,
-                'tax'        => $tax,
+                'subtotal' => $subtotal,
+                'discount' => $discount,
+                'tax' => $tax,
                 'total_amount' => $grandTotal,
-                'status'     => 'unpaid',
+                'status' => 'unpaid',
             ]);
 
             // Insert invoice items
@@ -236,26 +237,26 @@ class BillingController extends Controller
                 // Fetch description
                 $description = 'Item';
                 if ($item['item_type'] === 'lab_order') {
-                     $ref = LabTestOrder::with('test')->find($item['reference_id']);
-                     $description = $ref && $ref->test ? $ref->test->name : 'Lab Test';
+                    $ref = LabTestOrder::with('test')->find($item['reference_id']);
+                    $description = $ref && $ref->test ? $ref->test->name : 'Lab Test';
                 } elseif ($item['item_type'] === 'consultation') {
-                     $ref = Consultation::with('doctor.user')->find($item['reference_id']);
-                     $description = 'Consultation';
-                     if ($ref && $ref->doctor && $ref->doctor->user) {
-                         $description .= ' - ' . $ref->doctor->user->name;
-                     }
+                    $ref = Consultation::with('doctor.user')->find($item['reference_id']);
+                    $description = 'Consultation';
+                    if ($ref && $ref->doctor && $ref->doctor->user) {
+                        $description .= ' - '.$ref->doctor->user->name;
+                    }
                 } elseif ($item['item_type'] === 'pharmacy_sale') {
                     $description = 'Medicines';
                 }
 
                 InvoiceItem::create([
-                    'invoice_id'   => $invoice->id,
+                    'invoice_id' => $invoice->id,
                     'reference_id' => $item['reference_id'],
-                    'item_type'    => $dbItemType,
-                    'description'  => $description,
-                    'quantity'     => $item['quantity'],
-                    'unit_price'   => $item['unit_price'],
-                    'total_price'  => $item['quantity'] * $item['unit_price'],
+                    'item_type' => $dbItemType,
+                    'description' => $description,
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
+                    'total_price' => $item['quantity'] * $item['unit_price'],
                 ]);
 
                 // Optionally mark the referenced items as invoiced
@@ -279,7 +280,7 @@ class BillingController extends Controller
      * The response is formatted for easy consumption by the frontend billing UI.
      * Each item includes: id, type, description, and price.
      *
-     * @param \App\Models\Patient $patient The patient to fetch items for.
+     * @param  \App\Models\Patient  $patient  The patient to fetch items for.
      * @return \Illuminate\Http\JsonResponse JSON response containing grouped billable items.
      */
     public function getPatientItems(Patient $patient)
@@ -292,7 +293,7 @@ class BillingController extends Controller
                 return [
                     'id' => $c->id,
                     'type' => 'consultation',
-                    'description' => 'Consultation: ' . ($c->diagnosis ?? 'General Checkup'),
+                    'description' => 'Consultation: '.($c->diagnosis ?? 'General Checkup'),
                     'price' => $c->doctor->consultation_fee ?? 0,
                 ];
             });
@@ -315,16 +316,14 @@ class BillingController extends Controller
 
         return response()->json([
             'consultations' => $consultations,
-            'lab_tests'     => $lab_tests,
-            'medicines'     => $medicines,
+            'lab_tests' => $lab_tests,
+            'medicines' => $medicines,
         ]);
     }
 
     /**
      * Download/Print the invoice for the patient.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Invoice $invoice
      * @return \Illuminate\View\View
      */
     public function patientPrint(Request $request, Invoice $invoice)
@@ -334,13 +333,13 @@ class BillingController extends Controller
         }
 
         $invoice->load(['patient', 'items', 'payments']);
+
         return view('billing.patient-print', compact('invoice'));
     }
 
     /**
      * Show the payment form for a specific invoice.
      *
-     * @param \App\Models\Invoice $invoice
      * @return \Illuminate\View\View
      */
     public function addPayment(Invoice $invoice)
@@ -348,6 +347,7 @@ class BillingController extends Controller
         Gate::authorize('create', Invoice::class);
 
         $invoice->load('patient', 'payments');
+
         return view('billing.payment', compact('invoice'));
     }
 
@@ -360,8 +360,6 @@ class BillingController extends Controller
      * - Updates invoice status (unpaid -> partial -> paid)
      * - Automatically confirms related appointment if invoice is fully paid
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Invoice $invoice
      * @return \Illuminate\Http\RedirectResponse
      */
     public function storePayment(Request $request, Invoice $invoice)
@@ -373,7 +371,7 @@ class BillingController extends Controller
         $remaining = max($invoiceTotal - $alreadyPaid, 0);
 
         $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . $remaining,
+            'amount' => 'required|numeric|min:0.01|max:'.$remaining,
             'payment_method' => 'required|string|in:cash,card,bank_transfer',
         ]);
 
@@ -406,7 +404,15 @@ class BillingController extends Controller
             if ($invoice->status === 'paid' && $invoice->invoice_type === 'consultation' && $invoice->appointment_id) {
                 $appointment = Appointment::find($invoice->appointment_id);
                 if ($appointment && in_array($appointment->status, ['pending', 'arrived'], true)) {
-                    $appointment->update(['status' => 'confirmed']);
+                    $today = now()->toDateString();
+                    $nowTime = now()->format('H:i:s');
+                    $appointmentDate = $appointment->appointment_date ? $appointment->appointment_date->toDateString() : null;
+                    $isExpired = $appointmentDate
+                        && ($appointmentDate < $today || ($appointmentDate === $today && $appointment->end_time && $appointment->end_time <= $nowTime));
+
+                    if (! $isExpired) {
+                        $appointment->update(['status' => 'confirmed']);
+                    }
                 }
             }
 

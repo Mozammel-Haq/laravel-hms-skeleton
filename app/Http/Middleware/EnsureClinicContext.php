@@ -7,14 +7,12 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Symfony\Component\HttpFoundation\Response;
 
 class EnsureClinicContext
 {
-
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 
@@ -24,8 +22,15 @@ class EnsureClinicContext
          * ✅ Super Admin = SYSTEM CONTEXT
          * No tenant should be set automatically.
          */
-        if ($user->hasRole('Super Admin') && Session::has('selected_clinic_id')) {
-            TenantContext::setClinicId(Session::get('selected_clinic_id'));
+        if ($user->hasRole('Super Admin')) {
+            if (Session::has('selected_clinic_id')) {
+                TenantContext::setClinicId(Session::get('selected_clinic_id'));
+
+                return $next($request);
+            }
+
+            TenantContext::setClinicId(null);
+
             return $next($request);
         }
 
@@ -42,7 +47,7 @@ class EnsureClinicContext
             }
         }
 
-        if (!$clinicId) {
+        if (! $clinicId) {
             abort(403, 'Clinic context missing');
         }
 

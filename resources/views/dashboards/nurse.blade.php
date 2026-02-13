@@ -202,7 +202,8 @@
                         xaxis: { lines: { show: false } }
                     },
                     colors: ['var(--primary-color)', 'var(--bs-success)'],
-                    legend: { position: 'top' }
+                    legend: { position: 'top' },
+                    tooltip: { theme: 'dark' }
                 };
                 var patientMovementChart = new ApexCharts(document.querySelector("#patientMovementChart"), patientMovementOptions);
                 patientMovementChart.render();
@@ -234,7 +235,8 @@
                         }
                     },
                     dataLabels: { enabled: false },
-                    legend: { position: 'bottom' }
+                    legend: { position: 'bottom' },
+                    tooltip: { theme: 'dark' }
                 };
                 var bedStatusChart = new ApexCharts(document.querySelector("#bedStatusChart"), bedStatusOptions);
                 bedStatusChart.render();

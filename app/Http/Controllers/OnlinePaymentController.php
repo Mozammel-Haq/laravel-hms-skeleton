@@ -10,8 +10,8 @@ use App\Services\PaymentGatewayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Stripe\Webhook;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\Webhook;
 
 class OnlinePaymentController extends Controller
 {
@@ -39,7 +39,7 @@ class OnlinePaymentController extends Controller
         $amount = $request->amount;
         $gateway = $request->gateway;
 
-        $description = "";
+        $description = '';
         $cancelUrl = url()->previous();
 
         // Context data to store in session or metadata
@@ -68,6 +68,24 @@ class OnlinePaymentController extends Controller
 
         } elseif ($type === 'invoice') {
             $invoice = Invoice::findOrFail($id);
+            if ($invoice->status === 'cancelled') {
+                return back()->with('error', 'Invoice has been cancelled.');
+            }
+            if ($invoice->invoice_type === 'consultation' && $invoice->appointment_id) {
+                $appointment = $invoice->appointment;
+                if ($appointment && $appointment->appointment_type === 'online') {
+                    $today = now()->toDateString();
+                    $nowTime = now()->format('H:i:s');
+                    $appointmentDate = $appointment->appointment_date ? $appointment->appointment_date->toDateString() : null;
+
+                    $isExpired = $appointmentDate
+                        && ($appointmentDate < $today || ($appointmentDate === $today && $appointment->end_time && $appointment->end_time <= $nowTime));
+
+                    if ($isExpired || in_array($appointment->status, ['cancelled', 'completed'], true)) {
+                        return back()->with('error', 'Payment is no longer available for this appointment.');
+                    }
+                }
+            }
             $description = "Payment for Invoice #{$invoice->invoice_number}";
 
             // Create a pending payment record
@@ -114,12 +132,12 @@ class OnlinePaymentController extends Controller
                     Payment::find($context['transaction_id'])->update(['status' => 'failed']);
                 }
 
-                return back()->with('error', 'Failed to initiate Stripe payment: ' . $result['message']);
+                return back()->with('error', 'Failed to initiate Stripe payment: '.$result['message']);
             }
         } elseif ($gateway === 'sslcommerz') {
             // Generate unique transaction ID for SSLCommerz
             // Format: TYPE-ID-TIMESTAMP
-            $tran_id = strtoupper(substr($type, 0, 3)) . '-' . $id . '-' . time();
+            $tran_id = strtoupper(substr($type, 0, 3)).'-'.$id.'-'.time();
 
             // Update the pending record with this transaction ID immediately
             if ($type === 'admission_deposit') {
@@ -155,12 +173,13 @@ class OnlinePaymentController extends Controller
             if ($result['success']) {
                 return redirect($result['url']);
             } else {
-                 if ($type === 'admission_deposit') {
+                if ($type === 'admission_deposit') {
                     AdmissionDeposit::find($context['transaction_id'])->update(['status' => 'failed']);
                 } elseif ($type === 'invoice') {
                     Payment::find($context['transaction_id'])->update(['status' => 'failed']);
                 }
-                return back()->with('error', 'Failed to initiate SSLCommerz payment: ' . $result['message']);
+
+                return back()->with('error', 'Failed to initiate SSLCommerz payment: '.$result['message']);
             }
         }
 
@@ -196,6 +215,8 @@ class OnlinePaymentController extends Controller
 
                     if ($totalPaid >= $invoice->total_amount) {
                         $invoice->update(['status' => 'paid']);
+                        $invoice->refresh();
+                        $this->confirmConsultationAppointmentIfNeeded($invoice);
                     } else {
                         $invoice->update(['status' => 'partial']);
                     }
@@ -204,11 +225,13 @@ class OnlinePaymentController extends Controller
             }
 
             DB::commit();
+
             return redirect($redirectRoute)->with('success', 'Payment successful!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Stripe Success Error: ' . $e->getMessage());
+            Log::error('Stripe Success Error: '.$e->getMessage());
+
             return redirect('/')->with('error', 'Payment processed but failed to update records. Please contact support.');
         }
     }
@@ -221,10 +244,12 @@ class OnlinePaymentController extends Controller
         if ($type === 'admission_deposit') {
             $deposit = AdmissionDeposit::findOrFail($transactionId);
             $deposit->update(['status' => 'failed']);
+
             return redirect()->route('ipd.show', $deposit->admission_id)->with('error', 'Payment was cancelled.');
         } elseif ($type === 'invoice') {
             $payment = Payment::findOrFail($transactionId);
             $payment->update(['status' => 'failed']);
+
             return redirect()->route('billing.show', $payment->invoice_id)->with('error', 'Payment was cancelled.');
         }
 
@@ -251,7 +276,7 @@ class OnlinePaymentController extends Controller
 
         // Validation logic (can call validate API here)
         if ($status !== 'VALID') {
-             return redirect('/?error=Payment validation failed');
+            return redirect('/?error=Payment validation failed');
         }
 
         return $this->processSslCommerzPayment($tran_id, $val_id, false, $redirectUrl);
@@ -260,12 +285,14 @@ class OnlinePaymentController extends Controller
     public function sslCommerzFail(Request $request)
     {
         $tran_id = $request->input('tran_id');
+
         return $this->updateSslCommerzStatus($tran_id, 'failed', 'Payment Failed');
     }
 
     public function sslCommerzCancel(Request $request)
     {
         $tran_id = $request->input('tran_id');
+
         return $this->updateSslCommerzStatus($tran_id, 'cancelled', 'Payment Cancelled');
     }
 
@@ -277,10 +304,10 @@ class OnlinePaymentController extends Controller
 
         if ($status === 'VALID') {
             $this->processSslCommerzPayment($tran_id, $val_id, true);
-            echo "IPN Success";
+            echo 'IPN Success';
         } else {
             $this->updateSslCommerzStatus($tran_id, 'failed', 'IPN Failed', true);
-             echo "IPN Failed";
+            echo 'IPN Failed';
         }
     }
 
@@ -302,20 +329,25 @@ class OnlinePaymentController extends Controller
             }
         }
 
-        if (!$record) {
+        if (! $record) {
             Log::error("SSLCommerz Payment Record Not Found: $tran_id");
-            if ($isIpn) return;
+            if ($isIpn) {
+                return;
+            }
+
             return redirect('/?error=Transaction record not found');
         }
 
         if ($record->status === 'success') {
-             if ($isIpn) return;
-             // Redirect to appropriate view
-             if ($type === 'admission_deposit') {
-                 return redirect()->route('ipd.show', ['admission' => $record->admission_id, 'payment_status' => 'success', 'message' => 'Payment already processed']);
-             } else {
-                 return redirect()->route('billing.show', ['invoice' => $record->invoice_id, 'payment_status' => 'success', 'message' => 'Payment already processed']);
-             }
+            if ($isIpn) {
+                return;
+            }
+            // Redirect to appropriate view
+            if ($type === 'admission_deposit') {
+                return redirect()->route('ipd.show', ['admission' => $record->admission_id, 'payment_status' => 'success', 'message' => 'Payment already processed']);
+            } else {
+                return redirect()->route('billing.show', ['invoice' => $record->invoice_id, 'payment_status' => 'success', 'message' => 'Payment already processed']);
+            }
         }
 
         try {
@@ -337,6 +369,8 @@ class OnlinePaymentController extends Controller
 
                 if ($totalPaid >= $invoice->total_amount) {
                     $invoice->update(['status' => 'paid']);
+                    $invoice->refresh();
+                    $this->confirmConsultationAppointmentIfNeeded($invoice);
                 } else {
                     $invoice->update(['status' => 'partial']);
                 }
@@ -346,35 +380,50 @@ class OnlinePaymentController extends Controller
 
             DB::commit();
 
-            if ($isIpn) return;
+            if ($isIpn) {
+                return;
+            }
+
             return $redirectResponse;
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('SSLCommerz Process Error: ' . $e->getMessage());
-            if ($isIpn) return;
+            Log::error('SSLCommerz Process Error: '.$e->getMessage());
+            if ($isIpn) {
+                return;
+            }
+
             return redirect('/?error=Payment processed but failed to update records');
         }
     }
 
     protected function updateSslCommerzStatus($tran_id, $status, $message, $isIpn = false)
     {
-         $deposit = AdmissionDeposit::where('gateway_transaction_id', $tran_id)->first();
-         if ($deposit) {
-             $deposit->update(['status' => $status]);
-             if ($isIpn) return;
-             return redirect()->route('ipd.show', ['admission' => $deposit->admission_id, 'payment_status' => 'error', 'message' => $message]);
-         }
+        $deposit = AdmissionDeposit::where('gateway_transaction_id', $tran_id)->first();
+        if ($deposit) {
+            $deposit->update(['status' => $status]);
+            if ($isIpn) {
+                return;
+            }
 
-         $payment = Payment::where('gateway_transaction_id', $tran_id)->first();
-         if ($payment) {
-             $payment->update(['status' => $status]);
-             if ($isIpn) return;
-             return redirect()->route('billing.show', ['invoice' => $payment->invoice_id, 'payment_status' => 'error', 'message' => $message]);
-         }
+            return redirect()->route('ipd.show', ['admission' => $deposit->admission_id, 'payment_status' => 'error', 'message' => $message]);
+        }
 
-         if ($isIpn) return;
-         return redirect('/?error=' . urlencode($message));
+        $payment = Payment::where('gateway_transaction_id', $tran_id)->first();
+        if ($payment) {
+            $payment->update(['status' => $status]);
+            if ($isIpn) {
+                return;
+            }
+
+            return redirect()->route('billing.show', ['invoice' => $payment->invoice_id, 'payment_status' => 'error', 'message' => $message]);
+        }
+
+        if ($isIpn) {
+            return;
+        }
+
+        return redirect('/?error='.urlencode($message));
     }
 
     /**
@@ -393,10 +442,12 @@ class OnlinePaymentController extends Controller
         } catch (\UnexpectedValueException $e) {
             // Invalid payload
             Log::error('Stripe Webhook Error: Invalid Payload');
+
             return response()->json(['error' => 'Invalid payload'], 400);
         } catch (SignatureVerificationException $e) {
             // Invalid signature
             Log::error('Stripe Webhook Error: Invalid Signature');
+
             return response()->json(['error' => 'Invalid signature'], 400);
         }
 
@@ -407,7 +458,7 @@ class OnlinePaymentController extends Controller
                 $this->fulfillCheckout($session);
                 break;
             default:
-                Log::info('Stripe Webhook Received: ' . $event->type);
+                Log::info('Stripe Webhook Received: '.$event->type);
         }
 
         return response()->json(['status' => 'success']);
@@ -418,8 +469,9 @@ class OnlinePaymentController extends Controller
         $transactionId = $session->metadata->transaction_id ?? null;
         $type = $session->metadata->type ?? null;
 
-        if (!$transactionId || !$type) {
+        if (! $transactionId || ! $type) {
             Log::error('Stripe Webhook Error: Missing metadata');
+
             return;
         }
 
@@ -444,6 +496,8 @@ class OnlinePaymentController extends Controller
 
                     if ($totalPaid >= $invoice->total_amount) {
                         $invoice->update(['status' => 'paid']);
+                        $invoice->refresh();
+                        $this->confirmConsultationAppointmentIfNeeded($invoice);
                     } else {
                         $invoice->update(['status' => 'partial']);
                     }
@@ -451,7 +505,41 @@ class OnlinePaymentController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            Log::error('Stripe Webhook Fulfill Error: ' . $e->getMessage());
+            Log::error('Stripe Webhook Fulfill Error: '.$e->getMessage());
+        }
+    }
+
+    private function confirmConsultationAppointmentIfNeeded(Invoice $invoice): void
+    {
+        if ($invoice->status !== 'paid') {
+            return;
+        }
+
+        if ($invoice->invoice_type !== 'consultation') {
+            return;
+        }
+
+        if (! $invoice->appointment_id) {
+            return;
+        }
+
+        $appointment = $invoice->appointment;
+        if (! $appointment) {
+            return;
+        }
+
+        $today = now()->toDateString();
+        $nowTime = now()->format('H:i:s');
+        $appointmentDate = $appointment->appointment_date ? $appointment->appointment_date->toDateString() : null;
+        $isExpired = $appointmentDate
+            && ($appointmentDate < $today || ($appointmentDate === $today && $appointment->end_time && $appointment->end_time <= $nowTime));
+
+        if ($isExpired) {
+            return;
+        }
+
+        if (in_array($appointment->status, ['pending', 'arrived'], true)) {
+            $appointment->update(['status' => 'confirmed']);
         }
     }
 }

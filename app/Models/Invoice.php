@@ -34,7 +34,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \App\Models\Patient $patient
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\InvoiceItem[] $items
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Payment[] $payments
@@ -42,10 +41,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Visit|null $visit
  * @property-read \App\Models\Admission|null $admission
  */
-
 class Invoice extends BaseTenantModel
 {
-    use SoftDeletes, LogsActivity, NotifiesRoles;
+    use LogsActivity, NotifiesRoles, SoftDeletes;
 
     protected $casts = [
         'issued_at' => 'datetime',
@@ -63,7 +61,8 @@ class Invoice extends BaseTenantModel
     public function getActivityDescription($action)
     {
         $patientName = $this->patient ? $this->patient->name : 'Unknown Patient';
-        return ucfirst($action) . " invoice #{$this->invoice_number} for {$patientName} (Amount: {$this->total_amount})";
+
+        return ucfirst($action)." invoice #{$this->invoice_number} for {$patientName} (Amount: {$this->total_amount})";
     }
 
     /**

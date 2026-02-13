@@ -3,25 +3,24 @@
 namespace Tests\Feature;
 
 use App\Models\Appointment;
-use App\Models\Doctor;
-use App\Models\LabTest;
-use App\Models\LabTestOrder;
-use App\Models\Patient;
-use App\Models\User;
-use App\Models\Role;
-use App\Models\Permission;
 use App\Models\Clinic;
 use App\Models\Department;
+use App\Models\Doctor;
+use App\Models\LabTest;
+use App\Models\Patient;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-
-use Illuminate\Database\Eloquent\Model;
 
 class LabOrderLogicTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $department;
 
     protected function setUp(): void
@@ -37,11 +36,11 @@ class LabOrderLogicTest extends TestCase
         $role = Role::firstOrCreate(['name' => 'Doctor']);
 
         // Assign permissions if not already assigned
-        if (!$role->permissions()->where('name', 'view_lab')->exists()) {
-             $role->givePermissionTo('view_lab');
+        if (! $role->permissions()->where('name', 'view_lab')->exists()) {
+            $role->givePermissionTo('view_lab');
         }
-        if (!$role->permissions()->where('name', 'create')->exists()) {
-             $role->givePermissionTo('create');
+        if (! $role->permissions()->where('name', 'create')->exists()) {
+            $role->givePermissionTo('create');
         }
 
         // Create Clinic and Department
@@ -55,14 +54,14 @@ class LabOrderLogicTest extends TestCase
             'currency' => 'USD',
             'phone' => '1234567890',
             'email' => 'clinic@test.com',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $this->department = Department::create([
             'name' => 'General',
             'clinic_id' => $this->clinic->id,
             'description' => 'General Department',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         \App\Support\TenantContext::setClinicId($this->clinic->id);
@@ -121,7 +120,7 @@ class LabOrderLogicTest extends TestCase
 
         $response = $this->getJson(route('patients.search', [
             'term' => 'Patient',
-            'type' => 'lab_eligible'
+            'type' => 'lab_eligible',
         ]));
 
         $response->assertOk();
@@ -205,7 +204,7 @@ class LabOrderLogicTest extends TestCase
             'patient_id' => $patient->id,
             'doctor_id' => $doctor->id,
             'appointment_id' => $appt->id,
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
     }
 

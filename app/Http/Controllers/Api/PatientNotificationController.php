@@ -17,7 +17,6 @@ class PatientNotificationController extends Controller
      * Display a listing of notifications for the authenticated patient.
      * Returns the latest 20 notifications and the count of unread ones.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -40,7 +39,7 @@ class PatientNotificationController extends Controller
 
         return response()->json([
             'notifications' => $notifications,
-            'unread_count' => $user->unreadNotifications()->count()
+            'unread_count' => $user->unreadNotifications()->count(),
         ]);
     }
 
@@ -48,7 +47,6 @@ class PatientNotificationController extends Controller
      * Mark a notification as read.
      * Can mark a specific notification or all notifications.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  string  $id  Notification ID or 'all'
      * @return \Illuminate\Http\JsonResponse
      */
@@ -58,6 +56,7 @@ class PatientNotificationController extends Controller
 
         if ($id === 'all') {
             $user->unreadNotifications->markAsRead();
+
             return response()->json(['message' => 'All notifications marked as read']);
         }
 
@@ -71,7 +70,6 @@ class PatientNotificationController extends Controller
      * Delete a notification.
      * Can delete a specific notification or all notifications.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  string  $id  Notification ID or 'all'
      * @return \Illuminate\Http\JsonResponse
      */
@@ -81,6 +79,7 @@ class PatientNotificationController extends Controller
 
         if ($id === 'all') {
             $user->notifications()->delete();
+
             return response()->json(['message' => 'All notifications deleted']);
         }
 

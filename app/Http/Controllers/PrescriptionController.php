@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Prescription;
 use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Models\Medicine;
-use App\Models\PrescriptionItem;
 use App\Models\PatientComplaint;
+use App\Models\Prescription;
+use App\Models\PrescriptionItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -73,11 +73,11 @@ class PrescriptionController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('id', $search)
                     ->orWhereHas('consultation.patient', function ($sub) use ($search) {
-                        $sub->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                        $sub->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('patient_code', 'like', '%'.$search.'%');
                     })->orWhereHas('consultation.doctor.user', function ($sub) use ($search) {
-                        $sub->where('name', 'like', '%' . $search . '%');
-                    })->orWhere('status', 'like', '%' . $search . '%');
+                        $sub->where('name', 'like', '%'.$search.'%');
+                    })->orWhere('status', 'like', '%'.$search.'%');
             });
         }
 
@@ -97,13 +97,13 @@ class PrescriptionController extends Controller
     /**
      * Soft delete the specified prescription.
      *
-     * @param  \App\Models\Prescription  $prescription
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Prescription $prescription)
     {
         Gate::authorize('delete', $prescription);
         $prescription->delete();
+
         return redirect()->route('clinical.prescriptions.index')->with('success', 'Prescription deleted successfully.');
     }
 
@@ -118,6 +118,7 @@ class PrescriptionController extends Controller
         $prescription = Prescription::withTrashed()->findOrFail($id);
         Gate::authorize('delete', $prescription);
         $prescription->restore();
+
         return redirect()->route('clinical.prescriptions.index')->with('success', 'Prescription restored successfully.');
     }
 
@@ -126,7 +127,6 @@ class PrescriptionController extends Controller
      *
      * Shows prescription details, items, vitals history, and complaint linkage.
      *
-     * @param  \App\Models\Prescription  $prescription
      * @return \Illuminate\View\View
      */
     public function show(Prescription $prescription)
@@ -152,14 +152,12 @@ class PrescriptionController extends Controller
         return view('clinical.prescription.show', compact('prescription', 'vitalsHistory'));
     }
 
-
     /**
      * Show the form for creating a new prescription.
      *
      * Loads consultation details, patient vitals history, and available medicines.
      * Prevents creation if consultation is already completed.
      *
-     * @param  \App\Models\Consultation  $consultation
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function create(Consultation $consultation)
@@ -181,6 +179,7 @@ class PrescriptionController extends Controller
                 ->get();
         }
         $medicines = Medicine::where('status', 'active')->orderBy('name')->get();
+
         return view('clinical.prescription.create', compact('consultation', 'medicines', 'vitalsHistory'));
     }
 
@@ -190,8 +189,6 @@ class PrescriptionController extends Controller
      * Validates input, creates prescription and items, and updates consultation status.
      * Notifies the patient upon success.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Consultation  $consultation
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request, Consultation $consultation)
@@ -201,7 +198,7 @@ class PrescriptionController extends Controller
             return redirect()->back()->with('error', 'Consultation is already completed.');
         }
 
-        if (!auth()->user()->hasRole('Doctor')) {
+        if (! auth()->user()->hasRole('Doctor')) {
             abort(403, 'Only Doctors can make prescriptions.');
         }
 
@@ -220,7 +217,6 @@ class PrescriptionController extends Controller
         DB::transaction(function () use ($consultation, $validated, &$prescription) {
 
             $consultation->loadMissing('visit.appointment');
-            // dd($consultation);
             $prescription = Prescription::create([
                 'clinic_id' => $consultation->clinic_id,
                 'consultation_id' => $consultation->id,
@@ -239,10 +235,12 @@ class PrescriptionController extends Controller
                 ]);
             }
 
-            if (!empty($validated['complaints'])) {
+            if (! empty($validated['complaints'])) {
                 foreach ($validated['complaints'] as $c) {
                     $name = trim($c);
-                    if ($name === '') continue;
+                    if ($name === '') {
+                        continue;
+                    }
 
                     $complaint = PatientComplaint::firstOrCreate(['name' => $name]);
                     $prescription->complaints()->syncWithoutDetaching([$complaint->id]);
@@ -253,7 +251,6 @@ class PrescriptionController extends Controller
             $consultation->visit->appointment->update(['status' => 'completed']);
         });
 
-        // 🔑 NOW refresh
         $consultation->refresh()->load('prescription');
 
         // Notify Patient
@@ -269,7 +266,6 @@ class PrescriptionController extends Controller
     /**
      * Print the prescription (Doctor/Staff view).
      *
-     * @param  \App\Models\Prescription  $prescription
      * @return \Illuminate\View\View
      */
     public function print(Prescription $prescription)
@@ -280,6 +276,7 @@ class PrescriptionController extends Controller
         if ($prescription->consultation && $prescription->consultation->visit) {
             $vitalsHistory = \App\Models\PatientVital::where('visit_id', $prescription->consultation->visit->id)->orderByDesc('recorded_at')->get();
         }
+
         return view('clinical.prescription.print', compact('prescription', 'vitalsHistory'));
     }
 
@@ -288,8 +285,6 @@ class PrescriptionController extends Controller
      *
      * Validates the signed URL before showing the print view.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Prescription  $prescription
      * @return \Illuminate\View\View
      */
     public function patientPrint(Request $request, Prescription $prescription)
@@ -303,6 +298,7 @@ class PrescriptionController extends Controller
         if ($prescription->consultation && $prescription->consultation->visit) {
             $vitalsHistory = \App\Models\PatientVital::where('visit_id', $prescription->consultation->visit->id)->orderByDesc('recorded_at')->get();
         }
+
         return view('clinical.prescription.print', compact('prescription', 'vitalsHistory'));
     }
 }

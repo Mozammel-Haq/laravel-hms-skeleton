@@ -37,8 +37,8 @@ class DepartmentController extends Controller
         if (request()->filled('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('description', 'like', '%' . $search . '%');
+                $q->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('description', 'like', '%'.$search.'%');
             });
         }
 
@@ -51,6 +51,7 @@ class DepartmentController extends Controller
         }
 
         $departments = $query->latest()->paginate(20)->withQueryString();
+
         return view('departments.index', compact('departments'));
     }
 
@@ -65,6 +66,7 @@ class DepartmentController extends Controller
         $department = Department::withTrashed()->findOrFail($id);
         Gate::authorize('delete', $department);
         $department->restore();
+
         return back()->with('success', 'Department restored successfully.');
     }
 
@@ -73,7 +75,6 @@ class DepartmentController extends Controller
      *
      * Automatically assigns the department to the current user's clinic.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -93,8 +94,6 @@ class DepartmentController extends Controller
     /**
      * Update the specified department.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Department  $department
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Department $department)
@@ -112,13 +111,13 @@ class DepartmentController extends Controller
      *
      * Performs a soft delete.
      *
-     * @param  \App\Models\Department  $department
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Department $department)
     {
         Gate::authorize('delete', $department);
         $department->delete();
+
         return back()->with('success', 'Department deleted successfully.');
     }
 }

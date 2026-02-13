@@ -166,9 +166,9 @@
                                         <td>
                                             @if ($doctor->schedules->isNotEmpty())
                                                 <div class="d-flex flex-column">
-                                                    <span>{{ \Carbon\Carbon::parse($doctor->schedules->first()->start_time)->format('H:i') }}
+                                                    <span>{{ $doctor->schedules->first()->start_time->format('H:i') }}
                                                         -
-                                                        {{ \Carbon\Carbon::parse($doctor->schedules->first()->end_time)->format('H:i') }}</span>
+                                                        {{ $doctor->schedules->first()->end_time->format('H:i') }}</span>
                                                     @if ($doctor->schedules->count() > 1)
                                                         <small
                                                             class="text-muted">(+{{ $doctor->schedules->count() - 1 }}

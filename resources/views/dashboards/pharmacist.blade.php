@@ -223,6 +223,7 @@
                     }],
                     colors: ['var(--primary-color)', 'var(--bs-success)'],
                     tooltip: {
+                        theme: 'dark',
                         shared: true,
                         intersect: false,
                         y: [{
@@ -287,7 +288,8 @@
                     },
                     dataLabels: {
                         enabled: false
-                    }
+                    },
+                    tooltip: { theme: 'dark' }
                 };
 
                 var prescriptionStatusChart = new ApexCharts(document.querySelector("#prescriptionStatusChart"),
@@ -327,7 +329,7 @@
                                                     Patient
                                                 @endif
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($p->issued_at)->format('M d, Y') }}</td>
+                                            <td>{{ $p->issued_at->format('M d, Y') }}</td>
                                             <td>
                                                 @php
                                                     $pStatus = $p->status ?? 'active';
@@ -377,7 +379,7 @@
                                                     Patient
                                                 @endif
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($s->sale_date ?? $s->created_at)->format('M d, Y') }}
+                                            <td>{{ ($s->sale_date ?? $s->created_at)->format('M d, Y') }}
                                             </td>
                                             <td>৳{{ number_format($s->total_amount, 2) }}</td>
                                         </tr>

@@ -20,7 +20,6 @@ class VitalsApiController extends Controller
      * Display a listing of patient vitals.
      * Returns historical data and summary cards with trend analysis.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -34,8 +33,12 @@ class VitalsApiController extends Controller
             $foundPatient = Patient::withoutTenant()
                 ->where('clinic_id', $requestedClinicId)
                 ->where(function ($q) use ($user) {
-                    if ($user->email) $q->where('email', $user->email);
-                    if ($user->phone) $q->orWhere('phone', $user->phone);
+                    if ($user->email) {
+                        $q->where('email', $user->email);
+                    }
+                    if ($user->phone) {
+                        $q->orWhere('phone', $user->phone);
+                    }
                 })
                 ->first();
 
@@ -72,7 +75,9 @@ class VitalsApiController extends Controller
 
         // Helper to calculate trend
         $calculateTrend = function ($current, $prev) {
-            if (!$current || !$prev) return ['trend' => 'stable', 'change' => '0%'];
+            if (! $current || ! $prev) {
+                return ['trend' => 'stable', 'change' => '0%'];
+            }
 
             // Simple numeric check. If non-numeric, return stable.
             // Blood pressure is "120/80", needs parsing.
@@ -84,14 +89,16 @@ class VitalsApiController extends Controller
             $c = floatval($current);
             $p = floatval($prev);
 
-            if ($p == 0) return ['trend' => 'stable', 'change' => '0%'];
+            if ($p == 0) {
+                return ['trend' => 'stable', 'change' => '0%'];
+            }
 
             $diff = $c - $p;
             $pct = ($diff / $p) * 100;
 
             return [
                 'trend' => $diff > 0 ? 'up' : ($diff < 0 ? 'down' : 'stable'),
-                'change' => abs(round($pct, 1)) . '%'
+                'change' => abs(round($pct, 1)).'%',
             ];
         };
 
@@ -102,35 +109,35 @@ class VitalsApiController extends Controller
                 'value' => $latest ? ($latest->heart_rate ?? 'N/A') : 'N/A',
                 'unit' => 'bpm',
                 'status' => 'Normal', // Logic needed
-                'trendData' => $calculateTrend($latest ? $latest->heart_rate : 0, $previous ? $previous->heart_rate : 0)
+                'trendData' => $calculateTrend($latest ? $latest->heart_rate : 0, $previous ? $previous->heart_rate : 0),
             ],
             [
                 'title' => 'Blood Pressure',
                 'value' => $latest ? ($latest->blood_pressure ?? 'N/A') : 'N/A',
                 'unit' => 'mmHg',
                 'status' => 'Normal',
-                'trendData' => ['trend' => 'stable', 'change' => '0%']
+                'trendData' => ['trend' => 'stable', 'change' => '0%'],
             ],
             [
                 'title' => 'Body Temperature',
                 'value' => $latest ? ($latest->temperature ?? 'N/A') : 'N/A',
                 'unit' => '°F',
                 'status' => 'Normal',
-                'trendData' => $calculateTrend($latest ? $latest->temperature : 0, $previous ? $previous->temperature : 0)
+                'trendData' => $calculateTrend($latest ? $latest->temperature : 0, $previous ? $previous->temperature : 0),
             ],
             [
                 'title' => 'Blood Oxygen',
                 'value' => $latest ? ($latest->spo2 ?? 'N/A') : 'N/A',
                 'unit' => '%',
                 'status' => 'Normal',
-                'trendData' => $calculateTrend($latest ? $latest->spo2 : 0, $previous ? $previous->spo2 : 0)
+                'trendData' => $calculateTrend($latest ? $latest->spo2 : 0, $previous ? $previous->spo2 : 0),
             ],
             [
                 'title' => 'Weight',
                 'value' => $latest ? ($latest->weight ?? 'N/A') : 'N/A',
                 'unit' => 'kg',
                 'status' => 'Normal',
-                'trendData' => $calculateTrend($latest ? $latest->weight : 0, $previous ? $previous->weight : 0)
+                'trendData' => $calculateTrend($latest ? $latest->weight : 0, $previous ? $previous->weight : 0),
             ],
         ];
 
@@ -140,12 +147,12 @@ class VitalsApiController extends Controller
                 return [
                     'id' => $v->id,
                     'date' => $v->recorded_at ? $v->recorded_at->format('M d, Y') : '',
-                    'heartRate' => $v->heart_rate ? $v->heart_rate . ' bpm' : '-',
+                    'heartRate' => $v->heart_rate ? $v->heart_rate.' bpm' : '-',
                     'bp' => $v->blood_pressure ?? '-',
-                    'temp' => $v->temperature ? $v->temperature . '°F' : '-',
-                    'weight' => $v->weight ? $v->weight . ' kg' : '-',
+                    'temp' => $v->temperature ? $v->temperature.'°F' : '-',
+                    'weight' => $v->weight ? $v->weight.' kg' : '-',
                 ];
-            })
+            }),
         ]);
     }
 }

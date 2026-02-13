@@ -109,7 +109,7 @@ class DoctorAssignmentTest extends TestCase
             'user_id' => $doctorUser->id,
             'clinic_id' => $clinicA->id,
             'specialization' => 'General',
-            'primary_department_id' => $department->id
+            'primary_department_id' => $department->id,
         ]);
 
         $response = $this->post(route('doctors.assignment.update', $doctor->id), [

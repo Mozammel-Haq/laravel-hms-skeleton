@@ -9,7 +9,7 @@ class MedicineBatchPolicy extends BaseTenantPolicy
 {
     public function viewAny(User $user): bool
     {
-        return !empty($user->clinic_id);
+        return ! empty($user->clinic_id);
     }
 
     public function view(User $user, MedicineBatch $batch): bool
@@ -19,7 +19,7 @@ class MedicineBatchPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->clinic_id);
+        return ! empty($user->clinic_id);
     }
 
     public function update(User $user, MedicineBatch $batch): bool
@@ -32,4 +32,3 @@ class MedicineBatchPolicy extends BaseTenantPolicy
         return $this->sameClinic($user, $batch);
     }
 }
-

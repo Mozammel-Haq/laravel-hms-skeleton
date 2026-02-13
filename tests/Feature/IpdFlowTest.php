@@ -8,14 +8,13 @@ use App\Models\Clinic;
 use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Patient;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
 use App\Models\Room;
 use App\Models\User;
 use App\Models\Ward;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class IpdFlowTest extends TestCase
@@ -23,9 +22,13 @@ class IpdFlowTest extends TestCase
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $receptionist;
+
     protected $doctor;
+
     protected $patient;
+
     protected $bed;
 
     protected function setUp(): void
@@ -48,7 +51,7 @@ class IpdFlowTest extends TestCase
         $role = Role::create(['name' => 'Receptionist']);
         $perms = [
             'view_ipd', 'create_admissions', 'edit_admissions', 'delete_admissions',
-            'view_patients', 'create_patients', 'view_doctors'
+            'view_patients', 'create_patients', 'view_doctors',
         ];
         foreach ($perms as $perm) {
             $p = Permission::firstOrCreate(['name' => $perm]);

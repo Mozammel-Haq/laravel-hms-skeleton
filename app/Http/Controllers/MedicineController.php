@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Medicine;
 use App\Support\TenantContext;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 
@@ -44,9 +43,9 @@ class MedicineController extends Controller
         if (request()->filled('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('generic_name', 'like', '%' . $search . '%')
-                    ->orWhere('manufacturer', 'like', '%' . $search . '%');
+                $q->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('generic_name', 'like', '%'.$search.'%')
+                    ->orWhere('manufacturer', 'like', '%'.$search.'%');
             });
         }
 
@@ -64,6 +63,7 @@ class MedicineController extends Controller
             ->latest()
             ->paginate(20)
             ->withQueryString();
+
         return view('pharmacy.inventory.index', compact('medicines'));
     }
 
@@ -75,13 +75,13 @@ class MedicineController extends Controller
     public function create()
     {
         Gate::authorize('create', Medicine::class);
+
         return view('pharmacy.inventory.create');
     }
 
     /**
      * Store a newly created medicine in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -114,32 +114,30 @@ class MedicineController extends Controller
     /**
      * Display the specified medicine.
      *
-     * @param \App\Models\Medicine $medicine
      * @return \Illuminate\View\View
      */
     public function show(Medicine $medicine)
     {
         Gate::authorize('view', $medicine);
+
         return view('pharmacy.inventory.create', compact('medicine'));
     }
 
     /**
      * Show the form for editing the specified medicine.
      *
-     * @param \App\Models\Medicine $medicine
      * @return \Illuminate\View\View
      */
     public function edit(Medicine $medicine)
     {
         Gate::authorize('update', $medicine);
+
         return view('pharmacy.inventory.create', compact('medicine'));
     }
 
     /**
      * Update the specified medicine in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Medicine $medicine
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Medicine $medicine)
@@ -172,13 +170,13 @@ class MedicineController extends Controller
     /**
      * Soft delete the specified medicine.
      *
-     * @param \App\Models\Medicine $medicine
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Medicine $medicine)
     {
         Gate::authorize('delete', $medicine);
         $medicine->delete();
+
         return redirect()->route('pharmacy.medicines.index')->with('success', 'Medicine deleted successfully.');
     }
 
@@ -192,7 +190,6 @@ class MedicineController extends Controller
      * - Formats results for Select2 or similar UI components
      * - Returns price and stock information
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function search(Request $request)
@@ -206,11 +203,11 @@ class MedicineController extends Controller
 
             // If no clinic context, we can't check stock, but we might still want to return medicines (e.g. for global admin)
             // For now, if no clinic, we return empty to be safe, unless we decide otherwise.
-            if (!$clinicId) {
+            if (! $clinicId) {
                 // Optional: Allow global search if no clinic?
                 // For now, let's assume we need a clinic context for stock.
                 // If the user is Super Admin and hasn't selected a clinic, they shouldn't be here typically.
-                 return response()->json([
+                return response()->json([
                     'results' => [],
                     'pagination' => ['more' => false],
                 ]);
@@ -238,16 +235,16 @@ class MedicineController extends Controller
             }
 
             if ($quantityColumn) {
-                $query->withSum(['batches as stock' => function ($q) use ($clinicId, $quantityColumn) {
+                $query->withSum(['batches as stock' => function ($q) use ($clinicId) {
                     $q->where('medicine_batches.clinic_id', $clinicId);
                 }], $quantityColumn);
             }
 
             if ($term !== '') {
                 $query->where(function ($q) use ($term) {
-                    $q->where('name', 'like', '%' . $term . '%')
-                        ->orWhere('generic_name', 'like', '%' . $term . '%')
-                        ->orWhere('manufacturer', 'like', '%' . $term . '%');
+                    $q->where('name', 'like', '%'.$term.'%')
+                        ->orWhere('generic_name', 'like', '%'.$term.'%')
+                        ->orWhere('manufacturer', 'like', '%'.$term.'%');
                 });
             }
 
@@ -260,11 +257,11 @@ class MedicineController extends Controller
 
                 $label = $m->name;
 
-                if (!empty($m->strength)) {
-                    $label .= ' (' . $m->strength . ')';
+                if (! empty($m->strength)) {
+                    $label .= ' ('.$m->strength.')';
                 }
 
-                $label .= ' — Stock: ' . $stock;
+                $label .= ' — Stock: '.$stock;
 
                 return [
                     'id' => $m->id,

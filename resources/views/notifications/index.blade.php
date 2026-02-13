@@ -2,10 +2,17 @@
     <div class="card mt-2 mx-2">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Notifications</h5>
-            <form action="{{ route('notifications.markAllRead') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-sm btn-primary">Mark All as Read</button>
-            </form>
+            <div class="d-flex gap-2">
+                <form action="{{ route('notifications.markAllRead') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-primary">Mark All as Read</button>
+                </form>
+                <form action="{{ url('/notifications') }}" method="POST" onsubmit="return confirm('Delete all notifications?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-sm btn-danger">Delete All</button>
+                </form>
+            </div>
         </div>
         <div class="card-body">
             <!-- Filter Form -->

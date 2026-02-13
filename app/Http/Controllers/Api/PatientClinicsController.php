@@ -17,14 +17,13 @@ class PatientClinicsController extends Controller
      * Get a list of clinics the authenticated patient belongs to.
      * Aggregates clinics from legacy relationships and new pivot tables.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
@@ -47,10 +46,11 @@ class PatientClinicsController extends Controller
             if ($patient->clinic) {
                 $list->push($patient->clinic); // Add legacy clinic
             }
+
             return $list;
         })
-        ->unique('id')
-        ->values();
+            ->unique('id')
+            ->values();
 
         return response()->json([
             'clinics' => $clinics,

@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\PatientVital;
 use App\Models\User;
 
 class PatientVitalPolicy
@@ -12,4 +11,3 @@ class PatientVitalPolicy
         return $user->hasRole('Nurse') || $user->hasRole('Doctor');
     }
 }
-

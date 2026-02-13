@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Shield, Edit2, Camera, Save } from 'lucide-react';
 import Button from '../../components/common/Button';
 import { useAuth } from '../../context/AuthContext';
-import { formatDate } from 'date-fns';
+import { format } from 'date-fns';
 import API_ENDPOINTS from '../../services/endpoints';
 import api from '../../services/api';
 import { useUI } from '../../context/UIContext';
@@ -17,6 +17,7 @@ const Profile = () => {
     address: '',
     dob: '',
     bloodGroup: '',
+    patient_code: '',
     avatar: null
   });
   const [passwordData, setPasswordData] = useState({
@@ -29,21 +30,43 @@ const Profile = () => {
   const { user: authUser, setUser: setAuthUser } = useAuth();
   // toast for success and error messages
 
-  useEffect(() => {
-    if (authUser) {
-      setUser({
-        name: authUser.name || '',
-        patient_code: authUser.patient_code || '',
-        email: authUser.email || '',
-        phone: authUser.phone || '',
-        address: authUser.address || '',
-        dob: formatDate(new Date(authUser.date_of_birth), 'yyyy-MM-dd') || '',
-        bloodGroup: authUser.blood_group || '',
-        avatar: authUser.profile_photo || null
-      });
-      setAvatarPreview(null); // Reset preview when authUser changes
+  const getFormUserFromAuthUser = (u) => {
+    if (!u) {
+      return {
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        dob: '',
+        bloodGroup: '',
+        patient_code: '',
+        avatar: null,
+      };
     }
-  }, [authUser]);
+
+    const dob = u.date_of_birth ? format(new Date(u.date_of_birth), 'yyyy-MM-dd') : '';
+
+    return {
+      name: u.name || '',
+      patient_code: u.patient_code || '',
+      email: u.email || '',
+      phone: u.phone || '',
+      address: u.address || '',
+      dob,
+      bloodGroup: u.blood_group || '',
+      avatar: u.profile_photo || null,
+    };
+  };
+
+  const displayUser = isEditing ? user : getFormUserFromAuthUser(authUser);
+
+  const startEditing = () => {
+    setUser(getFormUserFromAuthUser(authUser));
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setPasswordData({ current_password: '', new_password: '', new_password_confirmation: '' });
+    setIsEditing(true);
+  };
 
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -122,9 +145,9 @@ const Profile = () => {
     if (avatarPreview) {
       // If there's a preview (user just uploaded), use the blob URL
       return avatarPreview;
-    } else if (user.avatar) {
+    } else if (displayUser.avatar) {
       // Otherwise use the server URL
-      return `${import.meta.env.VITE_BACKEND_BASE_URL}/${user.avatar}`;
+      return `${import.meta.env.VITE_BACKEND_BASE_URL}/${displayUser.avatar}`;
     }
     return null;
   };
@@ -138,7 +161,7 @@ const Profile = () => {
         </div>
         <Button
           variant={isEditing ? 'primary' : 'outline'}
-          onClick={isEditing ? handleSave : () => setIsEditing(true)}
+          onClick={isEditing ? handleSave : startEditing}
         >
           {isEditing ? <Save className="w-4 h-4 mr-2" /> : <Edit2 className="w-4 h-4 mr-2" />}
           {isEditing ? 'Save Changes' : 'Edit Profile'}
@@ -153,11 +176,11 @@ const Profile = () => {
               {getAvatarUrl() ? (
                 <img
                   src={getAvatarUrl()}
-                  alt={user.name}
+                  alt={displayUser.name}
                   className="w-full h-full object-cover"
                 />
               ) : (
-                user.name.charAt(0)
+                displayUser.name.charAt(0)
               )}
             </div>
             {isEditing && (
@@ -176,8 +199,8 @@ const Profile = () => {
               </label>
             )}
           </div>
-          <h2 className="text-xl font-bold text-secondary-900 dark:text-white mb-1">{user.name}</h2>
-          <p className="text-secondary-500 dark:text-secondary-400 mb-4">Patient ID: #{user.patient_code}</p>
+          <h2 className="text-xl font-bold text-secondary-900 dark:text-white mb-1">{displayUser.name}</h2>
+          <p className="text-secondary-500 dark:text-secondary-400 mb-4">Patient ID: #{displayUser.patient_code}</p>
           <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-500/20 text-sm font-medium">
             <Shield className="w-4 h-4 mr-2" />
             Verified Patient
@@ -195,7 +218,7 @@ const Profile = () => {
                 <input
                   type="text"
                   name="name"
-                  value={user.name}
+                  value={displayUser.name}
                   onChange={handleChange}
                   disabled={!isEditing}
                   className="w-full pl-10 pr-4 py-2 bg-secondary-50 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed text-secondary-900 dark:text-white placeholder:text-secondary-400"
@@ -210,7 +233,7 @@ const Profile = () => {
                 <input
                   type="email"
                   name="email"
-                  value={user.email}
+                  value={displayUser.email}
                   onChange={handleChange}
                   disabled={!isEditing}
                   className="w-full pl-10 pr-4 py-2 bg-secondary-50 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed text-secondary-900 dark:text-white placeholder:text-secondary-400"
@@ -225,7 +248,7 @@ const Profile = () => {
                 <input
                   type="tel"
                   name="phone"
-                  value={user.phone}
+                  value={displayUser.phone}
                   onChange={handleChange}
                   disabled={!isEditing}
                   className="w-full pl-10 pr-4 py-2 bg-secondary-50 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed text-secondary-900 dark:text-white"
@@ -240,7 +263,7 @@ const Profile = () => {
                 <input
                   type="date"
                   name="dob"
-                  value={user.dob}
+                  value={displayUser.dob}
                   onChange={handleChange}
                   disabled={!isEditing}
                   className="w-full pl-10 pr-4 py-2 bg-secondary-50 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed text-secondary-900 dark:text-white"
@@ -254,7 +277,7 @@ const Profile = () => {
                 <MapPin className="absolute left-3 top-3 w-5 h-5 text-secondary-400" />
                 <textarea
                   name="address"
-                  value={user.address}
+                  value={displayUser.address}
                   onChange={handleChange}
                   disabled={!isEditing}
                   rows="3"

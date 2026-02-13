@@ -17,12 +17,12 @@ trait BelongsToClinic
     {
         static::addGlobalScope('clinic', function (Builder $builder) {
 
-            if (!TenantContext::hasClinic()) {
+            if (! TenantContext::hasClinic()) {
                 return;
             }
 
             $builder->where(
-                $builder->getModel()->getTable() . '.clinic_id',
+                $builder->getModel()->getTable().'.clinic_id',
                 TenantContext::getClinicId()
             );
         });

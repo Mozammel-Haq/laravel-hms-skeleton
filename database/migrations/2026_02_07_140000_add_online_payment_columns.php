@@ -12,25 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('admission_deposits', function (Blueprint $table) {
-            if (!Schema::hasColumn('admission_deposits', 'status')) {
+            if (! Schema::hasColumn('admission_deposits', 'status')) {
                 $table->string('status')->default('success')->after('amount'); // Default success for existing cash payments
             }
-            if (!Schema::hasColumn('admission_deposits', 'gateway')) {
+            if (! Schema::hasColumn('admission_deposits', 'gateway')) {
                 $table->string('gateway')->nullable()->after('payment_method');
             }
-            if (!Schema::hasColumn('admission_deposits', 'gateway_transaction_id')) {
+            if (! Schema::hasColumn('admission_deposits', 'gateway_transaction_id')) {
                 $table->string('gateway_transaction_id')->nullable()->after('gateway');
             }
         });
 
         Schema::table('payments', function (Blueprint $table) {
-            if (!Schema::hasColumn('payments', 'status')) {
+            if (! Schema::hasColumn('payments', 'status')) {
                 $table->string('status')->default('success')->after('amount'); // Default success for existing cash payments
             }
-            if (!Schema::hasColumn('payments', 'gateway')) {
+            if (! Schema::hasColumn('payments', 'gateway')) {
                 $table->string('gateway')->nullable()->after('payment_method');
             }
-            if (!Schema::hasColumn('payments', 'gateway_transaction_id')) {
+            if (! Schema::hasColumn('payments', 'gateway_transaction_id')) {
                 $table->string('gateway_transaction_id')->nullable()->after('gateway');
             }
         });

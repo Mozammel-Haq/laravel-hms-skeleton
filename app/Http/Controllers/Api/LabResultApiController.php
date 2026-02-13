@@ -21,7 +21,6 @@ class LabResultApiController extends Controller
      * Display a listing of lab results.
      * Supports filtering by status and search.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -35,8 +34,12 @@ class LabResultApiController extends Controller
             $foundPatient = Patient::withoutTenant()
                 ->where('clinic_id', $requestedClinicId)
                 ->where(function ($q) use ($user) {
-                    if ($user->email) $q->where('email', $user->email);
-                    if ($user->phone) $q->orWhere('phone', $user->phone);
+                    if ($user->email) {
+                        $q->where('email', $user->email);
+                    }
+                    if ($user->phone) {
+                        $q->orWhere('phone', $user->phone);
+                    }
                 })
                 ->first();
 
@@ -92,13 +95,13 @@ class LabResultApiController extends Controller
                 'date' => $order->order_date ? $order->order_date->format('Y-m-d') : '',
                 'status' => ucfirst($order->status),
                 'doctor' => $order->doctor && $order->doctor->user ? $order->doctor->user->name : 'Unknown Doctor',
-                'result' => $result ? ($result->result_value . ' ' . $result->unit) : 'Pending',
+                'result' => $result ? ($result->result_value.' '.$result->unit) : 'Pending',
                 'file' => $result && $result->pdf_path ? URL::signedRoute('patient.lab-results.download', ['result' => $result->id]) : null,
             ];
         });
 
         return response()->json([
-            'results' => $results
+            'results' => $results,
         ]);
     }
 }

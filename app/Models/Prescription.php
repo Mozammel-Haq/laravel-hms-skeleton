@@ -3,8 +3,7 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Models\Concerns\LogsActivity;
 /**
  * Prescription Model
  *
@@ -19,7 +18,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PrescriptionItem[] $items
  * @property-read \App\Models\Consultation $consultation
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PatientComplaint[] $complaints
@@ -27,12 +25,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\PharmacySale|null $pharmacySale
  */
 
-use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\NotifiesRoles;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Prescription extends BaseTenantModel
 {
-    use SoftDeletes, LogsActivity, NotifiesRoles;
+    use LogsActivity, NotifiesRoles, SoftDeletes;
 
     protected static function booted()
     {
@@ -43,13 +41,11 @@ class Prescription extends BaseTenantModel
 
     public function getActivityDescription($action)
     {
-        return ucfirst($action) . " prescription #{$this->id}";
+        return ucfirst($action)." prescription #{$this->id}";
     }
 
     /**
      * Get the items in the prescription.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function items(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -58,18 +54,14 @@ class Prescription extends BaseTenantModel
 
     /**
      * Get the consultation associated with the prescription.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function consultation(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Consultation::class, "consultation_id");
+        return $this->belongsTo(Consultation::class, 'consultation_id');
     }
 
     /**
      * Get the complaints associated with the prescription.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function complaints(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
@@ -78,8 +70,6 @@ class Prescription extends BaseTenantModel
 
     /**
      * Get the clinic associated with the prescription.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function clinic(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -88,8 +78,6 @@ class Prescription extends BaseTenantModel
 
     /**
      * Get the doctors associated with the prescription through consultation.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
     public function doctors(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
@@ -98,8 +86,6 @@ class Prescription extends BaseTenantModel
 
     /**
      * Get the pharmacy sale associated with the prescription.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function pharmacySale(): \Illuminate\Database\Eloquent\Relations\HasOne
     {

@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \App\Models\Visit $visit
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Prescription[] $prescriptions
  * @property-read \App\Models\Prescription|null $prescription
@@ -32,12 +31,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Consultation extends BaseTenantModel
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     public function getActivityDescription($action)
     {
         $patientName = $this->patient ? $this->patient->name : 'Unknown Patient';
-        return ucfirst($action) . " consultation for {$patientName}";
+
+        return ucfirst($action)." consultation for {$patientName}";
     }
 
     public $timestamps = true;
@@ -56,6 +56,7 @@ class Consultation extends BaseTenantModel
 
     protected $casts = [
         'symptoms' => 'array',
+        'follow_up_date' => 'date',
     ];
 
     /**

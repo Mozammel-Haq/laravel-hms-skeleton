@@ -23,6 +23,8 @@ const services = [
 
 const ServicesSection = () => {
   const [activeService, setActiveService] = useState(services[0]);
+  const MotionDiv = motion.div;
+  const MotionButton = motion.button;
 
   return (
     <section className="py-20 bg-gradient-to-br from-secondary-50 via-white to-secondary-100/50 dark:from-secondary-950 dark:via-secondary-900 dark:to-secondary-950 transition-colors duration-300 overflow-hidden">
@@ -67,7 +69,7 @@ const ServicesSection = () => {
               {/* Central Info Card */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-[48%] h-[48%] min-w-[200px] min-h-[200px] rounded-full bg-white dark:bg-secondary-800 shadow-2xl flex flex-col items-center justify-center p-6 text-center border-4 border-secondary-100 dark:border-secondary-700 transition-all duration-300">
                 <AnimatePresence mode="wait">
-                  <motion.div
+                  <MotionDiv
                     key={activeService.id}
                     initial={{ opacity: 0, scale: 0.8, rotateY: -90 }}
                     animate={{ opacity: 1, scale: 1, rotateY: 0 }}
@@ -85,7 +87,7 @@ const ServicesSection = () => {
                     <Link to="/services" className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
                       Learn More <ArrowRight className="w-3 h-3" />
                     </Link>
-                  </motion.div>
+                  </MotionDiv>
                 </AnimatePresence>
               </div>
 
@@ -95,7 +97,7 @@ const ServicesSection = () => {
                 const baseAngle = (index / total) * 360;
                 
                 return (
-                  <motion.div
+                  <MotionDiv
                     key={service.id}
                     className="absolute top-1/2 left-1/2"
                     style={{
@@ -113,7 +115,7 @@ const ServicesSection = () => {
                       ease: "linear",
                     }}
                   >
-                    <motion.button
+                    <MotionButton
                       className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 z-10
                         ${activeService.id === service.id 
                           ? 'bg-gradient-to-br from-primary-500 to-primary-600 text-white ring-4 ring-primary-200 dark:ring-primary-800 scale-110 shadow-primary-500/50' 
@@ -136,7 +138,7 @@ const ServicesSection = () => {
                         rotate: `${-(baseAngle)}deg`, // Keep icons upright
                       }}
                     >
-                      <motion.div
+                      <MotionDiv
                         animate={{
                           rotate: [0, -360],
                         }}
@@ -147,9 +149,9 @@ const ServicesSection = () => {
                         }}
                       >
                         <service.icon className="w-7 h-7" />
-                      </motion.div>
-                    </motion.button>
-                  </motion.div>
+                      </MotionDiv>
+                    </MotionButton>
+                  </MotionDiv>
                 );
               })}
             </div>

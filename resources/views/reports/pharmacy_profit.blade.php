@@ -150,8 +150,8 @@
                     <div>
                         <h3 class="page-title mb-1">Pharmacy Profit Report</h3>
                         <p class="text-primary fw-semibold mb-0">
-                            Period: {{ \Carbon\Carbon::parse($startDate)->format('M d, Y') }} -
-                            {{ \Carbon\Carbon::parse($endDate)->format('M d, Y') }}
+                            Period: {{ $startDate->format('M d, Y') }} -
+                            {{ $endDate->format('M d, Y') }}
                         </p>
                     </div>
                     <div class="d-flex gap-2">

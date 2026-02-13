@@ -29,7 +29,7 @@ class DoctorScheduleExceptionController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->doctor) {
+        if (! $user->doctor) {
             abort(403, 'User is not a doctor');
         }
 
@@ -68,7 +68,7 @@ class DoctorScheduleExceptionController extends Controller
     public function create()
     {
         $user = Auth::user();
-        if (!$user->doctor) {
+        if (! $user->doctor) {
             abort(403, 'User is not a doctor');
         }
 
@@ -78,13 +78,12 @@ class DoctorScheduleExceptionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
         $user = Auth::user();
-        if (!$user->doctor) {
+        if (! $user->doctor) {
             abort(403, 'User is not a doctor');
         }
 
@@ -103,7 +102,7 @@ class DoctorScheduleExceptionController extends Controller
             'doctor_id' => $doctor->id,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
-            'reason' => $request->reason
+            'reason' => $request->reason,
         ]);
 
         // Check for overlapping exceptions
@@ -123,8 +122,9 @@ class DoctorScheduleExceptionController extends Controller
             Log::warning('Duplicate exception prevented', [
                 'doctor_id' => $doctor->id,
                 'start_date' => $request->start_date,
-                'end_date' => $request->end_date
+                'end_date' => $request->end_date,
             ]);
+
             return back()->withErrors(['start_date' => 'An exception already exists for this date range.'])->withInput();
         }
 
@@ -151,7 +151,7 @@ class DoctorScheduleExceptionController extends Controller
     public function destroy(DoctorScheduleException $exception)
     {
         $user = Auth::user();
-        if (!$user->doctor || $exception->doctor_id !== $user->doctor->id) {
+        if (! $user->doctor || $exception->doctor_id !== $user->doctor->id) {
             abort(403);
         }
 

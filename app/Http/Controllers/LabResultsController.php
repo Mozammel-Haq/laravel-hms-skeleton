@@ -27,11 +27,11 @@ class LabResultsController extends Controller
             $search = request('search');
             $query->where(function ($q) use ($search) {
                 $q->whereHas('order.patient', function ($sub) use ($search) {
-                    $sub->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('patient_code', 'like', '%' . $search . '%');
+                    $sub->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('patient_code', 'like', '%'.$search.'%');
                 })->orWhereHas('order.test', function ($sub) use ($search) {
-                    $sub->where('name', 'like', '%' . $search . '%');
-                })->orWhere('result_value', 'like', '%' . $search . '%');
+                    $sub->where('name', 'like', '%'.$search.'%');
+                })->orWhere('result_value', 'like', '%'.$search.'%');
             });
         }
 
@@ -59,12 +59,11 @@ class LabResultsController extends Controller
     /**
      * Download the result PDF (for authorized staff).
      *
-     * @param \App\Models\LabTestResult $result
      * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\RedirectResponse
      */
     public function download(LabTestResult $result)
     {
-        if (!$result->pdf_path || !Storage::disk('public')->exists($result->pdf_path)) {
+        if (! $result->pdf_path || ! Storage::disk('public')->exists($result->pdf_path)) {
             return back()->with('error', 'No result file attached.');
         }
 
@@ -74,12 +73,11 @@ class LabResultsController extends Controller
     /**
      * View the result PDF in browser (for authorized staff).
      *
-     * @param \App\Models\LabTestResult $result
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
      */
     public function viewFile(LabTestResult $result)
     {
-        if (!$result->pdf_path || !Storage::disk('public')->exists($result->pdf_path)) {
+        if (! $result->pdf_path || ! Storage::disk('public')->exists($result->pdf_path)) {
             return back()->with('error', 'No result file attached.');
         }
 
@@ -89,8 +87,6 @@ class LabResultsController extends Controller
     /**
      * Download the result PDF via signed link (for patients).
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\LabTestResult $result
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function patientDownload(Request $request, LabTestResult $result)
@@ -99,7 +95,7 @@ class LabResultsController extends Controller
             abort(403, 'Invalid or expired link.');
         }
 
-        if (!$result->pdf_path || !Storage::disk('public')->exists($result->pdf_path)) {
+        if (! $result->pdf_path || ! Storage::disk('public')->exists($result->pdf_path)) {
             abort(404);
         }
 

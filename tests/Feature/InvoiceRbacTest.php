@@ -25,7 +25,7 @@ class InvoiceRbacTest extends TestCase
             'city' => 'City',
             'country' => 'Country',
             'timezone' => 'UTC',
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
     }
 

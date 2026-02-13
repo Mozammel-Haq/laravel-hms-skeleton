@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Notifications\DatabaseNotification;
-
 /**
  * NotificationController
  *
@@ -51,19 +48,21 @@ class NotificationController extends Controller
         }
 
         $notifications = $query->latest()->paginate(20)->withQueryString();
+
         return view('notifications.index', compact('notifications'));
     }
 
     /**
      * Mark a specific notification as read.
      *
-     * @param string $id
+     * @param  string  $id
      * @return \Illuminate\Http\RedirectResponse
      */
     public function markAsRead($id)
     {
         $notification = auth()->user()->notifications()->findOrFail($id);
         $notification->markAsRead();
+
         return back()->with('success', 'Notification marked as read.');
     }
 
@@ -75,19 +74,33 @@ class NotificationController extends Controller
     public function markAllRead()
     {
         auth()->user()->unreadNotifications->markAsRead();
+
         return back()->with('success', 'All notifications marked as read.');
     }
 
     /**
      * Remove the specified notification.
      *
-     * @param string $id
+     * @param  string  $id
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id)
     {
         $notification = auth()->user()->notifications()->findOrFail($id);
         $notification->delete();
+
         return back()->with('success', 'Notification removed.');
+    }
+
+    /**
+     * Remove all notifications for the current user.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroyAll()
+    {
+        auth()->user()->notifications()->delete();
+
+        return back()->with('success', 'All notifications removed.');
     }
 }

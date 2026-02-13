@@ -36,7 +36,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Department[] $departments
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Patient[] $patients
@@ -49,10 +48,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Clinic extends Model
 {
     use SoftDeletes;
+
     protected $casts = [
         'created_at' => 'date',
         'services' => 'array',
+        'opening_time' => 'datetime',
+        'closing_time' => 'datetime',
     ];
+
     protected $guarded = ['id'];
 
     /**

@@ -11,7 +11,53 @@ import MedicalLoader from '../../components/loaders/MedicalLoader';
 const Dashboard = () => {
   const { user } = useAuth();
   const { activeClinic, activeClinicId } = useClinic();
-  
+
+  const extractHm = (value) => {
+    const m = String(value || "").match(/(\d{1,2}):(\d{2})/);
+    if (!m) return null;
+    return { hh: m[1], mm: m[2] };
+  };
+
+  const formatTime12hFromString = (hm, dateStr) => {
+    try {
+      const base = dateStr ? new Date(dateStr) : new Date();
+      const parts = extractHm(hm);
+      if (!parts) return hm || "";
+      const hh = parts.hh;
+      const mm = parts.mm;
+      const dt = new Date(
+        base.getFullYear(),
+        base.getMonth(),
+        base.getDate(),
+        Number(hh),
+        Number(mm),
+        0,
+        0
+      );
+      return new Intl.DateTimeFormat(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }).format(dt);
+    } catch {
+      return hm || "";
+    }
+  };
+
+  const buildLocalDateTimeFromStrings = (dateStr, timeStr) => {
+    try {
+      if (!dateStr || !timeStr) return null;
+      const [y, m, d] = String(dateStr).split("-").map((v) => Number(v));
+      const hm = extractHm(timeStr);
+      if (!hm) return null;
+      const dt = new Date(y, m - 1, d, Number(hm.hh), Number(hm.mm), 0, 0);
+      if (Number.isNaN(dt.getTime())) return null;
+      return dt;
+    } catch {
+      return null;
+    }
+  };
+
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
       upcomingAppointments: [],
@@ -45,6 +91,14 @@ const Dashboard = () => {
   }, [user, activeClinicId]);
 
   const { upcomingAppointments, recentVitals, prescriptionsCount, nextVisit } = stats;
+  const now = new Date();
+  const filteredUpcoming = Array.isArray(upcomingAppointments)
+    ? upcomingAppointments.filter((apt) => {
+        const dt = buildLocalDateTimeFromStrings(apt.date, apt.time);
+        if (!dt) return false;
+        return dt > now;
+      })
+    : [];
 
   if (loading) {
       return (
@@ -76,7 +130,7 @@ const Dashboard = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-secondary-500 dark:text-secondary-400">Appointments</p>
-            <p className="text-xl font-bold text-secondary-900 dark:text-white">{upcomingAppointments.length} Upcoming</p>
+            <p className="text-xl font-bold text-secondary-900 dark:text-white">{filteredUpcoming.length} Upcoming</p>
           </div>
         </div>
 
@@ -123,9 +177,9 @@ const Dashboard = () => {
             </Link>
           </div>
           <div className="p-6 flex-1">
-            {upcomingAppointments.length > 0 ? (
+            {filteredUpcoming.length > 0 ? (
               <div className="space-y-4">
-                {upcomingAppointments.map((apt) => (
+                {filteredUpcoming.map((apt) => (
                   <div key={apt.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-secondary-50 dark:bg-secondary-800/50 rounded-lg border border-secondary-200 dark:border-secondary-800 hover:border-primary-500/30 transition-colors">
                     <div className="flex items-start space-x-4 mb-4 sm:mb-0">
                       <div className="bg-white dark:bg-secondary-800 p-2 rounded-lg border border-secondary-200 dark:border-secondary-700 text-primary-600 dark:text-primary-400 font-bold text-center min-w-[60px]">
@@ -137,7 +191,7 @@ const Dashboard = () => {
                         <p className="text-sm text-secondary-500 dark:text-secondary-400">{apt.specialty}</p>
                         <div className="flex items-center text-xs text-secondary-500 dark:text-secondary-500 mt-1">
                           <Clock className="w-3 h-3 mr-1" />
-                          {apt.time}
+                          {formatTime12hFromString(apt.time, apt.date)}
                         </div>
                       </div>
                     </div>

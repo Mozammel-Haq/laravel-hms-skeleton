@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Concerns\LogsActivity;
 /**
  * PatientVital Model
  *
@@ -27,7 +26,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon $recorded_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Patient $patient
  * @property-read \App\Models\Visit|null $visit
  * @property-read \App\Models\Admission|null $admission
@@ -35,7 +33,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\User $recorder
  */
 
-use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class PatientVital extends Model
 {
@@ -44,7 +42,8 @@ class PatientVital extends Model
     public function getActivityDescription($action)
     {
         $patientName = $this->patient ? $this->patient->name : 'Unknown Patient';
-        return ucfirst($action) . " vitals for {$patientName} (BP: {$this->blood_pressure}, Temp: {$this->temperature})";
+
+        return ucfirst($action)." vitals for {$patientName} (BP: {$this->blood_pressure}, Temp: {$this->temperature})";
     }
 
     protected $table = 'patient_vitals';
@@ -74,8 +73,6 @@ class PatientVital extends Model
      * Get the patient associated with the vitals.
      *
      * Relationship: Belongs to Patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function patient(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -87,8 +84,6 @@ class PatientVital extends Model
      *
      * Relationship: Belongs to Visit.
      * Optional link if vitals were taken during an outpatient visit.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function visit(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -100,8 +95,6 @@ class PatientVital extends Model
      *
      * Relationship: Belongs to Admission.
      * Optional link if vitals were taken during an admission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function admission(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -113,8 +106,6 @@ class PatientVital extends Model
      *
      * Relationship: Belongs to InpatientRound.
      * Optional link if vitals were taken during a doctor's round.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function round(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -126,8 +117,6 @@ class PatientVital extends Model
      *
      * Relationship: Belongs to User.
      * Tracks the staff member who took the measurements.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function recorder(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -2,31 +2,32 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Department;
-use App\Models\Medicine;
-use App\Models\Room;
+use App\Models\Admission;
+use App\Models\Appointment;
 use App\Models\Bed;
-use App\Models\Ward;
 use App\Models\Clinic;
+use App\Models\Department;
+use App\Models\Doctor;
+use App\Models\LabTest;
+use App\Models\Medicine;
+use App\Models\Patient;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\Room;
+use App\Models\User;
+use App\Models\Ward;
+use App\Policies\MedicinePolicy;
 use App\Support\TenantContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\Role;
-use App\Models\Permission;
-use App\Models\Patient;
-use App\Models\Doctor;
-use App\Models\Appointment;
-use App\Models\LabTest;
-use App\Models\Admission;
 use Illuminate\Support\Facades\Gate;
-use App\Policies\MedicinePolicy;
+use Tests\TestCase;
 
 class CrudGapAnalysisTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $admin;
 
     protected function setUp(): void
@@ -45,7 +46,7 @@ class CrudGapAnalysisTest extends TestCase
             'country' => 'Test Country',
             'timezone' => 'UTC',
             'currency' => 'USD',
-            'status' => 'active'
+            'status' => 'active',
         ]);
         TenantContext::setClinicId($this->clinic->id);
 
@@ -69,14 +70,14 @@ class CrudGapAnalysisTest extends TestCase
             'view_patients', 'create_patients', 'edit_patients', 'delete_patients',
             'view_doctors', 'create_doctors', 'edit_doctors', 'delete_doctors',
             'view_appointments', 'create_appointments', 'edit_appointments', 'delete_appointments',
-            'view_lab', 'create_lab', 'edit_lab', 'delete_lab'
+            'view_lab', 'create_lab', 'edit_lab', 'delete_lab',
         ];
 
         $permissionIds = [];
         foreach ($permissions as $perm) {
             // Check if permission exists first (global scope)
             $p = Permission::where('name', $perm)->first();
-            if (!$p) {
+            if (! $p) {
                 $p = Permission::create(['name' => $perm]);
             }
             $permissionIds[] = $p->id;
@@ -98,7 +99,7 @@ class CrudGapAnalysisTest extends TestCase
         $response = $this->post(route('departments.store'), [
             'name' => 'Cardiology',
             'description' => 'Heart stuff',
-            'status' => 'active'
+            'status' => 'active',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('departments', ['name' => 'Cardiology']);
@@ -114,7 +115,7 @@ class CrudGapAnalysisTest extends TestCase
         $response = $this->put(route('departments.update', $dept), [
             'name' => 'Cardiology Updated',
             'description' => 'Heart stuff updated',
-            'status' => 'inactive'
+            'status' => 'inactive',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('departments', ['name' => 'Cardiology Updated']);
@@ -139,7 +140,7 @@ class CrudGapAnalysisTest extends TestCase
             'stock_quantity' => 100,
             'sku' => 'PARA123',
             'manufacturer' => 'PharmaCorp',
-            'status' => 'active'
+            'status' => 'active',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('medicines', ['name' => 'Paracetamol']);
@@ -160,7 +161,7 @@ class CrudGapAnalysisTest extends TestCase
             'stock_quantity' => 150,
             'sku' => 'PARA123',
             'manufacturer' => 'PharmaCorp',
-            'status' => 'active'
+            'status' => 'active',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('medicines', ['name' => 'Paracetamol Extra']);
@@ -180,7 +181,7 @@ class CrudGapAnalysisTest extends TestCase
             'clinic_id' => $this->clinic->id,
             'name' => 'General Ward',
             'type' => 'general',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // Create
@@ -189,7 +190,7 @@ class CrudGapAnalysisTest extends TestCase
             'room_number' => '101',
             'room_type' => 'Private',
             'daily_rate' => 500,
-            'status' => 'available'
+            'status' => 'available',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('rooms', ['room_number' => '101']);
@@ -207,7 +208,7 @@ class CrudGapAnalysisTest extends TestCase
             'room_number' => '101-B',
             'room_type' => 'Private Deluxe',
             'daily_rate' => 600,
-            'status' => 'occupied'
+            'status' => 'occupied',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('rooms', ['room_number' => '101-B']);
@@ -232,7 +233,7 @@ class CrudGapAnalysisTest extends TestCase
             'role_id' => $nurseRole->id,
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'status' => 'active'
+            'status' => 'active',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('users', ['email' => 'joy@example.com']);
@@ -248,7 +249,7 @@ class CrudGapAnalysisTest extends TestCase
         $response = $this->put(route('staff.update', $staff), [
             'name' => 'Nurse Joy Updated',
             'role_id' => $nurseRole->id,
-            'profile_photo' => null
+            'profile_photo' => null,
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('users', ['name' => 'Nurse Joy Updated']);
@@ -272,7 +273,7 @@ class CrudGapAnalysisTest extends TestCase
             'phone' => '1234567890',
             'address' => '123 Main St',
             'nid_number' => '1234567890123',
-            'status' => 'active'
+            'status' => 'active',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('patients', ['name' => 'John Doe']);
@@ -292,7 +293,7 @@ class CrudGapAnalysisTest extends TestCase
             'phone' => '1234567890',
             'address' => '123 Main St Updated',
             'nid_number' => '1234567890123',
-            'status' => 'active'
+            'status' => 'active',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('patients', ['name' => 'John Doe Updated']);
@@ -320,7 +321,7 @@ class CrudGapAnalysisTest extends TestCase
             'primary_department_id' => $dept->id,
             'specialization' => ['Neurosurgeon'],
             'license_number' => 'DOC12345',
-            'status' => 'active'
+            'status' => 'active',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('users', ['email' => 'strange@example.com']);
@@ -343,7 +344,7 @@ class CrudGapAnalysisTest extends TestCase
             'primary_department_id' => $dept->id,
             'specialization' => ['Master of Mystic Arts'],
             'license_number' => 'DOC12345',
-            'status' => 'active'
+            'status' => 'active',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('doctors', ['license_number' => 'DOC12345']);
@@ -365,7 +366,7 @@ class CrudGapAnalysisTest extends TestCase
             'user_id' => $doctorUser->id,
             'clinic_id' => $this->clinic->id,
             'primary_department_id' => $dept->id,
-            'specialization' => 'Ortho'
+            'specialization' => ['Ortho'],
         ]);
 
         $patient = Patient::create([
@@ -376,7 +377,7 @@ class CrudGapAnalysisTest extends TestCase
             'phone' => '5555555555',
             'address' => '456 Lane',
             'nid_number' => '9999999999999',
-            'patient_code' => 'P-12345'
+            'patient_code' => 'P-12345',
         ]);
 
         // Create
@@ -385,7 +386,8 @@ class CrudGapAnalysisTest extends TestCase
             'doctor_id' => $doctor->id,
             'appointment_date' => now()->addDay()->format('Y-m-d'),
             'start_time' => '10:00',
-            'type' => 'consultation'
+            'type' => 'consultation',
+            'appointment_type' => 'in_person',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('appointments', ['patient_id' => $patient->id]);
@@ -402,10 +404,12 @@ class CrudGapAnalysisTest extends TestCase
             'appointment_date' => now()->addDays(2)->format('Y-m-d'),
             'start_time' => '11:00',
             'status' => 'pending',
-            'type' => 'follow_up'
+            'appointment_type' => 'in_person',
         ]);
         $response->assertRedirect();
-        $this->assertDatabaseHas('appointments', ['start_time' => '11:00']);
+
+        $appointment->refresh();
+        $this->assertEquals('11:00', $appointment->start_time->format('H:i'));
 
         // Delete
         $response = $this->delete(route('appointments.destroy', $appointment));
@@ -424,7 +428,7 @@ class CrudGapAnalysisTest extends TestCase
             'category' => 'Hematology',
             'price' => 500,
             'status' => 'active',
-            'description' => 'Complete Blood Count'
+            'description' => 'Complete Blood Count',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('lab_tests', ['name' => 'CBC']);
@@ -442,7 +446,7 @@ class CrudGapAnalysisTest extends TestCase
             'category' => 'Hematology',
             'price' => 550,
             'status' => 'inactive',
-            'description' => 'Complete Blood Count Updated'
+            'description' => 'Complete Blood Count Updated',
         ]);
         $response->assertRedirect();
         $this->assertDatabaseHas('lab_tests', ['name' => 'CBC Updated']);
@@ -461,7 +465,7 @@ class CrudGapAnalysisTest extends TestCase
         $doctor = Doctor::factory()->create([
             'clinic_id' => $this->clinic->id,
             'user_id' => User::factory()->create(['clinic_id' => $this->clinic->id])->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $patient = Patient::factory()->create(['clinic_id' => $this->clinic->id]);
@@ -470,22 +474,22 @@ class CrudGapAnalysisTest extends TestCase
             'clinic_id' => $this->clinic->id,
             'name' => 'General Ward',
             'type' => 'general',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $room = Room::create([
-                'ward_id' => $ward->id,
-                'room_number' => '101',
-                'room_type' => 'general',
-                'status' => 'available',
-                'daily_rate' => 100
-            ]);
+            'ward_id' => $ward->id,
+            'room_number' => '101',
+            'room_type' => 'general',
+            'status' => 'available',
+            'daily_rate' => 100,
+        ]);
 
-            $bed = Bed::create([
-                'room_id' => $room->id,
-                'bed_number' => '101-A',
-                'status' => 'available',
-            ]);
+        $bed = Bed::create([
+            'room_id' => $room->id,
+            'bed_number' => '101-A',
+            'status' => 'available',
+        ]);
 
         // Create Admission
         $response = $this->post(route('ipd.store'), [
@@ -495,7 +499,7 @@ class CrudGapAnalysisTest extends TestCase
             'admission_reason' => 'Severe fever',
             'bed_id' => $bed->id,
             'admission_fee' => 500,
-            'deposit_amount' => 1000
+            'deposit_amount' => 1000,
         ]);
 
         $response->assertRedirect();

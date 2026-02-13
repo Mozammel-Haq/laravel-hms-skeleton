@@ -8,7 +8,7 @@ class UserPolicy extends BaseTenantPolicy
 {
     public function viewAny(User $user): bool
     {
-        return !empty($user->clinic_id);
+        return ! empty($user->clinic_id);
     }
 
     public function view(User $user, User $subject): bool
@@ -18,7 +18,7 @@ class UserPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->clinic_id);
+        return ! empty($user->clinic_id);
     }
 
     public function update(User $user, User $subject): bool
@@ -31,4 +31,3 @@ class UserPolicy extends BaseTenantPolicy
         return $user->clinic_id === $subject->clinic_id;
     }
 }
-

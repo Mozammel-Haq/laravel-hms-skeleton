@@ -12,6 +12,7 @@ class PatientWelcomeMail extends Mailable
     use Queueable, SerializesModels;
 
     public Patient $patient;
+
     public string $temporaryPassword;
 
     public function __construct(Patient $patient, string $temporaryPassword)

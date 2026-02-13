@@ -27,6 +27,32 @@ import api from "../../services/api";
 import API_ENDPOINTS from "../../services/endpoints";
 import { useAuth } from "../../context/AuthContext";
 
+const formatTime12hFromString = (hm, dateStr) => {
+    try {
+        const base = dateStr ? new Date(dateStr) : new Date();
+        const parts = String(hm || "").split(":");
+        const hh = parts[0];
+        const mm = parts[1];
+        if (!hh || !mm) return hm || "";
+        const dt = new Date(
+            base.getFullYear(),
+            base.getMonth(),
+            base.getDate(),
+            parseInt(hh, 10),
+            parseInt(mm, 10),
+            0,
+            0
+        );
+        return new Intl.DateTimeFormat(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+        }).format(dt);
+    } catch {
+        return hm || "";
+    }
+};
+
 // Schema
 const bookingSchema = z.object({
     department: z.string().min(1, "Please select a department"),
@@ -69,7 +95,6 @@ const BookAppointment = () => {
         handleSubmit,
         watch,
         setValue,
-        resetField,
         formState: { errors, isSubmitting },
     } = useForm({
         resolver: zodResolver(bookingSchema),
@@ -96,7 +121,7 @@ const BookAppointment = () => {
                 const { doctors: docs = [] } = response.data.clinics?.[0] || {};
                 setDoctors(docs);
                 setDepartments(depts);
-            } catch (error) {
+            } catch (_error) {
                 setFetchError("Failed to load doctors. Please try again.");
                 addToast("error", "Could not load doctors list.");
             } finally {
@@ -147,7 +172,7 @@ const BookAppointment = () => {
                 );
                 const slots = response.data.slots || response.data || [];
                 setAvailableSlots(slots);
-            } catch (error) {
+            } catch (_error) {
                 setAvailableSlots([]);
             } finally {
                 setIsLoadingSlots(false);
@@ -200,7 +225,7 @@ const BookAppointment = () => {
                 } else {
                     setValue("type", "new");
                 }
-            } catch (error) {
+            } catch (_error) {
                 setValue("type", "new");
             } finally {
                 setIsCheckingHistory(false);
@@ -308,10 +333,10 @@ const BookAppointment = () => {
             }
 
             navigate("/portal/appointments");
-        } catch (error) {
-            console.error("Booking failed:", error);
+        } catch (_error) {
+            console.error("Booking failed:", _error);
             const msg =
-                error.response?.data?.message || "Failed to process request";
+                _error.response?.data?.message || "Failed to process request";
             addToast("error", msg);
         }
     };
@@ -800,7 +825,7 @@ const BookAppointment = () => {
                                             Date & Time:
                                         </span>
                                         <span className="font-medium text-secondary-900 dark:text-white">
-                                            {watch("date")} at {watch("time")}
+                                            {watch("date")} at {formatTime12hFromString(watch("time"), watch("date"))}
                                         </span>
                                     </div>
                                     <div className="flex justify-between border-t border-secondary-200 dark:border-secondary-700 pt-2 mt-2">

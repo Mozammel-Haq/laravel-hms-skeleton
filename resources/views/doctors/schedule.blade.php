@@ -154,15 +154,15 @@
                                                 <td>
                                                     <input type="time"
                                                         name="schedules[{{ $index }}][start_time]"
-                                                        class="form-control"
-                                                        value="{{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}"
+                                                        class="form-control form-control-sm"
+                                                        value="{{ $schedule->start_time->format('H:i') }}"
                                                         required>
                                                 </td>
                                                 <td>
                                                     <input type="time"
                                                         name="schedules[{{ $index }}][end_time]"
-                                                        class="form-control"
-                                                        value="{{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}"
+                                                        class="form-control form-control-sm"
+                                                        value="{{ $schedule->end_time->format('H:i') }}"
                                                         required>
                                                 </td>
                                                 <td>

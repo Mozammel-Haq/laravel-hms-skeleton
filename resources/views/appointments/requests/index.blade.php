@@ -34,8 +34,8 @@
                                 <tr>
                                     <td>{{ $request->created_at->format('Y-m-d H:i') }}</td>
                                     <td>
-                                        <div class="fw-bold">{{ $request->appointment->patient->name }}</div>
-                                        <div class="text-muted small">{{ $request->appointment->patient->phone }}</div>
+                                        <div class="fw-bold">{{ $request->appointment?->patient?->name ?? '-' }}</div>
+                                        <div class="text-muted small">{{ $request->appointment?->patient?->phone ?? '-' }}</div>
                                     </td>
                                     <td>
                                         <span class="badge bg-{{ $request->type === 'cancel' ? 'danger' : 'warning' }}">
@@ -44,16 +44,16 @@
                                     </td>
                                     <td>
                                         <div class="small">
-                                            Dr. {{ $request->appointment->doctor->user->name }}<br>
-                                            {{ $request->appointment->appointment_date->format('Y-m-d') }}
-                                            {{ \Carbon\Carbon::parse($request->appointment->start_time)->format('h:i A') }}
+                                            Dr. {{ $request->appointment?->doctor?->user?->name ?? '-' }}<br>
+                                            {{ $request->appointment?->appointment_date?->format('Y-m-d') ?? '-' }}
+                                            {{ $request->appointment?->start_time?->format('h:i A') ?? '-' }}
                                         </div>
                                     </td>
                                     <td>
                                         @if ($request->type === 'reschedule')
                                             <div class="text-primary fw-bold">
-                                                {{ $request->desired_date->format('Y-m-d') }} <br>
-                                                {{ \Carbon\Carbon::parse($request->desired_time)->format('h:i A') }}
+                                                {{ $request->desired_date?->format('Y-m-d') ?? '-' }} <br>
+                                                {{ $request->desired_time ? $request->desired_time->format('h:i A') : '-' }}
                                             </div>
                                         @else
                                             <span class="text-muted">-</span>

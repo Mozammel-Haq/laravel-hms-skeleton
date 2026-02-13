@@ -434,8 +434,13 @@ const slides = [
 const HeroSection = () => {
     const [[page, direction], setPage] = useState([0, 0]);
     const [isPaused, setIsPaused] = useState(false);
+    const MotionDiv = motion.div;
 
     const slideIndex = ((page % slides.length) + slides.length) % slides.length;
+
+    const paginate = (newDirection) => {
+        setPage(([prevPage]) => [prevPage + newDirection, newDirection]);
+    };
 
     useEffect(() => {
         if (isPaused) return;
@@ -443,11 +448,7 @@ const HeroSection = () => {
             paginate(1);
         }, 6000);
         return () => clearInterval(timer);
-    }, [isPaused, page]);
-
-    const paginate = (newDirection) => {
-        setPage([page + newDirection, newDirection]);
-    };
+    }, [isPaused]);
 
     const handleDragEnd = (event, info) => {
         const swipeThreshold = 10;
@@ -493,7 +494,7 @@ const HeroSection = () => {
             </div>
 
             <AnimatePresence initial={false} custom={direction}>
-                <motion.div
+                <MotionDiv
                     key={page}
                     custom={direction}
                     variants={variants}
@@ -513,7 +514,7 @@ const HeroSection = () => {
                         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 xl:grid-cols-2 gap-12 items-center min-h-min xl:h-full mt-16 xl:mt-0">
                             {/* Content Column */}
                             <div className="flex flex-col justify-center z-20 text-center xl:text-left order-1 xl:order-1 pt-40 xl:pt-0">
-                                <motion.div
+                                <MotionDiv
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
@@ -575,7 +576,7 @@ const HeroSection = () => {
                                             </Button>
                                         </Link>
                                     </div>
-                                </motion.div>
+                                </MotionDiv>
                             </div>
 
                             {/* Illustration Column */}
@@ -586,7 +587,7 @@ const HeroSection = () => {
                             </div>
                         </div>
                     </div>
-                </motion.div>
+                </MotionDiv>
             </AnimatePresence>
 
             {/* Slide Indicators */}

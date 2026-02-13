@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Support\TenantContext;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-
-use App\Support\TenantContext;
 
 class UpdatePatientRequest extends FormRequest
 {
@@ -37,13 +36,13 @@ class UpdatePatientRequest extends FormRequest
                 'nullable',
                 'regex:/^[0-9]{10,17}$/',
                 'required_without_all:birth_certificate_number,passport_number',
-                Rule::unique('patients')->ignore($patientId)
+                Rule::unique('patients')->ignore($patientId),
             ],
             'birth_certificate_number' => [
                 'nullable',
                 'regex:/^[0-9]{10,20}$/',
                 'required_without_all:nid_number,passport_number',
-                Rule::unique('patients')->ignore($patientId)
+                Rule::unique('patients')->ignore($patientId),
             ],
             'passport_number' => [
                 'nullable',
@@ -51,7 +50,7 @@ class UpdatePatientRequest extends FormRequest
                 'min:6',
                 'max:20',
                 'required_without_all:nid_number,birth_certificate_number',
-                Rule::unique('patients')->ignore($patientId)
+                Rule::unique('patients')->ignore($patientId),
             ],
         ];
     }

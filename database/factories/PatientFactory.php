@@ -15,9 +15,9 @@ class PatientFactory extends Factory
     {
         return [
             'clinic_id' => function () {
-                 return Clinic::query()->value('id') ?? Clinic::create([
+                return Clinic::query()->value('id') ?? Clinic::create([
                     'name' => 'Test Clinic',
-                    'code' => 'TEST-CLINIC-' . fake()->unique()->randomNumber(3),
+                    'code' => 'TEST-CLINIC-'.fake()->unique()->randomNumber(3),
                     'address_line_1' => '123 Test Street',
                     'city' => 'Test City',
                     'country' => 'Testland',

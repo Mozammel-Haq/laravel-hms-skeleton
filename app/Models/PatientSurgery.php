@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Concerns\LogsActivity;
 /**
  * PatientSurgery Model
  *
@@ -19,11 +18,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $notes
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Patient $patient
  */
 
-use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class PatientSurgery extends Model
 {
@@ -32,7 +30,8 @@ class PatientSurgery extends Model
     public function getActivityDescription($action)
     {
         $patientName = $this->patient ? $this->patient->name : 'Unknown Patient';
-        return ucfirst($action) . " surgery ({$this->surgery_name}) for {$patientName}";
+
+        return ucfirst($action)." surgery ({$this->surgery_name}) for {$patientName}";
     }
 
     protected $fillable = [
@@ -52,8 +51,6 @@ class PatientSurgery extends Model
      * Get the patient associated with the surgery.
      *
      * Relationship: Belongs to Patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function patient(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -9,7 +9,7 @@ import Button from '../../components/common/Button';
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, login } = useAuth(); // login is used to update user context
+  const { user } = useAuth();
   const { addToast } = useUI();
   
   const [activeTab, setActiveTab] = useState('profile');
@@ -24,6 +24,8 @@ const Settings = () => {
     blood_group: '',
     date_of_birth: '',
   });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
 
   // Password Form State
   const [passwordData, setPasswordData] = useState({
@@ -49,25 +51,44 @@ const Settings = () => {
         blood_group: user.blood_group || '',
         date_of_birth: user.date_of_birth ? user.date_of_birth.split('T')[0] : '',
       });
+      setAvatarPreview(user.profile_photo ? `${import.meta.env.VITE_BACKEND_BASE_URL}/${user.profile_photo}` : null);
     }
   }, [user]);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Create FormData to handle potential file uploads in future
-      // For now, we send JSON is fine too, but controller supports file
-      // If we use FormData, we must not set Content-Type manually, axios does it
-      // But for simple text, JSON is easier. Let's try JSON first as controller validates standard fields.
-      // Wait, PatientProfileController expects standard request inputs.
-      
-      const response = await api.put(API_ENDPOINTS.PATIENT.UPDATE_PROFILE(user.id), profileData);
+      const formData = new FormData();
+      formData.append('name', profileData.name || '');
+      formData.append('email', profileData.email || '');
+      formData.append('phone', profileData.phone || '');
+      formData.append('address', profileData.address || '');
+      formData.append('blood_group', profileData.blood_group || '');
+      formData.append('date_of_birth', profileData.date_of_birth || '');
+      if (avatarFile) {
+        formData.append('profile_photo', avatarFile);
+      }
+      formData.append('_method', 'PUT');
+      const response = await api.post(API_ENDPOINTS.PATIENT.UPDATE_PROFILE(user.id), formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       
       addToast('success', 'Profile updated successfully');
-      // Update local user context if possible, or trigger a reload
-      // Assuming login() can be used to set user data or we need a specific setUser
-      // For now, just toast.
+      if (response?.data?.data) {
+        // Update preview and clear selected file
+        const updated = response.data.data;
+        setAvatarFile(null);
+        setAvatarPreview(updated.profile_photo ? `${import.meta.env.VITE_BACKEND_BASE_URL}/${updated.profile_photo}` : null);
+      }
       
     } catch (error) {
       console.error('Profile update failed:', error);
@@ -149,6 +170,37 @@ const Settings = () => {
             <form onSubmit={handleProfileUpdate} className="space-y-6">
               <h2 className="text-lg font-bold text-secondary-900 dark:text-white mb-4">Personal Information</h2>
               
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-500/10 overflow-hidden border-2 border-white dark:border-secondary-800">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-primary-600 dark:text-primary-400">
+                        <User className="w-8 h-8" />
+                      </div>
+                    )}
+                  </div>
+                  <label
+                    htmlFor="avatarUpload"
+                    className="absolute -bottom-2 -right-2 bg-primary-600 hover:bg-primary-700 text-white p-2 rounded-full cursor-pointer"
+                  >
+                    <Camera className="w-4 h-4" />
+                    <input
+                      id="avatarUpload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+                <div className="text-sm text-secondary-500 dark:text-secondary-400">
+                  <div>Upload a profile photo (JPEG/PNG/GIF, max 2MB)</div>
+                  <div className="mt-1">This helps doctors identify you more easily.</div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-secondary-700 dark:text-secondary-300">Full Name</label>

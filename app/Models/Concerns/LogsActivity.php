@@ -36,7 +36,7 @@ trait LogsActivity
         }
 
         try {
-            $description = ucfirst($action) . ' ' . class_basename($model);
+            $description = ucfirst($action).' '.class_basename($model);
             if (method_exists($model, 'getActivityDescription')) {
                 $description = $model->getActivityDescription($action);
             }
@@ -52,7 +52,7 @@ trait LogsActivity
             ]);
         } catch (\Exception $e) {
             // Fail silently or log to file to avoid breaking the main transaction
-            logger()->error("Failed to log activity: " . $e->getMessage());
+            logger()->error('Failed to log activity: '.$e->getMessage());
         }
     }
 }

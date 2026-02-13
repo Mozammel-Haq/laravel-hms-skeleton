@@ -32,7 +32,7 @@ class DoctorRoundCreatedNotification extends Notification
             'message' => "Dr. {$doctorName} completed a round for {$patientName}.",
             'link' => route('ipd.show', $this->round->admission_id),
             'type' => 'info',
-            'round_id' => $this->round->id
+            'round_id' => $this->round->id,
         ];
     }
 }

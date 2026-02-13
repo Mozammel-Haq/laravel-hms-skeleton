@@ -31,8 +31,8 @@ class VisitController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('id', $search)
                     ->orWhereHas('appointment.patient', function ($sub) use ($search) {
-                        $sub->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                        $sub->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('patient_code', 'like', '%'.$search.'%');
                     });
             });
         }
@@ -46,19 +46,20 @@ class VisitController extends Controller
         }
 
         $visits = $query->paginate(20)->withQueryString();
+
         return view('visits.index', compact('visits'));
     }
 
     /**
      * Remove the specified visit from storage (Soft Delete).
      *
-     * @param  \App\Models\Visit  $visit
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Visit $visit)
     {
         Gate::authorize('delete', $visit);
         $visit->delete();
+
         return redirect()->route('visits.index')->with('success', 'Visit deleted successfully.');
     }
 
@@ -67,26 +68,25 @@ class VisitController extends Controller
         $visit = Visit::withTrashed()->findOrFail($id);
         Gate::authorize('delete', $visit);
         $visit->restore();
+
         return redirect()->route('visits.index')->with('success', 'Visit restored successfully.');
     }
 
     /**
      * Display the specified visit details.
      *
-     * @param  \App\Models\Visit  $visit
      * @return \Illuminate\View\View
      */
     public function show(Visit $visit)
     {
         $visit->load(['appointment.patient', 'consultation']);
+
         return view('visits.show', compact('visit'));
     }
 
     /**
      * Create an invoice for a procedure performed during the visit.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Visit  $visit
      * @return void
      */
     public function storeProcedureInvoice(Request $request, Visit $visit)
@@ -106,17 +106,18 @@ class VisitController extends Controller
                 'item_type' => 'service',
                 'reference_id' => null,
                 'description' => $data['description'],
-                'quantity' => (int)$data['quantity'],
-                'unit_price' => (float)$data['unit_price'],
+                'quantity' => (int) $data['quantity'],
+                'unit_price' => (float) $data['unit_price'],
             ]],
             $visit->appointment_id,
-            discount: (float)($data['discount'] ?? 0),
-            tax: (float)($data['tax'] ?? 0),
+            discount: (float) ($data['discount'] ?? 0),
+            tax: (float) ($data['tax'] ?? 0),
             visitId: $visit->id,
             invoiceType: 'procedure',
             createdBy: auth()->id(),
             finalize: true
         );
+
         return redirect()->route('visits.show', $visit)->with('success', 'Procedure invoice generated.');
     }
 
@@ -128,6 +129,7 @@ class VisitController extends Controller
             ->latest()
             ->take(50)
             ->get();
+
         return view('visits.create', compact('appointments'));
     }
 
@@ -144,7 +146,7 @@ class VisitController extends Controller
 
         $visit = DB::transaction(function () use ($appointment, $data) {
             $visit = Visit::where('appointment_id', $appointment->id)->latest()->first();
-            if (!$visit) {
+            if (! $visit) {
                 $visit = Visit::create([
                     'appointment_id' => $appointment->id,
                     'check_in_time' => now(),
@@ -153,7 +155,7 @@ class VisitController extends Controller
             }
 
             $consultation = $visit->consultation;
-            if (!$consultation) {
+            if (! $consultation) {
                 $consultation = Consultation::create([
                     'visit_id' => $visit->id,
                     'doctor_id' => $appointment->doctor_id,
@@ -176,8 +178,8 @@ class VisitController extends Controller
                 $appointment->patient,
                 $items,
                 $appointment->id,
-                discount: (float)($data['discount'] ?? 0),
-                tax: (float)($data['tax'] ?? 0),
+                discount: (float) ($data['discount'] ?? 0),
+                tax: (float) ($data['tax'] ?? 0),
                 visitId: $visit->id,
                 invoiceType: 'consultation',
                 createdBy: auth()->id(),

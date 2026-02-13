@@ -200,15 +200,15 @@
                                         <tr>
                                             <td class="ps-4 fw-medium">
                                                 @if ($s->schedule_date)
-                                                    <span class="text-primary">{{ \Carbon\Carbon::parse($s->schedule_date)->format('d M Y') }}</span>
+                                                    <span class="text-primary">{{ $s->schedule_date->format('d M Y') }}</span>
                                                 @elseif(!is_null($s->day_of_week))
                                                     {{ ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][$s->day_of_week] ?? 'N/A' }}
                                                 @else
                                                     N/A
                                                 @endif
                                             </td>
-                                            <td>{{ $s->start_time ? \Carbon\Carbon::parse($s->start_time)->format('h:i A') : 'N/A' }}</td>
-                                            <td>{{ $s->end_time ? \Carbon\Carbon::parse($s->end_time)->format('h:i A') : 'N/A' }}</td>
+                                            <td>{{ $s->start_time ? $s->start_time->format('h:i A') : 'N/A' }}</td>
+                                            <td>{{ $s->end_time ? $s->end_time->format('h:i A') : 'N/A' }}</td>
                                             <td>
                                                 <span class="badge bg-success-subtle text-success">Active</span>
                                             </td>
@@ -289,7 +289,7 @@
                                             {{ $c->issued_by ?? '' }}
                                             @if ($c->issued_date)
                                                 <span class="mx-1">•</span>
-                                                {{ \Carbon\Carbon::parse($c->issued_date)->format('Y') }}
+                                                {{ $c->issued_date->format('Y') }}
                                             @endif
                                         </div>
                                     </div>

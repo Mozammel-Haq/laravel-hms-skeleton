@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Clinic;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Clinic;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -14,6 +14,7 @@ class RoleFlowTest extends TestCase
     use RefreshDatabase;
 
     protected $superAdmin;
+
     protected $clinic;
 
     protected function setUp(): void
@@ -31,12 +32,12 @@ class RoleFlowTest extends TestCase
         ]);
 
         $this->superAdmin = User::factory()->create(['clinic_id' => $this->clinic->id]);
-        
+
         // Seed basic permissions
         $role = Role::create(['name' => 'Super Admin']);
         // Ensure the user has the Super Admin role
         $this->superAdmin->roles()->attach($role);
-        
+
         // Create permissions needed for testing
         Permission::create(['name' => 'view_roles']);
         Permission::create(['name' => 'create_roles']);
@@ -59,8 +60,8 @@ class RoleFlowTest extends TestCase
             'name' => 'Nurse',
             'description' => 'Nurse role',
             'permissions' => [
-                Permission::where('name', 'view_roles')->first()->id
-            ]
+                Permission::where('name', 'view_roles')->first()->id,
+            ],
         ]);
 
         $response->assertRedirect(route('admin.roles.index'));
@@ -75,7 +76,7 @@ class RoleFlowTest extends TestCase
         $response = $this->actingAs($this->superAdmin)->put(route('admin.roles.update', $role), [
             'name' => 'Front Desk',
             'description' => 'Updated role',
-            'permissions' => []
+            'permissions' => [],
         ]);
 
         $response->assertRedirect(route('admin.roles.index'));

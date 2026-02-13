@@ -24,13 +24,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \App\Models\Invoice $invoice
  * @property-read \App\Models\User $receivedBy
  */
 class Payment extends BaseTenantModel
 {
-    use SoftDeletes, LogsActivity, NotifiesRoles;
+    use LogsActivity, NotifiesRoles, SoftDeletes;
 
     protected static function booted()
     {
@@ -42,13 +41,12 @@ class Payment extends BaseTenantModel
     public function getActivityDescription($action)
     {
         $invoiceNumber = $this->invoice ? $this->invoice->invoice_number : 'Unknown Invoice';
-        return ucfirst($action) . " payment of {$this->amount} for invoice #{$invoiceNumber}";
+
+        return ucfirst($action)." payment of {$this->amount} for invoice #{$invoiceNumber}";
     }
 
     /**
      * Get the invoice associated with the payment.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -57,15 +55,14 @@ class Payment extends BaseTenantModel
 
     /**
      * Get the user who recorded the payment.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function receivedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'received_by');
     }
+
     protected $casts = [
-        'payment_date' => 'datetime',
+        'paid_at' => 'datetime',
         'created_at' => 'datetime',
     ];
 }

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Patient;
+use App\Models\PatientImmunization;
 use App\Models\PatientMedicalHistory;
 use App\Models\PatientSurgery;
-use App\Models\PatientImmunization;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 

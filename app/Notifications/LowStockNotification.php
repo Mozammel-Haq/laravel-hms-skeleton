@@ -2,16 +2,16 @@
 
 namespace App\Notifications;
 
+use App\Models\Medicine;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Notifications\Messages\DatabaseMessage;
-use App\Models\Medicine;
 
 class LowStockNotification extends Notification
 {
     use Queueable;
 
     protected $medicine;
+
     protected $currentStock;
 
     public function __construct(Medicine $medicine, int $currentStock)

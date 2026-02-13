@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -15,14 +14,14 @@ class DefaultClinicUserSeeder extends Seeder
     public function run(): void
     {
         $prefix = env('DB_PREFIX', '');
-        $clinics = $prefix . 'clinics';
-        $users = $prefix . 'users';
-        $roles = $prefix . 'roles';
-        $userRole = $prefix . 'user_role';
+        $clinics = $prefix.'clinics';
+        $users = $prefix.'users';
+        $roles = $prefix.'roles';
+        $userRole = $prefix.'user_role';
 
         $clinicId = DB::table($clinics)->where('email', 'dhcchms@citycare.com')->value('id');
 
-        if (!$clinicId) {
+        if (! $clinicId) {
             $clinicId = DB::table($clinics)->insertGetId([
                 'name' => 'Dhanmondi CityCare',
                 'code' => 'CC-HMS-1',
@@ -49,7 +48,7 @@ class DefaultClinicUserSeeder extends Seeder
 
         $user = DB::table($users)->where('email', 'admin@hospital.com')->first();
 
-        if (!$user) {
+        if (! $user) {
             $user_id = DB::table($users)->insertGetId([
                 'clinic_id' => $clinicId,
                 'email' => 'admin@hospital.com',
@@ -71,10 +70,10 @@ class DefaultClinicUserSeeder extends Seeder
 
         if ($role_id) {
             $exists = DB::table($userRole)->where('user_id', $user_id)->where('role_id', $role_id)->exists();
-            if (!$exists) {
+            if (! $exists) {
                 DB::table($userRole)->insert([
                     'user_id' => $user_id,
-                    'role_id' => $role_id
+                    'role_id' => $role_id,
                 ]);
             }
         }

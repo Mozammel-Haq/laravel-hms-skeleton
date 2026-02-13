@@ -20,7 +20,6 @@ use App\Models\Concerns\LogsActivity;
  * @property string $purchase_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Medicine $medicine
  */
 class MedicineBatch extends BaseTenantModel
@@ -39,7 +38,8 @@ class MedicineBatch extends BaseTenantModel
     public function getActivityDescription($action)
     {
         $medicineName = $this->medicine ? $this->medicine->name : 'Unknown Medicine';
-        return ucfirst($action) . " batch {$this->batch_number} for {$medicineName} (Qty: {$this->quantity_in_stock})";
+
+        return ucfirst($action)." batch {$this->batch_number} for {$medicineName} (Qty: {$this->quantity_in_stock})";
     }
 
     /**
@@ -51,6 +51,7 @@ class MedicineBatch extends BaseTenantModel
     {
         return $this->belongsTo(Medicine::class);
     }
+
     protected $casts = [
         'expiry_date' => 'date',
     ];

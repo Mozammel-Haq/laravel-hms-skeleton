@@ -33,7 +33,7 @@ class PharmacyMedicineSearchTest extends TestCase
             'timezone' => 'UTC',
             'currency' => 'USD',
             'phone' => '1234567890',
-            'email' => 'clinic@test.com'
+            'email' => 'clinic@test.com',
         ]);
 
         $user = User::factory()->create([
@@ -106,4 +106,3 @@ class PharmacyMedicineSearchTest extends TestCase
         $this->assertStringNotContainsString('Old Drug', $names); // inactive filtered out
     }
 }
-

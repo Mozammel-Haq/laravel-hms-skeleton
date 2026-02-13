@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Invoice;
+use App\Models\User;
 
 class InvoicePolicy extends BaseTenantPolicy
 {
@@ -19,7 +19,7 @@ class InvoicePolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasPermission('create_invoices') && !empty($user->clinic_id);
+        return $user->hasPermission('create_invoices') && ! empty($user->clinic_id);
     }
 
     public function update(User $user, Invoice $invoice): bool
@@ -27,6 +27,7 @@ class InvoicePolicy extends BaseTenantPolicy
         if ($invoice->state === 'finalized') {
             return false;
         }
+
         return $this->sameClinic($user, $invoice);
     }
 
@@ -36,6 +37,7 @@ class InvoicePolicy extends BaseTenantPolicy
         if ($invoice->state === 'finalized' && $invoice->status !== 'unpaid') {
             return false;
         }
+
         return $this->sameClinic($user, $invoice);
     }
 }

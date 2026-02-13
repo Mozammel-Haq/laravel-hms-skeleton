@@ -15,8 +15,8 @@ class PatientAuthController extends Controller
      * Authenticate a patient and generate an access token.
      * Supports multi-clinic authentication via clinic_code.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function login(Request $request)
@@ -30,9 +30,9 @@ class PatientAuthController extends Controller
 
         $query = Patient::withoutTenant()->where('email', $validated['email']);
 
-        if (!empty($validated['clinic_code'])) {
+        if (! empty($validated['clinic_code'])) {
             $clinic = Clinic::where('code', $validated['clinic_code'])->first();
-            if (!$clinic) {
+            if (! $clinic) {
                 throw ValidationException::withMessages([
                     'clinic_code' => ['Invalid clinic code'],
                 ]);
@@ -61,7 +61,7 @@ class PatientAuthController extends Controller
                 }
             }
 
-            $msg = 'Multiple accounts found in: ' . implode(', ', $clinicInfo) . '. Please provide the clinic code.';
+            $msg = 'Multiple accounts found in: '.implode(', ', $clinicInfo).'. Please provide the clinic code.';
 
             throw ValidationException::withMessages([
                 'clinic_code' => [$msg],
@@ -91,7 +91,6 @@ class PatientAuthController extends Controller
     /**
      * Destroy an authenticated session.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function logout(Request $request)
@@ -111,13 +110,13 @@ class PatientAuthController extends Controller
 
             $token->delete();
         }
+
         return response()->json(['message' => 'Logged out']);
     }
 
     /**
      * Get the authenticated patient's profile.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function me(Request $request)
@@ -129,8 +128,8 @@ class PatientAuthController extends Controller
      * Change the patient's password.
      * Validates current password before updating.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function changePassword(Request $request)
@@ -143,7 +142,7 @@ class PatientAuthController extends Controller
         /** @var Patient $patient */
         $patient = $request->user();
 
-        if (!$patient || !$patient->password || !Hash::check($validated['current_password'], $patient->password)) {
+        if (! $patient || ! $patient->password || ! Hash::check($validated['current_password'], $patient->password)) {
             throw ValidationException::withMessages([
                 'current_password' => ['Current password is incorrect.'],
             ]);

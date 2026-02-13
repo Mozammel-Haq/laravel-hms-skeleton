@@ -2,16 +2,15 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Clinic;
 use App\Models\Patient;
+use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use App\Models\Role;
-use App\Models\Permission;
 
 class PatientCreateTest extends TestCase
 {
@@ -32,7 +31,7 @@ class PatientCreateTest extends TestCase
         // Create a user with permission
         $user = User::factory()->create([
             'clinic_id' => $clinic->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // Assign role/permissions (assuming Spatie)

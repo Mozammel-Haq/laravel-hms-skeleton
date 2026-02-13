@@ -384,7 +384,7 @@
                         xaxis: { lines: { show: false } }
                     },
                     tooltip: {
-                        theme: 'light',
+                        theme: 'dark',
                         y: {
                             formatter: function (value, { seriesIndex }) {
                                 if(seriesIndex === 0) return "৳" + value.toFixed(2);
@@ -426,7 +426,7 @@
                     dataLabels: { enabled: false },
                     legend: { position: 'bottom' },
                     tooltip: {
-                        theme: 'light',
+                        theme: 'dark',
                         y: {
                             formatter: function (value) {
                                 return "৳" + value.toFixed(2);
@@ -446,6 +446,7 @@
                     chart: {
                         type: 'bar',
                         height: 350,
+                        fontFamily: 'inherit',
                         toolbar: { show: false },
                         animations: { enabled: true }
                     },
@@ -453,18 +454,42 @@
                         bar: {
                             borderRadius: 4,
                             horizontal: true,
+                            barHeight: '70%',
                         }
                     },
                     dataLabels: { enabled: false },
                     xaxis: {
                         categories: @json($chartData['top_doctors']['names']),
-                        labels: { style: { colors: 'var(--bs-secondary)' } }
+                        labels: {
+                            formatter: function (val) {
+                                return val;
+                            }
+                        }
                     },
                     yaxis: {
-                        labels: { style: { colors: 'var(--bs-secondary)' } }
+                        labels: {
+                            show: true,
+                            minWidth: 150,
+                            maxWidth: 300,
+                        }
                     },
                     colors: ['var(--primary-color)'],
-                    tooltip: { theme: 'light' }
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val;
+                            }
+                        },
+                        marker: {
+                            show: true,
+                        }
+                    },
+                    grid: {
+                        padding: {
+                            left: 10
+                        },
+                        borderColor: '#f1f1f1',
+                    }
                 };
                 var topDoctorsChart = new ApexCharts(document.querySelector("#topDoctorsChart"), topDoctorsOptions);
                 topDoctorsChart.render();
@@ -494,7 +519,7 @@
                     },
                     labels: @json($chartData['doctor_status']['labels']),
                     colors: ['var(--bs-success)', 'var(--bs-secondary)'],
-                    tooltip: { theme: 'light' }
+                    tooltip: { theme: 'dark' }
                 };
                 var doctorStatusChart = new ApexCharts(document.querySelector("#doctorAvailabilityChart"), doctorStatusOptions);
                 doctorStatusChart.render();

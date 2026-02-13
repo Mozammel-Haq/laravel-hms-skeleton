@@ -42,6 +42,8 @@
                                         Completed</option>
                                     <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
                                         Cancelled</option>
+                                    <option value="trashed" {{ request('status') == 'trashed' ? 'selected' : '' }}>
+                                        Trashed</option>
                                     <option value="noshow" {{ request('status') == 'noshow' ? 'selected' : '' }}>No Show
                                     </option>
                                 </select>
@@ -83,10 +85,22 @@
                                     <td>
                                         <a href="{{ route('appointments.show', $appointment) }}"
                                             class="text-decoration-none text-body">
-                                            <div class="fw-bold">{{ $appointment->appointment_date }}</div>
+                                            <div class="fw-bold">{{ $appointment->appointment_date?->format('Y-m-d') ?? '-' }}</div>
                                             <div class="text-muted small">
-                                                {{ \Carbon\Carbon::parse($appointment->start_time)->format('h:i A') }}
+                                                {{ $appointment->start_time?->format('h:i A') ?? '-' }}
                                             </div>
+                                            @php
+                                                $isUpcoming = $appointment->isUpcomingNow();
+                                                $isPassed = $appointment->isPassedNow();
+                                                $isOngoing = $appointment->isOngoingNow();
+                                            @endphp
+                                            @if ($isUpcoming === true)
+                                                <span class="badge bg-success-subtle text-success">Upcoming</span>
+                                            @elseif ($isOngoing === true)
+                                                <span class="badge bg-info-subtle text-info">Ongoing</span>
+                                            @elseif ($isPassed === true)
+                                                <span class="badge bg-danger-subtle text-danger">Passed</span>
+                                            @endif
                                         </a>
                                     </td>
                                     <td>
@@ -96,20 +110,20 @@
                                                 <div class="avatar avatar-sm me-2">
                                                     @if ($appointment->patient->profile_photo)
                                                         <img src="{{ asset($appointment->patient->profile_photo) }}"
-                                                            alt="{{ $appointment->patient->name }}"
+                                                            alt="{{ $appointment->patient->name ?? 'Patient' }}"
                                                             class="rounded-circle"
                                                             style="width:32px;height:32px;object-fit:cover;">
                                                     @else
                                                         <span
                                                             class="avatar-title rounded-circle bg-primary-subtle text-primary">
-                                                            {{ substr($appointment->patient->name, 0, 1) }}
+                                                            {{ substr($appointment->patient->name ?? 'P', 0, 1) }}
                                                         </span>
                                                     @endif
                                                 </div>
                                                 <div>
-                                                    <div class="fw-bold">{{ $appointment->patient->name }}</div>
+                                                    <div class="fw-bold">{{ $appointment->patient->name ?? 'Unknown Patient' }}</div>
                                                     <div class="text-muted small">
-                                                        {{ $appointment->patient->patient_code }}
+                                                        {{ $appointment->patient->patient_code ?? '-' }}
                                                     </div>
                                                 </div>
                                             </a>
@@ -248,7 +262,18 @@
                                                                 </form>
                                                             </li>
                                                         @endif
-                                                        @if ($appointment->status == 'confirmed')
+                                                        @php
+                                                            $start = $appointment->startDateTimeTz();
+                                                            $end = $appointment->endDateTimeTz() ?: $start;
+                                                            $tz = optional($appointment->clinic)->timezone ?? config('app.timezone');
+                                                            $now = \Carbon\Carbon::now($tz);
+                                                            $allowEarly = $start ? $now->gte($start->copy()->subMinutes(10)) : false;
+                                                            $allowGrace = $end ? $now->lte($end->copy()->addMinutes(30)) : false;
+                                                            $canStart = ($appointment->isOngoingNow() === true)
+                                                                || ($appointment->isUpcomingNow() === true && $allowEarly)
+                                                                || ($appointment->isPassedNow() === true && $allowGrace);
+                                                        @endphp
+                                                        @if ($appointment->status == 'confirmed' && $canStart)
                                                             <li>
                                                                 <a class="dropdown-item"
                                                                     href="{{ route('clinical.consultations.create', $appointment) }}">
@@ -264,6 +289,21 @@
                                                             </a>
                                                         </li>
                                                     @endcan
+                                                    @can('cancel', $appointment)
+                                                        <li>
+                                                            <form
+                                                                action="{{ route('appointments.status.update', $appointment) }}"
+                                                                method="POST" class="d-inline">
+                                                                @csrf
+                                                                @method('PATCH')
+                                                                <input type="hidden" name="status" value="cancelled">
+                                                                <button type="submit" class="dropdown-item text-danger"
+                                                                    onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                                                    <i class="ti ti-x me-2"></i>Cancel
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endcan
                                                     @can('delete', $appointment)
                                                         <li>
                                                             <form
@@ -272,8 +312,8 @@
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="dropdown-item text-danger"
-                                                                    onclick="return confirm('Are you sure you want to cancel this appointment?')">
-                                                                    <i class="ti ti-trash me-2"></i>Cancel
+                                                                    onclick="return confirm('Are you sure you want to move this appointment to trash?')">
+                                                                    <i class="ti ti-trash me-2"></i>Move to Trash
                                                                 </button>
                                                             </form>
                                                         </li>

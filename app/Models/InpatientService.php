@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Concerns\LogsActivity;
 
 /**
  * InpatientService Model
@@ -22,7 +21,6 @@ use App\Models\Concerns\LogsActivity;
  * @property float $total_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Admission $admission
  */
 class InpatientService extends BaseTenantModel
@@ -33,7 +31,7 @@ class InpatientService extends BaseTenantModel
 
     public function getActivityDescription($action)
     {
-        return ucfirst($action) . " service '{$this->service_name}' for Admission #{$this->admission_id} (Cost: {$this->total_price})";
+        return ucfirst($action)." service '{$this->service_name}' for Admission #{$this->admission_id} (Cost: {$this->total_price})";
     }
 
     /**
@@ -45,7 +43,9 @@ class InpatientService extends BaseTenantModel
     {
         return $this->belongsTo(Admission::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
+        'service_date' => 'date',
     ];
 }

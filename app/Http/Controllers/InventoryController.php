@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expense;
 use App\Models\Medicine;
 use App\Models\MedicineBatch;
-use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -77,13 +77,13 @@ class InventoryController extends Controller
     {
         Gate::authorize('create', MedicineBatch::class); // Needs policy
         $medicines = Medicine::all();
+
         return view('pharmacy.inventory.add-batch', compact('medicines'));
     }
 
     /**
      * Store a newly created batch in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -106,7 +106,7 @@ class InventoryController extends Controller
                 $medicine = Medicine::find($request->medicine_id);
                 Expense::create([
                     'clinic_id' => auth()->user()->clinic_id,
-                    'description' => 'Medicine Purchase: ' . ($medicine ? $medicine->name : 'Unknown') . ' (Batch: ' . $batch->batch_number . ')',
+                    'description' => 'Medicine Purchase: '.($medicine ? $medicine->name : 'Unknown').' (Batch: '.$batch->batch_number.')',
                     'amount' => $batch->purchase_price * $batch->quantity_in_stock,
                     'category' => 'medicine_purchase',
                     'expense_date' => now(),
@@ -118,7 +118,7 @@ class InventoryController extends Controller
 
             return redirect()->route('pharmacy.inventory.index')->with('success', 'Batch added to inventory and expense recorded.');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Failed to add batch: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Failed to add batch: '.$e->getMessage());
         }
     }
 }

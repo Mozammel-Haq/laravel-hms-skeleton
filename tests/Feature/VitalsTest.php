@@ -4,9 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Clinic;
 use App\Models\Patient;
-use App\Models\User;
-use App\Models\PatientVital;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -36,10 +35,10 @@ class VitalsTest extends TestCase
         $doctor = User::factory()->create(['clinic_id' => $clinic->id]);
         $doctor->roles()->attach(Role::where('name', 'Doctor')->first());
 
-        $patient = new Patient();
+        $patient = new Patient;
         $patient->clinic_id = $clinic->id;
         $patient->name = 'Test Patient';
-        $patient->patient_code = 'TEMP-' . uniqid();
+        $patient->patient_code = 'TEMP-'.uniqid();
         $patient->gender = 'Male';
         $patient->date_of_birth = '2000-01-01';
         $patient->save();

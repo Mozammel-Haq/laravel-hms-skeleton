@@ -18,8 +18,11 @@ class PharmacyOtcTest extends TestCase
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $patient;
+
     protected $pharmacist;
+
     protected $medicine;
 
     protected function setUp(): void
@@ -46,7 +49,7 @@ class PharmacyOtcTest extends TestCase
         $pharmPermissions = ['view_pharmacy', 'create_pharmacy_sales', 'view_medicines', 'view_invoices', 'create_invoices', 'process_payments'];
         foreach ($pharmPermissions as $perm) {
             $p = Permission::firstOrCreate(['name' => $perm]);
-            if (!$pharmRole->permissions()->where('name', $perm)->exists()) {
+            if (! $pharmRole->permissions()->where('name', $perm)->exists()) {
                 $pharmRole->permissions()->attach($p);
             }
         }
@@ -100,17 +103,17 @@ class PharmacyOtcTest extends TestCase
                 [
                     'medicine_id' => $this->medicine->id,
                     'quantity' => 5,
-                ]
+                ],
             ],
             'discount' => 0,
             'tax' => 0,
         ]);
 
         $response->assertRedirect();
-        
+
         // Check session for errors
         if (session('error')) {
-            $this->fail('Session has error: ' . session('error'));
+            $this->fail('Session has error: '.session('error'));
         }
 
         // 2. Verify Sale Created
@@ -135,7 +138,7 @@ class PharmacyOtcTest extends TestCase
                 [
                     'medicine_id' => $this->medicine->id,
                     'quantity' => 5, // Total: 50
-                ]
+                ],
             ],
             'paid_amount' => 50.00,
             'payment_method' => 'cash',
@@ -167,7 +170,7 @@ class PharmacyOtcTest extends TestCase
                 [
                     'medicine_id' => $this->medicine->id,
                     'quantity' => 10, // Total: 100
-                ]
+                ],
             ],
             'paid_amount' => 50.00,
             'payment_method' => 'cash',

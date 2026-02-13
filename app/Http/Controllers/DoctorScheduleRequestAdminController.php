@@ -39,8 +39,8 @@ class DoctorScheduleRequestAdminController extends Controller
             $search = request('search');
             $requests->where(function ($q) use ($search) {
                 $q->whereHas('doctor.user', function ($sub) use ($search) {
-                    $sub->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%');
+                    $sub->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('email', 'like', '%'.$search.'%');
                 });
             });
         }
@@ -65,8 +65,6 @@ class DoctorScheduleRequestAdminController extends Controller
      * Approve a doctor's schedule change request.
      * Replaces the doctor's existing schedule with the requested one.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DoctorScheduleRequest  $scheduleRequest
      * @return \Illuminate\Http\RedirectResponse
      */
     public function approve(Request $request, DoctorScheduleRequest $scheduleRequest)
@@ -115,8 +113,6 @@ class DoctorScheduleRequestAdminController extends Controller
     /**
      * Reject a doctor's schedule change request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DoctorScheduleRequest  $scheduleRequest
      * @return \Illuminate\Http\RedirectResponse
      */
     public function reject(Request $request, DoctorScheduleRequest $scheduleRequest)

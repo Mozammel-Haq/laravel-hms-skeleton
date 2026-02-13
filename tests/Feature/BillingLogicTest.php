@@ -6,7 +6,6 @@ use App\Models\Clinic;
 use App\Models\Consultation;
 use App\Models\Department;
 use App\Models\Doctor;
-use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\LabTest;
 use App\Models\LabTestOrder;
@@ -72,8 +71,8 @@ class BillingLogicTest extends TestCase
                     'item_type' => 'lab_order',
                     'quantity' => 1,
                     'unit_price' => 50.00,
-                ]
-            ]
+                ],
+            ],
         ];
 
         // Need permission
@@ -175,8 +174,8 @@ class BillingLogicTest extends TestCase
                     'item_type' => 'consultation',
                     'quantity' => 1,
                     'unit_price' => 100.00,
-                ]
-            ]
+                ],
+            ],
         ];
 
         $this->actingAs($user)->post(route('billing.store'), $billingData)->assertRedirect();

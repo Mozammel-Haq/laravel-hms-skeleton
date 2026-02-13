@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('wards', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('clinic_id')->constrained()->restrictOnDelete();
-        $table->string('name');
-        $table->enum('type', ['general', 'icu', 'cabin']);
-        $table->integer('floor')->nullable();
-        $table->text('description')->nullable();
-        $table->enum('status', ['active', 'inactive'])->default('active');
-        $table->timestamps();
-});
+            $table->id();
+            $table->foreignId('clinic_id')->constrained()->restrictOnDelete();
+            $table->string('name');
+            $table->enum('type', ['general', 'icu', 'cabin']);
+            $table->integer('floor')->nullable();
+            $table->text('description')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->timestamps();
+        });
 
     }
 

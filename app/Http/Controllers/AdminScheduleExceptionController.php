@@ -67,8 +67,6 @@ class AdminScheduleExceptionController extends Controller
     /**
      * Update the status of a schedule exception request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DoctorScheduleException  $exception
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, DoctorScheduleException $exception)
@@ -83,6 +81,6 @@ class AdminScheduleExceptionController extends Controller
             'status' => $request->status,
         ]);
 
-        return back()->with('success', 'Schedule exception ' . $request->status . '.');
+        return back()->with('success', 'Schedule exception '.$request->status.'.');
     }
 }

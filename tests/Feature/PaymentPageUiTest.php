@@ -17,7 +17,9 @@ class PaymentPageUiTest extends TestCase
     use RefreshDatabase;
 
     protected Clinic $clinic;
+
     protected User $user;
+
     protected Patient $patient;
 
     protected function setUp(): void
@@ -32,7 +34,7 @@ class PaymentPageUiTest extends TestCase
             'city' => 'Test City',
             'country' => 'Test Country',
             'timezone' => 'UTC',
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
 
         $this->user = User::factory()->create(['clinic_id' => $this->clinic->id]);
@@ -55,7 +57,7 @@ class PaymentPageUiTest extends TestCase
             'gender' => 'male',
             'date_of_birth' => '1990-01-01',
             'phone' => '1234567890',
-            'address' => '123 Street'
+            'address' => '123 Street',
         ]);
     }
 
@@ -112,7 +114,7 @@ class PaymentPageUiTest extends TestCase
             'payment_method' => 'cash',
             'paid_at' => now(),
             'received_by' => $this->user->id,
-            'clinic_id' => $this->clinic->id
+            'clinic_id' => $this->clinic->id,
         ]);
 
         $response = $this->actingAs($this->user)

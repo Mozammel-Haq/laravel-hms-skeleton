@@ -25,8 +25,8 @@ class LabTestController extends Controller
         $query = LabTest::query();
 
         if (request()->filled('search')) {
-            $query->where('name', 'like', '%' . request('search') . '%')
-                ->orWhere('category', 'like', '%' . request('search') . '%');
+            $query->where('name', 'like', '%'.request('search').'%')
+                ->orWhere('category', 'like', '%'.request('search').'%');
         }
 
         if (request()->filled('status')) {
@@ -42,6 +42,7 @@ class LabTestController extends Controller
         }
 
         $tests = $query->latest()->paginate(20)->withQueryString();
+
         return view('lab.catalog.index', compact('tests'));
     }
 
@@ -60,7 +61,6 @@ class LabTestController extends Controller
      *
      * Validates and creates a new lab test record.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -74,13 +74,13 @@ class LabTestController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
         LabTest::create($request->only('name', 'category', 'description', 'normal_range', 'price', 'status'));
+
         return redirect()->route('lab.catalog.index')->with('success', 'Lab test added');
     }
 
     /**
      * Show the form for editing the specified lab test.
      *
-     * @param  \App\Models\LabTest  $labTest
      * @return \Illuminate\View\View
      */
     public function edit(LabTest $labTest)
@@ -91,8 +91,6 @@ class LabTestController extends Controller
     /**
      * Update the specified lab test in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\LabTest  $labTest
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, LabTest $labTest)
@@ -106,18 +104,19 @@ class LabTestController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
         $labTest->update($request->only('name', 'category', 'description', 'normal_range', 'price', 'status'));
+
         return redirect()->route('lab.catalog.index')->with('success', 'Lab test updated');
     }
 
     /**
      * Remove the specified lab test from storage.
      *
-     * @param  \App\Models\LabTest  $labTest
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(LabTest $labTest)
     {
         $labTest->delete();
+
         return redirect()->route('lab.catalog.index')->with('success', 'Lab test deleted');
     }
 }

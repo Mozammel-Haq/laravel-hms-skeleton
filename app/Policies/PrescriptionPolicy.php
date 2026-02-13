@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Prescription;
+use App\Models\User;
 
 class PrescriptionPolicy extends BaseTenantPolicy
 {
@@ -19,7 +19,7 @@ class PrescriptionPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->clinic_id);
+        return ! empty($user->clinic_id);
     }
 
     public function update(User $user, Prescription $prescription): bool

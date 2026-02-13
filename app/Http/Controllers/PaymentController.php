@@ -44,9 +44,9 @@ class PaymentController extends Controller
             $search = request('search');
             $query->where(function ($q) use ($search) {
                 $q->whereHas('invoice', function ($sub) use ($search) {
-                    $sub->where('invoice_number', 'like', '%' . $search . '%')
+                    $sub->where('invoice_number', 'like', '%'.$search.'%')
                         ->orWhereHas('patient', function ($p) use ($search) {
-                            $p->where('name', 'like', '%' . $search . '%');
+                            $p->where('name', 'like', '%'.$search.'%');
                         });
                 });
             });
@@ -70,26 +70,27 @@ class PaymentController extends Controller
         }
 
         $payments = $query->paginate(50)->withQueryString();
+
         return view('billing.payments.index', compact('payments'));
     }
 
     /**
      * Soft delete the specified payment.
      *
-     * @param Payment $payment
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Payment $payment)
     {
         Gate::authorize('delete', $payment);
         $payment->delete();
+
         return redirect()->back()->with('success', 'Payment deleted successfully.');
     }
 
     /**
      * Restore a soft-deleted payment.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
     public function restore($id)
@@ -97,6 +98,7 @@ class PaymentController extends Controller
         $payment = Payment::withTrashed()->findOrFail($id);
         Gate::authorize('delete', $payment);
         $payment->restore();
+
         return redirect()->back()->with('success', 'Payment restored successfully.');
     }
 
@@ -111,6 +113,7 @@ class PaymentController extends Controller
     public function cash()
     {
         request()->merge(['method' => 'cash']);
+
         return $this->index();
     }
 
@@ -125,6 +128,7 @@ class PaymentController extends Controller
     public function digital()
     {
         request()->merge(['method' => 'digital']);
+
         return $this->index();
     }
 }

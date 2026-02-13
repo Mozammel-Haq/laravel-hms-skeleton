@@ -34,7 +34,7 @@ class BedController extends Controller
             ->select('beds.*');
 
         if (request()->filled('search')) {
-            $query->where('bed_number', 'like', '%' . request('search') . '%');
+            $query->where('bed_number', 'like', '%'.request('search').'%');
         }
 
         if (request()->filled('status') && request('status') !== 'all') {
@@ -50,6 +50,7 @@ class BedController extends Controller
         }
 
         $beds = $query->latest('beds.created_at')->paginate(20)->withQueryString();
+
         return view('ipd.beds.index', compact('beds'));
     }
 
@@ -66,13 +67,13 @@ class BedController extends Controller
             ->select('rooms.*')
             ->orderBy('rooms.room_number')
             ->get();
+
         return view('ipd.beds.create', compact('rooms'));
     }
 
     /**
      * Store a newly created bed.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -83,13 +84,13 @@ class BedController extends Controller
             'status' => 'required|in:available,occupied,maintenance',
         ]);
         Bed::create($request->only('room_id', 'bed_number', 'status') + ['clinic_id' => auth()->user()->clinic_id]);
+
         return redirect()->route('ipd.beds.index')->with('success', 'Bed created');
     }
 
     /**
      * Show the form for editing the specified bed.
      *
-     * @param  \App\Models\Bed  $bed
      * @return \Illuminate\View\View
      */
     public function edit(Bed $bed)
@@ -100,14 +101,13 @@ class BedController extends Controller
             ->select('rooms.*')
             ->orderBy('rooms.room_number')
             ->get();
+
         return view('ipd.beds.edit', compact('bed', 'rooms'));
     }
 
     /**
      * Update the specified bed.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Bed  $bed
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Bed $bed)
@@ -118,13 +118,13 @@ class BedController extends Controller
             'status' => 'required|in:available,occupied,maintenance',
         ]);
         $bed->update($request->only('room_id', 'bed_number', 'status'));
+
         return redirect()->route('ipd.beds.index')->with('success', 'Bed updated');
     }
 
     /**
      * Reorder beds within a room.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function reorder(Request $request)

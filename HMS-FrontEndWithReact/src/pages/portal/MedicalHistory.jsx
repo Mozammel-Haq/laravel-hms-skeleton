@@ -110,8 +110,8 @@ const MedicalHistory = () => {
             <h2 className="font-bold text-red-700 dark:text-red-400">Allergies</h2>
           </div>
           <div className="divide-y divide-secondary-200 dark:divide-secondary-800">
-            {(!data?.allergies || data.allergies.length === 0) ? <div className="p-4 text-center text-secondary-500">No allergies recorded</div> :
-            data.allergies.map((item) => (
+            {filteredAllergies.length === 0 ? <div className="p-4 text-center text-secondary-500">No allergies recorded</div> :
+            filteredAllergies.map((item) => (
               <div key={item.id} className="p-4 hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors">
                 <div className="flex justify-between items-start">
                   <div>
@@ -136,8 +136,8 @@ const MedicalHistory = () => {
             <h2 className="font-bold text-blue-700 dark:text-blue-400">Surgeries & Procedures</h2>
           </div>
           <div className="divide-y divide-secondary-200 dark:divide-secondary-800">
-            {(!data?.surgeries || data.surgeries.length === 0) ? <div className="p-4 text-center text-secondary-500">No surgeries recorded</div> :
-            data.surgeries.map((item) => (
+            {filteredSurgeries.length === 0 ? <div className="p-4 text-center text-secondary-500">No surgeries recorded</div> :
+            filteredSurgeries.map((item) => (
               <div key={item.id} className="p-4 hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors">
                 <div className="flex justify-between items-start">
                   <div>

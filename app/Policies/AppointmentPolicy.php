@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Appointment;
+use App\Models\User;
 
 class AppointmentPolicy extends BaseTenantPolicy
 {
@@ -19,7 +19,7 @@ class AppointmentPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->clinic_id) && $user->hasPermission('create_appointments');
+        return ! empty($user->clinic_id) && $user->hasPermission('create_appointments');
     }
 
     public function update(User $user, Appointment $appointment): bool
@@ -33,6 +33,7 @@ class AppointmentPolicy extends BaseTenantPolicy
         if ($appointment->status === 'confirmed') {
             return false;
         }
+
         return $this->sameClinic($user, $appointment) && $user->hasPermission('cancel_appointments');
     }
 
@@ -42,6 +43,7 @@ class AppointmentPolicy extends BaseTenantPolicy
         if ($appointment->status === 'confirmed') {
             return false;
         }
+
         return $this->sameClinic($user, $appointment) && $user->hasPermission('edit_appointments'); // Assuming delete is restricted or part of edit
     }
 }

@@ -80,7 +80,7 @@
                     <!-- Settings -->
 
                     <!-- Light/Dark Mode Button -->
-                    <div class="header-item d-none d-sm-flex me-2">
+                    <div class="header-item d-flex me-2">
                         <button class="topbar-link btn btn-icon topbar-link" id="light-dark-mode" type="button">
                             <i class="ti ti-moon fs-16"></i>
                         </button>
@@ -109,6 +109,13 @@
                                     <div class="row align-items-center">
                                         <div class="col">
                                             <h6 class="m-0 fs-16 fw-semibold"> Notifications</h6>
+                                        </div>
+                                        <div class="col-auto">
+                                            <form action="{{ url('/notifications') }}" method="POST" class="d-inline" onsubmit="return confirm('Delete all notifications?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Clear All</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

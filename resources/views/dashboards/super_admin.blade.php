@@ -2,7 +2,15 @@
     <div class="container-fluid mx-2 mt-3 min-vh-100">
         <div class="card p-3">
             <div class="d-flex justify-content-between align-items-center bg-primary-subtle p-3 rounded text-primary mb-3">
-                <h4 class="fw-bold text-primary">Super Admin Dashboard</h4>
+                <div class="d-flex align-items-center gap-3">
+                    <h4 class="fw-bold text-primary mb-0">Super Admin Dashboard</h4>
+                    @if(isset($stats['context_name']) && $stats['context_name'] !== 'Global System')
+                        <span class="badge bg-primary fs-6">{{ $stats['context_name'] }}</span>
+                        <a href="{{ route('system.clear-clinic') }}" class="btn btn-sm btn-outline-danger">
+                            <i class="ti ti-x me-1"></i>Clear Filter
+                        </a>
+                    @endif
+                </div>
                 <div class="text-muted">{{ now()->format('l, d M Y') }}</div>
             </div>
 
@@ -285,7 +293,7 @@
                     }],
                     colors: ['var(--primary-color)', 'var(--bs-success)'],
                     tooltip: {
-                        theme: 'light',
+                        theme: 'dark',
                         shared: true,
                         intersect: false
                     },
@@ -337,7 +345,7 @@
                         position: 'bottom'
                     },
                     tooltip: {
-                        theme: 'light',
+                        theme: 'dark',
                         y: {
                             formatter: function(val) {
                                 return val + " Users"

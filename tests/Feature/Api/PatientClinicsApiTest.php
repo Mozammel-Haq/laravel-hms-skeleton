@@ -5,7 +5,6 @@ namespace Tests\Feature\Api;
 use App\Models\Clinic;
 use App\Models\Patient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class PatientClinicsApiTest extends TestCase
@@ -26,7 +25,7 @@ class PatientClinicsApiTest extends TestCase
             'phone' => '1111111111',
             'email' => 'legacy@test.com',
             'timezone' => 'UTC',
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
 
         $clinicPivot1 = Clinic::create([
@@ -40,7 +39,7 @@ class PatientClinicsApiTest extends TestCase
             'phone' => '2222222222',
             'email' => 'pivot1@test.com',
             'timezone' => 'UTC',
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
 
         $clinicPivot2 = Clinic::create([
@@ -54,7 +53,7 @@ class PatientClinicsApiTest extends TestCase
             'phone' => '3333333333',
             'email' => 'pivot2@test.com',
             'timezone' => 'UTC',
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
 
         // 2. Create Legacy Patient (linked via clinic_id)
@@ -78,7 +77,7 @@ class PatientClinicsApiTest extends TestCase
 
         // 5. Request Clinics List
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->getJson('/api/patient/clinics');
 
         // 6. Assertions
@@ -94,8 +93,8 @@ class PatientClinicsApiTest extends TestCase
 
     public function test_deduplicates_clinics_if_linked_both_ways()
     {
-         // 1. Setup Clinic
-         $clinic = Clinic::create([
+        // 1. Setup Clinic
+        $clinic = Clinic::create([
             'name' => 'Dual Link Clinic',
             'code' => 'DLC',
             'address_line_1' => '123 Main St',
@@ -106,7 +105,7 @@ class PatientClinicsApiTest extends TestCase
             'phone' => '1111111111',
             'email' => 'dual@test.com',
             'timezone' => 'UTC',
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
 
         // 2. Create Patient linked via legacy ID
@@ -127,7 +126,7 @@ class PatientClinicsApiTest extends TestCase
 
         // 5. Request
         $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->getJson('/api/patient/clinics');
 
         // 6. Assertions

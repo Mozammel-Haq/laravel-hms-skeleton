@@ -91,8 +91,8 @@
                                         </td>
                                         <td>
                                             @if ($exception->is_available)
-                                                {{ \Carbon\Carbon::parse($exception->start_time)->format('h:i A') }} -
-                                                {{ \Carbon\Carbon::parse($exception->end_time)->format('h:i A') }}
+                                                {{ $exception->start_time->format('h:i A') }} -
+                                                {{ $exception->end_time->format('h:i A') }}
                                             @else
                                                 -
                                             @endif

@@ -39,7 +39,7 @@ class PatientAdmittedNotification extends Notification
             'message' => $message,
             'link' => $link,
             'type' => 'info',
-            'admission_id' => $this->admission->id
+            'admission_id' => $this->admission->id,
         ];
     }
 }

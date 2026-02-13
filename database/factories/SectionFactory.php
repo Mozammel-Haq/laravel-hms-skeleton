@@ -17,7 +17,7 @@ class SectionFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'=>fake()->randomElement(['A','B','C','D','E'])
+            'name' => fake()->randomElement(['A', 'B', 'C', 'D', 'E']),
         ];
     }
 }

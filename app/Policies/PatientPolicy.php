@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Patient;
+use App\Models\User;
 
 class PatientPolicy extends BaseTenantPolicy
 {
@@ -19,7 +19,7 @@ class PatientPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        return !empty($user->clinic_id) && $user->hasPermission('create_patients');
+        return ! empty($user->clinic_id) && $user->hasPermission('create_patients');
     }
 
     public function update(User $user, Patient $patient): bool

@@ -20,7 +20,7 @@ return new class extends Migration
 
         foreach ($tables as $tableName) {
             Schema::table($tableName, function (Blueprint $table) use ($tableName) {
-                if (!Schema::hasColumn($tableName, 'clinic_id')) {
+                if (! Schema::hasColumn($tableName, 'clinic_id')) {
                     $table->foreignId('clinic_id')->nullable()->constrained()->restrictOnDelete();
                 }
             });

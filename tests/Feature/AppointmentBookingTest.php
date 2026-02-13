@@ -6,23 +6,27 @@ use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Department;
 use App\Models\Doctor;
-use App\Models\Patient;
-use App\Models\User;
 use App\Models\DoctorSchedule;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Database\Eloquent\Model;
-use Tests\TestCase;
-use App\Models\Role;
+use App\Models\Patient;
 use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class AppointmentBookingTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $doctorUser;
+
     protected $doctor;
+
     protected $patient;
+
     protected $user;
 
     protected function setUp(): void
@@ -40,7 +44,7 @@ class AppointmentBookingTest extends TestCase
             'city' => 'City',
             'country' => 'Country',
             'timezone' => 'UTC',
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
 
         $this->user = User::factory()->create(['clinic_id' => $this->clinic->id]);
@@ -72,7 +76,7 @@ class AppointmentBookingTest extends TestCase
         $department = Department::create([
             'clinic_id' => $this->clinic->id,
             'name' => 'Cardiology',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // Create Doctor
@@ -84,35 +88,37 @@ class AppointmentBookingTest extends TestCase
             'specialization' => 'Heart',
             'consultation_fee' => 100.00,
             'follow_up_fee' => 50.00,
-            'status' => 'active'
+            'status' => 'active',
         ]);
         $this->doctor->clinics()->attach($this->clinic->id);
 
-        // Create Schedule for Monday (assuming test runs or we force date)
-        DoctorSchedule::create([
-            'doctor_id' => $this->doctor->id,
-            'clinic_id' => $this->clinic->id,
-            'department_id' => $department->id,
-            'day_of_week' => 1, // Monday
-            'start_time' => '09:00:00',
-            'end_time' => '17:00:00',
-            'slot_duration_minutes' => 30,
-            'status' => 'active'
-        ]);
+        // Create Schedule for EVERY DAY to be safe
+        for ($i = 0; $i <= 6; $i++) {
+            DoctorSchedule::create([
+                'doctor_id' => $this->doctor->id,
+                'clinic_id' => $this->clinic->id,
+                'department_id' => $department->id,
+                'day_of_week' => $i,
+                'start_time' => '09:00:00',
+                'end_time' => '17:00:00',
+                'slot_duration_minutes' => 30,
+                'status' => 'active',
+            ]);
+        }
 
         // Create Patient
         $this->patient = Patient::create([
             'clinic_id' => $this->clinic->id,
             'patient_code' => 'P001',
             'name' => 'John Doe',
-            'status' => 'active'
+            'status' => 'active',
         ]);
     }
 
     public function test_it_prevents_double_booking()
     {
         // 1. Create first appointment
-        $date = now()->addDay()->toDateString();
+        $date = now()->addDays(2)->toDateString(); // Ensure it's not today to avoid past slot logic
         $startTime = '09:00';
 
         $this->actingAs($this->user);
@@ -124,6 +130,7 @@ class AppointmentBookingTest extends TestCase
             'appointment_date' => $date,
             'start_time' => $startTime,
             'end_time' => '09:30',
+            'appointment_type' => 'in_person',
         ]);
 
         $response->assertSessionHasNoErrors();
@@ -131,8 +138,8 @@ class AppointmentBookingTest extends TestCase
 
         $this->assertDatabaseHas('appointments', [
             'doctor_id' => $this->doctor->id,
-            'start_time' => '09:00',
-            'end_time' => '09:30',
+            'start_time' => '09:00:00',
+            'end_time' => '09:30:00',
         ]);
 
         // Create another patient to test doctor availability (since same patient cannot book twice on same day)
@@ -140,7 +147,7 @@ class AppointmentBookingTest extends TestCase
             'clinic_id' => $this->clinic->id,
             'patient_code' => 'P002',
             'name' => 'Jane Doe',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // 2. Try to create overlapping appointment (Same time)
@@ -151,6 +158,7 @@ class AppointmentBookingTest extends TestCase
             'appointment_date' => $date,
             'start_time' => $startTime, // Same time
             'end_time' => '09:30',
+            'appointment_type' => 'in_person',
         ]);
 
         $response2->assertSessionHasErrors(['start_time']);
@@ -163,6 +171,7 @@ class AppointmentBookingTest extends TestCase
             'appointment_date' => $date,
             'start_time' => '09:15', // Overlaps with 09:00-09:30
             'end_time' => '09:45',
+            'appointment_type' => 'in_person',
         ]);
 
         $response3->assertSessionHasErrors(['start_time']);
@@ -170,7 +179,7 @@ class AppointmentBookingTest extends TestCase
 
     public function test_it_calculates_fees_correctly()
     {
-        $date = now()->addDay()->toDateString();
+        $date = now()->addDays(2)->toDateString();
         $this->actingAs($this->user);
 
         // 1. First Visit (New)
@@ -181,9 +190,13 @@ class AppointmentBookingTest extends TestCase
             'appointment_date' => $date,
             'start_time' => '10:00',
             'end_time' => '10:30',
+            'appointment_type' => 'in_person',
         ]);
 
-        $appointment1 = Appointment::where('start_time', '10:00')->first();
+        $appointment1 = Appointment::whereDate('appointment_date', $date)
+            ->where('start_time', '10:00:00')
+            ->first();
+        $this->assertNotNull($appointment1, 'Appointment 1 not found');
         $this->assertEquals(100.00, $appointment1->fee);
         $this->assertEquals('new', $appointment1->visit_type);
 
@@ -198,9 +211,13 @@ class AppointmentBookingTest extends TestCase
             'appointment_date' => $date,
             'start_time' => '11:00', // Different slot
             'end_time' => '11:30',
+            'appointment_type' => 'in_person',
         ]);
 
-        $appointment2 = Appointment::where('start_time', '11:00')->first();
+        $appointment2 = Appointment::whereDate('appointment_date', $date)
+            ->where('start_time', '11:00:00')
+            ->first();
+        $this->assertNotNull($appointment2, 'Appointment 2 not found');
         $this->assertEquals(50.00, $appointment2->fee);
         $this->assertEquals('follow_up', $appointment2->visit_type);
     }

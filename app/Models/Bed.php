@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Bed Model
@@ -19,11 +19,9 @@ use App\Models\Concerns\LogsActivity;
  * @property string $status 'available', 'occupied', 'maintenance'
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Room $room
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\BedAssignment[] $assignments
  */
-
 class Bed extends BaseTenantModel
 {
     use LogsActivity;
@@ -31,7 +29,8 @@ class Bed extends BaseTenantModel
     public function getActivityDescription($action)
     {
         $roomNumber = $this->room ? $this->room->room_number : 'Unknown Room';
-        return ucfirst($action) . " bed {$this->bed_number} in room {$roomNumber}";
+
+        return ucfirst($action)." bed {$this->bed_number} in room {$roomNumber}";
     }
 
     /**
@@ -53,6 +52,7 @@ class Bed extends BaseTenantModel
     {
         return $this->hasMany(BedAssignment::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

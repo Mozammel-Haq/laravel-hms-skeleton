@@ -11,18 +11,18 @@ trait NotifiesRoles
     /**
      * Notify users with a specific role in the same clinic.
      *
-     * @param string $roleName
-     * @param string $title
-     * @param string $message
-     * @param string|null $actionUrl
+     * @param  string  $roleName
+     * @param  string  $title
+     * @param  string  $message
+     * @param  string|null  $actionUrl
      * @return void
      */
     public function notifyRole($roleName, $title, $message, $actionUrl = null)
     {
         try {
             $clinicId = $this->clinic_id ?? (auth()->check() ? auth()->user()->clinic_id : null);
-            
-            if (!$clinicId) {
+
+            if (! $clinicId) {
                 return;
             }
 
@@ -36,7 +36,7 @@ trait NotifiesRoles
                 Notification::send($users, new GeneralNotification($title, $message, $actionUrl));
             }
         } catch (\Exception $e) {
-            logger()->error("Failed to notify role {$roleName}: " . $e->getMessage());
+            logger()->error("Failed to notify role {$roleName}: ".$e->getMessage());
         }
     }
 }

@@ -25,7 +25,7 @@ class AppointmentStatusNotification extends Notification
     public function toArray(object $notifiable): array
     {
         $status = ucfirst($this->appointment->status);
-        $type = match($this->appointment->status) {
+        $type = match ($this->appointment->status) {
             'confirmed' => 'success',
             'completed' => 'success',
             'cancelled' => 'error',
@@ -37,7 +37,7 @@ class AppointmentStatusNotification extends Notification
             'message' => "Your appointment on {$this->appointment->appointment_date->format('M d, Y')} is now {$this->appointment->status}.",
             'link' => '/patient/appointments',
             'type' => $type,
-            'appointment_id' => $this->appointment->id
+            'appointment_id' => $this->appointment->id,
         ];
     }
 }

@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Patient;
+use App\Models\Payment;
+use App\Services\PaymentGatewayService;
 use App\Support\TenantContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
-use App\Models\Payment;
-use App\Services\PaymentGatewayService;
 
 class PatientBillingController extends Controller
 {
@@ -53,7 +53,7 @@ class PatientBillingController extends Controller
         });
 
         return response()->json([
-            'invoices' => $invoices
+            'invoices' => $invoices,
         ]);
     }
 
@@ -116,13 +116,33 @@ class PatientBillingController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
+        if ($invoice->status === 'cancelled') {
+            return response()->json(['message' => 'Invoice has been cancelled.'], 400);
+        }
+
+        if ($invoice->invoice_type === 'consultation' && $invoice->appointment_id) {
+            $appointment = $invoice->appointment;
+            if ($appointment && $appointment->appointment_type === 'online') {
+                $today = now()->toDateString();
+                $nowTime = now()->format('H:i:s');
+                $appointmentDate = $appointment->appointment_date ? $appointment->appointment_date->toDateString() : null;
+
+                $isExpired = $appointmentDate
+                    && ($appointmentDate < $today || ($appointmentDate === $today && $appointment->end_time && $appointment->end_time <= $nowTime));
+
+                if ($isExpired || in_array($appointment->status, ['cancelled', 'completed'], true)) {
+                    return response()->json(['message' => 'Payment is no longer available for this appointment. Please book a new appointment.'], 400);
+                }
+            }
+        }
+
         if ($invoice->status === 'paid') {
             return response()->json(['message' => 'Invoice is already paid.'], 400);
         }
 
         $amount = $invoice->total_amount - $invoice->payments()->where('status', 'success')->sum('amount');
         if ($amount <= 0) {
-             return response()->json(['message' => 'Invoice is already fully paid.'], 400);
+            return response()->json(['message' => 'Invoice is already fully paid.'], 400);
         }
 
         $gateway = $request->gateway;
@@ -158,13 +178,15 @@ class PatientBillingController extends Controller
 
             if ($result['success']) {
                 $payment->update(['gateway_transaction_id' => $result['transaction_id']]);
+
                 return response()->json(['payment_url' => $result['url']]);
             } else {
                 $payment->update(['status' => 'failed']);
-                return response()->json(['message' => 'Failed to initiate Stripe payment: ' . $result['message']], 500);
+
+                return response()->json(['message' => 'Failed to initiate Stripe payment: '.$result['message']], 500);
             }
         } elseif ($gateway === 'sslcommerz') {
-            $tran_id = 'INV-' . $invoice->id . '-' . time();
+            $tran_id = 'INV-'.$invoice->id.'-'.time();
             $payment->update(['gateway_transaction_id' => $tran_id]);
 
             $successUrl = route('online-payment.sslcommerz.success');
@@ -193,7 +215,8 @@ class PatientBillingController extends Controller
                 return response()->json(['payment_url' => $result['url']]);
             } else {
                 $payment->update(['status' => 'failed']);
-                return response()->json(['message' => 'Failed to initiate SSLCommerz payment: ' . $result['message']], 500);
+
+                return response()->json(['message' => 'Failed to initiate SSLCommerz payment: '.$result['message']], 500);
             }
         }
 
@@ -206,8 +229,12 @@ class PatientBillingController extends Controller
         if ($requestedClinicId && $requestedClinicId != $user->clinic_id) {
             $foundPatient = Patient::where('clinic_id', $requestedClinicId)
                 ->where(function ($q) use ($user) {
-                    if ($user->email) $q->where('email', $user->email);
-                    if ($user->phone) $q->orWhere('phone', $user->phone);
+                    if ($user->email) {
+                        $q->where('email', $user->email);
+                    }
+                    if ($user->phone) {
+                        $q->orWhere('phone', $user->phone);
+                    }
                 })
                 ->first();
 
@@ -215,6 +242,7 @@ class PatientBillingController extends Controller
                 $targetPatient = $foundPatient;
             }
         }
+
         return $targetPatient;
     }
 }

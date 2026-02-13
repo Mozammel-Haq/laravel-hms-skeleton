@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Concerns\LogsActivity;
-use App\Models\DoctorAward;
-use App\Models\DoctorCertification;
-use App\Models\DoctorEducation;
 
 /**
  * Doctor Model
@@ -37,7 +34,6 @@ use App\Models\DoctorEducation;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Department $department
  * @property-read \App\Models\Department $primaryDepartment
@@ -53,20 +49,19 @@ use App\Models\DoctorEducation;
  */
 class Doctor extends Model
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     public function getActivityDescription($action)
     {
         $userName = $this->user ? $this->user->name : 'Unknown User';
-        return ucfirst($action) . " doctor profile for {$userName}";
+
+        return ucfirst($action)." doctor profile for {$userName}";
     }
 
     protected $guarded = ['id'];
 
     /**
      * Get the user associated with the doctor profile.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -75,8 +70,6 @@ class Doctor extends Model
 
     /**
      * Get the primary department of the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function department(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -85,8 +78,6 @@ class Doctor extends Model
 
     /**
      * Get the primary department of the doctor (Alias).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function primaryDepartment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -95,8 +86,6 @@ class Doctor extends Model
 
     /**
      * Get the schedules for the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function schedules(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -105,8 +94,6 @@ class Doctor extends Model
 
     /**
      * Get the schedule exceptions for the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function exceptions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -115,8 +102,6 @@ class Doctor extends Model
 
     /**
      * Get the clinics associated with the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function clinics(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
@@ -125,8 +110,6 @@ class Doctor extends Model
 
     /**
      * Get the appointments for the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function appointments(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -135,8 +118,6 @@ class Doctor extends Model
 
     /**
      * Get the consultations for the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function consultations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -145,8 +126,6 @@ class Doctor extends Model
 
     /**
      * Get the prescriptions issued by the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
     public function prescriptions(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
     {
@@ -155,8 +134,6 @@ class Doctor extends Model
 
     /**
      * Get the education records for the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function educations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -165,8 +142,6 @@ class Doctor extends Model
 
     /**
      * Get the awards received by the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function awards(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -175,15 +150,15 @@ class Doctor extends Model
 
     /**
      * Get the certifications held by the doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function certifications(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(DoctorCertification::class)->orderByDesc('issued_date');
     }
+
     protected $casts = [
         'created_at' => 'date',
+        'date_of_birth' => 'date',
         'specialization' => 'array',
     ];
 }

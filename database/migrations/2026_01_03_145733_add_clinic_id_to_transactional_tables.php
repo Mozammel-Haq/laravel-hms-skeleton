@@ -18,13 +18,13 @@ return new class extends Migration
             'consultations',
             'visits',
             'payments',
-            'bed_assignments'
+            'bed_assignments',
         ];
 
         foreach ($tables as $tableName) {
             Schema::table($tableName, function (Blueprint $table) {
-                if (!Schema::hasColumn($table->getTable(), 'clinic_id')) {
-                     $table->foreignId('clinic_id')->nullable()->constrained()->restrictOnDelete();
+                if (! Schema::hasColumn($table->getTable(), 'clinic_id')) {
+                    $table->foreignId('clinic_id')->nullable()->constrained()->restrictOnDelete();
                 }
             });
         }
@@ -41,7 +41,7 @@ return new class extends Migration
             'prescriptions',
             'consultations',
             'visits',
-            'payments'
+            'payments',
         ];
 
         foreach ($tables as $tableName) {

@@ -23,7 +23,6 @@ use App\Models\Concerns\NotifiesRoles;
  * @property \Illuminate\Support\Carbon|null $resolved_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Patient $patient
  * @property-read \App\Models\User|null $resolver
  */
@@ -39,13 +38,15 @@ class PatientComplaint extends BaseTenantModel
     }
 
     protected $table = 'patient_complaints';
+
     protected $guarded = ['id'];
 
     public function getActivityDescription($action)
     {
         $patientName = $this->patient ? $this->patient->name : 'Unknown Patient';
-        $complaintExcerpt = substr($this->description, 0, 30) . (strlen($this->description) > 30 ? '...' : '');
-        return ucfirst($action) . " complaint for {$patientName}: \"{$complaintExcerpt}\"";
+        $complaintExcerpt = substr($this->description, 0, 30).(strlen($this->description) > 30 ? '...' : '');
+
+        return ucfirst($action)." complaint for {$patientName}: \"{$complaintExcerpt}\"";
     }
 
     protected $casts = [

@@ -24,7 +24,7 @@ class VisitProcedureInvoiceTest extends TestCase
             'city' => 'c',
             'country' => 'x',
             'timezone' => 'UTC',
-            'currency' => 'USD'
+            'currency' => 'USD',
         ]);
         $user = User::factory()->create(['clinic_id' => $clinic->id]);
         $role = Role::firstOrCreate(['name' => 'Receptionist'], ['description' => 'Front Desk']);

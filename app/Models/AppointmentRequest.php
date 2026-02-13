@@ -25,7 +25,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \App\Models\Appointment $appointment
  * @property-read \App\Models\User|null $processor
  */
@@ -42,18 +41,16 @@ class AppointmentRequest extends BaseTenantModel
         'desired_time',
         'status', // pending, approved, rejected
         'admin_notes',
-        'processed_by'
+        'processed_by',
     ];
 
     protected $casts = [
         'desired_date' => 'date',
-        'desired_time' => 'datetime:H:i', // or just string if preferred, but datetime casting is often safer
+        'desired_time' => 'datetime',
     ];
 
     /**
      * Get the appointment associated with this request.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function appointment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -62,8 +59,6 @@ class AppointmentRequest extends BaseTenantModel
 
     /**
      * Get the user (admin) who processed this request.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function processor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

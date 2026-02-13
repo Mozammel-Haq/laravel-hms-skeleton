@@ -12,7 +12,6 @@ use App\Support\TenantContext;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * AppointmentBookingController
@@ -90,8 +89,6 @@ class AppointmentBookingController extends Controller
     /**
      * Show booking calendar for a specific doctor.
      *
-     * @param  \App\Models\Doctor  $doctor
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
     public function show(Doctor $doctor, Request $request)
@@ -109,7 +106,6 @@ class AppointmentBookingController extends Controller
             }
         }
 
-
         return view('appointments.booking.show', compact('doctor', 'patients'));
     }
 
@@ -120,11 +116,12 @@ class AppointmentBookingController extends Controller
     {
         $request->validate([
             'date' => 'required|date|after_or_equal:today',
-            'clinic_id' => 'nullable|exists:clinics,id'
+            'clinic_id' => 'nullable|exists:clinics,id',
         ]);
 
         $clinic_id = $request->clinic_id;
         $slots = $this->appointmentService->getAvailableSlots($doctor, $request->date, $clinic_id);
+
         return response()->json(['slots' => $slots]);
     }
 
@@ -135,6 +132,7 @@ class AppointmentBookingController extends Controller
     {
         $request->validate(['patient_id' => 'required|exists:patients,id']);
         $feeInfo = $this->appointmentService->calculateFee($doctor, $request->patient_id);
+
         return response()->json($feeInfo);
     }
 
@@ -144,21 +142,22 @@ class AppointmentBookingController extends Controller
      * Validates availability and creates a new appointment.
      * Uses database transactions to prevent double booking.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'doctor_id'        => 'required|exists:doctors,id,status,active',
-            'patient_id'       => 'required|exists:patients,id',
-            'clinic_id'        => 'required|exists:clinics,id',
+            'doctor_id' => 'required|exists:doctors,id,status,active',
+            'patient_id' => 'required|exists:patients,id',
+            'clinic_id' => 'required|exists:clinics,id',
             'appointment_date' => 'required|date|after_or_equal:today',
-            'start_time'       => 'required|date_format:H:i',
-            'end_time'         => 'required|date_format:H:i|after:start_time',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
         $appointmentDate = Carbon::parse($validated['appointment_date'])->toDateString();
+        $startTime = Carbon::createFromFormat('H:i', $validated['start_time'])->format('H:i:s');
+        $endTime = Carbon::createFromFormat('H:i', $validated['end_time'])->format('H:i:s');
 
         // Check if patient already has an appointment on this date
         $existingPatientAppointment = Appointment::where('patient_id', $validated['patient_id'])
@@ -170,7 +169,7 @@ class AppointmentBookingController extends Controller
             return back()->withErrors(['appointment_date' => 'This patient already has an active appointment on this date.'])->withInput();
         }
 
-        return DB::transaction(function () use ($validated, $appointmentDate) {
+        return DB::transaction(function () use ($validated, $appointmentDate, $startTime, $endTime) {
             $doctor = Doctor::where('id', $validated['doctor_id'])
                 ->lockForUpdate()
                 ->firstOrFail();
@@ -178,9 +177,9 @@ class AppointmentBookingController extends Controller
             $slotTaken = Appointment::where('doctor_id', $doctor->id)
                 ->whereDate('appointment_date', $appointmentDate)
                 ->whereIn('status', ['pending', 'confirmed'])
-                ->where(function ($q) use ($validated) {
-                    $q->where('start_time', '<', $validated['end_time'])
-                        ->where('end_time', '>', $validated['start_time']);
+                ->where(function ($q) use ($startTime, $endTime) {
+                    $q->where('start_time', '<', $endTime)
+                        ->where('end_time', '>', $startTime);
                 })
                 ->exists();
 
@@ -198,20 +197,20 @@ class AppointmentBookingController extends Controller
                 : $validated['clinic_id'];
 
             $appointment = Appointment::create([
-                'clinic_id'        => $clinicId,
-                'doctor_id'        => $doctor->id,
-                'patient_id'       => $validated['patient_id'],
-                'department_id'    => $doctor->primary_department_id,
+                'clinic_id' => $clinicId,
+                'doctor_id' => $doctor->id,
+                'patient_id' => $validated['patient_id'],
+                'department_id' => $doctor->primary_department_id,
                 'appointment_date' => $appointmentDate,
-                'start_time'       => $validated['start_time'],
-                'end_time'         => $validated['end_time'],
+                'start_time' => $startTime,
+                'end_time' => $endTime,
                 'appointment_type' => 'in_person',
-                'status'           => 'pending',
+                'status' => 'pending',
                 'reason_for_visit' => 'Standard Appointment',
-                'fee'              => $feeInfo['fee'],
-                'visit_type'       => $feeInfo['type'],
-                'booking_source'   => 'reception',
-                'created_by'       => auth()->id(),
+                'fee' => $feeInfo['fee'],
+                'visit_type' => $feeInfo['type'],
+                'booking_source' => 'reception',
+                'created_by' => auth()->id(),
             ]);
 
             // Notify Doctor
@@ -226,7 +225,7 @@ class AppointmentBookingController extends Controller
             }
 
             return redirect()->route('appointments.booking.show', $doctor)
-                ->with('success', 'Appointment booked successfully! (ID: ' . $appointment->id . ')');
+                ->with('success', 'Appointment booked successfully! (ID: '.$appointment->id.')');
         });
     }
 }

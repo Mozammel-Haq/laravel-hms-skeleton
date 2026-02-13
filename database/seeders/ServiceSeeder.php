@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Service;
 use App\Models\Clinic;
+use App\Models\Service;
+use Illuminate\Database\Seeder;
 
 class ServiceSeeder extends Seeder
 {
@@ -32,12 +32,12 @@ class ServiceSeeder extends Seeder
                 Service::firstOrCreate(
                     [
                         'clinic_id' => $clinic->id,
-                        'name' => $service['name']
+                        'name' => $service['name'],
                     ],
                     [
                         'price' => $service['price'],
                         'description' => $service['description'],
-                        'status' => 'active'
+                        'status' => 'active',
                     ]
                 );
             }

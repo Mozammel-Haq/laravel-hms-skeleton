@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 /**
  * RoleController
@@ -27,7 +25,7 @@ class RoleController extends Controller
     public function index()
     {
         // Only Super Admin can manage roles
-        if (!auth()->user()->hasRole('Super Admin')) {
+        if (! auth()->user()->hasRole('Super Admin')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -50,18 +48,18 @@ class RoleController extends Controller
         }
 
         $roles = $query->paginate(20)->withQueryString();
+
         return view('admin.roles.index', compact('roles'));
     }
 
     /**
      * Store a newly created role.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->hasRole('Super Admin')) {
+        if (! auth()->user()->hasRole('Super Admin')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -84,22 +82,19 @@ class RoleController extends Controller
         return redirect()->route('admin.roles.index')->with('success', 'Role created successfully.');
     }
 
-
     /**
      * Update the specified role.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Role $role)
     {
-        if (!auth()->user()->hasRole('Super Admin')) {
+        if (! auth()->user()->hasRole('Super Admin')) {
             abort(403, 'Unauthorized action.');
         }
 
         $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'name' => 'required|string|max:255|unique:roles,name,'.$role->id,
             'description' => 'nullable|string|max:500',
             'permissions' => 'nullable|array',
             'permissions.*' => 'exists:permissions,id',
@@ -122,12 +117,11 @@ class RoleController extends Controller
     /**
      * Remove the specified role from storage.
      *
-     * @param  \App\Models\Role  $role
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Role $role)
     {
-        if (!auth()->user()->hasRole('Super Admin')) {
+        if (! auth()->user()->hasRole('Super Admin')) {
             abort(403, 'Unauthorized action.');
         }
 

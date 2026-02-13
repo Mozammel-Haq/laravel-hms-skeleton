@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Doctor $doctor
  */
 class DoctorAward extends Model
@@ -26,13 +25,12 @@ class DoctorAward extends Model
 
     /**
      * Get the doctor associated with the award.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Doctor::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

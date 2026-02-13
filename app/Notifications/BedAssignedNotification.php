@@ -5,8 +5,6 @@ namespace App\Notifications;
 use App\Models\Admission;
 use App\Models\Bed;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class BedAssignedNotification extends Notification
@@ -14,6 +12,7 @@ class BedAssignedNotification extends Notification
     use Queueable;
 
     public $admission;
+
     public $bed;
 
     /**

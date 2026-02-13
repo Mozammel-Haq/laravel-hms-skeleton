@@ -28,7 +28,7 @@ class WardController extends Controller
         $query = Ward::query();
 
         if (request()->filled('search')) {
-            $query->where('name', 'like', '%' . request('search') . '%');
+            $query->where('name', 'like', '%'.request('search').'%');
         }
 
         if (request()->filled('status') && request('status') !== 'all') {
@@ -44,6 +44,7 @@ class WardController extends Controller
         }
 
         $wards = $query->latest()->paginate(20)->withQueryString();
+
         return view('ipd.wards.index', compact('wards'));
     }
 
@@ -60,7 +61,6 @@ class WardController extends Controller
     /**
      * Store a newly created ward in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -73,13 +73,13 @@ class WardController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
         Ward::create($request->only('name', 'type', 'floor', 'description', 'status'));
+
         return redirect()->route('ipd.wards.index')->with('success', 'Ward created');
     }
 
     /**
      * Show the form for editing the specified ward.
      *
-     * @param  \App\Models\Ward  $ward
      * @return \Illuminate\View\View
      */
     public function edit(Ward $ward)
@@ -90,8 +90,6 @@ class WardController extends Controller
     /**
      * Update the specified ward in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Ward  $ward
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Ward $ward)
@@ -104,6 +102,7 @@ class WardController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
         $ward->update($request->only('name', 'type', 'floor', 'description', 'status'));
+
         return redirect()->route('ipd.wards.index')->with('success', 'Ward updated');
     }
 }

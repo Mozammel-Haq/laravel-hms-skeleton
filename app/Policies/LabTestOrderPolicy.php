@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\LabTestOrder;
+use App\Models\User;
 
 class LabTestOrderPolicy extends BaseTenantPolicy
 {
@@ -19,8 +19,7 @@ class LabTestOrderPolicy extends BaseTenantPolicy
 
     public function create(User $user): bool
     {
-        // dd('Policy called', $user->clinic_id);
-        return !empty($user->clinic_id);
+        return ! empty($user->clinic_id);
     }
 
     public function update(User $user, LabTestOrder $labTestOrder): bool

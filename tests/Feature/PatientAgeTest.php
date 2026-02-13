@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Patient;
 use App\Models\Clinic;
+use App\Models\Patient;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -26,10 +26,10 @@ class PatientAgeTest extends TestCase
         $dob = Carbon::now()->subYears(25);
 
         // Manually create patient as factory might not exist
-        $patient = new Patient();
+        $patient = new Patient;
         $patient->clinic_id = $clinic->id;
         $patient->name = 'Test Patient';
-        $patient->patient_code = 'TEMP-' . uniqid();
+        $patient->patient_code = 'TEMP-'.uniqid();
         $patient->gender = 'Male';
         $patient->date_of_birth = $dob->format('Y-m-d');
         $patient->age = null;
@@ -54,10 +54,10 @@ class PatientAgeTest extends TestCase
         ]);
         $dob = Carbon::now()->subYears(25);
 
-        $patient = new Patient();
+        $patient = new Patient;
         $patient->clinic_id = $clinic->id;
         $patient->name = 'Test Patient 2';
-        $patient->patient_code = 'TEMP2-' . uniqid();
+        $patient->patient_code = 'TEMP2-'.uniqid();
         $patient->gender = 'Male';
         $patient->date_of_birth = $dob->format('Y-m-d');
         $patient->age = 30; // Explicitly set wrong age

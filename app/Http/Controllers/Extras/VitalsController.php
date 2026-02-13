@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Extras;
 
 use App\Http\Controllers\Controller;
-use App\Models\Patient;
-use App\Models\Appointment;
-use App\Models\Visit;
-use App\Models\PatientVital;
 use App\Models\Admission;
+use App\Models\Appointment;
 use App\Models\InpatientRound;
+use App\Models\Patient;
+use App\Models\PatientVital;
+use App\Models\Visit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -17,8 +17,6 @@ use Illuminate\Support\Facades\Gate;
  *
  * Manages the recording and storage of patient vitals.
  * Can record vitals for visits, admissions, or independent of both.
- *
- * @package App\Http\Controllers\Extras
  */
 class VitalsController extends Controller
 {
@@ -27,7 +25,6 @@ class VitalsController extends Controller
      *
      * Pre-fills patient/visit/admission data based on query parameters.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
     public function record(Request $request)
@@ -71,7 +68,6 @@ class VitalsController extends Controller
     /**
      * Store the recorded vitals.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -97,7 +93,7 @@ class VitalsController extends Controller
         $admission = null;
         $round = null;
 
-        if (!empty($data['visit_id'])) {
+        if (! empty($data['visit_id'])) {
             $visit = Visit::with('appointment')->findOrFail($data['visit_id']);
             if ($visit->appointment && $visit->appointment->patient_id !== (int) $data['patient_id']) {
                 return redirect()->back()->withErrors([
@@ -113,7 +109,7 @@ class VitalsController extends Controller
             }
         }
 
-        if (!empty($data['admission_id'])) {
+        if (! empty($data['admission_id'])) {
             $admission = Admission::with('patient')->findOrFail($data['admission_id']);
             if ($admission->patient_id !== (int) $data['patient_id']) {
                 return redirect()->back()->withErrors([
@@ -122,9 +118,9 @@ class VitalsController extends Controller
             }
         }
 
-        if (!empty($data['inpatient_round_id'])) {
+        if (! empty($data['inpatient_round_id'])) {
             $round = InpatientRound::with('admission.patient')->findOrFail($data['inpatient_round_id']);
-            if (!empty($data['admission_id']) && $round->admission_id !== (int) $data['admission_id']) {
+            if (! empty($data['admission_id']) && $round->admission_id !== (int) $data['admission_id']) {
                 return redirect()->back()->withErrors([
                     'inpatient_round_id' => 'Selected round does not belong to the admission.',
                 ]);
@@ -178,7 +174,6 @@ class VitalsController extends Controller
      * - Search (Patient name, code, notes)
      * - Date Range (recorded_at)
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
     public function history(Request $request)
@@ -196,9 +191,9 @@ class VitalsController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->whereHas('patient', function ($sub) use ($search) {
-                    $sub->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('patient_code', 'like', '%' . $search . '%');
-                })->orWhere('notes', 'like', '%' . $search . '%');
+                    $sub->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('patient_code', 'like', '%'.$search.'%');
+                })->orWhere('notes', 'like', '%'.$search.'%');
             });
         }
 

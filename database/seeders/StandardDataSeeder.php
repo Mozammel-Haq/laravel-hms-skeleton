@@ -2,19 +2,14 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
+use App\Models\Bed;
 use App\Models\Clinic;
 use App\Models\Department;
-use App\Models\Ward;
-use App\Models\Room;
-use App\Models\Bed;
-use App\Models\Medicine;
 use App\Models\LabTest;
-use App\Models\User;
-use App\Models\Role;
-use App\Models\Doctor;
-use App\Models\Patient;
-use Illuminate\Support\Facades\Hash;
+use App\Models\Medicine;
+use App\Models\Room;
+use App\Models\Ward;
+use Illuminate\Database\Seeder;
 
 class StandardDataSeeder extends Seeder
 {
@@ -30,7 +25,7 @@ class StandardDataSeeder extends Seeder
                 'country' => 'Bangladesh',
                 'timezone' => 'Asia/Dhaka',
                 'currency' => 'BDT',
-                'status' => 'active'
+                'status' => 'active',
             ]
         );
 
@@ -72,7 +67,7 @@ class StandardDataSeeder extends Seeder
                 $room = Room::create([
                     'clinic_id' => $clinic->id,
                     'ward_id' => $ward->id,
-                    'room_number' => strtoupper(substr($ward->name, 0, 3)) . '-' . $ward->floor . '0' . $i,
+                    'room_number' => strtoupper(substr($ward->name, 0, 3)).'-'.$ward->floor.'0'.$i,
                     'room_type' => $ward->type, // Correct column name
                     'status' => 'available',
                     'daily_rate' => $ward->type === 'icu' ? 5000 : ($ward->type === 'cabin' ? 3000 : 1000), // Correct column name
@@ -83,7 +78,7 @@ class StandardDataSeeder extends Seeder
                     Bed::create([
                         'clinic_id' => $clinic->id,
                         'room_id' => $room->id,
-                        'bed_number' => $room->room_number . '-' . chr(64 + $j), // e.g., GEN-201-A
+                        'bed_number' => $room->room_number.'-'.chr(64 + $j), // e.g., GEN-201-A
                         'status' => 'available',
                     ]);
                 }

@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admission;
-use App\Models\InpatientRound;
-use App\Models\Patient;
-use App\Models\InpatientService;
 use App\Models\AdmissionDeposit;
-use App\Support\TenantContext;
+use App\Models\InpatientRound;
+use App\Models\InpatientService;
+use App\Models\Patient;
 use App\Services\PaymentGatewayService;
-use Illuminate\Http\Request;
+use App\Support\TenantContext;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class PatientIpdController extends Controller
 {
@@ -32,13 +32,13 @@ class PatientIpdController extends Controller
 
         $admission = Admission::where('patient_id', $targetPatient->id)
             // ->where('status', 'admitted') // Allow viewing past admissions too, or at least the latest one
-            ->with(['doctor.user', 'bedAssignments' => function($q) {
+            ->with(['doctor.user', 'bedAssignments' => function ($q) {
                 $q->whereNull('released_at')->with('bed.room.ward');
             }])
             ->latest()
             ->first();
 
-        if (!$admission) {
+        if (! $admission) {
             return response()->json(['admission' => null]);
         }
 
@@ -56,7 +56,7 @@ class PatientIpdController extends Controller
                 'ward' => $currentBed && $currentBed->bed && $currentBed->bed->room && $currentBed->bed->room->ward ? $currentBed->bed->room->ward->name : 'N/A',
                 'room' => $currentBed && $currentBed->bed && $currentBed->bed->room ? $currentBed->bed->room->room_number : 'N/A',
                 'bed' => $currentBed && $currentBed->bed ? $currentBed->bed->bed_number : 'N/A',
-            ]
+            ],
         ]);
     }
 
@@ -73,7 +73,7 @@ class PatientIpdController extends Controller
             ->latest()
             ->first();
 
-        if (!$admission) {
+        if (! $admission) {
             return response()->json(['rounds' => []]);
         }
 
@@ -91,7 +91,7 @@ class PatientIpdController extends Controller
             });
 
         return response()->json([
-            'rounds' => $rounds
+            'rounds' => $rounds,
         ]);
     }
 
@@ -108,7 +108,7 @@ class PatientIpdController extends Controller
             ->latest()
             ->first();
 
-        if (!$admission) {
+        if (! $admission) {
             return response()->json(['billing' => null]);
         }
 
@@ -116,22 +116,22 @@ class PatientIpdController extends Controller
         $invoice = $admission->invoice; // Assuming 'invoice' relation exists on Admission model
 
         if ($invoice) {
-             $totalAmount = $invoice->total_amount;
-             // Total Paid = Invoice Payments (success) + Deposits (success)
-             // Note: In generateDischargeInvoice, we already adjusted deposits into payments.
-             // So if we just sum invoice->payments, it should be correct IF the deposit adjustment payment is there.
-             // But to be safe and robust as per user request:
-             // If invoice exists, "Total Paid" is strictly sum of successful payments against this invoice.
-             // The deposit adjustment logic in IpdService creates a payment record.
+            $totalAmount = $invoice->total_amount;
+            // Total Paid = Invoice Payments (success) + Deposits (success)
+            // Note: In generateDischargeInvoice, we already adjusted deposits into payments.
+            // So if we just sum invoice->payments, it should be correct IF the deposit adjustment payment is there.
+            // But to be safe and robust as per user request:
+            // If invoice exists, "Total Paid" is strictly sum of successful payments against this invoice.
+            // The deposit adjustment logic in IpdService creates a payment record.
 
-             $paidAmount = $invoice->payments()->where('status', 'success')->sum('amount');
-             $dueAmount = max(0, $totalAmount - $paidAmount);
+            $paidAmount = $invoice->payments()->where('status', 'success')->sum('amount');
+            $dueAmount = max(0, $totalAmount - $paidAmount);
 
-             // Breakdowns from invoice items
-             $servicesTotal = $invoice->items->where('item_type', 'service')->sum('total_price');
-             $roomRentTotal = $invoice->items->where('item_type', 'bed')->sum('total_price');
+            // Breakdowns from invoice items
+            $servicesTotal = $invoice->items->where('item_type', 'service')->sum('total_price');
+            $roomRentTotal = $invoice->items->where('item_type', 'bed')->sum('total_price');
 
-             return response()->json([
+            return response()->json([
                 'billing' => [
                     'admission_id' => $admission->id,
                     'status' => $admission->status,
@@ -144,8 +144,8 @@ class PatientIpdController extends Controller
                     'paid_amount' => round($paidAmount, 2),
                     'due_amount' => round($dueAmount, 2),
                     'currency' => 'BDT',
-                    'is_final' => true
-                ]
+                    'is_final' => true,
+                ],
             ]);
         }
 
@@ -168,7 +168,9 @@ class PatientIpdController extends Controller
 
                 // Calculate days (at least 1 day)
                 $days = $start->diffInDays($end);
-                if ($days < 1) $days = 1;
+                if ($days < 1) {
+                    $days = 1;
+                }
 
                 $roomRentTotal += $days * $dailyRate;
             }
@@ -183,19 +185,19 @@ class PatientIpdController extends Controller
         // Find invoices linked to admission or created near admission time for this patient
         $admissionFeeInvoices = \App\Models\Invoice::where('patient_id', $admission->patient_id)
             ->where('invoice_type', 'ipd_admission_fee')
-            ->where(function($q) use ($admission) {
+            ->where(function ($q) use ($admission) {
                 $q->where('admission_id', $admission->id)
-                  ->orWhereBetween('created_at', [
-                      Carbon::parse($admission->admission_date)->subHours(12),
-                      Carbon::parse($admission->admission_date)->addHours(24)
-                  ]);
+                    ->orWhereBetween('created_at', [
+                        Carbon::parse($admission->admission_date)->subHours(12),
+                        Carbon::parse($admission->admission_date)->addHours(24),
+                    ]);
             })
             ->get();
 
         $admissionFeeTotal = $admissionFeeInvoices->sum('total_amount');
         $admissionFeePaid = 0;
-        foreach($admissionFeeInvoices as $inv) {
-             $admissionFeePaid += $inv->payments()->where('status', 'success')->sum('amount');
+        foreach ($admissionFeeInvoices as $inv) {
+            $admissionFeePaid += $inv->payments()->where('status', 'success')->sum('amount');
         }
 
         // 5. Calculate Due
@@ -216,8 +218,8 @@ class PatientIpdController extends Controller
                 'paid_amount' => round($totalPaid, 2),
                 'due_amount' => round($dueAmount, 2),
                 'currency' => 'BDT',
-                'is_final' => false
-            ]
+                'is_final' => false,
+            ],
         ]);
     }
 
@@ -240,13 +242,13 @@ class PatientIpdController extends Controller
             ->latest()
             ->first();
 
-        if (!$admission) {
-             return response()->json(['message' => 'No active admission found to add deposit.'], 404);
+        if (! $admission) {
+            return response()->json(['message' => 'No active admission found to add deposit.'], 404);
         }
 
         $amount = $request->amount;
         $gateway = $request->gateway;
-        $description = "Deposit for Admission #" . ($admission->admission_number ?? $admission->id);
+        $description = 'Deposit for Admission #'.($admission->admission_number ?? $admission->id);
 
         // Create pending deposit
         $deposit = AdmissionDeposit::create([
@@ -268,11 +270,11 @@ class PatientIpdController extends Controller
             $successUrl = route('online-payment.stripe.success', [
                 'transaction_id' => $transactionId,
                 'type' => $type,
-                'redirect_url' => $redirectUrl
+                'redirect_url' => $redirectUrl,
             ]);
             $cancelUrl = route('online-payment.stripe.cancel', [
                 'transaction_id' => $transactionId,
-                'type' => $type
+                'type' => $type,
             ]);
 
             $result = $this->gatewayService->createStripeSession(
@@ -286,20 +288,22 @@ class PatientIpdController extends Controller
 
             if ($result['success']) {
                 $deposit->update(['gateway_transaction_id' => $result['transaction_id']]);
+
                 return response()->json(['payment_url' => $result['url']]);
             } else {
                 $deposit->update(['status' => 'failed']);
-                return response()->json(['message' => 'Failed to initiate Stripe payment: ' . $result['message']], 500);
+
+                return response()->json(['message' => 'Failed to initiate Stripe payment: '.$result['message']], 500);
             }
         } elseif ($gateway === 'sslcommerz') {
-             $tran_id = 'DEP-' . $admission->id . '-' . time();
-             $deposit->update(['gateway_transaction_id' => $tran_id]);
+            $tran_id = 'DEP-'.$admission->id.'-'.time();
+            $deposit->update(['gateway_transaction_id' => $tran_id]);
 
-             $successUrl = route('online-payment.sslcommerz.success');
-             $failUrl = route('online-payment.sslcommerz.fail');
-             $cancelUrl = route('online-payment.sslcommerz.cancel');
+            $successUrl = route('online-payment.sslcommerz.success');
+            $failUrl = route('online-payment.sslcommerz.fail');
+            $cancelUrl = route('online-payment.sslcommerz.cancel');
 
-             $customerDetails = [
+            $customerDetails = [
                 'name' => $targetPatient->name,
                 'email' => $targetPatient->email ?? 'guest@example.com',
                 'phone' => $targetPatient->phone ?? '01700000000',
@@ -325,7 +329,8 @@ class PatientIpdController extends Controller
                 return response()->json(['payment_url' => $result['url']]);
             } else {
                 $deposit->update(['status' => 'failed']);
-                return response()->json(['message' => 'Failed to initiate SSLCommerz payment: ' . $result['message']], 500);
+
+                return response()->json(['message' => 'Failed to initiate SSLCommerz payment: '.$result['message']], 500);
             }
         }
 
@@ -338,8 +343,12 @@ class PatientIpdController extends Controller
         if ($requestedClinicId && $requestedClinicId != $user->clinic_id) {
             $foundPatient = Patient::where('clinic_id', $requestedClinicId)
                 ->where(function ($q) use ($user) {
-                    if ($user->email) $q->where('email', $user->email);
-                    if ($user->phone) $q->orWhere('phone', $user->phone);
+                    if ($user->email) {
+                        $q->where('email', $user->email);
+                    }
+                    if ($user->phone) {
+                        $q->orWhere('phone', $user->phone);
+                    }
                 })
                 ->first();
 
@@ -347,6 +356,7 @@ class PatientIpdController extends Controller
                 $targetPatient = $foundPatient;
             }
         }
+
         return $targetPatient;
     }
 }

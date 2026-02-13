@@ -6,42 +6,41 @@ use App\Models\ActivityLog;
 use App\Models\Admission;
 use App\Models\Appointment;
 use App\Models\BedAssignment;
+use App\Models\Clinic;
 use App\Models\Consultation;
+use App\Models\Department;
+use App\Models\Doctor;
 use App\Models\Invoice;
 use App\Models\LabTestOrder;
+use App\Models\Medicine;
+use App\Models\MedicineBatch;
 use App\Models\Patient;
 use App\Models\PatientVital;
 use App\Models\Payment;
 use App\Models\PharmacySale;
 use App\Models\Prescription;
-use App\Models\Medicine;
-use App\Models\Department;
-use App\Models\Doctor;
-use App\Models\Clinic;
 use App\Models\User as SubjectUser;
-use App\Models\MedicineBatch;
 use App\Models\Visit;
 use App\Policies\ActivityLogPolicy;
 use App\Policies\AdmissionPolicy;
 use App\Policies\AppointmentPolicy;
 use App\Policies\BedAssignmentPolicy;
+use App\Policies\ClinicPolicy;
 use App\Policies\ConsultationPolicy;
+use App\Policies\DepartmentPolicy;
+use App\Policies\DoctorPolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\LabTestOrderPolicy;
+use App\Policies\MedicineBatchPolicy;
+use App\Policies\MedicinePolicy;
 use App\Policies\PatientPolicy;
 use App\Policies\PatientVitalPolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\PharmacySalePolicy;
 use App\Policies\PrescriptionPolicy;
-use App\Policies\MedicinePolicy;
-use App\Policies\VisitPolicy;
-use App\Policies\DepartmentPolicy;
-use App\Policies\DoctorPolicy;
 use App\Policies\UserPolicy;
-use App\Policies\MedicineBatchPolicy;
-use App\Policies\ClinicPolicy;
+use App\Policies\VisitPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-
 use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
@@ -70,7 +69,6 @@ class AuthServiceProvider extends ServiceProvider
         MedicineBatch::class => MedicineBatchPolicy::class,
         Clinic::class => ClinicPolicy::class,
     ];
-
 
     /**
      * Register any authentication / authorization services.

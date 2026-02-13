@@ -17,7 +17,6 @@ use App\Models\Base\BaseTenantModel;
  * @property int $changed_by
  * @property string|null $change_reason
  * @property \Illuminate\Support\Carbon $changed_at
- *
  * @property-read \App\Models\Appointment $appointment
  * @property-read \App\Models\User $changer
  */

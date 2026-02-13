@@ -11,6 +11,7 @@ class DoctorAppointmentCancelledNotification extends Notification
     use Queueable;
 
     public $appointment;
+
     public $cancelledBy;
 
     public function __construct(Appointment $appointment, $cancelledBy = null)
@@ -35,7 +36,7 @@ class DoctorAppointmentCancelledNotification extends Notification
             'message' => "Appointment with {$patientName} on {$date} at {$time} has been cancelled.",
             'link' => route('appointments.show', $this->appointment->id),
             'type' => 'error',
-            'appointment_id' => $this->appointment->id
+            'appointment_id' => $this->appointment->id,
         ];
     }
 }

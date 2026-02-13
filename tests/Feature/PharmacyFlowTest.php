@@ -24,10 +24,15 @@ class PharmacyFlowTest extends TestCase
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $doctor;
+
     protected $patient;
+
     protected $pharmacist;
+
     protected $medicine;
+
     protected $prescription;
 
     protected function setUp(): void
@@ -54,7 +59,7 @@ class PharmacyFlowTest extends TestCase
         $pharmPermissions = ['view_pharmacy', 'create_pharmacy_sales', 'view_medicines', 'view_invoices'];
         foreach ($pharmPermissions as $perm) {
             $p = Permission::firstOrCreate(['name' => $perm]);
-            if (!$pharmRole->permissions()->where('name', $perm)->exists()) {
+            if (! $pharmRole->permissions()->where('name', $perm)->exists()) {
                 $pharmRole->permissions()->attach($p);
             }
         }
@@ -145,9 +150,8 @@ class PharmacyFlowTest extends TestCase
             'visit_id' => $visit->id,
             'patient_id' => $this->patient->id,
             'doctor_id' => $this->doctor->id,
-            'appointment_id' => $appointment->id,
-            'consultation_date' => now(),
             'status' => 'completed',
+            'doctor_notes' => 'Test notes',
         ]);
 
         // Fix visit_id logic if needed, but for now just create prescription
@@ -169,7 +173,7 @@ class PharmacyFlowTest extends TestCase
                 [
                     'medicine_id' => $this->medicine->id,
                     'quantity' => 10,
-                ]
+                ],
             ],
             'discount' => 0,
             'tax' => 0,

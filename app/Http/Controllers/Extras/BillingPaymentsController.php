@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Gate;
  * Class BillingPaymentsController
  *
  * Manages the display of billing payments.
- *
- * @package App\Http\Controllers\Extras
  */
 class BillingPaymentsController extends Controller
 {
@@ -23,7 +21,8 @@ class BillingPaymentsController extends Controller
     public function index()
     {
         Gate::authorize('view_billing');
-        $payments = Payment::with(['invoice','patient'])->latest()->take(50)->get();
+        $payments = Payment::with(['invoice', 'patient'])->latest()->take(50)->get();
+
         return view('billing.payments.index', compact('payments'));
     }
 }

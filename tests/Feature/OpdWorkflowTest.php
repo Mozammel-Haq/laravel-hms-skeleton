@@ -136,4 +136,3 @@ class OpdWorkflowTest extends TestCase
         $responseAfterPayment->assertSee($patient->name);
     }
 }
-

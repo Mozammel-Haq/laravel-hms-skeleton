@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice;
 use App\Models\Medicine;
 use App\Models\Patient;
 use App\Models\PharmacySale;
 use App\Models\Prescription;
-use App\Models\Invoice;
-use App\Services\BillingService;
 use App\Services\PharmacyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Manages Pharmacy operations including Point of Sale (POS) and Sales History.
@@ -57,8 +55,8 @@ class PharmacyController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('id', $search)
                     ->orWhereHas('patient', function ($sub) use ($search) {
-                        $sub->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                        $sub->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('patient_code', 'like', '%'.$search.'%');
                     });
             });
         }
@@ -72,6 +70,7 @@ class PharmacyController extends Controller
         }
 
         $sales = $query->paginate(20)->withQueryString();
+
         return view('pharmacy.index', compact('sales'));
     }
 
@@ -83,7 +82,6 @@ class PharmacyController extends Controller
      * - Available medicines (filtered by stock)
      * - Prescription details (if provided)
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
     public function create(Request $request)
@@ -101,7 +99,7 @@ class PharmacyController extends Controller
 
         // Pre-fill patient for Select2
         $targetPatientId = old('patient_id');
-        if (!$targetPatientId && $prescription && $prescription->consultation && $prescription->consultation->patient) {
+        if (! $targetPatientId && $prescription && $prescription->consultation && $prescription->consultation->patient) {
             $targetPatientId = $prescription->consultation->patient->id;
         }
 
@@ -121,7 +119,6 @@ class PharmacyController extends Controller
      * Validates stock, creates sale record, and generates a corresponding invoice.
      * Wrapped in try-catch to handle service errors gracefully.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -154,7 +151,7 @@ class PharmacyController extends Controller
             $sale = $this->pharmacyService->processSale(
                 $patient,
                 $request->items,
-                $request->filled('prescription_id') ? (int)$request->prescription_id : null,
+                $request->filled('prescription_id') ? (int) $request->prescription_id : null,
                 $paymentData
             );
 
@@ -170,7 +167,6 @@ class PharmacyController extends Controller
      *
      * Shows sale details including items, patient info, and linked invoice.
      *
-     * @param  \App\Models\PharmacySale  $pharmacySale
      * @return \Illuminate\View\View
      */
     public function show(PharmacySale $pharmacySale)
@@ -185,6 +181,7 @@ class PharmacyController extends Controller
             $query->where('visit_id', $visitId);
         }
         $invoice = $query->orderByDesc('issued_at')->first();
+
         return view('pharmacy.show', ['sale' => $pharmacySale, 'invoice' => $invoice]);
     }
 
@@ -193,13 +190,13 @@ class PharmacyController extends Controller
      *
      * Performs a soft delete.
      *
-     * @param  \App\Models\PharmacySale  $pharmacySale
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(PharmacySale $pharmacySale)
     {
         Gate::authorize('delete', $pharmacySale);
         $pharmacySale->delete();
+
         return redirect()->route('pharmacy.index')->with('success', 'Sale deleted successfully.');
     }
 
@@ -214,6 +211,7 @@ class PharmacyController extends Controller
         $sale = PharmacySale::withTrashed()->findOrFail($id);
         Gate::authorize('delete', $sale);
         $sale->restore();
+
         return redirect()->route('pharmacy.index')->with('success', 'Sale restored successfully.');
     }
 }

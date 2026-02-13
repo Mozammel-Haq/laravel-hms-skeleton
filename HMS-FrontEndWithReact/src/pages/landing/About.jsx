@@ -3,19 +3,22 @@ import { motion } from 'framer-motion';
 import { Building, Users, Award, Heart } from 'lucide-react';
 
 const About = () => {
+  const MotionH1 = motion.h1;
+  const MotionDiv = motion.div;
+
   return (
     <div className="min-h-screen transition-colors duration-300">
       {/* Hero Section */}
       <section className="relative py-20 bg-primary-600 dark:bg-secondary-900 overflow-hidden transition-colors duration-300">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-800 dark:from-secondary-900 dark:to-primary-900/50 opacity-90"></div>
         <div className="container mx-auto px-4 relative z-10 text-center text-white">
-          <motion.h1
+          <MotionH1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl font-bold mb-6"
           >
             About CityCare Hospital
-          </motion.h1>
+          </MotionH1>
           <p className="text-xl max-w-2xl mx-auto text-primary-50 dark:text-secondary-300">
             Leading the way in medical excellence with compassion and innovation since 2005.
           </p>
@@ -26,7 +29,7 @@ const About = () => {
       <section className="py-20 bg-white dark:bg-secondary-950 transition-colors duration-300">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <motion.div
+            <MotionDiv
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -47,8 +50,8 @@ const About = () => {
                   <p className="text-sm text-secondary-500 dark:text-secondary-400">Striving for the highest standards in all we do.</p>
                 </div>
               </div>
-            </motion.div>
-            <motion.div
+            </MotionDiv>
+            <MotionDiv
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -60,7 +63,7 @@ const About = () => {
                     <Building className="w-20 h-20 opacity-20" />
                  </div>
               </div>
-            </motion.div>
+            </MotionDiv>
           </div>
         </div>
       </section>

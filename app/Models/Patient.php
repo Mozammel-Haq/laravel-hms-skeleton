@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Builder;
@@ -9,8 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Concerns\LogsActivity;
-use App\Models\Concerns\NotifiesRoles;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
@@ -37,18 +36,17 @@ use Laravel\Sanctum\HasApiTokens;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read int|null $age
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Clinic[] $clinics
  * @property-read \App\Models\Clinic|null $clinic
  */
 class Patient extends Model implements AuthenticatableContract
 {
-    use HasFactory, SoftDeletes, HasApiTokens, AuthenticatableTrait, LogsActivity, Notifiable;
+    use AuthenticatableTrait, HasApiTokens, HasFactory, LogsActivity, Notifiable, SoftDeletes;
 
     public function getActivityDescription($action)
     {
-        return ucfirst($action) . " patient {$this->name}";
+        return ucfirst($action)." patient {$this->name}";
     }
 
     protected $casts = [
@@ -56,6 +54,7 @@ class Patient extends Model implements AuthenticatableContract
         'last_login_at' => 'datetime',
         'password' => 'hashed',
     ];
+
     protected $fillable = [
         'clinic_id', // Kept for legacy compatibility if needed, but nullable now
         'name',
@@ -93,8 +92,9 @@ class Patient extends Model implements AuthenticatableContract
             return $value;
         }
         if ($this->date_of_birth) {
-            return \Carbon\Carbon::parse($this->date_of_birth)->age;
+            return $this->date_of_birth->age;
         }
+
         return null;
     }
 
@@ -108,7 +108,7 @@ class Patient extends Model implements AuthenticatableContract
         static::created(function ($patient) {
             if (empty($patient->patient_code)) {
                 $patient->update([
-                    'patient_code' => 'P-' . str_pad($patient->id, 4, '0', STR_PAD_LEFT),
+                    'patient_code' => 'P-'.str_pad($patient->id, 4, '0', STR_PAD_LEFT),
                 ]);
             }
         });
@@ -148,8 +148,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the clinics associated with the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function clinics(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
@@ -160,7 +158,6 @@ class Patient extends Model implements AuthenticatableContract
      * Get the clinic associated with the patient (Legacy).
      *
      * @deprecated Use clinics() instead.
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function clinic(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -169,8 +166,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the appointments for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function appointments(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -179,8 +174,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the allergies for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function allergies(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -189,8 +182,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the medical history for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function medicalHistory(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -199,8 +190,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the surgeries for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function surgeries(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -209,8 +198,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the immunizations for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function immunizations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -219,8 +206,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the consultations for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function consultations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -229,8 +214,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the lab test results for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function labTestResults(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -239,8 +222,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the invoices for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -249,8 +230,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the admissions for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function admissions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -259,8 +238,6 @@ class Patient extends Model implements AuthenticatableContract
 
     /**
      * Get the vitals for the patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function vitals(): \Illuminate\Database\Eloquent\Relations\HasMany
     {

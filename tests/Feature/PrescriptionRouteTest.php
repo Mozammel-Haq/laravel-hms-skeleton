@@ -2,19 +2,18 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Role;
-use App\Models\Consultation;
 use App\Models\Appointment;
+use App\Models\Clinic;
+use App\Models\Consultation;
+use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Role;
+use App\Models\User;
 use App\Models\Visit;
-use App\Models\Clinic;
-use App\Models\Department;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-
-use Illuminate\Database\Eloquent\Model;
 
 class PrescriptionRouteTest extends TestCase
 {
@@ -39,7 +38,7 @@ class PrescriptionRouteTest extends TestCase
             $createPermission->id,
             $viewPermission->id,
             $viewConsultationPermission->id,
-            $performConsultationPermission->id
+            $performConsultationPermission->id,
         ]);
 
         $user->roles()->attach($doctorRole);
@@ -64,14 +63,14 @@ class PrescriptionRouteTest extends TestCase
             'status' => 'confirmed',
             'appointment_type' => 'in_person',
             'booking_source' => 'in_person',
-            'created_by' => $user->id
+            'created_by' => $user->id,
         ]);
 
         $visit = Visit::create([
             'clinic_id' => $clinic->id,
             'appointment_id' => $appointment->id,
             'check_in_time' => now(),
-            'visit_status' => 'in_progress'
+            'visit_status' => 'in_progress',
         ]);
 
         $consultation = Consultation::create([
@@ -81,14 +80,13 @@ class PrescriptionRouteTest extends TestCase
             'patient_id' => $patient->id,
             'doctor_notes' => 'Notes',
             'diagnosis' => 'Diagnosis',
-            'status' => 'pending' // Not completed
+            'status' => 'pending', // Not completed
         ]);
 
         // Check URL generation
         $url = route('clinical.prescriptions.store', ['consultation' => $consultation]);
-        echo "\nGenerated URL: " . $url . "\n";
 
-        $this->assertStringContainsString('/clinical/prescriptions/' . $consultation->id, $url);
+        $this->assertStringContainsString('/clinical/prescriptions/'.$consultation->id, $url);
 
         // Check if the route is accessible via POST
         $response = $this->post($url, [
@@ -98,10 +96,10 @@ class PrescriptionRouteTest extends TestCase
                     'dosage' => '1-0-1',
                     'frequency' => 'Daily',
                     'duration_days' => 5,
-                    'instructions' => 'After food'
-                ]
+                    'instructions' => 'After food',
+                ],
             ],
-            'notes' => 'Test prescription'
+            'notes' => 'Test prescription',
         ]);
 
         $this->assertNotEquals(405, $response->status());
@@ -126,7 +124,7 @@ class PrescriptionRouteTest extends TestCase
             $createPermission->id,
             $viewPermission->id,
             $viewConsultationPermission->id,
-            $performConsultationPermission->id
+            $performConsultationPermission->id,
         ]);
 
         $user->roles()->attach($doctorRole);
@@ -150,14 +148,14 @@ class PrescriptionRouteTest extends TestCase
             'status' => 'confirmed',
             'appointment_type' => 'in_person',
             'booking_source' => 'in_person',
-            'created_by' => $user->id
+            'created_by' => $user->id,
         ]);
 
         $visit = Visit::create([
             'clinic_id' => $clinic->id,
             'appointment_id' => $appointment->id,
             'check_in_time' => now(),
-            'visit_status' => 'in_progress'
+            'visit_status' => 'in_progress',
         ]);
 
         $consultation = Consultation::create(['clinic_id' => $clinic->id, 'visit_id' => $visit->id, 'doctor_id' => $doctor->id, 'patient_id' => $patient->id, 'status' => 'in_progress']);

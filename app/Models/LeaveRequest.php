@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Concerns\LogsActivity;
 /**
  * LeaveRequest Model
  *
@@ -20,12 +19,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $status 'pending', 'approved', 'rejected'
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\User|null $user
  */
 
-use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\NotifiesRoles;
+use Illuminate\Database\Eloquent\Model;
 
 class LeaveRequest extends Model
 {
@@ -41,7 +39,8 @@ class LeaveRequest extends Model
     public function getActivityDescription($action)
     {
         $userName = $this->user ? $this->user->name : 'Unknown User';
-        return ucfirst($action) . " leave request for {$userName}";
+
+        return ucfirst($action)." leave request for {$userName}";
     }
 
     protected $guarded = ['id'];

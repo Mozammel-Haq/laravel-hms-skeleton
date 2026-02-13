@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\Clinic;
-use App\Models\Patient;
 use App\Models\Appointment;
-use App\Models\User;
-use App\Models\Doctor;
+use App\Models\Clinic;
 use App\Models\Department;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -27,23 +27,23 @@ class AppointmentApiTest extends TestCase
             'postal_code' => '12345',
             'country' => 'Country A',
             'phone' => '1111111111',
-             'email' => 'clinicA@test.com',
-             'timezone' => 'UTC',
-             'currency' => 'USD'
-         ]);
-         $clinicB = Clinic::create([
-             'name' => 'Clinic B',
-             'code' => 'CLB',
-             'address_line_1' => '456 Side St',
-             'city' => 'City B',
-             'state' => 'State B',
-             'postal_code' => '67890',
-             'country' => 'Country B',
-             'phone' => '2222222222',
-             'email' => 'clinicB@test.com',
-             'timezone' => 'UTC',
-             'currency' => 'USD'
-         ]);
+            'email' => 'clinicA@test.com',
+            'timezone' => 'UTC',
+            'currency' => 'USD',
+        ]);
+        $clinicB = Clinic::create([
+            'name' => 'Clinic B',
+            'code' => 'CLB',
+            'address_line_1' => '456 Side St',
+            'city' => 'City B',
+            'state' => 'State B',
+            'postal_code' => '67890',
+            'country' => 'Country B',
+            'phone' => '2222222222',
+            'email' => 'clinicB@test.com',
+            'timezone' => 'UTC',
+            'currency' => 'USD',
+        ]);
 
         // 2. Create Patient linked to Clinic A (legacy/primary way)
         $patient = Patient::create([
@@ -65,7 +65,7 @@ class AppointmentApiTest extends TestCase
         // We need a doctor in Clinic B
         $deptB = Department::forceCreate([
             'name' => 'General Dept B',
-            'clinic_id' => $clinicB->id
+            'clinic_id' => $clinicB->id,
         ]);
 
         $doctorUser = User::create([
@@ -81,7 +81,7 @@ class AppointmentApiTest extends TestCase
             'license_number' => '123',
             'phone' => '123',
             'status' => 'active',
-            'primary_department_id' => $deptB->id
+            'primary_department_id' => $deptB->id,
         ]);
 
         $appointment = Appointment::forceCreate([
@@ -107,7 +107,7 @@ class AppointmentApiTest extends TestCase
         // 6. Request Appointments for Clinic B
         $response = $this->withHeaders([
             'X-Clinic-ID' => $clinicB->id,
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->getJson('/api/patient/appointments');
 
         // 7. Assertions
@@ -128,10 +128,10 @@ class AppointmentApiTest extends TestCase
             'postal_code' => '12345',
             'country' => 'Country A',
             'phone' => '1111111111',
-             'email' => 'clinicA@test.com',
-             'timezone' => 'UTC',
-             'currency' => 'USD'
-         ]);
+            'email' => 'clinicA@test.com',
+            'timezone' => 'UTC',
+            'currency' => 'USD',
+        ]);
 
         // 2. Create Patient linked to Clinic A
         $patient = Patient::create([
@@ -149,7 +149,7 @@ class AppointmentApiTest extends TestCase
         // 3. Create appointment in Clinic A
         $deptA = Department::forceCreate([
             'name' => 'General Dept A',
-            'clinic_id' => $clinicA->id
+            'clinic_id' => $clinicA->id,
         ]);
 
         $doctorUser = User::create([
@@ -165,7 +165,7 @@ class AppointmentApiTest extends TestCase
             'license_number' => '123',
             'phone' => '123',
             'status' => 'active',
-            'primary_department_id' => $deptA->id
+            'primary_department_id' => $deptA->id,
         ]);
 
         $appointment = Appointment::forceCreate([
@@ -187,7 +187,7 @@ class AppointmentApiTest extends TestCase
 
         $response = $this->withHeaders([
             'X-Clinic-ID' => $clinicA->id,
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ])->getJson('/api/patient/appointments');
 
         $response->assertStatus(200);

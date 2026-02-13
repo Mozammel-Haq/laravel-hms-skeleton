@@ -38,8 +38,8 @@ class StaffController extends Controller
         if (request()->filled('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%');
+                $q->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('email', 'like', '%'.$search.'%');
             });
         }
 
@@ -59,13 +59,14 @@ class StaffController extends Controller
 
         $users = $query->paginate(20)->withQueryString();
         $roles = Role::all();
+
         return view('staff.index', compact('users', 'roles'));
     }
 
     /**
      * Restore the specified staff member.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
     public function restore($id)
@@ -74,6 +75,7 @@ class StaffController extends Controller
         Gate::authorize('delete', $user); // Use delete permission for restore
         $user->restore();
         $user->update(['status' => 'active']); // Restore status as well if needed
+
         return redirect()->route('staff.index')->with('success', 'Staff member restored successfully.');
     }
 
@@ -86,13 +88,13 @@ class StaffController extends Controller
     {
         Gate::authorize('create', User::class);
         $roles = Role::all();
+
         return view('staff.create', compact('roles'));
     }
 
     /**
      * Store a newly created staff member in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -129,34 +131,32 @@ class StaffController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\User  $staff
      * @return \Illuminate\View\View
      */
     public function show(User $staff)
     {
         Gate::authorize('view', $staff);
         $staff->load('roles');
+
         return view('staff.show', compact('staff'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\User  $staff
      * @return \Illuminate\View\View
      */
     public function edit(User $staff)
     {
         Gate::authorize('update', $staff);
         $roles = Role::all();
+
         return view('staff.edit', compact('staff', 'roles'));
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $staff
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, User $staff)
@@ -190,7 +190,6 @@ class StaffController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\User  $staff
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(User $staff)
@@ -198,6 +197,7 @@ class StaffController extends Controller
         Gate::authorize('delete', $staff);
         $staff->update(['status' => 'inactive']);
         $staff->delete();
+
         return redirect()->route('staff.index')->with('success', 'Staff member deleted successfully.');
     }
 
@@ -215,6 +215,7 @@ class StaffController extends Controller
             })
             ->orderBy('name')
             ->paginate(20);
+
         return view('staff.passwords', compact('staff'));
     }
 }

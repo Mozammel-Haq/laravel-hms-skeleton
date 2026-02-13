@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('lab_test_orders', function (Blueprint $table) {
-            if (!Schema::hasColumn('lab_test_orders', 'lab_test_id')) {
+            if (! Schema::hasColumn('lab_test_orders', 'lab_test_id')) {
                 $table->foreignId('lab_test_id')->nullable()->after('patient_id')->constrained()->restrictOnDelete();
             }
             // Make appointment_id nullable

@@ -10,10 +10,10 @@ return new class extends Migration
     {
         if (Schema::hasTable('consultations')) {
             Schema::table('consultations', function (Blueprint $table) {
-                if (!Schema::hasColumn('consultations', 'doctor_id')) {
+                if (! Schema::hasColumn('consultations', 'doctor_id')) {
                     $table->foreignId('doctor_id')->nullable()->constrained()->restrictOnDelete();
                 }
-                if (!Schema::hasColumn('consultations', 'patient_id')) {
+                if (! Schema::hasColumn('consultations', 'patient_id')) {
                     $table->foreignId('patient_id')->nullable()->constrained()->restrictOnDelete();
                 }
             });

@@ -16,7 +16,7 @@ export const useClinic = () => {
 };
 
 export const ClinicProvider = ({ children }) => {
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { addToast, setIsLoading } = useUI();
 
   const [clinics, setClinics] = useState([]);

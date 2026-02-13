@@ -2,17 +2,19 @@
 
 namespace App\Services;
 
-use Stripe\Stripe;
-use Stripe\Checkout\Session;
-use Illuminate\Support\Facades\Log;
-
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Stripe\Checkout\Session;
+use Stripe\Stripe;
 
 class PaymentGatewayService
 {
     protected $stripeSecret;
+
     protected $sslStoreId;
+
     protected $sslStorePassword;
+
     protected $sslIsSandbox;
 
     public function __construct()
@@ -55,7 +57,8 @@ class PaymentGatewayService
                 'transaction_id' => $session->id,
             ];
         } catch (\Exception $e) {
-            Log::error('Stripe Session Creation Failed: ' . $e->getMessage());
+            Log::error('Stripe Session Creation Failed: '.$e->getMessage());
+
             return [
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -99,7 +102,7 @@ class PaymentGatewayService
         ];
 
         // Merge extra parameters (e.g., value_a for redirect_url)
-        if (!empty($extraParams)) {
+        if (! empty($extraParams)) {
             $postData = array_merge($postData, $extraParams);
         }
 
@@ -128,7 +131,8 @@ class PaymentGatewayService
                 ];
             }
         } catch (\Exception $e) {
-            Log::error('SSLCommerz Init Failed: ' . $e->getMessage());
+            Log::error('SSLCommerz Init Failed: '.$e->getMessage());
+
             return [
                 'success' => false,
                 'message' => $e->getMessage(),

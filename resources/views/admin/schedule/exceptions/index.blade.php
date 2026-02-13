@@ -147,15 +147,15 @@
                                     </td>
                                     <td>
                                         <div class="fw-bold">
-                                            {{ \Carbon\Carbon::parse($exception->start_date)->format('M d, Y') }}
+                                            {{ $exception->start_date->format('M d, Y') }}
                                             @if ($exception->start_date != $exception->end_date)
-                                                - {{ \Carbon\Carbon::parse($exception->end_date)->format('M d, Y') }}
+                                                - {{ $exception->end_date->format('M d, Y') }}
                                             @endif
                                         </div>
                                         <div class="text-muted small">
-                                            {{ \Carbon\Carbon::parse($exception->start_date)->format('l') }}
+                                            {{ $exception->start_date->format('l') }}
                                             @if ($exception->start_date != $exception->end_date)
-                                                - {{ \Carbon\Carbon::parse($exception->end_date)->format('l') }}
+                                                - {{ $exception->end_date->format('l') }}
                                             @endif
                                         </div>
                                     </td>
@@ -168,8 +168,8 @@
                                     </td>
                                     <td>
                                         @if ($exception->is_available)
-                                            {{ \Carbon\Carbon::parse($exception->start_time)->format('H:i') }} -
-                                            {{ \Carbon\Carbon::parse($exception->end_time)->format('H:i') }}
+                                            {{ $exception->start_time->format('H:i') }} -
+                                            {{ $exception->end_time->format('H:i') }}
                                         @else
                                             <span class="text-muted">Unavailable</span>
                                         @endif

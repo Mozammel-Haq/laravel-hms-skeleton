@@ -221,7 +221,7 @@
                                                     Patient
                                                 @endif
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($a->appointment_date)->format('M d, Y') }}</td>
+                                            <td>{{ $a->appointment_date->format('M d, Y') }}</td>
                                             <td>
                                                 @php
                                                     $statusColors = [
@@ -283,7 +283,7 @@
                                     @foreach ($prescriptions as $p)
                                         <tr>
                                             <td>{{ $p->consultation->patient->name ?? 'Patient' }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($p->issued_at)->format('M d, Y') }}</td>
+                                            <td>{{ $p->issued_at->format('M d, Y') }}</td>
                                             <td>
                                                 @php
                                                     $pStatus = $p->status ?? 'active';
@@ -376,7 +376,7 @@
                     labels: { style: { colors: 'var(--bs-secondary)' } }
                 }],
                 colors: ['var(--primary-color)', 'var(--bs-info)'],
-                tooltip: { theme: 'light' }
+                tooltip: { theme: 'dark' }
             };
             var consultationActivityChart = new ApexCharts(document.querySelector("#consultationActivityChart"), consultationActivityOptions);
             consultationActivityChart.render();
@@ -410,7 +410,7 @@
                 },
                 dataLabels: { enabled: false },
                 legend: { position: 'bottom' },
-                tooltip: { theme: 'light' }
+                tooltip: { theme: 'dark' }
             };
             var appointmentStatusChart = new ApexCharts(document.querySelector("#appointmentStatusChart"), appointmentStatusOptions);
             appointmentStatusChart.render();

@@ -12,8 +12,6 @@ use Illuminate\Http\Request;
  * Class DoctorProfileController
  *
  * Manages the profile of the currently authenticated doctor.
- *
- * @package App\Http\Controllers\Extras
  */
 class DoctorProfileController extends Controller
 {
@@ -26,7 +24,7 @@ class DoctorProfileController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user || !$user->hasRole('Doctor') || !$user->doctor) {
+        if (! $user || ! $user->hasRole('Doctor') || ! $user->doctor) {
             abort(403);
         }
 
@@ -48,7 +46,6 @@ class DoctorProfileController extends Controller
     /**
      * Store a new education record for the doctor.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function storeEducation(Request $request)
@@ -59,8 +56,8 @@ class DoctorProfileController extends Controller
             'degree' => 'required|string|max:255',
             'institution' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
-            'start_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
-            'end_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
+            'start_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 10),
+            'end_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 10),
         ]);
 
         $doctor->educations()->create($data);
@@ -71,8 +68,6 @@ class DoctorProfileController extends Controller
     /**
      * Update the specified education record.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DoctorEducation  $education
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateEducation(Request $request, DoctorEducation $education)
@@ -87,8 +82,8 @@ class DoctorProfileController extends Controller
             'degree' => 'required|string|max:255',
             'institution' => 'required|string|max:255',
             'country' => 'nullable|string|max:255',
-            'start_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
-            'end_year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
+            'start_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 10),
+            'end_year' => 'nullable|integer|min:1900|max:'.(date('Y') + 10),
         ]);
 
         $education->update($data);
@@ -99,7 +94,6 @@ class DoctorProfileController extends Controller
     /**
      * Remove the specified education record.
      *
-     * @param  \App\Models\DoctorEducation  $education
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyEducation(DoctorEducation $education)
@@ -118,7 +112,6 @@ class DoctorProfileController extends Controller
     /**
      * Store a new award record for the doctor.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function storeAward(Request $request)
@@ -127,7 +120,7 @@ class DoctorProfileController extends Controller
 
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
+            'year' => 'nullable|integer|min:1900|max:'.(date('Y') + 10),
             'description' => 'nullable|string',
         ]);
 
@@ -139,8 +132,6 @@ class DoctorProfileController extends Controller
     /**
      * Update the specified award record.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DoctorAward  $award
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateAward(Request $request, DoctorAward $award)
@@ -153,7 +144,7 @@ class DoctorProfileController extends Controller
 
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'year' => 'nullable|integer|min:1900|max:' . (date('Y') + 10),
+            'year' => 'nullable|integer|min:1900|max:'.(date('Y') + 10),
             'description' => 'nullable|string',
         ]);
 
@@ -165,7 +156,6 @@ class DoctorProfileController extends Controller
     /**
      * Remove the specified award record.
      *
-     * @param  \App\Models\DoctorAward  $award
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyAward(DoctorAward $award)
@@ -184,7 +174,6 @@ class DoctorProfileController extends Controller
     /**
      * Store a new certification record for the doctor.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function storeCertification(Request $request)
@@ -206,8 +195,6 @@ class DoctorProfileController extends Controller
     /**
      * Update the specified certification record.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\DoctorCertification  $certification
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateCertification(Request $request, DoctorCertification $certification)
@@ -233,7 +220,6 @@ class DoctorProfileController extends Controller
     /**
      * Remove the specified certification record.
      *
-     * @param  \App\Models\DoctorCertification  $certification
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyCertification(DoctorCertification $certification)

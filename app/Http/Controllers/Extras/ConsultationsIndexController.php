@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Gate;
  * Class ConsultationsIndexController
  *
  * Manages the display of consultations.
- *
- * @package App\Http\Controllers\Extras
  */
 class ConsultationsIndexController extends Controller
 {
@@ -23,7 +21,8 @@ class ConsultationsIndexController extends Controller
     public function index()
     {
         Gate::authorize('view_consultations');
-        $consultations = Consultation::with(['patient','doctor'])->latest()->take(50)->get();
+        $consultations = Consultation::with(['patient', 'doctor'])->latest()->take(50)->get();
+
         return view('clinical.consultations.index', compact('consultations'));
     }
 }

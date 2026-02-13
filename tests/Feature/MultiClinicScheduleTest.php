@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Department;
 use App\Models\Doctor;
@@ -10,19 +9,21 @@ use App\Models\DoctorSchedule;
 use App\Models\DoctorScheduleException;
 use App\Models\User;
 use App\Services\AppointmentService;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Carbon\Carbon;
-
-use Illuminate\Database\Eloquent\Model;
 
 class MultiClinicScheduleTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $clinicA;
+
     protected $clinicB;
+
     protected $doctor;
+
     protected $service;
 
     protected function setUp(): void
@@ -45,13 +46,13 @@ class MultiClinicScheduleTest extends TestCase
             'clinic_id' => $this->clinicA->id,
             'primary_department_id' => $dept->id,
             'specialization' => 'General',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // Attach to both clinics
         $this->doctor->clinics()->attach([$this->clinicA->id, $this->clinicB->id]);
 
-        $this->service = new AppointmentService();
+        $this->service = new AppointmentService;
     }
 
     /** @test */
@@ -66,7 +67,7 @@ class MultiClinicScheduleTest extends TestCase
             'start_time' => '09:00:00',
             'end_time' => '10:00:00',
             'slot_duration_minutes' => 15,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // Find next Monday
@@ -89,7 +90,7 @@ class MultiClinicScheduleTest extends TestCase
             'start_time' => '10:00:00',
             'end_time' => '11:00:00',
             'slot_duration_minutes' => 15,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // Re-check
@@ -114,7 +115,7 @@ class MultiClinicScheduleTest extends TestCase
             'start_time' => '09:00:00',
             'end_time' => '17:00:00',
             'slot_duration_minutes' => 60,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         // Schedule for Clinic B: Monday 09:00 - 17:00
@@ -126,7 +127,7 @@ class MultiClinicScheduleTest extends TestCase
             'start_time' => '09:00:00',
             'end_time' => '17:00:00',
             'slot_duration_minutes' => 60,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $date = Carbon::parse('next Monday')->format('Y-m-d');
@@ -143,7 +144,7 @@ class MultiClinicScheduleTest extends TestCase
             'end_date' => $date,
             'is_available' => false,
             'reason' => 'Vacation A',
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         // Check Clinic A: Should be empty

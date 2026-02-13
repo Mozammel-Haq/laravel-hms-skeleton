@@ -256,7 +256,11 @@
                                     class="{{ request()->routeIs('appointments.requests.*') ? 'active' : '' }}">Requests</a>
                             </li>
                             <li><a href="{{ route('patients.index') }}"
-                                    class="{{ request()->routeIs('patients.*') ? 'active' : '' }}">Patients</a></li>
+                                    class="{{ request()->routeIs('patients.index') ? 'active' : '' }}">Patients List</a></li>
+                            <li><a href="{{ route('patients.create') }}"
+                                    class="{{ request()->routeIs('patients.create') ? 'active' : '' }}">Register Patient</a></li>
+                            <li><a href="{{ route('patients.search') }}"
+                                    class="{{ request()->routeIs('patients.search') ? 'active' : '' }}">Global Search</a></li>
                             <li><a href="{{ route('visits.index') }}">Visits</a></li>
                         </ul>
                     </li>

@@ -51,6 +51,7 @@ class IpdExtrasController extends Controller
         }
 
         $admissions = $query->latest()->paginate(20)->withQueryString();
+
         return view('ipd.rounds.index', compact('admissions'));
     }
 
@@ -63,6 +64,7 @@ class IpdExtrasController extends Controller
     {
         Gate::authorize('view_ipd');
         $wards = Ward::with(['rooms.beds'])->orderBy('name')->get();
+
         return view('ipd.bed_status', compact('wards'));
     }
 }

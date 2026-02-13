@@ -2,15 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Models\Clinic;
+use App\Models\Department;
+use App\Models\Doctor;
+use App\Models\Patient;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use App\Models\User;
-use App\Models\Role;
-use App\Models\Clinic;
-use App\Models\Doctor;
-use App\Models\Department;
-use App\Models\Patient;
 
 class UserSeeder extends Seeder
 {
@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
         // 1. Get the Standard Clinic (created in StandardDataSeeder)
         $clinic = Clinic::first();
 
-        if (!$clinic) {
+        if (! $clinic) {
             // Fallback if StandardDataSeeder wasn't run (though it should be)
             $clinic = Clinic::create([
                 'name' => 'Dhaka Medical Center',
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
                 'country' => 'Bangladesh',
                 'timezone' => 'Asia/Dhaka',
                 'currency' => 'BDT',
-                'status' => 'active'
+                'status' => 'active',
             ]);
         }
 
@@ -89,14 +89,14 @@ class UserSeeder extends Seeder
                     'password' => Hash::make('password'),
                     'status' => 'active',
                     'email_verified_at' => now(),
-                    'profile_photo_path' => 'assets/img/profile/' . Str::slug($userData['name']) . '.jpg',
+                    'profile_photo_path' => 'assets/img/profile/'.Str::slug($userData['name']).'.jpg',
                 ]
             );
 
             // Assign Role
             $role = Role::where('name', $userData['role'])->first();
             if ($role) {
-                if (!$user->roles()->where('role_id', $role->id)->exists()) {
+                if (! $user->roles()->where('role_id', $role->id)->exists()) {
                     $user->roles()->attach($role->id);
                 }
             }
@@ -105,12 +105,12 @@ class UserSeeder extends Seeder
             if ($userData['role'] === 'Doctor') {
                 // Try to find a department (e.g., General Medicine or Internal Medicine)
                 $department = Department::where('clinic_id', $clinic->id)
-                    ->where(function($q) {
+                    ->where(function ($q) {
                         $q->where('name', 'LIKE', '%Medicine%')
-                          ->orWhere('name', 'LIKE', '%General%');
+                            ->orWhere('name', 'LIKE', '%General%');
                     })->first();
 
-                if (!$department) {
+                if (! $department) {
                     $department = Department::firstOrCreate(
                         ['name' => 'General Medicine', 'clinic_id' => $clinic->id],
                         ['description' => 'General Medicine Department', 'status' => 'active']
@@ -125,12 +125,12 @@ class UserSeeder extends Seeder
                         'specialization' => ['General Physician'],
                         'consultation_fee' => 1000,
                         'status' => 'active',
-                        'license_number' => 'BMDC-' . rand(10000, 99999),
-                        'experience_years' => 10
+                        'license_number' => 'BMDC-'.rand(10000, 99999),
+                        'experience_years' => 10,
                     ]
                 );
 
-                if (!$doctor->clinics()->where('clinic_id', $clinic->id)->exists()) {
+                if (! $doctor->clinics()->where('clinic_id', $clinic->id)->exists()) {
                     $doctor->clinics()->attach($clinic->id);
                 }
             }

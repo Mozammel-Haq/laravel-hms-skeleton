@@ -9,8 +9,6 @@ use App\Models\ActivityLog;
  * Class ActivityController
  *
  * Manages the display of activity logs.
- *
- * @package App\Http\Controllers\Extras
  */
 class ActivityController extends Controller
 {
@@ -47,6 +45,7 @@ class ActivityController extends Controller
         }
 
         $activities = $query->latest()->paginate(20)->withQueryString();
+
         return view('activity.index', compact('activities'));
     }
 }

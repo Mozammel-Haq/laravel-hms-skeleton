@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
 /**
  * Role Model
  *
@@ -16,12 +15,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Permission[] $permissions
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
  */
 
-use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
@@ -29,15 +27,13 @@ class Role extends Model
 
     public function getActivityDescription($action)
     {
-        return ucfirst($action) . " role {$this->name}";
+        return ucfirst($action)." role {$this->name}";
     }
 
     protected $fillable = ['name', 'slug', 'description'];
 
     /**
      * Get the permissions associated with the role.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
@@ -46,8 +42,6 @@ class Role extends Model
 
     /**
      * Get the users assigned to this role.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function users(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
@@ -57,7 +51,7 @@ class Role extends Model
     /**
      * Grant a permission to the role.
      *
-     * @param string|\App\Models\Permission $permission
+     * @param  string|\App\Models\Permission  $permission
      * @return void
      */
     public function givePermissionTo($permission)
@@ -68,6 +62,7 @@ class Role extends Model
 
         $this->permissions()->syncWithoutDetaching($permission);
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

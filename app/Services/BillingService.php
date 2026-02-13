@@ -15,23 +15,20 @@ class BillingService
     /**
      * Create a new invoice.
      *
-     * @param mixed $patient
-     * @param array $items Array of ['item_type', 'reference_id', 'description', 'quantity', 'unit_price']
-     * @param int|null $appointmentId
-     * @param float $discount
-     * @param float $tax
+     * @param  mixed  $patient
+     * @param  array  $items  Array of ['item_type', 'reference_id', 'description', 'quantity', 'unit_price']
      * @return Invoice
      */
     public function createInvoice($patient, array $items, ?int $appointmentId = null, float $discount = 0, float $tax = 0, ?int $visitId = null, ?string $invoiceType = null, ?int $createdBy = null, bool $finalize = true, ?int $clinicId = null, ?int $admissionId = null)
     {
         $clinicId = $clinicId ?? \App\Support\TenantContext::getClinicId() ?? auth()->user()->clinic_id ?? $patient->clinic_id;
 
-        if (!$clinicId) {
-             throw new Exception("Clinic context is required to create invoice.");
+        if (! $clinicId) {
+            throw new Exception('Clinic context is required to create invoice.');
         }
 
         return DB::transaction(function () use ($patient, $items, $appointmentId, $discount, $tax, $visitId, $invoiceType, $createdBy, $finalize, $clinicId, $admissionId) {
-            $subtotal = collect($items)->sum(fn($item) => $item['quantity'] * $item['unit_price']);
+            $subtotal = collect($items)->sum(fn ($item) => $item['quantity'] * $item['unit_price']);
 
             // Calculate tax amount (tax is passed as percentage)
             $taxAmount = max(0, ($subtotal - $discount)) * ($tax / 100);
@@ -39,7 +36,7 @@ class BillingService
 
             // Generate a simple unique invoice number for now.
             // In production, this should be sequential per clinic.
-            $invoiceNumber = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+            $invoiceNumber = 'INV-'.date('Ymd').'-'.strtoupper(Str::random(6));
 
             $invoice = Invoice::create([
                 'clinic_id' => $clinicId,
@@ -80,11 +77,6 @@ class BillingService
     /**
      * Record a payment for an invoice.
      *
-     * @param Invoice $invoice
-     * @param float $amount
-     * @param string $method
-     * @param User $receivedBy
-     * @param string|null $reference
      * @return Invoice
      */
     public function recordPayment(Invoice $invoice, float $amount, string $method, User $receivedBy, ?string $reference = null)

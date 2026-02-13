@@ -4,12 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Mail\PatientWelcomeMail;
 use App\Models\Patient;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\PatientWelcomeMail;
 
 /**
  * PatientController
@@ -59,10 +58,10 @@ class PatientController extends Controller
         if (request()->filled('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('patient_code', 'like', '%' . $search . '%')
-                    ->orWhere('phone', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%');
+                $q->where('name', 'like', '%'.$search.'%')
+                    ->orWhere('patient_code', 'like', '%'.$search.'%')
+                    ->orWhere('phone', 'like', '%'.$search.'%')
+                    ->orWhere('email', 'like', '%'.$search.'%');
             });
         }
 
@@ -75,13 +74,14 @@ class PatientController extends Controller
         }
 
         $patients = $query->latest()->paginate(10)->withQueryString();
+
         return view('patients.index', compact('patients'));
     }
 
     /**
      * Restore a soft-deleted patient.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
     public function restore($id)
@@ -103,6 +103,7 @@ class PatientController extends Controller
     public function create()
     {
         Gate::authorize('create', Patient::class);
+
         return view('patients.create');
     }
 
@@ -115,7 +116,6 @@ class PatientController extends Controller
      * - Profile Photo: Handles image upload and storage.
      * - Automatic Credentials: Generates default password and sends welcome email.
      *
-     * @param  \App\Http\Requests\StorePatientRequest  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StorePatientRequest $request)
@@ -130,11 +130,21 @@ class PatientController extends Controller
 
         $matchFound = false;
         $conditions = [];
-        if (!empty($data['nid_number'])) $conditions[] = ['nid_number', $data['nid_number']];
-        if (!empty($data['birth_certificate_number'])) $conditions[] = ['birth_certificate_number', $data['birth_certificate_number']];
-        if (!empty($data['passport_number'])) $conditions[] = ['passport_number', $data['passport_number']];
-        if (!empty($data['email'])) $conditions[] = ['email', $data['email']];
-        if (!empty($data['phone'])) $conditions[] = ['phone', $data['phone']];
+        if (! empty($data['nid_number'])) {
+            $conditions[] = ['nid_number', $data['nid_number']];
+        }
+        if (! empty($data['birth_certificate_number'])) {
+            $conditions[] = ['birth_certificate_number', $data['birth_certificate_number']];
+        }
+        if (! empty($data['passport_number'])) {
+            $conditions[] = ['passport_number', $data['passport_number']];
+        }
+        if (! empty($data['email'])) {
+            $conditions[] = ['email', $data['email']];
+        }
+        if (! empty($data['phone'])) {
+            $conditions[] = ['phone', $data['phone']];
+        }
 
         $existingPatient = null;
         if (count($conditions) > 0) {
@@ -156,7 +166,7 @@ class PatientController extends Controller
             $alreadyLinked = $existingPatient->clinics()->whereKey($clinicId)->exists();
 
             // Legacy check for single-tenant structure compatibility
-            if (!$alreadyLinked && $existingPatient->clinic_id == $clinicId) {
+            if (! $alreadyLinked && $existingPatient->clinic_id == $clinicId) {
                 $alreadyLinked = true;
             }
 
@@ -176,18 +186,18 @@ class PatientController extends Controller
             $file = $request->file('profile_photo');
 
             if ($file->isValid()) {
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$file->getClientOriginalName();
                 $destination = public_path('assets/img/patients');
 
-                if (!is_dir($destination)) {
+                if (! is_dir($destination)) {
                     mkdir($destination, 0755, true);
                 }
 
                 try {
                     $file->move($destination, $filename);
-                    $data['profile_photo'] = 'assets/img/patients/' . $filename;
+                    $data['profile_photo'] = 'assets/img/patients/'.$filename;
                 } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('File upload failed: ' . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::error('File upload failed: '.$e->getMessage());
                     // Continue without the file or return error
                 }
             }
@@ -198,22 +208,24 @@ class PatientController extends Controller
         $data['must_change_password'] = true;
 
         // Remove clinic_id from data to rely on pivot
-        if (isset($data['clinic_id'])) unset($data['clinic_id']);
+        if (isset($data['clinic_id'])) {
+            unset($data['clinic_id']);
+        }
 
         $patient = Patient::create($data + [
-            'clinic_id'    => $clinicId,
-            'patient_code' => 'TEMP-' . uniqid(),
+            'clinic_id' => $clinicId,
+            'patient_code' => 'TEMP-'.uniqid(),
         ]);
 
         // Update with correct code format based on ID
         $patient->update([
-            'patient_code' => 'P-' . str_pad($patient->id, 4, '0', STR_PAD_LEFT)
+            'patient_code' => 'P-'.str_pad($patient->id, 4, '0', STR_PAD_LEFT),
         ]);
 
         // Attach to clinic
         $patient->clinics()->attach($clinicId);
 
-        if (!empty($patient->email)) {
+        if (! empty($patient->email)) {
             Mail::to($patient->email)->send(new PatientWelcomeMail($patient, $defaultPassword));
         }
 
@@ -232,7 +244,6 @@ class PatientController extends Controller
      * - Medical History
      * - Invoices
      *
-     * @param  \App\Models\Patient  $patient
      * @return \Illuminate\View\View
      */
     public function show(Patient $patient)
@@ -254,12 +265,12 @@ class PatientController extends Controller
     /**
      * Show the form for editing the specified patient.
      *
-     * @param  \App\Models\Patient  $patient
      * @return \Illuminate\View\View
      */
     public function edit(Patient $patient)
     {
         Gate::authorize('update', $patient);
+
         return view('patients.edit', compact('patient'));
     }
 
@@ -270,8 +281,6 @@ class PatientController extends Controller
      * - Profile updates
      * - Profile photo replacement/deletion
      *
-     * @param  \App\Http\Requests\UpdatePatientRequest  $request
-     * @param  \App\Models\Patient  $patient
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdatePatientRequest $request, Patient $patient)
@@ -284,10 +293,10 @@ class PatientController extends Controller
             $file = $request->file('profile_photo');
 
             if ($file->isValid()) {
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$file->getClientOriginalName();
                 $destination = public_path('assets/img/patients');
 
-                if (!is_dir($destination)) {
+                if (! is_dir($destination)) {
                     mkdir($destination, 0755, true);
                 }
 
@@ -298,9 +307,9 @@ class PatientController extends Controller
                     }
 
                     $file->move($destination, $filename);
-                    $data['profile_photo'] = 'assets/img/patients/' . $filename;
+                    $data['profile_photo'] = 'assets/img/patients/'.$filename;
                 } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error('File upload failed: ' . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::error('File upload failed: '.$e->getMessage());
                 }
             }
         }
@@ -316,7 +325,6 @@ class PatientController extends Controller
      *
      * Performs a soft delete and sets status to 'inactive'.
      *
-     * @param  \App\Models\Patient  $patient
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Patient $patient)

@@ -15,15 +15,15 @@ return new class extends Migration
         Schema::table('payments', function (Blueprint $table) {
             // Modify existing columns
             $table->unsignedBigInteger('received_by')->nullable()->change(); // Nullable for online payments
-            
+
             // Add new columns
-            if (!Schema::hasColumn('payments', 'gateway')) {
+            if (! Schema::hasColumn('payments', 'gateway')) {
                 $table->string('gateway')->nullable()->after('payment_method'); // stripe, sslcommerz
             }
-            if (!Schema::hasColumn('payments', 'gateway_transaction_id')) {
+            if (! Schema::hasColumn('payments', 'gateway_transaction_id')) {
                 $table->string('gateway_transaction_id')->nullable()->after('gateway');
             }
-            if (!Schema::hasColumn('payments', 'status')) {
+            if (! Schema::hasColumn('payments', 'status')) {
                 $table->enum('status', ['pending', 'success', 'failed'])->default('success')->after('amount');
             }
         });
@@ -32,15 +32,15 @@ return new class extends Migration
         Schema::table('admission_deposits', function (Blueprint $table) {
             // Modify existing columns
             $table->unsignedBigInteger('received_by')->nullable()->change();
-            
+
             // Add new columns
-            if (!Schema::hasColumn('admission_deposits', 'gateway')) {
+            if (! Schema::hasColumn('admission_deposits', 'gateway')) {
                 $table->string('gateway')->nullable()->after('payment_method');
             }
-            if (!Schema::hasColumn('admission_deposits', 'gateway_transaction_id')) {
+            if (! Schema::hasColumn('admission_deposits', 'gateway_transaction_id')) {
                 $table->string('gateway_transaction_id')->nullable()->after('gateway');
             }
-            if (!Schema::hasColumn('admission_deposits', 'status')) {
+            if (! Schema::hasColumn('admission_deposits', 'status')) {
                 $table->enum('status', ['pending', 'success', 'failed'])->default('success')->after('amount');
             }
         });

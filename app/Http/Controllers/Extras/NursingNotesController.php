@@ -38,7 +38,7 @@ class NursingNotesController extends Controller
 
         if (request()->filled('status') && request('status') !== 'all') {
             $query->where('status', request('status'));
-        } elseif (!request()->filled('status')) {
+        } elseif (! request()->filled('status')) {
             $query->where('status', 'admitted');
         }
 
@@ -51,6 +51,7 @@ class NursingNotesController extends Controller
         }
 
         $admissions = $query->latest()->paginate(10)->withQueryString();
+
         return view('nursing.notes.index', compact('admissions'));
     }
 }

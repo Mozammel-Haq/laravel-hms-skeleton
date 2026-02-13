@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\LogsActivity;
 use App\Models\Concerns\NotifiesRoles;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * LabTestOrder Model
@@ -25,7 +25,6 @@ use App\Models\Concerns\NotifiesRoles;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\LabTestResult[] $results
  * @property-read \App\Models\Invoice|null $invoice
  * @property-read \App\Models\Patient $patient
@@ -34,7 +33,7 @@ use App\Models\Concerns\NotifiesRoles;
  */
 class LabTestOrder extends BaseTenantModel
 {
-    use SoftDeletes, LogsActivity, NotifiesRoles;
+    use LogsActivity, NotifiesRoles, SoftDeletes;
 
     protected static function booted()
     {
@@ -47,7 +46,8 @@ class LabTestOrder extends BaseTenantModel
     {
         $patientName = $this->patient ? $this->patient->name : 'Unknown Patient';
         $testName = $this->test ? $this->test->name : 'Unknown Test';
-        return ucfirst($action) . " lab order for {$patientName} (Test: {$testName})";
+
+        return ucfirst($action)." lab order for {$patientName} (Test: {$testName})";
     }
 
     protected $guarded = ['id'];
@@ -61,8 +61,6 @@ class LabTestOrder extends BaseTenantModel
      *
      * Relationship: One-to-Many.
      * An order can have multiple results (e.g. if multiple parameters are tested).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function results(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -74,8 +72,6 @@ class LabTestOrder extends BaseTenantModel
      *
      * Relationship: Belongs to Invoice.
      * The financial record for this order.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -87,8 +83,6 @@ class LabTestOrder extends BaseTenantModel
      *
      * Relationship: Belongs to Appointment.
      * Optional link if order was made during an appointment.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function appointment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -99,8 +93,6 @@ class LabTestOrder extends BaseTenantModel
      * Get the patient associated with the order.
      *
      * Relationship: Belongs to Patient.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function patient(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -112,8 +104,6 @@ class LabTestOrder extends BaseTenantModel
      *
      * Relationship: Belongs to LabTest.
      * Defines which test was ordered.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function test(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -124,8 +114,6 @@ class LabTestOrder extends BaseTenantModel
      * Get the doctor who ordered the test.
      *
      * Relationship: Belongs to Doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -24,6 +24,66 @@ import api from "../../services/api";
 import API_ENDPOINTS from "../../services/endpoints";
 import { useClinic } from "../../context/ClinicContext";
 import MedicalLoader from "../../components/loaders/MedicalLoader";
+
+const getYmdFromUnknown = (value) => {
+  if (!value) return null;
+  const str = String(value);
+  const ymd = str.split("T")[0].split(" ")[0];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) return null;
+  return ymd;
+};
+
+const getHmFromUnknownTime = (value) => {
+  if (!value) return null;
+  const str = String(value);
+  const timePart = str.includes("T") ? str.split("T")[1] : str;
+  const cleaned = timePart.split(".")[0].replace("Z", "").split(" ")[0];
+  const [hh, mm] = cleaned.split(":");
+  if (!hh || !mm) return null;
+  return { hh, mm };
+};
+
+const buildLocalDateTime = (dateValue, timeValue) => {
+  const ymd = getYmdFromUnknown(timeValue) ?? getYmdFromUnknown(dateValue);
+  const hm = getHmFromUnknownTime(timeValue);
+  if (!ymd || !hm) return null;
+
+  const [y, m, d] = ymd.split("-").map((v) => parseInt(v, 10));
+  const hour = parseInt(hm.hh, 10);
+  const minute = parseInt(hm.mm, 10);
+
+  const dt = new Date(y, m - 1, d, hour, minute, 0, 0);
+  if (Number.isNaN(dt.getTime())) return null;
+  return dt;
+};
+
+const formatTime12h = (dt) => {
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).format(dt);
+  } catch (_e) {
+    return "";
+  }
+};
+
+const isAppointmentPassed = (apt) => {
+  try {
+    const status = apt.status?.toLowerCase().trim();
+    const isActiveStatus = ["confirmed", "pending", "arrived"].includes(status);
+    if (!isActiveStatus) return false;
+    const startAt = buildLocalDateTime(apt.appointment_date, apt.start_time);
+    const endAt = buildLocalDateTime(apt.appointment_date, apt.end_time);
+    const now = new Date();
+    if (endAt) return endAt < now;
+    if (startAt) return startAt < now;
+    return false;
+  } catch {
+    return false;
+  }
+};
 
 const Appointments = () => {
   const navigate = useNavigate();
@@ -70,89 +130,86 @@ const Appointments = () => {
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // console.log(user);
-  const getAppointments = async () => {
+  const requestSeqRef = useRef(0);
+  const abortControllerRef = useRef(null);
+
+  const getAppointments = useCallback(async () => {
+    if (!activeClinicId || !user?.id) {
+      setAppointments([]);
+      setLoading(false);
+      return;
+    }
+
+    const requestSeq = ++requestSeqRef.current;
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     try {
       setLoading(true);
 
+      const statusParam = filter === "upcoming" ? "upcoming" : filter === "past" ? "past" : "all";
+
       const response = await api.get(API_ENDPOINTS.PATIENT.APPOINTMENTS, {
         params: {
-          patient_id: user?.id,
+          patient_id: user.id,
           search: searchTerm,
-          status: filter === "upcoming" ? "upcoming" : (filter === "past" ? "past" : filter) // Backend handles 'upcoming' logic?
-          // Wait, backend logic for 'status' in AppointmentsApiController was:
-          // if ($request->filled('status') && $request->status !== 'all') { $query->where('status', $request->status); }
-          // The backend doesn't seem to have 'upcoming' logic in the summary I saw.
-          // Let's re-read AppointmentsApiController to be sure.
-        }
+          status: statusParam,
+        },
+        signal: controller.signal,
       });
 
-      setAppointments(response.data.appointments || []);
+      if (controller.signal.aborted || requestSeq !== requestSeqRef.current) {
+        return;
+      }
+
+      const serverAppointments = Array.isArray(response?.data?.appointments)
+        ? response.data.appointments
+        : [];
+
+      const uniqueById = Array.from(
+        new Map(serverAppointments.map((apt) => [apt?.id, apt])).values()
+      ).filter((apt) => apt && apt.id != null);
+
+      setAppointments(uniqueById);
     } catch (error) {
+      if (controller.signal.aborted) {
+        return;
+      }
       console.error("Failed to fetch appointments", error);
       setAppointments([]);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted && requestSeq === requestSeqRef.current) {
+        setLoading(false);
+      }
     }
-  };
+  }, [activeClinicId, filter, searchTerm, user?.id]);
 
   useEffect(() => {
-    if (activeClinicId) {
-        const timer = setTimeout(() => {
-            getAppointments();
-        }, 500);
-        return () => clearTimeout(timer);
-    }
-  }, [activeClinicId, searchTerm, filter]);
-  console.log(appointments);
-  const filteredAppointments = appointments.filter((apt) => {
-    const status = apt.status?.toLowerCase().trim();
+    const delayMs = searchTerm ? 400 : 0;
+    const timer = setTimeout(() => {
+      getAppointments();
+    }, delayMs);
 
-    // Helper to check if date is strictly in the past (Yesterday or before)
-    const isPastDate = (() => {
-        try {
-             if (!apt.appointment_date) return false;
-             const dateStr = apt.appointment_date.toString().split('T')[0].split(' ')[0];
-             const [yStr, mStr, dStr] = dateStr.split('-');
-             const year = parseInt(yStr);
-             const month = parseInt(mStr) - 1;
-             const day = parseInt(dStr);
+    return () => clearTimeout(timer);
+  }, [getAppointments, searchTerm]);
 
-             const aptDate = new Date(year, month, day);
-             const today = new Date();
-             today.setHours(0, 0, 0, 0); // Normalize to start of today
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
-             return aptDate < today;
-        } catch (e) {
-             return false;
-        }
-    })();
-
-    const isActiveStatus = ["confirmed", "pending", "arrived"].includes(status);
-    const isInactiveStatus = ["completed", "cancelled"].includes(status);
-
-    let matchesFilter = false;
-
-    if (filter === "upcoming") {
-        // Upcoming = Active Status AND (Date is Today or Future)
-        matchesFilter = isActiveStatus && !isPastDate;
-    } else {
-        // Past = (Inactive Status) OR (Active Status but Date is Past)
-        matchesFilter = isInactiveStatus || (isActiveStatus && isPastDate);
-    }
-
-    if (!matchesFilter) return false;
-
-    if (!searchTerm) return true;
-
-    const term = searchTerm.toLowerCase();
-    const doctorName = apt.doctor?.user?.name?.toLowerCase() || "";
-    const type = apt.type?.toLowerCase() || "";
-    const notes = apt.notes?.toLowerCase() || "";
-    const date = apt.appointment_date || "";
-
-    return doctorName.includes(term) || type.includes(term) || notes.includes(term) || date.includes(term);
-  });
+  const appointmentsToRender = Array.isArray(appointments) ? appointments : [];
+  const filteredAppointments =
+    filter === "upcoming"
+      ? appointmentsToRender.filter((apt) => !isAppointmentPassed(apt))
+      : appointmentsToRender;
 
   const getDateParts = (dateString) => {
     const d = new Date(dateString);
@@ -319,9 +376,11 @@ const Appointments = () => {
           filteredAppointments.map((apt) => {
             const { year, month, day } = getDateParts(apt.appointment_date);
             const status = apt.status?.toLowerCase().trim();
-            const isUpcoming = ["confirmed", "pending", "arrived"].includes(status);
             const hasPendingRequest = apt.requests && apt.requests.length > 0;
             const pendingRequestType = hasPendingRequest ? apt.requests[0].type : null;
+            const startAt = buildLocalDateTime(apt.appointment_date, apt.start_time);
+            const endAt = buildLocalDateTime(apt.appointment_date, apt.end_time);
+            const now = new Date();
 
             // Invoice Logic
             const invoice = apt.visit?.invoices?.length > 0 ? apt.visit.invoices[0] : null;
@@ -332,65 +391,30 @@ const Appointments = () => {
 
             const joinStatus = (() => {
                 if (!isOnline) return 'not_online';
+                if (status !== 'confirmed' && status !== 'arrived' && status !== 'pending') return 'not_active';
+                if (status === 'pending') return 'pending_confirmation';
+                if (!startAt || !endAt) return 'error';
+
+                if (now > endAt) return 'ended';
+                if (!invoice) return 'awaiting_invoice';
+                if (['unpaid', 'partial'].includes(invoice.status?.toLowerCase())) return 'payment_required';
                 if (!apt.meeting_link) return 'no_link';
-                // Allow pending appointments to see the link status, but maybe not join?
-                // For user friendlyness, let's allow joining if link exists, or at least show it.
-                // If strictly following rules:
-                if (status !== 'confirmed' && status !== 'pending') return 'not_active';
 
-                try {
-                    const dateStr = apt.appointment_date.toString().split('T')[0].split(' ')[0];
-                    const [y, m, d] = dateStr.split('-');
-                    const [sh, sm] = apt.start_time.split(':');
-                    const [eh, em] = apt.end_time.split(':');
+                const joinWindowOpensAt = new Date(startAt.getTime() - 15 * 60 * 1000);
 
-                    const start = new Date(y, m - 1, d, sh, sm);
-                    const end = new Date(y, m - 1, d, eh, em);
-                    const now = new Date();
+                if (now < joinWindowOpensAt) return 'too_early';
 
-                    const diffMinutes = (start - now) / (1000 * 60);
+                if (status !== 'confirmed' && status !== 'arrived') return 'pending_confirmation';
 
-                    if (now > end) return 'ended';
-                    if (diffMinutes > 15) return 'too_early';
-
-                    // If pending, technically shouldn't join, but if link is there...
-                    // Let's restrict joining to confirmed only, but SHOW the button as disabled for pending.
-                    if (status !== 'confirmed') return 'pending_confirmation';
-
-                    return 'joinable';
-                } catch (e) {
-                    return 'error';
-                }
+                return 'joinable';
             })();
 
             // Check if appointment time has passed
-            const isTimePassed = isUpcoming && (() => {
-                try {
-                    if (!apt.appointment_date || !apt.end_time) return false;
-
-                    // Robust parsing for YYYY-MM-DD
-                    const dateStr = apt.appointment_date.toString().split('T')[0].split(' ')[0];
-                    const [yStr, mStr, dStr] = dateStr.split('-');
-
-                    // Robust parsing for HH:mm:ss
-                    const timeStr = apt.end_time.toString().trim();
-                    const [hStr, minStr] = timeStr.split(':');
-
-                    const year = parseInt(yStr);
-                    const month = parseInt(mStr) - 1; // 0-based
-                    const day = parseInt(dStr);
-                    const hour = parseInt(hStr);
-                    const minute = parseInt(minStr);
-
-                    const aptDate = new Date(year, month, day, hour, minute);
-
-                    if (isNaN(aptDate.getTime())) return false;
-
-                    return aptDate < new Date();
-                } catch (e) {
-                    return false;
-                }
-            })();
+            const isActiveStatus = ["confirmed", "pending", "arrived"].includes(status);
+            const isTimePassed =
+              isActiveStatus &&
+              ((endAt && endAt < now) || (!endAt && startAt && startAt < now));
+            const canPay = !!isUnpaid && status !== "cancelled" && (!isOnline || !isTimePassed);
 
             return (
               <div
@@ -457,6 +481,11 @@ const Appointments = () => {
                                     Passed
                                 </span>
                             )}
+                            {isUnpaid && (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700">
+                                    Payment Due
+                                </span>
+                            )}
                           </div>
 
                           <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -486,7 +515,9 @@ const Appointments = () => {
                               Appointment Time
                             </p>
                             <p className="text-sm font-semibold text-secondary-900 dark:text-white">
-                              {apt.start_time} – {apt.end_time}
+                              {startAt && endAt
+                                ? `${formatTime12h(startAt)} – ${formatTime12h(endAt)}`
+                                : `${apt.start_time} – ${apt.end_time}`}
                             </p>
                           </div>
                         </div>
@@ -518,7 +549,7 @@ const Appointments = () => {
                       {/* Actions */}
                       <div className="flex flex-wrap gap-2 pt-3 border-t border-secondary-100 dark:border-secondary-800">
                         {/* Payment Actions */}
-                        {isUnpaid && (
+                        {canPay && (
                              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto mb-2 sm:mb-0 mr-2">
                                  <Button
                                      size="sm"
@@ -569,36 +600,53 @@ const Appointments = () => {
                                 Waiting Confirmation
                              </div>
                         )}
+                        {joinStatus === 'awaiting_invoice' && (
+                             <div className="flex items-center gap-2 px-4 py-2 bg-secondary-100 dark:bg-secondary-800 text-secondary-500 dark:text-secondary-400 text-sm font-medium rounded-lg cursor-not-allowed" title="Invoice will appear after confirmation">
+                                <Video className="w-4 h-4" />
+                                Invoice Pending
+                             </div>
+                        )}
+                        {joinStatus === 'payment_required' && (
+                             <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 text-sm font-medium rounded-lg cursor-not-allowed" title="Pay the invoice to unlock the join link">
+                                <Video className="w-4 h-4" />
+                                Pay To Join
+                             </div>
+                        )}
+                        {joinStatus === 'no_link' && (
+                             <div className="flex items-center gap-2 px-4 py-2 bg-secondary-100 dark:bg-secondary-800 text-secondary-500 dark:text-secondary-400 text-sm font-medium rounded-lg cursor-not-allowed" title="Meeting link will be provided after payment">
+                                <Video className="w-4 h-4" />
+                                Waiting Link
+                             </div>
+                        )}
 
-                        {isUpcoming ? (
+                        {filter === "upcoming" ? (
                           <>
-                            {(status === 'pending' || (isTimePassed && status !== 'arrived')) && (
+                            {status === "pending" && !isTimePassed && (
                               <Button
                                 variant="outline"
                                 size="sm"
                                 className="flex-1 sm:flex-none min-w-[140px] font-semibold hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-700 dark:hover:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
-                                onClick={() => {
-                                  navigate('/portal/appointments/book', {
-                                    state: {
-                                      prefill: {
-                                        appointmentId: apt.id,
-                                        doctorId: apt?.doctor?.id || apt?.doctor_id,
-                                        departmentId: apt?.department_id || apt?.doctor?.primary_department_id,
-                                        date: apt.appointment_date,
-                                        time: apt.start_time,
-                                        visitMode: apt.appointment_type
-                                      }
-                                    }
-                                  });
-                                }}
+                                onClick={() => openRequestModal(apt, "reschedule")}
                                 disabled={hasPendingRequest}
                               >
                                 <Calendar className="w-4 h-4 mr-2" />
-                                {isTimePassed ? 'Reschedule / Book New' : 'Reschedule'}
+                                Reschedule
                               </Button>
                             )}
 
-                            {status === 'pending' && !isTimePassed && (
+                            {isTimePassed && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 sm:flex-none min-w-[140px] font-semibold hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-700 dark:hover:text-primary-300 hover:border-primary-300 dark:hover:border-primary-600 transition-colors"
+                                onClick={() => navigate("/portal/appointments/book")}
+                              >
+                                <Calendar className="w-4 h-4 mr-2" />
+                                Book New
+                              </Button>
+                            )}
+
+                            {status === "pending" && !isTimePassed && (
                               <Button
                                 variant="danger"
                                 size="sm"
@@ -661,7 +709,7 @@ const Appointments = () => {
                   {selectedAppointment?.doctor?.user?.name}
                 </p>
                 <p className="text-secondary-500 dark:text-secondary-400">
-                  {selectedAppointment?.appointment_date} at {selectedAppointment?.start_time}
+                  {selectedAppointment?.appointment_date} at {formatTime12h(buildLocalDateTime(selectedAppointment?.appointment_date, selectedAppointment?.start_time))}
                 </p>
               </div>
 
@@ -773,7 +821,15 @@ const Appointments = () => {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-secondary-600 dark:text-secondary-300 mt-1">
                             <Clock className="w-4 h-4" />
-                            <span>{summaryData.appointment.start_time} - {summaryData.appointment.end_time}</span>
+                            <span>
+                              {(() => {
+                                const sdt = buildLocalDateTime(summaryData.appointment.appointment_date, summaryData.appointment.start_time);
+                                const edt = buildLocalDateTime(summaryData.appointment.appointment_date, summaryData.appointment.end_time);
+                                return sdt && edt
+                                  ? `${formatTime12h(sdt)} - ${formatTime12h(edt)}`
+                                  : `${summaryData.appointment.start_time} - ${summaryData.appointment.end_time}`;
+                              })()}
+                            </span>
                         </div>
                     </div>
                   </div>

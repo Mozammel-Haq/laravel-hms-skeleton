@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admission;
 use App\Models\Appointment;
 use App\Models\Clinic;
-use App\Models\Invoice;
-use App\Models\Patient;
-use App\Models\Admission;
-use App\Models\Visit;
-use App\Models\Payment;
 use App\Models\Consultation;
 use App\Models\Doctor;
-use App\Models\PharmacySaleItem;
 use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Patient;
+use App\Models\Payment;
+use App\Models\PharmacySaleItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Carbon\Carbon;
 
 /**
  * Manages generation and display of various system reports.
@@ -26,12 +24,11 @@ class ReportController extends Controller
     /**
      * Helper to determine the date range for reports based on request parameters.
      *
-     * @param \Illuminate\Http\Request $request
      * @return array [startDate, endDate]
      */
     private function getDateRange(Request $request)
     {
-        $range = $request->get('range', 'month'); // day, week, month, year, custom
+        $range = $request->get('range', 'month'); // today, week, month, year, custom
         $startDate = $request->get('start_date');
         $endDate = $request->get('end_date');
 
@@ -40,6 +37,7 @@ class ReportController extends Controller
         }
 
         switch ($range) {
+            case 'today':
             case 'day':
                 return [now()->startOfDay(), now()->endOfDay()];
             case 'week':
@@ -60,13 +58,13 @@ class ReportController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', User::class); // Adjust permission as needed
+
         return view('reports.index');
     }
 
     /**
      * Generate appointment reports.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
     public function appointments(Request $request)
@@ -91,7 +89,6 @@ class ReportController extends Controller
     /**
      * Generate income/financial reports.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
     public function income(Request $request)
@@ -100,7 +97,7 @@ class ReportController extends Controller
         [$startDate, $endDate] = $this->getDateRange($request);
 
         $payments = Payment::with('invoice')
-            ->whereBetween('payment_date', [$startDate, $endDate])
+            ->whereBetween('paid_at', [$startDate, $endDate])
             ->get();
 
         $totalIncome = $payments->sum('amount');
@@ -162,7 +159,7 @@ class ReportController extends Controller
             ->selectRaw('invoice_type, SUM(total_amount) as total')
             ->groupBy('invoice_type')
             ->pluck('total', 'invoice_type')
-            ->map(fn($item) => (float)$item);
+            ->map(fn ($item) => (float) $item);
 
         // Revenue Over Time (Line Chart)
         $groupBy = $request->get('range') == 'year' ? 'DATE_FORMAT(created_at, "%Y-%m")' : 'DATE(created_at)';
@@ -173,8 +170,9 @@ class ReportController extends Controller
             ->orderBy('date')
             ->get()
             ->map(function ($item) {
-                $item->total = (float)$item->total;
-                $item->paid_amount = (float)$item->paid_amount;
+                $item->total = (float) $item->total;
+                $item->paid_amount = (float) $item->paid_amount;
+
                 return $item;
             });
 
@@ -184,7 +182,7 @@ class ReportController extends Controller
             ->selectRaw('payment_method, SUM(amount) as total')
             ->groupBy('payment_method')
             ->pluck('total', 'payment_method')
-            ->map(fn($item) => (float)$item);
+            ->map(fn ($item) => (float) $item);
 
         $data = compact('revenue', 'expenses', 'netIncome', 'paid', 'pending', 'invoiceCount', 'startDate', 'endDate', 'byType', 'daily', 'paymentMethods');
 
@@ -207,12 +205,11 @@ class ReportController extends Controller
      * Security:
      * - Restricted to users with 'Super Admin' role.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function compare(Request $request)
     {
-        if (!auth()->user()->hasRole('Super Admin')) {
+        if (! auth()->user()->hasRole('Super Admin')) {
             abort(403, 'Only Super Admin can compare clinics.');
         }
 
@@ -223,7 +220,7 @@ class ReportController extends Controller
         $selectedClinics = collect();
         $stats = [];
 
-        if (!empty($clinicIds)) {
+        if (! empty($clinicIds)) {
             $selectedClinics = Clinic::whereIn('id', $clinicIds)->get();
 
             foreach ($selectedClinics as $clinic) {
@@ -282,16 +279,22 @@ class ReportController extends Controller
             '13-19' => 0,
             '20-39' => 0,
             '40-59' => 0,
-            '60+' => 0
+            '60+' => 0,
         ];
 
         foreach ($patients as $p) {
             $age = $p->age; // Accessor from model
-            if ($age <= 12) $ageGroups['0-12']++;
-            elseif ($age <= 19) $ageGroups['13-19']++;
-            elseif ($age <= 39) $ageGroups['20-39']++;
-            elseif ($age <= 59) $ageGroups['40-59']++;
-            else $ageGroups['60+']++;
+            if ($age <= 12) {
+                $ageGroups['0-12']++;
+            } elseif ($age <= 19) {
+                $ageGroups['13-19']++;
+            } elseif ($age <= 39) {
+                $ageGroups['20-39']++;
+            } elseif ($age <= 59) {
+                $ageGroups['40-59']++;
+            } else {
+                $ageGroups['60+']++;
+            }
         }
 
         // New Patients Trend (Line)
@@ -396,7 +399,7 @@ class ReportController extends Controller
                     'consults' => $consults,
                     'admissions' => $admissions,
                     'revenue' => $revenue,
-                    'score' => $consults + ($admissions * 2)
+                    'score' => $consults + ($admissions * 2),
                 ];
             })
             ->sortByDesc('score')
@@ -416,7 +419,6 @@ class ReportController extends Controller
      *
      * Calculates estimated tax based on total revenue.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
     public function tax(Request $request)
@@ -430,8 +432,8 @@ class ReportController extends Controller
             $search = request('search');
             $query->where(function ($q) use ($search) {
                 $q->where('id', $search)
-                    ->orWhere('invoice_type', 'like', '%' . $search . '%')
-                    ->orWhere('status', 'like', '%' . $search . '%');
+                    ->orWhere('invoice_type', 'like', '%'.$search.'%')
+                    ->orWhere('status', 'like', '%'.$search.'%');
             });
         }
 
@@ -450,6 +452,7 @@ class ReportController extends Controller
         if ($request->has('export')) {
             $invoices = $query->latest()->get();
             $data = compact('invoices', 'totalRevenue', 'totalTax', 'taxTrend', 'startDate', 'endDate');
+
             return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\Reports\TaxExport($data), 'tax-report.xlsx');
         }
 
@@ -461,7 +464,6 @@ class ReportController extends Controller
     /**
      * Generate pharmacy profit report (Revenue vs Cost of Goods Sold).
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
     public function pharmacyProfit(Request $request)
@@ -494,9 +496,10 @@ class ReportController extends Controller
         $netProfit = $totalRevenue - $totalCost;
 
         if ($request->has('export')) {
-             $saleItems = $query->latest()->get();
-             $data = compact('saleItems', 'totalRevenue', 'totalCost', 'netProfit', 'startDate', 'endDate');
-             return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\Reports\PharmacyProfitExport($data), 'pharmacy-profit.xlsx');
+            $saleItems = $query->latest()->get();
+            $data = compact('saleItems', 'totalRevenue', 'totalCost', 'netProfit', 'startDate', 'endDate');
+
+            return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\Reports\PharmacyProfitExport($data), 'pharmacy-profit.xlsx');
         }
 
         $saleItems = $query->latest()->paginate(20);

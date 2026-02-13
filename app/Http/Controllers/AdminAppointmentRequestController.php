@@ -25,6 +25,7 @@ class AdminAppointmentRequestController extends Controller
      * Requires 'view_appointments' permission.
      *
      * @return \Illuminate\View\View
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function index()
@@ -32,7 +33,15 @@ class AdminAppointmentRequestController extends Controller
         // Add permission check
         $this->authorize('view_appointments');
 
-        $requests = AppointmentRequest::with(['appointment.patient', 'appointment.doctor', 'appointment.clinic'])
+        $requests = AppointmentRequest::with(['appointment' => function ($query) {
+            $query->withTrashed()->with([
+                'patient' => function ($patientQuery) {
+                    $patientQuery->withTrashed();
+                },
+                'doctor.user',
+                'clinic',
+            ]);
+        }])
             ->where('status', 'pending')
             ->orderBy('created_at', 'asc')
             ->paginate(20);
@@ -55,9 +64,8 @@ class AdminAppointmentRequestController extends Controller
      *
      * Requires 'update_appointments' permission (currently commented out but recommended).
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\AppointmentRequest  $appointmentRequest
      * @return \Illuminate\Http\RedirectResponse
+     *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function update(Request $request, AppointmentRequest $appointmentRequest)
@@ -66,45 +74,69 @@ class AdminAppointmentRequestController extends Controller
 
         $request->validate([
             'status' => 'required|in:approved,rejected',
-            'admin_notes' => 'nullable|string'
+            'admin_notes' => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($request, $appointmentRequest) {
             $appointmentRequest->update([
                 'status' => $request->status,
                 'admin_notes' => $request->admin_notes,
-                'processed_by' => Auth::id()
+                'processed_by' => Auth::id(),
             ]);
 
             if ($request->status === 'approved') {
-                $appointment = $appointmentRequest->appointment;
+                $appointment = Appointment::withoutTenant()
+                    ->withTrashed()
+                    ->whereKey($appointmentRequest->appointment_id)
+                    ->where('clinic_id', $appointmentRequest->clinic_id)
+                    ->first();
+
+                if (! $appointment) {
+                    return;
+                }
 
                 if ($appointmentRequest->type === 'cancel') {
                     $appointment->update(['status' => 'cancelled']);
                 } elseif ($appointmentRequest->type === 'reschedule') {
+                    if ($appointment->trashed()) {
+                        $appointment->restore();
+                    }
 
                     // Calculate new end time based on duration
                     $oldStart = Carbon::parse($appointment->start_time);
                     $oldEnd = Carbon::parse($appointment->end_time);
                     $durationMinutes = $oldStart->diffInMinutes($oldEnd);
 
-                    if ($durationMinutes <= 0) $durationMinutes = 15; // Fallback default
+                    if ($durationMinutes <= 0) {
+                        $durationMinutes = 15;
+                    } // Fallback default
 
-                    $newStart = Carbon::parse($appointmentRequest->desired_time);
+                    $newStart = $appointmentRequest->desired_time instanceof Carbon
+                        ? $appointmentRequest->desired_time
+                        : Carbon::parse($appointmentRequest->desired_time);
                     $newEnd = $newStart->copy()->addMinutes($durationMinutes);
 
                     $appointment->update([
                         'appointment_date' => $appointmentRequest->desired_date,
                         'start_time' => $newStart->format('H:i:s'),
                         'end_time' => $newEnd->format('H:i:s'),
-                        'status' => 'pending'
+                        'status' => 'pending',
                     ]);
                 }
             }
 
             // Notification logic
-            if ($appointmentRequest->appointment->patient) {
-                $appointmentRequest->appointment->patient->notify(new AppointmentRequestStatusUpdatedNotification($appointmentRequest));
+            $appointmentForNotify = Appointment::withoutTenant()
+                ->withTrashed()
+                ->with(['patient' => function ($patientQuery) {
+                    $patientQuery->withTrashed()->withoutGlobalScope('clinic_access');
+                }])
+                ->whereKey($appointmentRequest->appointment_id)
+                ->where('clinic_id', $appointmentRequest->clinic_id)
+                ->first();
+
+            if ($appointmentForNotify?->patient) {
+                $appointmentForNotify->patient->notify(new AppointmentRequestStatusUpdatedNotification($appointmentRequest));
             }
         });
 

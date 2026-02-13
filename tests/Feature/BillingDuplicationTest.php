@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Consultation;
+use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -13,8 +14,6 @@ use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-
-use App\Models\Department;
 
 class BillingDuplicationTest extends TestCase
 {
@@ -122,6 +121,6 @@ class BillingDuplicationTest extends TestCase
         // 2. $pendingConsultations will contain the consultation (count 1)
 
         // We assert that we expect NO pending consultations
-        $this->assertCount(0, $pendingConsultations, "Consultation appeared in pending list despite being billed!");
+        $this->assertCount(0, $pendingConsultations, 'Consultation appeared in pending list despite being billed!');
     }
 }

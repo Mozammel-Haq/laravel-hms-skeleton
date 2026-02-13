@@ -13,8 +13,6 @@ use App\Models\Patient;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Visit;
-use App\Support\TenantContext;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -23,9 +21,13 @@ class ConsultationFlowTest extends TestCase
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $doctor;
+
     protected $patient;
+
     protected $user;
+
     protected $appointment;
 
     protected function setUp(): void
@@ -49,13 +51,13 @@ class ConsultationFlowTest extends TestCase
             'name' => 'Dr. Smith',
             'email' => 'doctor@example.com',
         ]);
-        $doctorRole = Role::firstOrCreate(['name' => 'Doctor', 'guard_name' => 'web']);
+        $doctorRole = Role::firstOrCreate(['name' => 'Doctor']);
         $doctorUser->assignRole($doctorRole);
 
         // Give permissions to Role
         $permissions = ['view_consultations', 'create_consultations', 'view_prescriptions', 'create_prescriptions'];
         foreach ($permissions as $perm) {
-            $p = Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+            $p = Permission::firstOrCreate(['name' => $perm]);
             $doctorRole->givePermissionTo($p);
         }
 
@@ -69,7 +71,7 @@ class ConsultationFlowTest extends TestCase
             'user_id' => $doctorUser->id,
             'clinic_id' => $this->clinic->id,
             'primary_department_id' => $department->id,
-            'specialization' => 'General',
+            'specialization' => ['General'],
             'license_number' => 'DOC123',
             'status' => 'active',
         ]);
@@ -158,7 +160,7 @@ class ConsultationFlowTest extends TestCase
                     'frequency' => '1-0-1',
                     'duration_days' => 5,
                     'instructions' => 'After food',
-                ]
+                ],
             ],
         ];
 

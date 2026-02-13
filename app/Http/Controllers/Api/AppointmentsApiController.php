@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\Doctor;
 use App\Models\Patient;
+use App\Services\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,11 +19,12 @@ use Illuminate\Support\Facades\DB;
  */
 class AppointmentsApiController extends Controller
 {
+    public function __construct(private readonly AppointmentService $appointmentService) {}
+
     /**
      * Display a listing of the patient's appointments.
      * Supports filtering by status (upcoming, past, etc.) and search.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -40,7 +43,7 @@ class AppointmentsApiController extends Controller
                     });
             })
             ->first();
-        if (!$patient) {
+        if (! $patient) {
             return response()->json(['appointments' => []]);
         }
 
@@ -64,16 +67,24 @@ class AppointmentsApiController extends Controller
         }
 
         if ($request->filled('status') && $request->status !== 'all') {
+            $today = Carbon::today()->toDateString();
+            $nowTime = now()->format('H:i:s');
+            $activeStatuses = ['confirmed', 'pending', 'arrived', 'scheduled', 'checked in', 'in_progress'];
+            $finalStatuses = ['completed', 'cancelled', 'noshow', 'checked out'];
+
             if ($request->status === 'upcoming') {
-                $query->whereIn('status', ['confirmed', 'pending', 'arrived', 'scheduled', 'checked in'])
-                      ->whereDate('appointment_date', '>=', Carbon::today());
+                $query->whereIn('status', $activeStatuses)
+                    ->where(function ($q) use ($today) {
+                        $q->whereDate('appointment_date', '>', $today)
+                            ->orWhereDate('appointment_date', $today);
+                    });
             } elseif ($request->status === 'past') {
-                $query->where(function ($q) {
-                    $q->whereIn('status', ['completed', 'cancelled', 'noshow', 'checked out'])
-                      ->orWhere(function ($sub) {
-                          $sub->whereIn('status', ['confirmed', 'pending', 'arrived', 'scheduled', 'checked in'])
-                              ->whereDate('appointment_date', '<', Carbon::today());
-                      });
+                $query->withTrashed();
+                $query->where(function ($q) use ($today, $finalStatuses) {
+                    $q->whereIn('status', $finalStatuses)
+                        ->orWhere(function ($sub) use ($today) {
+                            $sub->whereDate('appointment_date', '<', $today);
+                        });
                 });
             } else {
                 $query->where('status', $request->status);
@@ -85,7 +96,7 @@ class AppointmentsApiController extends Controller
             ->get();
 
         return response()->json([
-            'appointments' => $appointments
+            'appointments' => $appointments,
         ]);
     }
 
@@ -93,7 +104,6 @@ class AppointmentsApiController extends Controller
      * Display the specified appointment details.
      * Includes doctor, visit, prescription, and vitals information.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -104,11 +114,11 @@ class AppointmentsApiController extends Controller
                 'doctor.user:id,name',
                 'doctor.department',
                 'visit.consultation.prescriptions.items.medicine',
-                'visit.vitals'
+                'visit.vitals',
             ])
             ->find($id);
 
-        if (!$appointment) {
+        if (! $appointment) {
             return response()->json(['message' => 'Appointment not found'], 404);
         }
 
@@ -126,7 +136,6 @@ class AppointmentsApiController extends Controller
      * Get available time slots for a doctor on a specific date.
      * Calculates slots based on doctor's schedule and existing bookings.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function slots(Request $request)
@@ -134,128 +143,36 @@ class AppointmentsApiController extends Controller
         $request->validate([
             'doctor_id' => 'required|integer',
             'date' => 'required|date',
-            'clinic_id' => 'nullable|integer'
+            'clinic_id' => 'nullable|integer',
         ]);
 
-        $doctorId = $request->doctor_id;
-        $date = $request->date;
-        $clinicId = $request->clinic_id;
+        $doctorId = (int) $request->doctor_id;
+        $date = (string) $request->date;
+        $clinicId = $request->clinic_id
+            ? (int) $request->clinic_id
+            : ($request->header('X-Clinic-ID') ? (int) $request->header('X-Clinic-ID') : null);
 
-        // Resolve Timezone
-        $timezone = config('app.timezone');
+        $doctor = Doctor::findOrFail($doctorId);
+        $slots = $this->appointmentService->getAvailableSlots($doctor, $date, $clinicId);
 
-        $dbTimezone = null;
+        $availableSlots = array_values(array_filter(array_map(function ($slot) {
+            $start = $slot['start_time'] ?? null;
+            $end = $slot['end_time'] ?? null;
+            $isBooked = (bool) ($slot['is_booked'] ?? false);
 
-        if ($clinicId) {
-            $clinic = DB::table('clinics')->where('id', $clinicId)->first();
-            if ($clinic && $clinic->timezone) {
-                $dbTimezone = $clinic->timezone;
+            if (! $start || ! $end || $isBooked) {
+                return null;
             }
-        } else {
-             // Try to find via doctor
-             $doctorDept = DB::table('doctors')
-                ->join('departments', 'doctors.primary_department_id', '=', 'departments.id')
-                ->join('clinics', 'departments.clinic_id', '=', 'clinics.id')
-                ->where('doctors.id', $doctorId)
-                ->select('clinics.timezone')
-                ->first();
-             if ($doctorDept && $doctorDept->timezone) {
-                 $dbTimezone = $doctorDept->timezone;
-             }
-        }
 
-        if ($dbTimezone) {
-            // Validate timezone
-            try {
-                Carbon::now($dbTimezone);
-                $timezone = $dbTimezone;
-            } catch (\Exception $e) {
-                // Fallback to app timezone if invalid
-                \Illuminate\Support\Facades\Log::warning("Invalid timezone found in DB: {$dbTimezone}. Using default.");
-            }
-        }
-
-        // 1. Day of week (1 = Monday, 7 = Sunday)
-        // Parse date in the target timezone
-        $requestDate = Carbon::parse($date, $timezone);
-        $dayOfWeek = $requestDate->dayOfWeekIso;
-
-        // 2. Doctor schedule
-        $schedule = DB::table('doctor_schedules')
-            ->where('doctor_id', $doctorId)
-            ->where('day_of_week', $dayOfWeek)
-            ->where('status', 'active')
-            ->when($clinicId, fn($q) => $q->where('doctor_schedules.clinic_id', $clinicId))
-            ->first();
-
-        if (!$schedule) {
-            return response()->json([
-                'slots' => [],
-                'message' => 'Doctor is not available on this day.'
-            ]);
-        }
-
-        // 3. Generate all possible slots
-        // Start/End times are date-agnostic in DB, but we must combine with Date in the correct Timezone
-        $dateStr = $requestDate->format('Y-m-d');
-        $scheduleStart = Carbon::parse($dateStr . ' ' . $schedule->start_time, $timezone);
-        $scheduleEnd   = Carbon::parse($dateStr . ' ' . $schedule->end_time, $timezone);
-        $duration      = (int) $schedule->slot_duration_minutes;
-
-        $allSlots = [];
-
-        $cursor = $scheduleStart->copy();
-
-        while ($cursor->copy()->addMinutes($duration)->lte($scheduleEnd)) {
-            $allSlots[] = [
-                'start' => $cursor->format('H:i:s'),
-                'end'   => $cursor->copy()->addMinutes($duration)->format('H:i:s'),
+            return [
+                'label' => Carbon::createFromFormat('H:i', $start)->format('h:i A'),
+                'start' => $start.':00',
+                'end' => $end.':00',
             ];
-            $cursor->addMinutes($duration);
-        }
-
-        // 4. Fetch booked appointments (time ranges)
-        $bookedAppointments = Appointment::where('doctor_id', $doctorId)
-            ->where('appointment_date', $dateStr)
-            ->where('status', '!=', 'cancelled')
-            ->get(['start_time', 'end_time']);
-
-        // 5. Filter available slots using overlap logic
-        $availableSlots = [];
-
-        foreach ($allSlots as $slot) {
-            // Re-parse slot times in the correct timezone for comparison
-            $slotStart = Carbon::parse($dateStr . ' ' . $slot['start'], $timezone);
-            $slotEnd   = Carbon::parse($dateStr . ' ' . $slot['end'], $timezone);
-
-            // Filter out past slots if the date is today
-            if ($requestDate->isToday() && $slotEnd->lte(Carbon::now($timezone))) {
-                continue;
-            }
-
-            $isOverlapping = false;
-
-            foreach ($bookedAppointments as $booking) {
-                if (
-                    $slotStart < Carbon::parse($booking->end_time) &&
-                    $slotEnd > Carbon::parse($booking->start_time)
-                ) {
-                    $isOverlapping = true;
-                    break;
-                }
-            }
-
-            if (!$isOverlapping) {
-                $availableSlots[] = [
-                    'label' => Carbon::parse($slot['start'])->format('h:i A'),
-                    'start' => $slot['start'],
-                    'end'   => $slot['end'],
-                ];
-            }
-        }
+        }, $slots)));
 
         return response()->json([
-            'slots' => $availableSlots
+            'slots' => $availableSlots,
         ]);
     }
 
@@ -281,25 +198,60 @@ class AppointmentsApiController extends Controller
 
         $patientId = $request->user()->id;
         $appointmentDate = $request->appointment_date;
+        $clinicId = $request->clinic_id
+            ? (int) $request->clinic_id
+            : ($request->header('X-Clinic-ID') ? (int) $request->header('X-Clinic-ID') : null);
 
-        // Check if patient already has an appointment on this date
-        $exists = Appointment::where('patient_id', $patientId)
-            ->whereDate('appointment_date', $appointmentDate)
-            ->whereIn('status', ['pending', 'confirmed', 'arrived', 'in_progress'])
-            ->exists();
+            $bookingDate = Carbon::parse((string) $appointmentDate)->toDateString();
+        $activeStatuses = ['confirmed', 'arrived', 'in_progress'];
 
-        if ($exists) {
-            return response()->json(['message' => 'You already have an active appointment on this date.'], 422);
+        $doctor = Doctor::findOrFail((int) $request->doctor_id);
+        $startHm = substr((string) $request->start_time, 0, 5);
+        $computedEndTime = null;
+
+        $slots = $this->appointmentService->getAvailableSlots($doctor, (string) $request->appointment_date, $clinicId);
+        foreach ($slots as $slot) {
+            if (($slot['start_time'] ?? null) === $startHm) {
+                $end = $slot['end_time'] ?? null;
+                if ($end && preg_match('/^\d{2}:\d{2}$/', $end) === 1) {
+                    $computedEndTime = $end.':00';
+                }
+                break;
+            }
         }
 
-        $appointment = new Appointment();
+        $today = Carbon::today()->toDateString();
+
+        $conflictBase = Appointment::where('patient_id', $patientId)
+            ->whereIn('status', $activeStatuses)
+            ->whereDate('appointment_date', $bookingDate);
+
+        $scopeClinicId = $clinicId ?: ($request->user()->clinic_id ?? null);
+        if ($scopeClinicId) {
+            $conflictBase->where('clinic_id', $scopeClinicId);
+        }
+
+        if ($bookingDate === $today) {
+            $stillActive = (clone $conflictBase)
+                ->whereRaw('TIMESTAMP(appointment_date, COALESCE(end_time, start_time)) > NOW()')
+                ->exists();
+            if ($stillActive) {
+                return response()->json(['message' => 'You already have an active appointment on this date.'], 422);
+            }
+        } else {
+            if ($conflictBase->exists()) {
+                return response()->json(['message' => 'You already have an active appointment on this date.'], 422);
+            }
+        }
+
+        $appointment = new Appointment;
         $appointment->doctor_id = $request->doctor_id;
         $appointment->department_id = $request->department_id;
         $appointment->patient_id = $request->user()->id;
         $appointment->appointment_date = $request->appointment_date;
         $appointment->start_time = $request->start_time;
-        $appointment->end_time = $request->end_time;
-        $appointment->clinic_id = $request->clinic_id;
+        $appointment->end_time = $computedEndTime ?? $request->end_time;
+        $appointment->clinic_id = $clinicId;
         $appointment->status = $request->status ?? 'pending';
         $appointment->booking_source = $request->booking_source ?? 'in_person';
 
@@ -308,18 +260,16 @@ class AppointmentsApiController extends Controller
         $visitType = $request->appointment_type; // 'new' or 'follow_up'
         $reason = $request->reason_for_visit;
 
-        if ($visitType && !in_array($visitType, ['online', 'in_person'])) {
+        if ($visitType && ! in_array($visitType, ['online', 'in_person'])) {
             $appointment->appointment_type = 'in_person';
             $formattedType = ucfirst(str_replace('_', ' ', $visitType));
-            $appointment->reason_for_visit = "[$formattedType] " . $reason;
+            $appointment->reason_for_visit = "[$formattedType] ".$reason;
         } else {
             $appointment->appointment_type = $visitType ?? 'in_person';
             $appointment->reason_for_visit = $reason;
         }
 
         $appointment->save();
-
-
 
         return response()->json([
             'message' => 'Appointment booked successfully',

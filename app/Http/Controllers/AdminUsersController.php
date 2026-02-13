@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Clinic;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -27,7 +27,6 @@ class AdminUsersController extends Controller
      *
      * Handles different views based on route (Super Admin vs Clinic Admin).
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
     public function index(Request $request)
@@ -37,13 +36,13 @@ class AdminUsersController extends Controller
         if ($request->routeIs('admin.super-admin-users.*')) {
             $query = User::withoutTenant()
                 ->with('roles')
-                ->whereHas('roles', fn($q) => $q->where('name', 'Super Admin'));
+                ->whereHas('roles', fn ($q) => $q->where('name', 'Super Admin'));
             $view = 'admin.users.super_admins.index';
             $variableName = 'superAdmins';
         } elseif ($request->routeIs('admin.clinic-admin-users.*')) {
             $query = User::withoutTenant()
                 ->with(['roles', 'clinic'])
-                ->whereHas('roles', fn($q) => $q->where('name', 'Clinic Admin'));
+                ->whereHas('roles', fn ($q) => $q->where('name', 'Clinic Admin'));
             $view = 'admin.users.clinic_admins.index';
             $variableName = 'clinicAdmins';
         } else {
@@ -86,7 +85,6 @@ class AdminUsersController extends Controller
     /**
      * Show the form for creating a new user.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
     public function create(Request $request)
@@ -99,13 +97,13 @@ class AdminUsersController extends Controller
 
         // Clinic Admin creation requires clinics list
         $clinics = Clinic::orderBy('name')->get();
+
         return view('admin.users.clinic_admins.create', compact('clinics'));
     }
 
     /**
      * Store a newly created user in storage.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -115,21 +113,21 @@ class AdminUsersController extends Controller
         $isSuperAdmin = $request->routeIs('admin.super-admin-users.*');
 
         $data = $request->validate([
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users,email',
-            'password'  => 'required|string|min:5',
-            'phone'     => 'nullable|string|max:50',
-            'status'    => 'required|in:active,inactive,blocked',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:5',
+            'phone' => 'nullable|string|max:50',
+            'status' => 'required|in:active,inactive,blocked',
             'clinic_id' => $isSuperAdmin ? 'nullable' : 'required|exists:clinics,id',
             'profile_photo' => 'nullable|image|max:2048',
         ]);
 
         $user = User::create([
-            'name'      => $data['name'],
-            'email'     => $data['email'],
-            'phone'     => $data['phone'] ?? null,
-            'password'  => Hash::make($data['password']),
-            'status'    => $data['status'],
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'password' => Hash::make($data['password']),
+            'status' => $data['status'],
             'clinic_id' => $isSuperAdmin ? $mainSuperAdmin->clinic_id : $data['clinic_id'],
         ]);
 
@@ -152,7 +150,6 @@ class AdminUsersController extends Controller
     /**
      * Show the form for editing the specified user.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\View\View
      */
     public function edit(User $user)
@@ -164,14 +161,13 @@ class AdminUsersController extends Controller
         }
 
         $clinics = Clinic::orderBy('name')->get();
+
         return view('admin.users.clinic_admins.edit', compact('user', 'clinics'));
     }
 
     /**
      * Update the specified user in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\User $user
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, User $user)
@@ -181,33 +177,33 @@ class AdminUsersController extends Controller
         $isSuperAdmin = $user->hasRole('Super Admin');
 
         $data = $request->validate([
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users,email,' . $user->id,
-            'password'  => 'nullable|string|min:5',
-            'phone'     => 'nullable|string|max:50',
-            'status'    => 'required|in:active,inactive,suspended',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'password' => 'nullable|string|min:5',
+            'phone' => 'nullable|string|max:50',
+            'status' => 'required|in:active,inactive,suspended',
             'clinic_id' => $isSuperAdmin ? 'nullable' : 'required|exists:clinics,id',
             'profile_photo' => 'nullable|image|max:2048',
         ]);
 
         // Update fields
-        $user->name      = $data['name'];
-        $user->email     = $data['email'];
-        $user->phone     = $data['phone'] ?? null;
-        $user->status    = $data['status'];
-        if (!$isSuperAdmin) {
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->phone = $data['phone'] ?? null;
+        $user->status = $data['status'];
+        if (! $isSuperAdmin) {
             $user->clinic_id = $data['clinic_id'];
         }
         $user->clinic_id = $user->clinic_id ?? 1;
 
         // Optional password update
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
 
         if ($request->hasFile('profile_photo')) {
             $file = $request->file('profile_photo');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
             $path = $file->storeAs('profile-photos', $filename, 'public');
 
             // Delete old photo if exists
@@ -229,7 +225,6 @@ class AdminUsersController extends Controller
     /**
      * Remove the specified user from storage.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(User $user)

@@ -91,7 +91,7 @@
                             <label for="appointment_date" class="form-label small fw-semibold">Date</label>
                             <input id="appointment_date" type="date" name="appointment_date"
                                 class="form-control form-control-sm @error('appointment_date') is-invalid @enderror"
-                                value="{{ old('appointment_date', $appointment->appointment_date) }}"
+                                value="{{ old('appointment_date', $appointment->appointment_date->format('Y-m-d')) }}"
                                 min="{{ now()->toDateString() }}" required>
                             @error('appointment_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -103,7 +103,7 @@
                             <label for="start_time" class="form-label small fw-semibold">Start Time</label>
                             <input id="start_time" type="time" name="start_time"
                                 class="form-control form-control-sm bg-light @error('start_time') is-invalid @enderror"
-                                value="{{ old('start_time', \Carbon\Carbon::parse($appointment->start_time)->format('H:i')) }}"
+                                value="{{ old('start_time', $appointment->start_time->format('H:i')) }}"
                                 required readonly>
                             <div class="form-text small">Select a slot below to set the time.</div>
                             @error('start_time')

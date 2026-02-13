@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
+use App\Models\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
 /**
  * Department Model
  *
@@ -22,20 +21,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \App\Models\Clinic $clinic
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Doctor[] $doctors
  */
 
-use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Department extends BaseTenantModel
 {
-    use HasFactory, SoftDeletes, LogsActivity;
+    use HasFactory, LogsActivity, SoftDeletes;
 
     public function getActivityDescription($action)
     {
-        return ucfirst($action) . " department {$this->name}";
+        return ucfirst($action)." department {$this->name}";
     }
 
     /**
@@ -57,6 +55,7 @@ class Department extends BaseTenantModel
     {
         return $this->hasMany(Doctor::class, 'primary_department_id');
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

@@ -22,7 +22,6 @@ class PatientDashboardController extends Controller
     /**
      * Get dashboard statistics for the patient.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function stats(Request $request)
@@ -65,11 +64,29 @@ class PatientDashboardController extends Controller
         TenantContext::setClinicId($scopeClinicId);
 
         // 1. Upcoming Appointments
+        $today = now()->toDateString();
+        $nowTime = now()->format('H:i:s');
+
         $upcomingAppointments = Appointment::where('patient_id', $targetPatient->id)
             ->where('clinic_id', $scopeClinicId) // Explicitly filter by clinic
-            ->where('appointment_date', '>=', now()->toDateString())
+            ->where(function ($q) use ($today, $nowTime) {
+                $q->whereDate('appointment_date', '>', $today)
+                    ->orWhere(function ($q2) use ($today, $nowTime) {
+                        $q2->whereDate('appointment_date', $today)
+                            ->where(function ($q3) use ($nowTime) {
+                                $q3->where(function ($q4) use ($nowTime) {
+                                    $q4->whereNotNull('end_time')
+                                        ->whereTime('end_time', '>=', $nowTime);
+                                })->orWhere(function ($q4) use ($nowTime) {
+                                    $q4->whereNull('end_time')
+                                        ->whereNotNull('start_time')
+                                        ->whereTime('start_time', '>=', $nowTime);
+                                });
+                            });
+                    });
+            })
             ->whereIn('status', ['confirmed', 'pending', 'arrived']) // Corrected statuses
-            ->with(['doctor.user', 'doctor.primaryDepartment', 'requests' => function($q) {
+            ->with(['doctor.user', 'doctor.primaryDepartment', 'requests' => function ($q) {
                 $q->where('status', 'pending');
             }])
             ->orderBy('appointment_date')
@@ -79,7 +96,7 @@ class PatientDashboardController extends Controller
             ->map(function ($apt) {
                 $doctorName = $apt->doctor && $apt->doctor->user ? $apt->doctor->user->name : ($apt->doctor->name ?? 'Unknown Doctor');
                 $specialty = $apt->doctor && $apt->doctor->primaryDepartment ? $apt->doctor->primaryDepartment->name : 'General';
-                
+
                 $pendingRequest = $apt->requests->first();
                 $requestStatus = $pendingRequest ? $pendingRequest->type : null;
 
@@ -101,10 +118,10 @@ class PatientDashboardController extends Controller
 
         $recentVitals = [
             'bp' => $lastVital ? ($lastVital->blood_pressure ?? 'N/A') : 'N/A',
-            'heartRate' => ($lastVital && $lastVital->heart_rate) ? $lastVital->heart_rate . ' bpm' : 'N/A',
-            'temperature' => ($lastVital && $lastVital->temperature) ? $lastVital->temperature . '°F' : 'N/A',
-            'weight' => ($lastVital && $lastVital->weight) ? $lastVital->weight . ' kg' : 'N/A',
-            'lastUpdated' => ($lastVital && $lastVital->recorded_at) ? $lastVital->recorded_at->diffForHumans() : 'Never'
+            'heartRate' => ($lastVital && $lastVital->heart_rate) ? $lastVital->heart_rate.' bpm' : 'N/A',
+            'temperature' => ($lastVital && $lastVital->temperature) ? $lastVital->temperature.'°F' : 'N/A',
+            'weight' => ($lastVital && $lastVital->weight) ? $lastVital->weight.' kg' : 'N/A',
+            'lastUpdated' => ($lastVital && $lastVital->recorded_at) ? $lastVital->recorded_at->diffForHumans() : 'Never',
         ];
 
         // 3. Active Prescriptions

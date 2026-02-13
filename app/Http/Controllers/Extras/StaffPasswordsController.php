@@ -23,7 +23,8 @@ class StaffPasswordsController extends Controller
      */
     public function index()
     {
-        $staff = User::whereHas('roles', fn($q) => $q->where('name', '!=', 'Super Admin'))->orderBy('name')->get();
+        $staff = User::whereHas('roles', fn ($q) => $q->where('name', '!=', 'Super Admin'))->orderBy('name')->get();
+
         return view('staff.passwords', compact('staff'));
     }
 }

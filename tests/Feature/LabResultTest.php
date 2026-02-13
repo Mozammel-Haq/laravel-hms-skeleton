@@ -2,30 +2,32 @@
 
 namespace Tests\Feature;
 
-use App\Models\Appointment;
+use App\Models\Clinic;
+use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\Invoice;
 use App\Models\LabTest;
 use App\Models\LabTestOrder;
 use App\Models\LabTestResult;
 use App\Models\Patient;
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Permission;
-use App\Models\Clinic;
-use App\Models\Department;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
 
 class LabResultTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $department;
+
     protected $doctor;
+
     protected $user;
 
     protected function setUp(): void
@@ -40,7 +42,7 @@ class LabResultTest extends TestCase
         $p4 = Permission::create(['name' => 'update_lab_test_order']);
 
         // Create Role
-        if (!Role::where('name', 'Doctor')->exists()) {
+        if (! Role::where('name', 'Doctor')->exists()) {
             $role = Role::create(['name' => 'Doctor']);
             $role->givePermissionTo([$p1, $p2, $p3, $p4]);
         } else {
@@ -59,14 +61,14 @@ class LabResultTest extends TestCase
             'currency' => 'USD',
             'phone' => '1234567890',
             'email' => 'clinic@test.com',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $this->department = Department::create([
             'name' => 'General',
             'clinic_id' => $this->clinic->id,
             'description' => 'General Department',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $this->user = User::factory()->create(['clinic_id' => $this->clinic->id]);

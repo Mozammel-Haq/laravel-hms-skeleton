@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('admissions', function (Blueprint $table) {
-            if (!Schema::hasColumn('admissions', 'discharge_recommended')) {
+            if (! Schema::hasColumn('admissions', 'discharge_recommended')) {
                 $table->boolean('discharge_recommended')->default(false);
             }
-            if (!Schema::hasColumn('admissions', 'discharge_recommended_by')) {
+            if (! Schema::hasColumn('admissions', 'discharge_recommended_by')) {
                 $table->foreignId('discharge_recommended_by')->nullable()->constrained('users')->nullOnDelete();
             }
-            if (!Schema::hasColumn('admissions', 'discharged_by')) {
+            if (! Schema::hasColumn('admissions', 'discharged_by')) {
                 $table->foreignId('discharged_by')->nullable()->constrained('users')->nullOnDelete();
             }
-            if (!Schema::hasColumn('admissions', 'discharge_date')) {
+            if (! Schema::hasColumn('admissions', 'discharge_date')) {
                 $table->dateTime('discharge_date')->nullable();
             }
         });

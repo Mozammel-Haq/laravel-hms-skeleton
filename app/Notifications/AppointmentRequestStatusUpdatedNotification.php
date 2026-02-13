@@ -4,8 +4,6 @@ namespace App\Notifications;
 
 use App\Models\AppointmentRequest;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class AppointmentRequestStatusUpdatedNotification extends Notification
@@ -28,6 +26,7 @@ class AppointmentRequestStatusUpdatedNotification extends Notification
     {
         $status = ucfirst($this->request->status);
         $type = ucfirst($this->request->type);
+
         return [
             'title' => "Appointment Request {$status}",
             'message' => "Your request to {$type} appointment #{$this->request->appointment_id} has been {$this->request->status}.",

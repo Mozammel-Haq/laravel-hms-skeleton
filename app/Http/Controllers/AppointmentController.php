@@ -4,14 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Appointment;
+use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Models\Patient;
+use App\Models\Visit;
 use App\Notifications\AppointmentBookedNotification;
 use App\Notifications\DoctorAppointmentCancelledNotification;
 use App\Services\AppointmentService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use App\Services\BillingService;
 use App\Support\TenantContext;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * Manages patient appointments with doctors.
@@ -30,7 +34,6 @@ class AppointmentController extends Controller
     /**
      * Create a new controller instance.
      *
-     * @param  \App\Services\AppointmentService  $appointmentService
      * @return void
      */
     public function __construct(AppointmentService $appointmentService)
@@ -65,26 +68,23 @@ class AppointmentController extends Controller
         }
 
         if (request('status') === 'trashed') {
-            $query->onlyTrashed()->latest();
-        } else {
-            if (request()->filled('status')) {
-                $query->where('status', request('status'));
-            }
-            $query->latest();
+            $query->onlyTrashed();
+        } elseif (request()->filled('status')) {
+            $query->where('status', request('status'));
         }
 
         if (request()->filled('search')) {
             $search = request('search');
             $query->where(function ($q) use ($search) {
-                $q->where('appointment_date', 'like', '%' . $search . '%')
-                    ->orWhere('status', 'like', '%' . $search . '%')
-                    ->orWhere('appointment_type', 'like', '%' . $search . '%')
+                $q->where('appointment_date', 'like', '%'.$search.'%')
+                    ->orWhere('status', 'like', '%'.$search.'%')
+                    ->orWhere('appointment_type', 'like', '%'.$search.'%')
                     ->orWhereHas('patient', function ($sub) use ($search) {
-                        $sub->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                        $sub->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('patient_code', 'like', '%'.$search.'%');
                     })
                     ->orWhereHas('doctor.user', function ($sub) use ($search) {
-                        $sub->where('name', 'like', '%' . $search . '%');
+                        $sub->where('name', 'like', '%'.$search.'%');
                     });
             });
         }
@@ -105,8 +105,19 @@ class AppointmentController extends Controller
             $query->whereDate('appointment_date', '<=', request('to'));
         }
 
+        $filter = request('filter');
+        if (! $filter || $filter === 'today' || $filter === 'upcoming') {
+            $query->orderByDesc('appointment_date')
+                ->orderByDesc('start_time')
+                ->orderByDesc('id');
+        } else {
+            $query->orderByDesc('appointment_date')
+                ->orderByDesc('start_time')
+                ->orderByDesc('id');
+        }
+
         $appointments = $query
-            ->paginate(5)
+            ->paginate(20)
             ->withQueryString();
 
         return view('appointments.index', compact('appointments'));
@@ -159,7 +170,6 @@ class AppointmentController extends Controller
      * - Calculates end time (default 15 mins)
      * - Sends notifications to Doctor and Patient
      *
-     * @param  \App\Http\Requests\StoreAppointmentRequest  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreAppointmentRequest $request)
@@ -167,6 +177,13 @@ class AppointmentController extends Controller
         Gate::authorize('create', Appointment::class);
 
         $doctor = Doctor::findOrFail($request->doctor_id);
+        $startTime = \Carbon\Carbon::createFromFormat('H:i', $request->start_time)->format('H:i:s');
+        $endTime = $this->resolveEndTimeFromSchedule(
+            $doctor,
+            (string) $request->appointment_date,
+            (string) $request->start_time,
+            TenantContext::hasClinic() ? TenantContext::getClinicId() : null
+        );
 
         // Check if patient already has an appointment on this date
         $exists = Appointment::where('patient_id', $request->patient_id)
@@ -181,7 +198,7 @@ class AppointmentController extends Controller
         // Check if doctor is already booked at this time
         $doctorBooked = Appointment::where('doctor_id', $request->doctor_id)
             ->whereDate('appointment_date', $request->appointment_date)
-            ->where('start_time', $request->start_time)
+            ->where('start_time', $startTime)
             ->whereIn('status', ['pending', 'confirmed', 'arrived', 'in_progress'])
             ->exists();
 
@@ -196,8 +213,8 @@ class AppointmentController extends Controller
             'doctor_id' => $request->doctor_id,
             'department_id' => $doctor->primary_department_id,
             'appointment_date' => $request->appointment_date,
-            'start_time' => $request->start_time,
-            'end_time' => \Carbon\Carbon::parse($request->start_time)->addMinutes(15)->format('H:i'),
+            'start_time' => $startTime,
+            'end_time' => $endTime,
             'status' => 'pending',
             'appointment_type' => $request->appointment_type ?? 'in_person',
             'booking_source' => 'reception',
@@ -230,7 +247,6 @@ class AppointmentController extends Controller
      * - Invoices (Consultation and others)
      * - Lab Test Orders
      *
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\View\View
      */
     public function show(Appointment $appointment)
@@ -264,7 +280,6 @@ class AppointmentController extends Controller
     /**
      * Show the form for editing the specified appointment.
      *
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\View\View
      */
     public function edit(Appointment $appointment)
@@ -275,6 +290,7 @@ class AppointmentController extends Controller
                 $q->where('clinics.id', TenantContext::getClinicId());
             })
             ->get();
+
         return view('appointments.edit', compact('appointment', 'doctors'));
     }
 
@@ -286,8 +302,6 @@ class AppointmentController extends Controller
      * - Updates end time automatically
      * - Sends status change notification to Patient
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Appointment $appointment)
@@ -302,7 +316,7 @@ class AppointmentController extends Controller
                 function ($attribute, $value, $fail) use ($appointment) {
                     // Only enforce future dates if the date is being changed
                     if ($value !== $appointment->appointment_date && \Carbon\Carbon::parse($value)->lt(now()->startOfDay())) {
-                        $fail('The ' . $attribute . ' must be a date after or equal to today.');
+                        $fail('The '.$attribute.' must be a date after or equal to today.');
                     }
                 },
             ],
@@ -313,13 +327,20 @@ class AppointmentController extends Controller
             'reason_for_visit' => 'nullable|string|max:1000',
         ]);
 
-        // If doctor changed, we might want to re-validate availability or just trust the admin/staff
-        // We'll update the end_time if start_time changed, assuming 15 min default or keeping duration
-        // For now, let's just update end_time based on start_time + 15 mins to be safe
-        $validated['end_time'] = \Carbon\Carbon::parse($request->start_time)->addMinutes(15)->format('H:i');
+        $doctor = Doctor::findOrFail($validated['doctor_id']);
+        $validated['end_time'] = $this->resolveEndTimeFromSchedule(
+            $doctor,
+            (string) $validated['appointment_date'],
+            (string) $validated['start_time'],
+            TenantContext::hasClinic() ? TenantContext::getClinicId() : null
+        );
 
         $oldStatus = $appointment->status;
         $appointment->update($validated);
+
+        if (! in_array($oldStatus, ['confirmed', 'arrived'], true) && in_array($appointment->status, ['confirmed', 'arrived'], true)) {
+            $this->ensureOnlineVisitAndConsultationInvoice($appointment);
+        }
 
         // Notify Patient if status changed
         if ($oldStatus !== $appointment->status && $appointment->patient) {
@@ -334,30 +355,45 @@ class AppointmentController extends Controller
         return redirect()->route('appointments.index')->with('success', 'Appointment updated successfully.');
     }
 
+    private function resolveEndTimeFromSchedule(Doctor $doctor, string $date, string $startTime, ?int $clinicId): string
+    {
+        $start = trim($startTime);
+        if (preg_match('/^\d{2}:\d{2}:\d{2}$/', $start) === 1) {
+            $start = substr($start, 0, 5);
+        }
+
+        $slots = $this->appointmentService->getAvailableSlots($doctor, $date, $clinicId);
+        foreach ($slots as $slot) {
+            if (($slot['start_time'] ?? null) === $start) {
+                $end = $slot['end_time'] ?? null;
+                if ($end && preg_match('/^\d{2}:\d{2}$/', $end) === 1) {
+                    return $end.':00';
+                }
+            }
+        }
+
+        $fallbackStart = \Carbon\Carbon::createFromFormat('H:i', $start);
+
+        return $fallbackStart->addMinutes(15)->format('H:i:s');
+    }
+
     /**
      * Remove the specified appointment from storage (Soft Delete).
      *
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Appointment $appointment)
     {
         Gate::authorize('delete', $appointment);
 
-        // Notify Doctor before deleting (soft delete)
-        if ($appointment->doctor && $appointment->doctor->user) {
-            $appointment->doctor->user->notify(new DoctorAppointmentCancelledNotification($appointment, auth()->user()->name));
-        }
-
         $appointment->delete();
-        return redirect()->route('appointments.index')->with('success', 'Appointment cancelled.');
+
+        return redirect()->route('appointments.index')->with('success', 'Appointment moved to trash.');
     }
 
     /**
      * Update the status of an appointment.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\RedirectResponse
      */
     public function updateStatus(Request $request, Appointment $appointment)
@@ -372,7 +408,12 @@ class AppointmentController extends Controller
             return back()->with('error', 'Cannot cancel a confirmed appointment.');
         }
 
+        $oldStatus = $appointment->status;
         $appointment->update(['status' => $request->status]);
+
+        if (! in_array($oldStatus, ['confirmed', 'arrived'], true) && in_array($appointment->status, ['confirmed', 'arrived'], true)) {
+            $this->ensureOnlineVisitAndConsultationInvoice($appointment);
+        }
 
         if ($appointment->patient) {
             $appointment->patient->notify(new \App\Notifications\AppointmentStatusNotification($appointment));
@@ -383,7 +424,74 @@ class AppointmentController extends Controller
             $appointment->doctor->user->notify(new DoctorAppointmentCancelledNotification($appointment, auth()->user()->name));
         }
 
-        return back()->with('success', 'Appointment status updated to ' . ucfirst($request->status));
+        return back()->with('success', 'Appointment status updated to '.ucfirst($request->status));
+    }
+
+    private function ensureOnlineVisitAndConsultationInvoice(Appointment $appointment): void
+    {
+        $appointment->loadMissing(['doctor', 'patient']);
+
+        if ($appointment->appointment_type !== 'online') {
+            return;
+        }
+
+        $existingInvoice = \App\Models\Invoice::where('appointment_id', $appointment->id)
+            ->where('invoice_type', 'consultation')
+            ->where('state', 'finalized')
+            ->exists();
+
+        if ($existingInvoice) {
+            return;
+        }
+
+        DB::transaction(function () use ($appointment) {
+            $visit = Visit::where('appointment_id', $appointment->id)->latest()->first();
+            if (! $visit) {
+                $visit = Visit::create([
+                    'appointment_id' => $appointment->id,
+                    'check_in_time' => null,
+                    'visit_status' => 'waiting',
+                ]);
+            }
+
+            $consultation = $visit->consultation;
+            if (! $consultation) {
+                $consultation = Consultation::create([
+                    'visit_id' => $visit->id,
+                    'doctor_id' => $appointment->doctor_id,
+                    'patient_id' => $appointment->patient_id,
+                ]);
+                $visit->consultation_id = $consultation->id;
+                $visit->save();
+            }
+
+            $feeInfo = app(AppointmentService::class)->calculateFee($appointment->doctor, $appointment->patient_id);
+            $items = [[
+                'item_type' => 'consultation',
+                'reference_id' => $consultation->id,
+                'description' => ($feeInfo['type'] ?? 'new') === 'follow_up' ? 'Consultation Fee (Follow-up)' : 'Consultation Fee (Initial)',
+                'quantity' => 1,
+                'unit_price' => $feeInfo['fee'] ?? 0,
+            ]];
+
+            app(BillingService::class)->createInvoice(
+                $appointment->patient,
+                $items,
+                $appointment->id,
+                discount: 0,
+                tax: 0,
+                visitId: $visit->id,
+                invoiceType: 'consultation',
+                createdBy: auth()->id(),
+                finalize: true,
+                clinicId: $appointment->clinic_id
+            );
+
+            $appointment->update([
+                'fee' => $appointment->fee ?? ($feeInfo['fee'] ?? null),
+                'visit_type' => $feeInfo['type'] ?? $appointment->visit_type,
+            ]);
+        });
     }
 
     /**
@@ -391,8 +499,6 @@ class AppointmentController extends Controller
      *
      * API endpoint for frontend/AJAX.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Doctor  $doctor
      * @return \Illuminate\Http\JsonResponse
      */
     public function getSlots(Request $request, Doctor $doctor)

@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Gate;
  * Class DoctorAssignmentController
  *
  * Manages the assignment of doctors to clinics.
- *
- * @package App\Http\Controllers\Extras
  */
 class DoctorAssignmentController extends Controller
 {
@@ -62,7 +60,6 @@ class DoctorAssignmentController extends Controller
     /**
      * Show the form for editing the specified doctor's assignments.
      *
-     * @param  \App\Models\Doctor  $doctor
      * @return \Illuminate\View\View
      */
     public function edit(Doctor $doctor)
@@ -78,15 +75,13 @@ class DoctorAssignmentController extends Controller
     /**
      * Update the clinic assignments for the specified doctor.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Doctor  $doctor
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Doctor $doctor)
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(403);
         }
 
@@ -118,7 +113,6 @@ class DoctorAssignmentController extends Controller
     /**
      * Get calendar data for doctor schedules (API).
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function calendar(Request $request)

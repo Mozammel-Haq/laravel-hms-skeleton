@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $end_year
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Doctor $doctor
  */
 class DoctorEducation extends Model
@@ -32,13 +31,12 @@ class DoctorEducation extends Model
      * Get the doctor associated with the education record.
      *
      * Relationship: Belongs to Doctor.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Doctor::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

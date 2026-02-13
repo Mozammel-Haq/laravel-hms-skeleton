@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Policies;
 
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use App\Policies\ConsultationPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,7 +14,7 @@ class ConsultationPolicyTest extends TestCase
 
     public function test_only_doctor_can_create_consultation()
     {
-        $policy = new ConsultationPolicy();
+        $policy = new ConsultationPolicy;
 
         // Create a clinic
         $clinic = \App\Models\Clinic::create([

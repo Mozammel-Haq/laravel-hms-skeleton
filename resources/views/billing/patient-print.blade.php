@@ -116,7 +116,7 @@
                 <tbody>
                     @foreach($invoice->payments as $payment)
                     <tr>
-                        <td>{{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : ($payment->created_at ? $payment->created_at->format('M d, Y') : '-') }}</td>
+                        <td>{{ $payment->paid_at ? $payment->paid_at->format('M d, Y') : ($payment->created_at ? $payment->created_at->format('M d, Y') : '-') }}</td>
                         <td>{{ ucfirst($payment->payment_method) }}</td>
                         <td style="text-align: right;">{{ number_format($payment->amount, 2) }}</td>
                     </tr>

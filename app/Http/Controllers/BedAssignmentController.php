@@ -51,18 +51,19 @@ class BedAssignmentController extends Controller
         }
 
         $assignments = $query->latest('assigned_at')->paginate(20)->withQueryString();
+
         return view('ipd.bed_assignments.index', compact('assignments'));
     }
 
     /**
      * Display the specified bed assignment details.
      *
-     * @param  \App\Models\BedAssignment  $bedAssignment
      * @return \Illuminate\View\View
      */
     public function show(BedAssignment $bedAssignment)
     {
         $bedAssignment->load(['bed', 'admission.patient']);
+
         return view('ipd.bed_assignments.show', ['assignment' => $bedAssignment]);
     }
 }

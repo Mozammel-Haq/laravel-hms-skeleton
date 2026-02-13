@@ -15,12 +15,12 @@ class DepartmentFactory extends Factory
         return [
             'name' => fake()->unique()->words(2, true),
             'description' => fake()->sentence(),
-            'floor_number' => (string)fake()->numberBetween(1, 10),
+            'floor_number' => (string) fake()->numberBetween(1, 10),
             'status' => 'active',
             'clinic_id' => function () {
-                 return Clinic::query()->value('id') ?? Clinic::create([
+                return Clinic::query()->value('id') ?? Clinic::create([
                     'name' => 'Test Clinic',
-                    'code' => 'TEST-CLINIC-' . fake()->unique()->randomNumber(3),
+                    'code' => 'TEST-CLINIC-'.fake()->unique()->randomNumber(3),
                     'address_line_1' => '123 Test Street',
                     'city' => 'Test City',
                     'country' => 'Testland',

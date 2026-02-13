@@ -5,15 +5,13 @@ namespace App\Http\Controllers\Extras;
 use App\Http\Controllers\Controller;
 use App\Models\Clinic;
 use App\Models\Doctor;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 /**
  * Class DoctorsExtrasController
  *
  * Handles additional doctor-related functionalities such as assignment and schedule viewing.
- *
- * @package App\Http\Controllers\Extras
  */
 class DoctorsExtrasController extends Controller
 {
@@ -32,7 +30,7 @@ class DoctorsExtrasController extends Controller
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(403);
         }
 
@@ -101,9 +99,9 @@ class DoctorsExtrasController extends Controller
             $search = request('search');
             $doctors->where(function ($q) use ($search) {
                 $q->whereHas('user', function ($sub) use ($search) {
-                    $sub->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%');
-                })->orWhere('specialization', 'like', '%' . $search . '%');
+                    $sub->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('email', 'like', '%'.$search.'%');
+                })->orWhere('specialization', 'like', '%'.$search.'%');
             });
         }
 
@@ -118,6 +116,7 @@ class DoctorsExtrasController extends Controller
         $doctors = $doctors
             ->latest()
             ->paginate(20);
+
         return view('doctors.schedules', compact('doctors'));
     }
 
@@ -126,7 +125,6 @@ class DoctorsExtrasController extends Controller
      *
      * Returns JSON data for doctor availability based on weekly schedules and exceptions.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function getCalendarEvents(Request $request)
@@ -175,19 +173,24 @@ class DoctorsExtrasController extends Controller
                         }
                     }
                 }
-                if ($isException) continue;
+                if ($isException) {
+                    continue;
+                }
 
                 // Check specific date schedules
-                $specificSchedule = $doctor->schedules->where('schedule_date', $dateString)->first();
+                $specificSchedule = $doctor->schedules->whereNotNull('schedule_date')->filter(function ($s) use ($dateString) {
+                    return $s->schedule_date->toDateString() === $dateString;
+                })->first();
                 if ($specificSchedule) {
                     $availableDoctors[] = [
                         'id' => $doctor->id,
                         'name' => $doctor->user->name ?? 'Unknown Doctor',
                         'specialization' => $doctor->specialization,
-                        'start_time' => $specificSchedule->start_time,
-                        'end_time' => $specificSchedule->end_time,
-                        'type' => 'specific'
+                        'start_time' => $specificSchedule->start_time instanceof Carbon ? $specificSchedule->start_time->format('H:i:s') : $specificSchedule->start_time,
+                        'end_time' => $specificSchedule->end_time instanceof Carbon ? $specificSchedule->end_time->format('H:i:s') : $specificSchedule->end_time,
+                        'type' => 'specific',
                     ];
+
                     continue;
                 }
 
@@ -196,12 +199,12 @@ class DoctorsExtrasController extends Controller
                 // Assuming DB uses the same standard. If DB uses 1-7, we might need adjustment.
                 // Standard Laravel/PHP usually aligns.
                 $weeklySchedule = $doctor->schedules
-                    ->where('day_of_week', (string)$dayOfWeek)
+                    ->where('day_of_week', (string) $dayOfWeek)
                     ->whereNull('schedule_date')
                     ->first();
 
                 // Also check integer type match just in case
-                if (!$weeklySchedule) {
+                if (! $weeklySchedule) {
                     $weeklySchedule = $doctor->schedules
                         ->where('day_of_week', $dayOfWeek)
                         ->whereNull('schedule_date')
@@ -213,14 +216,14 @@ class DoctorsExtrasController extends Controller
                         'id' => $doctor->id,
                         'name' => $doctor->user->name ?? 'Unknown Doctor',
                         'specialization' => $doctor->specialization,
-                        'start_time' => $weeklySchedule->start_time,
-                        'end_time' => $weeklySchedule->end_time,
-                        'type' => 'weekly'
+                        'start_time' => $weeklySchedule->start_time instanceof Carbon ? $weeklySchedule->start_time->format('H:i:s') : $weeklySchedule->start_time,
+                        'end_time' => $weeklySchedule->end_time instanceof Carbon ? $weeklySchedule->end_time->format('H:i:s') : $weeklySchedule->end_time,
+                        'type' => 'weekly',
                     ];
                 }
             }
 
-            if (!empty($availableDoctors)) {
+            if (! empty($availableDoctors)) {
                 $calendarData[$dateString] = $availableDoctors;
             }
 

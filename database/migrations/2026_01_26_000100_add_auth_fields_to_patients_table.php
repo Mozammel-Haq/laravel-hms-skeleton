@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamp('last_login_at')->nullable()->after('password_changed_at');
         });
 
-        if (!Schema::hasColumn('patients', 'email')) {
+        if (! Schema::hasColumn('patients', 'email')) {
             Schema::table('patients', function (Blueprint $table) {
                 $table->string('email')->nullable()->after('phone');
             });

@@ -4,8 +4,6 @@ namespace App\Notifications;
 
 use App\Models\Prescription;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class NewPrescriptionNotification extends Notification
@@ -40,12 +38,13 @@ class NewPrescriptionNotification extends Notification
     public function toArray(object $notifiable): array
     {
         $doctorName = $this->prescription->consultation->doctor->user->name ?? 'Unknown Doctor';
+
         return [
             'title' => 'New Prescription Received',
             'message' => "You have received a new prescription from Dr. {$doctorName}.",
             'link' => '/patient/prescriptions', // Frontend route
             'type' => 'info',
-            'prescription_id' => $this->prescription->id
+            'prescription_id' => $this->prescription->id,
         ];
     }
 }

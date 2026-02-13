@@ -13,6 +13,6 @@ class Service extends BaseTenantModel
 
     public function getActivityDescription($action)
     {
-        return ucfirst($action) . " service '{$this->name}'";
+        return ucfirst($action)." service '{$this->name}'";
     }
 }

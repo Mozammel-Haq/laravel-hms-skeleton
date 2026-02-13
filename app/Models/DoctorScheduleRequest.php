@@ -20,7 +20,6 @@ use App\Models\Base\BaseTenantModel;
  * @property \Illuminate\Support\Carbon|null $processed_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Doctor $doctor
  * @property-read \App\Models\User $requestedBy
  * @property-read \App\Models\User|null $processedBy
@@ -51,4 +50,3 @@ class DoctorScheduleRequest extends BaseTenantModel
         return $this->belongsTo(User::class, 'processed_by');
     }
 }
-

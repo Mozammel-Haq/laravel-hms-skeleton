@@ -32,7 +32,7 @@ class RoomController extends Controller
             ->select('rooms.*');
 
         if (request()->filled('search')) {
-            $query->where('room_number', 'like', '%' . request('search') . '%');
+            $query->where('room_number', 'like', '%'.request('search').'%');
         }
 
         if (request()->filled('status') && request('status') !== 'all') {
@@ -48,6 +48,7 @@ class RoomController extends Controller
         }
 
         $rooms = $query->latest('rooms.created_at')->paginate(20)->withQueryString();
+
         return view('ipd.rooms.index', compact('rooms'));
     }
 
@@ -59,13 +60,13 @@ class RoomController extends Controller
     public function create()
     {
         $wards = Ward::orderBy('name')->get();
+
         return view('ipd.rooms.create', compact('wards'));
     }
 
     /**
      * Store a newly created room.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -78,26 +79,25 @@ class RoomController extends Controller
             'status' => 'required|in:available,occupied,maintenance',
         ]);
         Room::create($request->only('ward_id', 'room_number', 'room_type', 'daily_rate', 'status'));
+
         return redirect()->route('ipd.rooms.index')->with('success', 'Room created');
     }
 
     /**
      * Show the form for editing the specified room.
      *
-     * @param  \App\Models\Room  $room
      * @return \Illuminate\View\View
      */
     public function edit(Room $room)
     {
         $wards = Ward::orderBy('name')->get();
+
         return view('ipd.rooms.edit', compact('room', 'wards'));
     }
 
     /**
      * Update the specified room.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Room  $room
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Room $room)
@@ -110,18 +110,19 @@ class RoomController extends Controller
             'status' => 'required|in:available,occupied,maintenance',
         ]);
         $room->update($request->only('ward_id', 'room_number', 'room_type', 'daily_rate', 'status'));
+
         return redirect()->route('ipd.rooms.index')->with('success', 'Room updated');
     }
 
     /**
      * Remove the specified room from storage.
      *
-     * @param  \App\Models\Room  $room
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Room $room)
     {
         $room->delete();
+
         return redirect()->route('ipd.rooms.index')->with('success', 'Room deleted');
     }
 }

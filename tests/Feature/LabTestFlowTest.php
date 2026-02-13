@@ -9,8 +9,8 @@ use App\Models\Doctor;
 use App\Models\LabTest;
 use App\Models\LabTestOrder;
 use App\Models\Patient;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -22,10 +22,15 @@ class LabTestFlowTest extends TestCase
     use RefreshDatabase;
 
     protected $clinic;
+
     protected $doctor;
+
     protected $patient;
+
     protected $receptionist;
+
     protected $labTechnician;
+
     protected $labTest;
 
     protected function setUp(): void
@@ -53,7 +58,7 @@ class LabTestFlowTest extends TestCase
         foreach ($recepPermissions as $perm) {
             $p = Permission::firstOrCreate(['name' => $perm]);
             // Check if role already has permission
-            if (!$recepRole->permissions()->where('name', $perm)->exists()) {
+            if (! $recepRole->permissions()->where('name', $perm)->exists()) {
                 $recepRole->permissions()->attach($p);
             }
         }
@@ -62,7 +67,7 @@ class LabTestFlowTest extends TestCase
         $techPermissions = ['view_lab', 'view_lab_test_orders', 'add_lab_test_results', 'view_lab_test_results'];
         foreach ($techPermissions as $perm) {
             $p = Permission::firstOrCreate(['name' => $perm]);
-            if (!$techRole->permissions()->where('name', $perm)->exists()) {
+            if (! $techRole->permissions()->where('name', $perm)->exists()) {
                 $techRole->permissions()->attach($p);
             }
         }

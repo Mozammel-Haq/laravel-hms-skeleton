@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Doctor;
 use App\Models\Appointment;
+use App\Models\Doctor;
 use Carbon\Carbon;
 
 class AppointmentService
@@ -11,9 +11,7 @@ class AppointmentService
     /**
      * Get available appointment slots for a doctor on a specific date.
      *
-     * @param Doctor $doctor
-     * @param string $date (Y-m-d)
-     * @return array
+     * @param  string  $date  (Y-m-d)
      */
     public function getAvailableSlots(Doctor $doctor, string $date, ?int $clinic_id = null): array
     {
@@ -52,13 +50,15 @@ class AppointmentService
         $exception = $exceptionQuery->first();
 
         if ($exception) {
-            if (!$exception->is_available) {
+            if (! $exception->is_available) {
                 return []; // Doctor is completely off
             }
             // Use exception times if available
             if ($exception->start_time && $exception->end_time) {
-                $startTime = Carbon::parse($dateStr . ' ' . $exception->start_time, $timezone);
-                $endTime = Carbon::parse($dateStr . ' ' . $exception->end_time, $timezone);
+                $startTimeStr = $exception->start_time instanceof \Carbon\Carbon ? $exception->start_time->format('H:i:s') : $exception->start_time;
+                $endTimeStr = $exception->end_time instanceof \Carbon\Carbon ? $exception->end_time->format('H:i:s') : $exception->end_time;
+                $startTime = Carbon::parse($dateStr.' '.$startTimeStr, $timezone);
+                $endTime = Carbon::parse($dateStr.' '.$endTimeStr, $timezone);
             }
         }
 
@@ -67,7 +67,7 @@ class AppointmentService
 
         // A. Check for specific date schedule
         $scheduleQuery = $doctor->schedules()
-            ->where('schedule_date', $dateStr)
+            ->whereDate('schedule_date', $dateStr)
             ->where('status', 'active');
 
         if ($clinic_id) {
@@ -77,7 +77,7 @@ class AppointmentService
         $schedule = $scheduleQuery->first();
 
         // B. If no specific date schedule, check weekly pattern
-        if (!$schedule) {
+        if (! $schedule) {
             $weeklyQuery = $doctor->schedules()
                 ->where('day_of_week', $dayOfWeek)
                 ->where('status', 'active')
@@ -90,16 +90,18 @@ class AppointmentService
             $schedule = $weeklyQuery->first();
         }
 
-        if (!$schedule && !$startTime) {
+        if (! $schedule && ! $startTime) {
             return []; // No regular schedule and no exception override
         }
 
         if ($schedule) {
             $slotDuration = $schedule->slot_duration_minutes;
             // If start/end not set by exception, use schedule
-            if (!$startTime) {
-                $startTime = Carbon::parse($dateStr . ' ' . $schedule->start_time, $timezone);
-                $endTime = Carbon::parse($dateStr . ' ' . $schedule->end_time, $timezone);
+            if (! $startTime) {
+                $startTimeStr = $schedule->start_time instanceof \Carbon\Carbon ? $schedule->start_time->format('H:i:s') : $schedule->start_time;
+                $endTimeStr = $schedule->end_time instanceof \Carbon\Carbon ? $schedule->end_time->format('H:i:s') : $schedule->end_time;
+                $startTime = Carbon::parse($dateStr.' '.$startTimeStr, $timezone);
+                $endTime = Carbon::parse($dateStr.' '.$endTimeStr, $timezone);
             }
         } else {
             // Exception exists but no regular schedule (e.g., working on a weekend)
@@ -108,7 +110,7 @@ class AppointmentService
         }
 
         // Safety check
-        if (!$startTime || !$endTime) {
+        if (! $startTime || ! $endTime) {
             return [];
         }
 
@@ -120,7 +122,7 @@ class AppointmentService
         $bookedAppointments = Appointment::where('doctor_id', $doctor->id)
             ->whereDate('appointment_date', $dateStr)
             ->whereIn('status', ['pending', 'confirmed'])
-            ->get(['start_time', 'end_time']);
+            ->get(['appointment_date', 'start_time', 'end_time']);
 
         while ($currentSlot->lt($endTime)) {
             $slotEnd = $currentSlot->copy()->addMinutes($slotDuration);
@@ -135,16 +137,24 @@ class AppointmentService
             // Comparison using clinic timezone
             if ($dateObj->isToday() && $slotEnd->lte(Carbon::now($timezone))) {
                 $currentSlot->addMinutes($slotDuration);
+
                 continue;
             }
 
-            $currentStartStr = $currentSlot->format('H:i:00');
-            $currentEndStr = $slotEnd->format('H:i:00');
+            $currentStartStr = $currentSlot->format('H:i:s');
+            $currentEndStr = $slotEnd->format('H:i:s');
 
             $isBooked = false;
 
             foreach ($bookedAppointments as $appointment) {
-                if ($appointment->start_time < $currentEndStr && $appointment->end_time > $currentStartStr) {
+                $bookingStart = $appointment->start_time instanceof Carbon
+                    ? $appointment->start_time->format('H:i:s')
+                    : (string) $appointment->start_time;
+                $bookingEnd = $appointment->end_time instanceof Carbon
+                    ? $appointment->end_time->format('H:i:s')
+                    : (string) $appointment->end_time;
+
+                if ($bookingStart < $currentEndStr && $bookingEnd > $currentStartStr) {
                     $isBooked = true;
                     break;
                 }
@@ -176,14 +186,14 @@ class AppointmentService
             return [
                 'fee' => $doctor->follow_up_fee ?? $doctor->consultation_fee,
                 'type' => 'follow_up',
-                'is_discounted' => true
+                'is_discounted' => true,
             ];
         }
 
         return [
             'fee' => $doctor->consultation_fee,
             'type' => 'new',
-            'is_discounted' => false
+            'is_discounted' => false,
         ];
     }
 }

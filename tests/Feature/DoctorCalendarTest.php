@@ -35,7 +35,7 @@ class DoctorCalendarTest extends TestCase
             'timezone' => 'UTC',
             'currency' => 'USD',
             'phone' => '1234567890',
-            'email' => 'clinic@test.com'
+            'email' => 'clinic@test.com',
         ]);
         $user = User::factory()->create(['clinic_id' => $clinic->id]);
         $user->assignRole('Clinic Admin');
@@ -44,7 +44,7 @@ class DoctorCalendarTest extends TestCase
             'user_id' => $user->id,
             'clinic_id' => $clinic->id,
             'specialization' => 'General',
-            'primary_department_id' => $department->id
+            'primary_department_id' => $department->id,
         ]);
         $doctor->clinics()->attach($clinic->id);
 

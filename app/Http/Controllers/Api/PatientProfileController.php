@@ -21,7 +21,6 @@ class PatientProfileController extends Controller
      * Update the patient's profile.
      * Validates input data and handles file uploads for profile photos.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -51,10 +50,10 @@ class PatientProfileController extends Controller
         // Handle password change
         if ($request->filled('current_password') && $request->filled('new_password')) {
             // Verify current password
-            if (!Hash::check($request->current_password, $patient->password)) {
+            if (! Hash::check($request->current_password, $patient->password)) {
                 return response()->json([
                     'message' => 'Current password is incorrect',
-                    'errors' => ['current_password' => ['The current password is incorrect']]
+                    'errors' => ['current_password' => ['The current password is incorrect']],
                 ], 422);
             }
 
@@ -70,10 +69,10 @@ class PatientProfileController extends Controller
             $file = $request->file('profile_photo');
 
             if ($file->isValid()) {
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$file->getClientOriginalName();
                 $destination = public_path('assets/img/patients');
 
-                if (!is_dir($destination)) {
+                if (! is_dir($destination)) {
                     mkdir($destination, 0755, true);
                 }
 
@@ -83,14 +82,14 @@ class PatientProfileController extends Controller
                         unlink(public_path($patient->profile_photo));
                     }
                 } catch (\Exception $e) {
-                    Log::error('File delete failed: ' . $e->getMessage());
+                    Log::error('File delete failed: '.$e->getMessage());
                 }
 
                 try {
                     $file->move($destination, $filename);
-                    $data['profile_photo'] = 'assets/img/patients/' . $filename;
+                    $data['profile_photo'] = 'assets/img/patients/'.$filename;
                 } catch (\Exception $e) {
-                    Log::error('File upload failed: ' . $e->getMessage());
+                    Log::error('File upload failed: '.$e->getMessage());
                 }
             }
         }

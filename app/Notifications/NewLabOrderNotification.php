@@ -2,9 +2,9 @@
 
 namespace App\Notifications;
 
+use App\Models\LabTestOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use App\Models\LabTestOrder;
 
 class NewLabOrderNotification extends Notification
 {

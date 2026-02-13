@@ -23,7 +23,6 @@ class MedicinePolicy
 
     public function create(User $user): bool
     {
-        // dd('Policy hit', $user->hasPermission('manage_pharmacy_inventory'));
         return $user->hasPermission('manage_pharmacy_inventory');
     }
 

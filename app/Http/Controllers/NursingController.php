@@ -54,6 +54,7 @@ class NursingController extends Controller
         }
 
         $admissions = $query->latest()->paginate(20)->withQueryString();
+
         return view('nursing.notes.index', compact('admissions'));
     }
 }

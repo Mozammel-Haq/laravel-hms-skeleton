@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -15,7 +15,7 @@ return new class extends Migration
         // Enhance doctor_schedules table
         Schema::table('doctor_schedules', function (Blueprint $table) {
             $table->unsignedTinyInteger('day_of_week')->nullable()->change();
-            if (!Schema::hasColumn('doctor_schedules', 'schedule_date')) {
+            if (! Schema::hasColumn('doctor_schedules', 'schedule_date')) {
                 $table->date('schedule_date')->nullable()->after('day_of_week');
                 $table->index('schedule_date');
             }
@@ -29,7 +29,7 @@ return new class extends Migration
         });
 
         Schema::table('doctor_schedule_exceptions', function (Blueprint $table) {
-            if (!Schema::hasColumn('doctor_schedule_exceptions', 'end_date')) {
+            if (! Schema::hasColumn('doctor_schedule_exceptions', 'end_date')) {
                 $table->date('end_date')->nullable()->after('start_date');
             }
         });
@@ -41,7 +41,7 @@ return new class extends Migration
 
         // Make end_date required after populating
         Schema::table('doctor_schedule_exceptions', function (Blueprint $table) {
-             $table->date('end_date')->nullable(false)->change();
+            $table->date('end_date')->nullable(false)->change();
         });
     }
 

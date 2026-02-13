@@ -10,10 +10,10 @@ return new class extends Migration
     {
         if (Schema::hasTable('patient_vitals')) {
             Schema::table('patient_vitals', function (Blueprint $table) {
-                if (!Schema::hasColumn('patient_vitals', 'admission_id')) {
+                if (! Schema::hasColumn('patient_vitals', 'admission_id')) {
                     $table->foreignId('admission_id')->nullable()->after('visit_id')->constrained()->nullOnDelete();
                 }
-                if (!Schema::hasColumn('patient_vitals', 'inpatient_round_id')) {
+                if (! Schema::hasColumn('patient_vitals', 'inpatient_round_id')) {
                     $table->foreignId('inpatient_round_id')->nullable()->after('admission_id')->constrained()->nullOnDelete();
                 }
             });
@@ -36,4 +36,3 @@ return new class extends Migration
         }
     }
 };
-

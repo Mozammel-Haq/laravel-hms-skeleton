@@ -19,7 +19,6 @@ use App\Models\Base\BaseTenantModel;
  * @property string $status 'available', 'occupied', 'maintenance'
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Ward $ward
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Bed[] $beds
  */
@@ -27,8 +26,6 @@ class Room extends BaseTenantModel
 {
     /**
      * Get the ward associated with the room.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function ward(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -37,13 +34,12 @@ class Room extends BaseTenantModel
 
     /**
      * Get the beds in the room.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function beds(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Bed::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use App\Models\PatientAllergy;
+use App\Models\PatientImmunization;
 use App\Models\PatientMedicalHistory;
 use App\Models\PatientSurgery;
-use App\Models\PatientImmunization;
 use App\Support\TenantContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -24,7 +24,6 @@ class MedicalHistoryApiController extends Controller
      * Display the medical history for the authenticated patient.
      * Supports search and filtering by clinic context.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
@@ -37,8 +36,12 @@ class MedicalHistoryApiController extends Controller
             $foundPatient = Patient::withoutTenant()
                 ->where('clinic_id', $requestedClinicId)
                 ->where(function ($q) use ($user) {
-                    if ($user->email) $q->where('email', $user->email);
-                    if ($user->phone) $q->orWhere('phone', $user->phone);
+                    if ($user->email) {
+                        $q->where('email', $user->email);
+                    }
+                    if ($user->phone) {
+                        $q->orWhere('phone', $user->phone);
+                    }
                 })
                 ->first();
 

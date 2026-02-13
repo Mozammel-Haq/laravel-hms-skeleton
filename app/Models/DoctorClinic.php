@@ -19,7 +19,6 @@ use App\Models\Base\BaseTenantModel;
  * @property string $status 'active', 'inactive'
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Doctor $doctor
  * @property-read \App\Models\Clinic $clinic
  */
@@ -27,8 +26,6 @@ class DoctorClinic extends BaseTenantModel
 {
     /**
      * Get the doctor associated with this link.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -37,13 +34,12 @@ class DoctorClinic extends BaseTenantModel
 
     /**
      * Get the clinic associated with this link.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function clinic(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Clinic::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

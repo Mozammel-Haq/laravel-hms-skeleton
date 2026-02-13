@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Concerns\LogsActivity;
 /**
  * LabTest Model
  *
@@ -21,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $updated_at
  */
 
-use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\Model;
 
 class LabTest extends Model
 {
@@ -29,20 +28,21 @@ class LabTest extends Model
 
     public function getActivityDescription($action)
     {
-        return ucfirst($action) . " lab test {$this->name}";
+        return ucfirst($action)." lab test {$this->name}";
     }
 
     public $timestamps = false;
+
     protected $fillable = ['name', 'category', 'description', 'normal_range', 'price', 'status'];
+
     /**
      * Get the invoice item associated with this lab test.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function invoiceItem(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(InvoiceItem::class, 'reference_id')->where('item_type', $this->getTable());
     }
+
     protected $casts = [
         'created_at' => 'date',
     ];

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-
 /**
  * DoctorSchedule Model
  *
@@ -23,7 +22,6 @@ use App\Models\Base\BaseTenantModel;
  * @property string $status 'active', 'inactive'
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Doctor $doctor
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\DoctorScheduleException[] $exceptions
  */
@@ -37,7 +35,8 @@ class DoctorSchedule extends BaseTenantModel
     public function getActivityDescription($action)
     {
         $doctorName = $this->doctor && $this->doctor->user ? $this->doctor->user->name : 'Unknown Doctor';
-        return ucfirst($action) . " schedule for Dr. {$doctorName}";
+
+        return ucfirst($action)." schedule for Dr. {$doctorName}";
     }
 
     protected $fillable = [
@@ -55,8 +54,6 @@ class DoctorSchedule extends BaseTenantModel
 
     /**
      * Get the doctor associated with the schedule.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -65,14 +62,16 @@ class DoctorSchedule extends BaseTenantModel
 
     /**
      * Get the exceptions for this schedule.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function exceptions(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(DoctorScheduleException::class);
     }
+
     protected $casts = [
+        'schedule_date' => 'date',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
         'created_at' => 'date',
     ];
 }

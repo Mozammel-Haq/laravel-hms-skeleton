@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
+use App\Models\Doctor;
 use App\Models\LabTest;
 use App\Models\LabTestOrder;
 use App\Models\LabTestResult;
@@ -11,8 +12,6 @@ use App\Models\Visit;
 use App\Services\BillingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-
-use App\Models\Doctor;
 
 /**
  * Manages lab test orders, results, and billing integration.
@@ -58,12 +57,12 @@ class LabController extends Controller
             $search = request('search');
             $query->where(function ($q) use ($search) {
                 $q->where('id', $search)
-                    ->orWhere('status', 'like', '%' . $search . '%')
+                    ->orWhere('status', 'like', '%'.$search.'%')
                     ->orWhereHas('patient', function ($sub) use ($search) {
-                        $sub->where('name', 'like', '%' . $search . '%')
-                            ->orWhere('patient_code', 'like', '%' . $search . '%');
+                        $sub->where('name', 'like', '%'.$search.'%')
+                            ->orWhere('patient_code', 'like', '%'.$search.'%');
                     })->orWhereHas('test', function ($sub) use ($search) {
-                        $sub->where('name', 'like', '%' . $search . '%');
+                        $sub->where('name', 'like', '%'.$search.'%');
                     });
             });
         }
@@ -77,13 +76,13 @@ class LabController extends Controller
         }
 
         $orders = $query->paginate(20)->withQueryString();
+
         return view('lab.index', compact('orders'));
     }
 
     /**
      * Show the form for creating a new lab test order.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
     public function create(Request $request)
@@ -107,6 +106,7 @@ class LabController extends Controller
         }
         $tests = LabTest::all();
         $doctors = Doctor::with('user')->get();
+
         return view('lab.create', compact('patients', 'tests', 'doctors', 'doctor', 'appointmentId'));
     }
 
@@ -120,7 +120,6 @@ class LabController extends Controller
      * - Creates LabTestOrder record
      * - Dispatches notifications to Lab Technicians
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -149,7 +148,7 @@ class LabController extends Controller
         $isEligible = false;
 
         // 1. Check specific appointment context
-        if (!empty($data['appointment_id'])) {
+        if (! empty($data['appointment_id'])) {
             $appt = Appointment::find($data['appointment_id']);
             if ($appt && $appt->patient_id == $patient->id && $appt->status == 'completed') {
                 $isEligible = true;
@@ -157,7 +156,7 @@ class LabController extends Controller
         }
 
         // 2. Check admission status
-        if (!$isEligible) {
+        if (! $isEligible) {
             $isAdmitted = \App\Models\Admission::where('patient_id', $patient->id)
                 ->where('status', 'admitted')
                 ->exists();
@@ -168,7 +167,7 @@ class LabController extends Controller
 
         // 3. Fallback: Check if patient has ANY completed appointment (OPD)
         // If no specific appointment ID was passed, we link to the latest completed one.
-        if (!$isEligible) {
+        if (! $isEligible) {
             $latestAppt = $patient->appointments()
                 ->where('status', 'completed')
                 ->latest()
@@ -180,7 +179,7 @@ class LabController extends Controller
             }
         }
 
-        if (!$isEligible) {
+        if (! $isEligible) {
             return back()->with('error', 'Lab orders can only be created for admitted patients or patients with completed consultations.');
         }
 
@@ -210,7 +209,6 @@ class LabController extends Controller
      * - Creates invoice via BillingService
      * - Updates order with invoice ID
      *
-     * @param \App\Models\LabTestOrder $order
      * @return \Illuminate\Http\RedirectResponse
      */
     public function generateInvoice(LabTestOrder $order)
@@ -227,7 +225,7 @@ class LabController extends Controller
             'reference_id' => $test?->id,
             'description' => $test?->name ?? 'Lab Test',
             'quantity' => 1,
-            'unit_price' => (float)($test?->price ?? 0),
+            'unit_price' => (float) ($test?->price ?? 0),
         ]];
 
         $invoice = app(BillingService::class)->createInvoice(
@@ -257,13 +255,13 @@ class LabController extends Controller
      * - Results history
      * - Invoice status
      *
-     * @param \App\Models\LabTestOrder $order
      * @return \Illuminate\View\View
      */
     public function show(LabTestOrder $order)
     {
         Gate::authorize('view', $order);
         $order->load(['patient', 'test', 'results', 'invoice']);
+
         return view('lab.show', compact('order'));
     }
 
@@ -272,14 +270,13 @@ class LabController extends Controller
      *
      * Check: Invoice must be paid before adding results.
      *
-     * @param \App\Models\LabTestOrder $order
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function addResult(LabTestOrder $order)
     {
         Gate::authorize('update', $order);
 
-        if (!$order->invoice || $order->invoice->status !== 'paid') {
+        if (! $order->invoice || $order->invoice->status !== 'paid') {
             return redirect()->route('lab.show', $order)->with('error', 'Cannot add results. Invoice must be generated and paid first.');
         }
 
@@ -295,15 +292,13 @@ class LabController extends Controller
      * - Updates order status to 'completed'
      * - Notifies Patient and Doctor
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\LabTestOrder $order
      * @return \Illuminate\Http\RedirectResponse
      */
     public function storeResult(Request $request, LabTestOrder $order)
     {
         Gate::authorize('update', $order);
 
-        if (!$order->invoice || $order->invoice->status !== 'paid') {
+        if (! $order->invoice || $order->invoice->status !== 'paid') {
             return redirect()->route('lab.show', $order)->with('error', 'Cannot add results. Invoice must be generated and paid first.');
         }
 
@@ -347,20 +342,20 @@ class LabController extends Controller
     /**
      * Soft delete the specified lab test order.
      *
-     * @param \App\Models\LabTestOrder $order
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(LabTestOrder $order)
     {
         Gate::authorize('delete', $order);
         $order->delete();
+
         return redirect()->route('lab.index')->with('success', 'Lab test order deleted successfully.');
     }
 
     /**
      * Restore a soft-deleted lab test order.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
     public function restore($id)
@@ -368,6 +363,7 @@ class LabController extends Controller
         $order = LabTestOrder::withTrashed()->findOrFail($id);
         Gate::authorize('delete', $order);
         $order->restore();
+
         return redirect()->route('lab.index')->with('success', 'Lab test order restored successfully.');
     }
 }

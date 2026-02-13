@@ -3,9 +3,7 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-use App\Models\Prescription;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Models\Concerns\LogsActivity;
 /**
  * PharmacySale Model
  *
@@ -21,22 +19,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \App\Models\Patient $patient
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PharmacySaleItem[] $items
  * @property-read \App\Models\Prescription|null $prescription
  */
 
-use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PharmacySale extends BaseTenantModel
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     public function getActivityDescription($action)
     {
         $patientName = $this->patient ? $this->patient->name : 'Unknown Patient';
-        return ucfirst($action) . " pharmacy sale for {$patientName} (Total: {$this->total_amount})";
+
+        return ucfirst($action)." pharmacy sale for {$patientName} (Total: {$this->total_amount})";
     }
 
     /**
@@ -68,6 +66,7 @@ class PharmacySale extends BaseTenantModel
     {
         return $this->belongsTo(Prescription::class);
     }
+
     protected $casts = [
         'sale_date' => 'datetime',
         'created_at' => 'date',

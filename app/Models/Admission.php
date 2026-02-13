@@ -24,7 +24,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $status 'admitted', 'discharged'
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Patient $patient
  * @property-read \App\Models\Doctor $doctor
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\BedAssignment[] $bedAssignments
@@ -33,7 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Admission extends BaseTenantModel
 {
-    use HasFactory, SoftDeletes, NotifiesRoles;
+    use HasFactory, NotifiesRoles, SoftDeletes;
 
     protected $casts = [
         'admission_date' => 'datetime',

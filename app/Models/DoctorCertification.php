@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $expiry_date
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \App\Models\Doctor $doctor
  */
 class DoctorCertification extends Model
@@ -27,14 +26,15 @@ class DoctorCertification extends Model
 
     /**
      * Get the doctor associated with the certification.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Doctor::class);
     }
+
     protected $casts = [
         'created_at' => 'date',
+        'issued_date' => 'date',
+        'expiry_date' => 'date',
     ];
 }

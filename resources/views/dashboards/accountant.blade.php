@@ -388,6 +388,7 @@
                     }],
                     colors: ['var(--primary-color)', 'var(--bs-success)'],
                     tooltip: {
+                        theme: 'dark',
                         shared: true,
                         intersect: false,
                         y: [{
@@ -452,6 +453,9 @@
                     },
                     dataLabels: {
                         enabled: false
+                    },
+                    tooltip: {
+                        theme: 'dark'
                     }
                 };
 

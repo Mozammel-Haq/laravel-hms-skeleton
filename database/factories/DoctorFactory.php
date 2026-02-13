@@ -23,15 +23,19 @@ class DoctorFactory extends Factory
             'clinic_id' => function (array $attributes) {
                 // Try to get clinic_id from user if available
                 if (isset($attributes['user_id'])) {
-                     $user = User::find($attributes['user_id']);
-                     if ($user) return $user->clinic_id;
+                    $user = User::find($attributes['user_id']);
+                    if ($user) {
+                        return $user->clinic_id;
+                    }
                 }
                 // Or from department
-                 if (isset($attributes['primary_department_id'])) {
-                     $dept = Department::find($attributes['primary_department_id']);
-                     if ($dept) return $dept->clinic_id;
+                if (isset($attributes['primary_department_id'])) {
+                    $dept = Department::find($attributes['primary_department_id']);
+                    if ($dept) {
+                        return $dept->clinic_id;
+                    }
                 }
-                
+
                 // Fallback
                 return User::factory()->create()->clinic_id;
             },

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Clinic;
+use App\Models\Department;
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
 use App\Models\User;
-use App\Models\Department;
-use App\Models\Clinic;
 use App\Services\AppointmentService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,7 +31,7 @@ class SlotGenerationTimeTest extends TestCase
         ]);
 
         $department = Department::factory()->create([
-            'clinic_id' => $clinic->id
+            'clinic_id' => $clinic->id,
         ]);
 
         $user = User::factory()->create();
@@ -58,7 +58,7 @@ class SlotGenerationTimeTest extends TestCase
         $mockDate = Carbon::parse('2023-10-02 12:00:00', 'Asia/Dhaka');
         Carbon::setTestNow($mockDate);
 
-        $service = new AppointmentService();
+        $service = new AppointmentService;
         // We pass the date string "2023-10-02"
         $slots = $service->getAvailableSlots($doctor, '2023-10-02', $clinic->id);
 

@@ -3,8 +3,7 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
+use App\Models\Concerns\LogsActivity;
 /**
  * Visit Model
  *
@@ -20,24 +19,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- *
  * @property-read \App\Models\Appointment $appointment
  * @property-read \App\Models\Consultation|null $consultation
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Invoice[] $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\PatientVital[] $vitals
  */
 
-use App\Models\Concerns\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Visit extends BaseTenantModel
 {
-    use SoftDeletes, LogsActivity;
+    use LogsActivity, SoftDeletes;
 
     public function getActivityDescription($action)
     {
         $patientName = $this->appointment && $this->appointment->patient ? $this->appointment->patient->name : 'Unknown Patient';
-        return ucfirst($action) . " visit for {$patientName} ({$this->visit_status})";
+
+        return ucfirst($action)." visit for {$patientName} ({$this->visit_status})";
     }
+
     /**
      * Get the appointment associated with the visit.
      *
@@ -77,7 +77,10 @@ class Visit extends BaseTenantModel
     {
         return $this->hasMany(PatientVital::class, 'visit_id');
     }
+
     protected $casts = [
-        'created_at' => 'date',
+        'check_in_time' => 'datetime',
+        'check_out_time' => 'datetime',
+        'created_at' => 'datetime',
     ];
 }

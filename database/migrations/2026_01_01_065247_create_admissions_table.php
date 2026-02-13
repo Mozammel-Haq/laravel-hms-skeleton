@@ -12,21 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('admissions', function (Blueprint $table) {
-    $table->id();
+            $table->id();
 
-    $table->foreignId('clinic_id')->constrained()->restrictOnDelete();
-    $table->foreignId('patient_id')->constrained()->restrictOnDelete();
-    $table->foreignId('admitting_doctor_id')->constrained('doctors')->restrictOnDelete();
+            $table->foreignId('clinic_id')->constrained()->restrictOnDelete();
+            $table->foreignId('patient_id')->constrained()->restrictOnDelete();
+            $table->foreignId('admitting_doctor_id')->constrained('doctors')->restrictOnDelete();
 
-    $table->dateTime('admission_date');
-    $table->string('admission_reason');
+            $table->dateTime('admission_date');
+            $table->string('admission_reason');
 
-    $table->foreignId('current_bed_id')->nullable()->constrained('beds')->nullOnDelete();
+            $table->foreignId('current_bed_id')->nullable()->constrained('beds')->nullOnDelete();
 
-    $table->enum('status', ['admitted', 'transferred', 'discharged'])->default('admitted');
+            $table->enum('status', ['admitted', 'transferred', 'discharged'])->default('admitted');
 
-    $table->timestamps();
-});
+            $table->timestamps();
+        });
 
     }
 

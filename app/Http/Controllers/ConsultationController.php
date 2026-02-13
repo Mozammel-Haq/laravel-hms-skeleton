@@ -6,12 +6,11 @@ use App\Models\Appointment;
 use App\Models\Consultation;
 use App\Models\Doctor;
 use App\Models\Prescription;
-use App\Models\PrescriptionItem;
 use App\Models\Visit;
-use App\Models\Medicine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Carbon\Carbon;
 
 /**
  * ConsultationController
@@ -62,11 +61,11 @@ class ConsultationController extends Controller
             $search = request('search');
             $query->where(function ($q) use ($search) {
                 $q->whereHas('patient', function ($sub) use ($search) {
-                    $sub->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('patient_code', 'like', '%' . $search . '%');
+                    $sub->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('patient_code', 'like', '%'.$search.'%');
                 })->orWhereHas('doctor.user', function ($sub) use ($search) {
-                    $sub->where('name', 'like', '%' . $search . '%');
-                })->orWhere('type', 'like', '%' . $search . '%');
+                    $sub->where('name', 'like', '%'.$search.'%');
+                })->orWhere('type', 'like', '%'.$search.'%');
             });
         }
 
@@ -86,13 +85,13 @@ class ConsultationController extends Controller
     /**
      * Remove the specified consultation from storage.
      *
-     * @param  \App\Models\Consultation  $consultation
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Consultation $consultation)
     {
         Gate::authorize('delete', $consultation); // Assuming delete policy exists or maps to appropriate permission
         $consultation->delete();
+
         return redirect()->route('clinical.consultations.index')->with('success', 'Consultation deleted successfully.');
     }
 
@@ -107,6 +106,7 @@ class ConsultationController extends Controller
         $consultation = Consultation::withTrashed()->findOrFail($id);
         Gate::authorize('delete', $consultation);
         $consultation->restore();
+
         return redirect()->route('clinical.consultations.index')->with('success', 'Consultation restored successfully.');
     }
 
@@ -121,35 +121,48 @@ class ConsultationController extends Controller
      *
      * Loads patient vitals history for the consultation view.
      *
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function create(Appointment $appointment)
     {
         Gate::authorize('create', Consultation::class);
         $doctor = Doctor::where('user_id', auth()->id())->first();
-        if (!$doctor || $appointment->doctor_id !== $doctor->id) {
+        if (! $doctor || $appointment->doctor_id !== $doctor->id) {
             return redirect()->route('appointments.index')
                 ->with('warning', 'You are not authorized to start a consultation for this appointment.');
         }
 
-        if ($appointment->appointment_date->isFuture()) {
-            return redirect()->route('appointments.index')
-                ->with('warning', 'You cannot start a consultation for a future appointment.');
+        $tz = optional($appointment->clinic)->timezone ?? config('app.timezone');
+        $now = Carbon::now($tz);
+        $start = $appointment->startDateTimeTz();
+        $end = $appointment->endDateTimeTz() ?: $start;
+        $earlyWindowMinutes = 10;
+        $graceMinutes = 30;
+        if ($appointment->isUpcomingNow() === true) {
+            if ($start && $now->lt($start->copy()->subMinutes($earlyWindowMinutes))) {
+                return redirect()->route('appointments.index')
+                    ->with('warning', 'Too early to start consultation for this appointment.');
+            }
+        }
+        if ($appointment->isPassedNow() === true) {
+            if (! ($end && $now->lte($end->copy()->addMinutes($graceMinutes)))) {
+                return redirect()->route('appointments.index')
+                    ->with('warning', 'Appointment time has passed. Please reschedule or record as no-show.');
+            }
         }
 
         $consultationInvoice = \App\Models\Invoice::where('appointment_id', $appointment->id)
             ->where('invoice_type', 'consultation')
             ->latest()
             ->first();
-        if (!$consultationInvoice || $consultationInvoice->status !== 'paid') {
+        if (! $consultationInvoice || $consultationInvoice->status !== 'paid') {
             return redirect()->route('appointments.index')
                 ->with(
                     'warning',
                     'Consultation can only start after the consultation invoice has been generated and fully paid.'
                 );
         }
-        if (!in_array($appointment->status, ['confirmed', 'arrived'], true)) {
+        if (! in_array($appointment->status, ['confirmed', 'arrived'], true)) {
             return redirect()->route('appointments.index')
                 ->with('warning', 'Consultation can only start for confirmed or arrived appointments.');
         }
@@ -166,7 +179,7 @@ class ConsultationController extends Controller
 
         return view('clinical.consultation.create', [
             'appointment' => $appointment,
-            'patient'     => $appointment->patient,
+            'patient' => $appointment->patient,
             'latestVitals' => $latestVitals,
             'vitalsHistory' => $vitalsHistory,
         ]);
@@ -182,18 +195,16 @@ class ConsultationController extends Controller
      * - Updates Appointment status to 'completed'
      * - Redirects to Prescription creation
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request, Appointment $appointment)
     {
         Gate::authorize('create', Consultation::class);
-        if (!auth()->user()->hasRole('Doctor')) {
+        if (! auth()->user()->hasRole('Doctor')) {
             abort(403, 'Only Doctors can make consultations.');
         }
         $doctor = Doctor::where('user_id', auth()->id())->first();
-        if (!$doctor || $appointment->doctor_id !== $doctor->id) {
+        if (! $doctor || $appointment->doctor_id !== $doctor->id) {
             return redirect()->route('appointments.index')
                 ->with('warning', 'You are not authorized to start a consultation for this appointment.');
         }
@@ -201,7 +212,7 @@ class ConsultationController extends Controller
             return redirect()->route('appointments.index')
                 ->with('warning', 'You cannot start a consultation for a future appointment.');
         }
-        if (!in_array($appointment->status, ['confirmed', 'arrived'], true)) {
+        if (! in_array($appointment->status, ['confirmed', 'arrived'], true)) {
             return redirect()->route('appointments.index')
                 ->with('warning', 'Consultation can only start for confirmed or arrived appointments.');
         }
@@ -240,7 +251,7 @@ class ConsultationController extends Controller
                 'diagnosis' => $data['diagnosis'],
                 'doctor_notes' => $data['doctor_notes'],
                 'symptoms' => $symptoms,
-                'follow_up_required' => (bool)($data['follow_up_required'] ?? false),
+                'follow_up_required' => (bool) ($data['follow_up_required'] ?? false),
                 'follow_up_date' => $data['follow_up_date'] ?? null,
                 'status' => 'in_progress',
             ]);
@@ -266,7 +277,6 @@ class ConsultationController extends Controller
      * - Prescription items
      * - Calculates fee information
      *
-     * @param  \App\Models\Consultation  $consultation
      * @return \Illuminate\View\View
      */
     public function show(Consultation $consultation)
@@ -276,6 +286,7 @@ class ConsultationController extends Controller
         $doctor = $consultation->visit?->appointment?->doctor ?? $consultation->doctor;
         $patientId = $consultation->visit?->appointment?->patient_id ?? $consultation->patient_id;
         $feeInfo = app(\App\Services\AppointmentService::class)->calculateFee($doctor, $patientId);
+
         return view('clinical.consultation.show', compact('consultation', 'feeInfo'));
     }
 }

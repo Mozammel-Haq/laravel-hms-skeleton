@@ -201,7 +201,8 @@
                         xaxis: { lines: { show: false } }
                     },
                     colors: ['var(--primary-color)', 'var(--bs-success)'],
-                    legend: { position: 'top' }
+                    legend: { position: 'top' },
+                    tooltip: { theme: 'dark' }
                 };
                 var labActivityChart = new ApexCharts(document.querySelector("#labActivityChart"), labActivityOptions);
                 labActivityChart.render();
@@ -233,7 +234,8 @@
                         }
                     },
                     dataLabels: { enabled: false },
-                    legend: { position: 'bottom' }
+                    legend: { position: 'bottom' },
+                    tooltip: { theme: 'dark' }
                 };
                 var labOrderStatusChart = new ApexCharts(document.querySelector("#labOrderStatusChart"), labOrderStatusOptions);
                 labOrderStatusChart.render();

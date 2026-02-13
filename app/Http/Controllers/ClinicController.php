@@ -60,6 +60,7 @@ class ClinicController extends Controller
         }
 
         $clinics = $query->latest()->paginate(20)->withQueryString();
+
         return view('clinics.index', compact('clinics'));
     }
 
@@ -73,9 +74,10 @@ class ClinicController extends Controller
     public function profile()
     {
         $clinic = auth()->user()->clinic;
-        if (!$clinic) {
+        if (! $clinic) {
             return redirect()->route('dashboard')->with('error', 'No clinic associated with your account.');
         }
+
         return redirect()->route('clinics.show', $clinic);
     }
 
@@ -87,6 +89,7 @@ class ClinicController extends Controller
     public function create()
     {
         Gate::authorize('create', Clinic::class);
+
         return view('clinics.create');
     }
 
@@ -98,7 +101,6 @@ class ClinicController extends Controller
      * - Handles logo upload
      * - Handles gallery image uploads with sorting
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
@@ -132,7 +134,7 @@ class ClinicController extends Controller
 
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
             $data['logo_path'] = $file->storeAs('clinics/logos', $filename, 'public');
         }
 
@@ -140,11 +142,11 @@ class ClinicController extends Controller
 
         if ($request->hasFile('gallery')) {
             foreach ($request->file('gallery') as $index => $image) {
-                $filename = time() . '_' . $index . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $image->getClientOriginalName()));
+                $filename = time().'_'.$index.'_'.preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $image->getClientOriginalName()));
                 $path = $image->storeAs('clinics/gallery', $filename, 'public');
                 $clinic->images()->create([
                     'image_path' => $path,
-                    'sort_order' => $index
+                    'sort_order' => $index,
                 ]);
             }
         }
@@ -155,24 +157,24 @@ class ClinicController extends Controller
     /**
      * Display the specified clinic profile.
      *
-     * @param  \App\Models\Clinic  $clinic
      * @return \Illuminate\View\View
      */
     public function show(Clinic $clinic)
     {
         Gate::authorize('view', $clinic);
+
         return view('clinics.show', compact('clinic'));
     }
 
     /**
      * Show the form for editing the specified clinic.
      *
-     * @param  \App\Models\Clinic  $clinic
      * @return \Illuminate\View\View
      */
     public function edit(Clinic $clinic)
     {
         Gate::authorize('update', $clinic);
+
         return view('clinics.edit', compact('clinic'));
     }
 
@@ -185,18 +187,15 @@ class ClinicController extends Controller
      * - Adds new gallery images
      * - Reorders gallery images
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Clinic  $clinic
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, Clinic $clinic)
     {
         Gate::authorize('update', $clinic);
-        // dd($clinic);
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:clinics,code,' . $clinic->id,
-            'registration_number' => 'nullable|string|max:100|unique:clinics,registration_number,' . $clinic->id,
+            'code' => 'required|string|max:50|unique:clinics,code,'.$clinic->id,
+            'registration_number' => 'nullable|string|max:100|unique:clinics,registration_number,'.$clinic->id,
             'about' => 'nullable|string',
             'services' => 'nullable|array',
             'services.*' => 'nullable|string|max:255',
@@ -217,7 +216,6 @@ class ClinicController extends Controller
             'closing_time' => 'nullable',
             'status' => 'required|in:active,inactive,suspended',
         ]);
-        // dd($data);
 
         if ($request->hasFile('logo')) {
             // Delete old logo if exists
@@ -225,7 +223,7 @@ class ClinicController extends Controller
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($clinic->logo_path);
             }
             $file = $request->file('logo');
-            $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
+            $filename = time().'_'.preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $file->getClientOriginalName()));
             $data['logo_path'] = $file->storeAs('clinics/logos', $filename, 'public');
         }
 
@@ -234,11 +232,11 @@ class ClinicController extends Controller
         if ($request->hasFile('gallery')) {
             $currentMaxSortOrder = $clinic->images()->max('sort_order') ?? 0;
             foreach ($request->file('gallery') as $index => $image) {
-                $filename = time() . '_' . $index . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $image->getClientOriginalName()));
+                $filename = time().'_'.$index.'_'.preg_replace('/[^a-zA-Z0-9._-]/', '', str_replace(' ', '-', $image->getClientOriginalName()));
                 $path = $image->storeAs('clinics/gallery', $filename, 'public');
                 $clinic->images()->create([
                     'image_path' => $path,
-                    'sort_order' => $currentMaxSortOrder + $index + 1
+                    'sort_order' => $currentMaxSortOrder + $index + 1,
                 ]);
             }
         }
@@ -263,7 +261,6 @@ class ClinicController extends Controller
      *
      * Deletes the image file and database record.
      *
-     * @param  \App\Models\ClinicImage  $image
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroyImage(\App\Models\ClinicImage $image)
@@ -285,7 +282,6 @@ class ClinicController extends Controller
      *
      * Checks for dependencies before deletion.
      *
-     * @param  \App\Models\Clinic  $clinic
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Clinic $clinic)
@@ -294,12 +290,14 @@ class ClinicController extends Controller
 
         try {
             $clinic->delete();
+
             return redirect()->route('clinics.index')->with('success', 'Clinic deleted successfully.');
         } catch (\Illuminate\Database\QueryException $e) {
             // Check for integrity constraint violation
             if ($e->getCode() === '23000') {
                 return back()->with('error', 'Cannot delete this clinic because it has associated records (e.g., admissions, appointments).');
             }
+
             return back()->with('error', 'An error occurred while deleting the clinic.');
         } catch (\Exception $e) {
             return back()->with('error', 'An unexpected error occurred.');

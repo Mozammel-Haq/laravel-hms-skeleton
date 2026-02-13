@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Role[] $roles
  */
 class Permission extends Model
@@ -31,8 +30,6 @@ class Permission extends Model
 
     /**
      * Get the roles that have this permission.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {

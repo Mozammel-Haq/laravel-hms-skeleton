@@ -2,10 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-
 use App\Support\TenantContext;
+use Illuminate\Foundation\Http\FormRequest;
 
 class StorePatientRequest extends FormRequest
 {
@@ -30,21 +28,21 @@ class StorePatientRequest extends FormRequest
             'emergency_contact_phone' => ['nullable', 'string', 'max:20'],
             'profile_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'nid_number' => [
-                'nullable', 
-                'regex:/^[0-9]{10,17}$/', 
-                'required_without_all:birth_certificate_number,passport_number', 
+                'nullable',
+                'regex:/^[0-9]{10,17}$/',
+                'required_without_all:birth_certificate_number,passport_number',
             ],
             'birth_certificate_number' => [
-                'nullable', 
-                'regex:/^[0-9]{10,20}$/', 
-                'required_without_all:nid_number,passport_number', 
+                'nullable',
+                'regex:/^[0-9]{10,20}$/',
+                'required_without_all:nid_number,passport_number',
             ],
             'passport_number' => [
-                'nullable', 
-                'alpha_num', 
-                'min:6', 
-                'max:20', 
-                'required_without_all:nid_number,birth_certificate_number', 
+                'nullable',
+                'alpha_num',
+                'min:6',
+                'max:20',
+                'required_without_all:nid_number,birth_certificate_number',
             ],
         ];
     }

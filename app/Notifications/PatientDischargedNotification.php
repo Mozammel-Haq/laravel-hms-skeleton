@@ -30,7 +30,7 @@ class PatientDischargedNotification extends Notification
 
         if ($notifiable instanceof \App\Models\Patient) {
             $title = 'Discharge Complete';
-            $message = "You have been discharged. We hope you recover well.";
+            $message = 'You have been discharged. We hope you recover well.';
             $link = null;
         }
 
@@ -39,7 +39,7 @@ class PatientDischargedNotification extends Notification
             'message' => $message,
             'link' => $link,
             'type' => 'success',
-            'admission_id' => $this->admission->id
+            'admission_id' => $this->admission->id,
         ];
     }
 }
