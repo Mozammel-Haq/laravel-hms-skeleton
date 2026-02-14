@@ -38,9 +38,12 @@ class StaffAuthController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
+        $token = $user->createToken('hrm-dashboard')->plainTextToken;
+
         return response()->json([
             'status' => 'success',
             'user' => $user->load('roles'),
+            'token' => $token,
             'message' => 'Logged in successfully'
         ]);
     }
@@ -50,7 +53,7 @@ class StaffAuthController extends Controller
      */
     public function logout(Request $request): JsonResponse
     {
-        $user = Auth::user();
+        $user = $request->user();
         if ($user) {
             ActivityLog::create([
                 'user_id' => $user->id,
@@ -63,7 +66,11 @@ class StaffAuthController extends Controller
             ]);
         }
 
-        Auth::guard('web')->logout();
+        if ($request->user() && $request->user()->currentAccessToken()) {
+            $request->user()->currentAccessToken()->delete();
+        } else {
+            Auth::guard('web')->logout();
+        }
 
         return response()->json([
             'status' => 'success',

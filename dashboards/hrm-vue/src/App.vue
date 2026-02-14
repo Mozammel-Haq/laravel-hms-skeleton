@@ -1,17 +1,14 @@
 <template>
-  <AppLayout>
+  <component :is="currentLayout">
     <router-view />
-  </AppLayout>
+  </component>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import AppLayout from './components/layout/AppLayout.vue';
-import { useAuthStore } from './store/authStore';
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import AppLayout from './components/layout/AppLayout.vue'
 
-const auth = useAuthStore();
-
-onMounted(() => {
-  auth.fetchUser();
-});
+const route = useRoute()
+const currentLayout = computed(() => ((route.path === '/login' || route.path === '/forbidden') ? 'div' : AppLayout))
 </script>

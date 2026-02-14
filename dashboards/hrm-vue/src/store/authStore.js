@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import api from '../services/api';
+import axios from 'axios';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -15,11 +16,17 @@ export const useAuthStore = defineStore('auth', {
             try {
                 const response = await api.get('/me');
                 this.user = response.data.data;
-                this.initialized = true;
             } catch (error) {
-                this.user = null;
-                this.error = error.response?.data?.message || 'Failed to fetch user';
+                if (error.response?.status === 401) {
+                    this.user = null;
+                    this.error = null;
+                    localStorage.removeItem('hrm_token');
+                } else {
+                    this.user = null;
+                    this.error = error.response?.data?.message || 'Failed to fetch user';
+                }
             } finally {
+                this.initialized = true;
                 this.loading = false;
             }
         },
@@ -27,12 +34,15 @@ export const useAuthStore = defineStore('auth', {
         async login(credentials) {
             this.loading = true;
             try {
-                // Ensure CSRF cookie is set
-                await api.get('/csrf-cookie', { baseURL: 'http://localhost:8000/sanctum' });
-                
-                const response = await api.post('/login', credentials);
-                this.user = response.data.user;
-                return response.data;
+                // API token-based login, no redirect to web dashboard
+                const res = await api.post('/login', credentials);
+                const token = res.data.token;
+                if (token) {
+                    localStorage.setItem('hrm_token', token);
+                }
+                const me = await api.get('/me');
+                this.user = me.data.data;
+                return { user: this.user, token };
             } catch (error) {
                 this.error = error.response?.data?.message || 'Login failed';
                 throw error;
@@ -43,10 +53,14 @@ export const useAuthStore = defineStore('auth', {
 
         async logout() {
             try {
+                // Try to inform the backend; ignore failure (token may be invalid/expired)
                 await api.post('/logout');
-                this.user = null;
             } catch (error) {
                 console.error('Logout failed', error);
+            } finally {
+                // Always clear local auth state
+                this.user = null;
+                localStorage.removeItem('hrm_token');
             }
         }
     }

@@ -6,7 +6,3 @@
     </div>
   </footer>
 </template>
-
-<style scoped>
-.fs-14 { font-size: 14px; }
-</style>

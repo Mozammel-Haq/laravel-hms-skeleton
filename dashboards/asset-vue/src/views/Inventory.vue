@@ -97,7 +97,3 @@ onMounted(() => {
   fetchInventory();
 });
 </script>
-
-<style scoped>
-.fs-12 { font-size: 12px; }
-</style>

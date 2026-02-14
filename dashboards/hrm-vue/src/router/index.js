@@ -8,9 +8,34 @@ const routes = [
     component: Dashboard
   },
   {
+    path: '/forbidden',
+    name: 'Forbidden',
+    component: () => import('../views/Forbidden.vue')
+  },
+  {
     path: '/staff',
     name: 'StaffDirectory',
     component: () => import('../views/StaffDirectory.vue')
+  },
+  {
+    path: '/leaves',
+    name: 'Leaves',
+    component: () => import('../views/Leaves.vue')
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/Login.vue')
+  },
+  {
+    path: '/hr/departments',
+    name: 'Departments',
+    component: () => import('../views/Departments.vue')
+  },
+  {
+    path: '/hr/designations',
+    name: 'Designations',
+    component: () => import('../views/Designations.vue')
   }
 ]
 

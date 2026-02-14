@@ -15,27 +15,75 @@
     <!-- Stats Row -->
     <div class="row g-3 mb-4">
       <div class="col-md-3">
-        <div class="card border-0 shadow-sm p-3 text-center">
-          <div class="text-muted small mb-1">Total Staff</div>
-          <div class="h4 mb-0">{{ staffList.length }}</div>
+        <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-primary" data-bs-theme="light,dark">
+          <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="staff-kpi-1" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="2" height="2" fill="var(--primary-color)" fill-opacity="0.2" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#staff-kpi-1)" />
+            </svg>
+          </div>
+          <div class="card-body p-3 text-center position-relative z-1">
+            <div class="text-muted small mb-1">Total Staff</div>
+            <div class="h4 mb-0">{{ staffList.length }}</div>
+          </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card border-0 shadow-sm p-3 text-center">
-          <div class="text-muted small mb-1">Doctors</div>
-          <div class="h4 mb-0 text-primary">{{ staffList.filter(s => s.roles?.some(r => r.name === 'Doctor')).length }}</div>
+        <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info" data-bs-theme="light,dark">
+          <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="staff-kpi-2" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="2" height="2" fill="var(--info-color)" fill-opacity="0.2" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#staff-kpi-2)" />
+            </svg>
+          </div>
+          <div class="card-body p-3 text-center position-relative z-1">
+            <div class="text-muted small mb-1">Doctors</div>
+            <div class="h4 mb-0 text-primary">{{ staffList.filter(s => s.roles?.some(r => r.name === 'Doctor')).length }}</div>
+          </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card border-0 shadow-sm p-3 text-center">
-          <div class="text-muted small mb-1">Nurses</div>
-          <div class="h4 mb-0 text-info">0</div>
+        <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-info" data-bs-theme="light,dark">
+          <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="staff-kpi-3" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="2" height="2" fill="var(--info-color)" fill-opacity="0.2" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#staff-kpi-3)" />
+            </svg>
+          </div>
+          <div class="card-body p-3 text-center position-relative z-1">
+            <div class="text-muted small mb-1">Nurses</div>
+            <div class="h4 mb-0 text-info">0</div>
+          </div>
         </div>
       </div>
       <div class="col-md-3">
-        <div class="card border-0 shadow-sm p-3 text-center">
-          <div class="text-muted small mb-1">On Duty</div>
-          <div class="h4 mb-0 text-success">{{ staffList.length }}</div>
+        <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card kpi-success" data-bs-theme="light,dark">
+          <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="staff-kpi-4" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="2" height="2" fill="var(--success-color)" fill-opacity="0.2" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#staff-kpi-4)" />
+            </svg>
+          </div>
+          <div class="card-body p-3 text-center position-relative z-1">
+            <div class="text-muted small mb-1">On Duty</div>
+            <div class="h4 mb-0 text-success">{{ staffList.length }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -137,11 +185,3 @@ onMounted(() => {
   fetchStaff();
 });
 </script>
-
-<style scoped>
-.fs-12 { font-size: 12px; }
-.fs-13 { font-size: 13px; }
-.bg-success-subtle { background-color: #e6f4ec; }
-.bg-primary-subtle { background-color: #e7f1ff; }
-.bg-warning-subtle { background-color: #fff4e6; }
-</style>

@@ -329,11 +329,3 @@ onMounted(() => {
   fetchOrders();
 });
 </script>
-
-<style scoped>
-.modal { display: block; }
-.bg-info-subtle { background-color: #e0f7fa; }
-.bg-success-subtle { background-color: #e6f4ec; }
-.bg-warning-subtle { background-color: #fff4e6; }
-.bg-danger-subtle { background-color: #ffebee; }
-</style>

@@ -14,9 +14,7 @@ class StaffController extends Controller
      */
     public function index()
     {
-        // Fetch users with their roles and department
-        // Assuming users have a department_id or similar, but let's stick to roles first
-        $staff = User::with(['roles'])
+        $staff = User::with(['roles', 'department', 'designation'])
             ->whereNotNull('clinic_id')
             ->latest()
             ->paginate(10);
@@ -32,9 +30,20 @@ class StaffController extends Controller
      */
     public function me()
     {
+        $user = Auth::user();
+        $user->load(['roles.permissions', 'clinic']);
+
+        $abilities = $user->roles
+            ->flatMap(fn ($role) => $role->permissions->pluck('name'))
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $payload = array_merge($user->toArray(), ['abilities' => $abilities]);
+
         return response()->json([
             'status' => 'success',
-            'data' => Auth::user()
+            'data' => $payload
         ]);
     }
 }

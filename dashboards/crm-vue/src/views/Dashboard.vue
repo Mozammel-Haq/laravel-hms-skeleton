@@ -7,16 +7,42 @@
 
     <!-- KPI Cards -->
     <div class="row g-4 mb-4">
-      <div class="col-md-3" v-for="kpi in kpis" :key="kpi.label">
-        <div class="card border-0 shadow-sm" :style="{ background: kpi.bg }">
-          <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="text-muted fw-medium">{{ kpi.label }}</span>
-              <i class="ti fs-4" :class="kpi.icon"></i>
+      <div class="col-md-3" v-for="(kpi, idx) in kpis" :key="kpi.label">
+        <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" :class="'kpi-' + kpi.type" data-bs-theme="light,dark">
+          <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern :id="'pattern-grid-crm-' + idx" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="2" height="2" :fill="kpi.type === 'primary' ? 'var(--primary-color)' : kpi.type === 'info' ? 'var(--info-color)' : kpi.type === 'success' ? 'var(--success-color)' : 'var(--warning-color)'" fill-opacity="0.2" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" :fill="'url(#pattern-grid-crm-' + idx + ')'" />
+            </svg>
+          </div>
+          <div class="position-absolute top-0 end-0 w-25 h-25 decorative-shape"
+               :style="{ background: 'radial-gradient(circle at top right, ' + (kpi.type === 'primary' ? 'var(--primary-color)' : kpi.type === 'info' ? 'var(--info-color)' : kpi.type === 'success' ? 'var(--success-color)' : 'var(--warning-color)') + ' 0%, transparent 70%)', opacity: 0.15 }">
+          </div>
+          <div class="card-body position-relative z-1 p-4">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+              <div>
+                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">{{ kpi.label }}</h6>
+                <h2 class="fw-bold kpi-value mb-0">{{ kpi.value }}</h2>
+              </div>
+              <div class="rounded-3 p-2 kpi-icon-container"
+                   :class="['bg-' + kpi.type + '-subtle', 'border', 'border-' + kpi.type + '-subtle']">
+                <i class="ti fs-2" :class="kpi.icon"></i>
+              </div>
             </div>
-            <h2 class="mb-0">{{ kpi.value }}</h2>
-            <div class="mt-2 fs-12 text-success">
-              <i class="ti ti-trending-up"></i> {{ kpi.trend }} increase
+            <div class="border-top pt-3 mt-3 kpi-divider" :class="'border-' + kpi.type + '-subtle'">
+              <div class="d-flex align-items-center">
+                <div class="kpi-small-icon me-2"
+                     :class="['bg-' + kpi.type + '-subtle', 'border', 'border-' + kpi.type + '-subtle']">
+                  <i class="ti ti-trending-up text-success"></i>
+                </div>
+                <p class="text-muted kpi-footer mb-0">
+                  {{ kpi.trend }} increase
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -67,16 +93,9 @@ import { ref } from 'vue';
 const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
 const kpis = ref([
-  { label: 'Total Patients', value: '4,280', icon: 'ti-users', trend: '12%', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%)' },
-  { label: 'New Leads', value: '85', icon: 'ti-user-plus', trend: '8%', bg: 'linear-gradient(135deg, #f0f9f5 0%, #e6f4ec 100%)' },
-  { label: 'Conversion Rate', value: '24%', icon: 'ti-chart-arrows', trend: '5%', bg: 'linear-gradient(135deg, #fff9f0 0%, #fff4e6 100%)' },
-  { label: 'Loyalty Points', value: '125k', icon: 'ti-award', trend: '15%', bg: 'linear-gradient(135deg, #f0f9fb 0%, #e6f4f8 100%)' }
+  { label: 'Total Patients', value: '4,280', icon: 'ti-users', trend: '12%', type: 'primary' },
+  { label: 'New Leads', value: '85', icon: 'ti-user-plus', trend: '8%', type: 'success' },
+  { label: 'Conversion Rate', value: '24%', icon: 'ti-chart-arrows', trend: '5%', type: 'warning' },
+  { label: 'Loyalty Points', value: '125k', icon: 'ti-award', trend: '15%', type: 'info' }
 ]);
 </script>
-
-<style scoped>
-.fs-10 { font-size: 10px; }
-.fs-12 { font-size: 12px; }
-.fs-14 { font-size: 14px; }
-.bg-primary-subtle { background-color: #e7f1ff; }
-</style>

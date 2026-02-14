@@ -5,9 +5,84 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>crm-vue</title>
+    <script src="/assets/js/theme-script.js"></script>
+    <script>
+      window.LARAVEL_ASSET_BASE = window.LARAVEL_ASSET_BASE || '/assets';
+      const cssAssets = [
+        '/css/bootstrap.min.css',
+        '/plugins/tabler-icons/tabler-icons.min.css',
+        '/plugins/select2/css/select2.min.css',
+        '/plugins/simplebar/simplebar.min.css',
+        '/css/dataTables.bootstrap5.min.css',
+        '/css/style.css',
+      ];
+      cssAssets.forEach((p) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.crossOrigin = 'anonymous';
+        link.href = window.LARAVEL_ASSET_BASE + p;
+        document.head.appendChild(link);
+      });
+    </script>
+    <style id="kpi-styles">
+      :root {
+        --primary-color: #0d6efd;
+        --info-color: #0dcaf0;
+        --success-color: #198754;
+        --warning-color: #ffc107;
+      }
+      [data-bs-theme="dark"] {
+        --primary-color: #6ea8fe;
+        --info-color: #6edff6;
+        --success-color: #75b798;
+        --warning-color: #ffda6a;
+      }
+      .kpi-card { border: 1.5px solid; transition: all 0.3s ease; }
+      .kpi-card:hover { transform: translateY(-4px); }
+      .kpi-primary { background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%); border-color: #c2d9ff !important; }
+      .kpi-info { background: linear-gradient(135deg, #f0f9fb 0%, #e6f4f8 100%); border-color: #b6e7f2 !important; }
+      .kpi-success { background: linear-gradient(135deg, #f0f9f5 0%, #e6f4ec 100%); border-color: #b8e6cf !important; }
+      .kpi-warning { background: linear-gradient(135deg, #fff9f0 0%, #fff4e6 100%); border-color: #ffe5b6 !important; }
+      .kpi-danger { background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%); border-color: #ffc9c9 !important; }
+      [data-bs-theme="dark"] .kpi-primary { background: linear-gradient(135deg, #0d2b5c 0%, #0a1f42 100%) !important; border-color: #1e4b9e !important; }
+      [data-bs-theme="dark"] .kpi-info { background: linear-gradient(135deg, #0a3d4c 0%, #072a35 100%) !important; border-color: #166d84 !important; }
+      [data-bs-theme="dark"] .kpi-success { background: linear-gradient(135deg, #0d4229 0%, #0a2e1d 100%) !important; border-color: #157347 !important; }
+      [data-bs-theme="dark"] .kpi-warning { background: linear-gradient(135deg, #664d03 0%, #4d3a02 100%) !important; border-color: #996c00 !important; }
+      .kpi-icon-container { display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; }
+      .kpi-small-icon { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+      .kpi-divider { border-top-width: 1px !important; }
+    </style>
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      (function () {
+        const base = window.LARAVEL_ASSET_BASE || '';
+        const jsAssets = [
+          '/js/jquery-3.7.1.min.js',
+          '/js/bootstrap.bundle.min.js',
+          '/plugins/select2/js/select2.min.js',
+          '/plugins/simplebar/simplebar.min.js',
+          '/plugins/apexchart/apexcharts.min.js',
+          '/plugins/apexchart/chart-data.js',
+          '/js/moment.min.js',
+          '/plugins/daterangepicker/daterangepicker.js',
+          '/js/bootstrap-datetimepicker.min.js',
+          '/js/jquery.dataTables.min.js',
+          '/js/dataTables.bootstrap5.min.js',
+          '/js/script.js',
+        ];
+        function loadVendors() {
+          jsAssets.forEach((p) => {
+            const s = document.createElement('script');
+            s.crossOrigin = 'anonymous';
+            s.src = base + p;
+            document.body.appendChild(s);
+          });
+        }
+        window.addEventListener('load', loadVendors);
+      })();
+    </script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

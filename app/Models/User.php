@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 /**
  * User Model
  *
@@ -49,7 +50,7 @@ use Illuminate\Support\Facades\Hash;
 
 class User extends BaseTenantModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, MustVerifyEmailContract
 {
-    use AuthenticatableTrait, Authorizable, CanResetPasswordTrait, HasFactory, LogsActivity, MustVerifyEmailTrait, Notifiable, SoftDeletes;
+    use HasApiTokens, AuthenticatableTrait, Authorizable, CanResetPasswordTrait, HasFactory, LogsActivity, MustVerifyEmailTrait, Notifiable, SoftDeletes;
 
     public function getActivityDescription($action)
     {
@@ -63,6 +64,9 @@ class User extends BaseTenantModel implements AuthenticatableContract, Authoriza
      */
     protected $fillable = [
         'clinic_id',
+        'department_id',
+        'designation_id',
+        'join_date',
         'name',
         'email',
         'password',
@@ -96,9 +100,6 @@ class User extends BaseTenantModel implements AuthenticatableContract, Authoriza
         'profile_photo_url',
     ];
 
-    /**
-     * Get the URL to the user's profile photo.
-     */
     public function getProfilePhotoUrlAttribute()
     {
         return $this->profile_photo_path
@@ -106,31 +107,29 @@ class User extends BaseTenantModel implements AuthenticatableContract, Authoriza
             : asset('assets/img/users/user-01.jpg'); // Default image
     }
 
-    /**
-     * Relationships
-     */
-    /**
-     * Get the clinic associated with the user.
-     */
     public function clinic(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Clinic::class);
     }
 
-    /**
-     * Get the roles assigned to the user.
-     */
     public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'user_role');
     }
 
-    /**
-     * Get the doctor profile associated with the user (if any).
-     */
     public function doctor(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(Doctor::class);
+    }
+
+    public function department(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function designation(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Designation::class);
     }
 
     /**

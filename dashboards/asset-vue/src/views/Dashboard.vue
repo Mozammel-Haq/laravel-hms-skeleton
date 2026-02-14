@@ -7,19 +7,43 @@
 
     <!-- KPI Cards -->
     <div class="row g-4 mb-4">
-      <div class="col-md-3" v-for="kpi in kpis" :key="kpi.label">
-        <div class="card border-0 shadow-sm" :style="{ background: kpi.bg }">
-          <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="text-muted fw-medium">{{ kpi.label }}</span>
-              <i class="ti fs-4" :class="kpi.icon"></i>
+      <div class="col-md-3" v-for="(kpi, idx) in kpis" :key="kpi.label">
+        <div class="position-relative overflow-hidden rounded-4 h-100 kpi-card" :class="'kpi-' + kpi.type" data-bs-theme="light,dark">
+          <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern :id="'pattern-grid-asset-' + idx" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <rect x="0" y="0" width="2" height="2" :fill="kpi.type === 'primary' ? 'var(--primary-color)' : kpi.type === 'info' ? 'var(--info-color)' : kpi.type === 'success' ? 'var(--success-color)' : kpi.type === 'warning' ? 'var(--warning-color)' : '#dc3545'" fill-opacity="0.2" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" :fill="'url(#pattern-grid-asset-' + idx + ')'" />
+            </svg>
+          </div>
+          <div class="position-absolute top-0 end-0 w-25 h-25 decorative-shape"
+               :style="{ background: 'radial-gradient(circle at top right, ' + (kpi.type === 'primary' ? 'var(--primary-color)' : kpi.type === 'info' ? 'var(--info-color)' : kpi.type === 'success' ? 'var(--success-color)' : kpi.type === 'warning' ? 'var(--warning-color)' : '#dc3545') + ' 0%, transparent 70%)', opacity: 0.15 }">
+          </div>
+          <div class="card-body position-relative z-1 p-4">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+              <div>
+                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">{{ kpi.label }}</h6>
+                <h2 class="fw-bold kpi-value mb-0">{{ kpi.value }}</h2>
+              </div>
+              <div class="rounded-3 p-2 kpi-icon-container"
+                   :class="['bg-' + (kpi.type === 'danger' ? 'danger' : kpi.type) + '-subtle', 'border', 'border-' + (kpi.type === 'danger' ? 'danger' : kpi.type) + '-subtle']">
+                <i class="ti fs-2" :class="kpi.icon"></i>
+              </div>
             </div>
-            <h2 class="mb-0">{{ kpi.value }}</h2>
-            <div class="mt-2 fs-12 text-danger" v-if="kpi.alert">
-              <i class="ti ti-alert-triangle"></i> {{ kpi.alert }} items low
-            </div>
-            <div class="mt-2 fs-12 text-success" v-else>
-              <i class="ti ti-check"></i> All systems optimal
+            <div class="border-top pt-3 mt-3 kpi-divider" :class="'border-' + (kpi.type === 'danger' ? 'danger' : kpi.type) + '-subtle'">
+              <div class="d-flex align-items-center">
+                <div class="kpi-small-icon me-2"
+                     :class="['bg-' + (kpi.type === 'danger' ? 'danger' : kpi.type) + '-subtle', 'border', 'border-' + (kpi.type === 'danger' ? 'danger' : kpi.type) + '-subtle']">
+                  <i class="ti" :class="kpi.alert ? 'ti-alert-triangle text-danger' : 'ti-check text-success'"></i>
+                </div>
+                <p class="text-muted kpi-footer mb-0">
+                  <span v-if="kpi.alert">{{ kpi.alert }} items low</span>
+                  <span v-else>All systems optimal</span>
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -82,10 +106,10 @@ import { ref } from 'vue';
 const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
 const kpis = ref([
-  { label: 'Total Assets', value: '1,240', icon: 'ti-building-hospital', bg: 'linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%)' },
-  { label: 'Low Stock Items', value: '18', icon: 'ti-package-off', alert: '12', bg: 'linear-gradient(135deg, #fff0f0 0%, #ffe6e6 100%)' },
-  { label: 'Maintenance Due', value: '4', icon: 'ti-tools', alert: '2', bg: 'linear-gradient(135deg, #fff9f0 0%, #fff4e6 100%)' },
-  { label: 'Active Suppliers', value: '42', icon: 'ti-truck-delivery', bg: 'linear-gradient(135deg, #f0f9fb 0%, #e6f4f8 100%)' }
+  { label: 'Total Assets', value: '1,240', icon: 'ti-building-hospital', type: 'primary' },
+  { label: 'Low Stock Items', value: '18', icon: 'ti-package-off', alert: '12', type: 'danger' },
+  { label: 'Maintenance Due', value: '4', icon: 'ti-tools', alert: '2', type: 'warning' },
+  { label: 'Active Suppliers', value: '42', icon: 'ti-truck-delivery', type: 'info' }
 ]);
 
 const stock = ref([
@@ -101,9 +125,3 @@ const pos = ref([
   { id: '8823', supplier: 'SanitizePlus', status: 'In Review' }
 ]);
 </script>
-
-<style scoped>
-.fs-12 { font-size: 12px; }
-.fs-14 { font-size: 14px; }
-.bg-warning-subtle { background-color: #fff4e6; }
-</style>

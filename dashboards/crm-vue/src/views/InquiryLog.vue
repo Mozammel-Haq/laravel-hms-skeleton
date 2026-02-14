@@ -220,13 +220,3 @@ onMounted(() => {
   fetchInquiries();
 });
 </script>
-
-<style scoped>
-.modal { display: block; }
-.fs-12 { font-size: 12px; }
-.bg-info-subtle { background-color: #e0f7fa; }
-.bg-success-subtle { background-color: #e6f4ec; }
-.bg-secondary-subtle { background-color: #f8f9fa; }
-.bg-primary-subtle { background-color: #e7f1ff; }
-.bg-warning-subtle { background-color: #fff4e6; }
-</style>

@@ -28,6 +28,9 @@ class RolePermissionSeeder extends Seeder
             // Dashboard
             'view_dashboard',
             'view_admin_dashboard',
+            'view_hrm_dashboard',
+            'view_crm_dashboard',
+            'view_asset_dashboard',
             'view_doctor_dashboard',
             'view_nurse_dashboard',
             'view_receptionist_dashboard',
