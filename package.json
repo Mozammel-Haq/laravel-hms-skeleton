@@ -10,9 +10,17 @@
         "@tailwindcss/forms": "^0.5.2",
         "@tailwindcss/vite": "^4.0.0",
         "alpinejs": "^3.4.2",
-        "axios": "^1.11.0",
+        "axios": "^1.13.5",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^2.0.0",
         "vite": "^7.0.7"
+    },
+    "dependencies": {
+        "@popperjs/core": "^2.11.8",
+        "@tabler/icons-vue": "^3.36.1",
+        "bootstrap": "^5.3.8",
+        "pinia": "^3.0.4",
+        "sass": "^1.97.3",
+        "vue-router": "^5.0.2"
     }
 }

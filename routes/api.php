@@ -14,6 +14,10 @@ use App\Http\Controllers\Api\PatientNotificationController;
 use App\Http\Controllers\Api\PatientProfileController;
 use App\Http\Controllers\Api\PrescriptionApiController;
 use App\Http\Controllers\Api\VitalsApiController;
+use App\Http\Controllers\Api\V2\StaffController;
+use App\Http\Controllers\Api\V2\InquiryController;
+use App\Http\Controllers\Api\V2\ProcurementController;
+use App\Http\Controllers\Api\V2\StaffAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -77,5 +81,30 @@ Route::prefix('patient')->group(function () {
 
         Route::post('change-password', [PatientAuthController::class, 'changePassword']);
         Route::put('profile/update/{id}', [PatientProfileController::class, 'update']);
+    });
+});
+
+// Dashboard API v2 (Non-destructive)
+Route::prefix('v2')->group(function () {
+    // Auth
+    Route::post('login', [StaffAuthController::class, 'login']);
+    Route::post('logout', [StaffAuthController::class, 'logout'])->middleware('auth:sanctum');
+
+    Route::middleware(['auth:sanctum', 'api.tenant'])->group(function () {
+        Route::get('me', [StaffController::class, 'me']);
+
+        // HRM
+        Route::get('staff', [StaffController::class, 'index']);
+
+        // CRM
+        Route::get('inquiries', [InquiryController::class, 'index']);
+        Route::post('inquiries', [InquiryController::class, 'store']);
+        Route::patch('inquiries/{inquiry}', [InquiryController::class, 'update']);
+
+        // Asset Management
+        Route::get('inventory', [ProcurementController::class, 'inventory']);
+        Route::get('procurements', [ProcurementController::class, 'index']);
+        Route::post('procurements', [ProcurementController::class, 'store']);
+        Route::post('procurements/{order}/receive', [ProcurementController::class, 'receive']);
     });
 });
