@@ -15,7 +15,7 @@
       <button class="sidenav-toggle-btn btn border-0 p-0 active" id="toggle_btn" @click="$emit('toggle')">
         <i class="ti ti-arrow-left text-body"></i>
       </button>
-      <button class="sidebar-close">
+      <button class="sidebar-close" @click="closeMobileSidebar">
         <i class="ti ti-x align-middle"></i>
       </button>
     </div>
@@ -50,7 +50,7 @@
           <li class="submenu">
             <a href="#"><i class="ti ti-users"></i><span>Employees</span><span class="menu-arrow"></span></a>
             <ul>
-              <li><router-link to="/hr/employees" active-class="active" exact-active-class="active">Directory</router-link></li>
+              <li><router-link to="/staff" active-class="active" exact-active-class="active">Directory</router-link></li>
               <li><router-link to="/hr/departments" active-class="active" exact-active-class="active">Departments</router-link></li>
               <li><router-link to="/hr/designations" active-class="active" exact-active-class="active">Designations</router-link></li>
               <li><router-link to="/hr/shifts" active-class="active" exact-active-class="active">Shifts</router-link></li>
@@ -154,9 +154,79 @@
 </template>
 
 <script setup>
+import { onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 const assetBase = window.LARAVEL_ASSET_BASE || '/assets';
 defineProps({
   isCollapsed: Boolean
 });
 defineEmits(['toggle']);
+const route = useRoute();
+
+const closeMobileSidebar = () => {
+  const wrapper = document.querySelector('.main-wrapper');
+  if (wrapper) {
+    wrapper.classList.remove('slide-nav');
+  }
+  const overlay = document.querySelector('.sidebar-overlay');
+  if (overlay) {
+    overlay.classList.remove('opened');
+  }
+  document.documentElement.classList.remove('menu-opened');
+};
+
+onMounted(() => {
+  const container = document.querySelector('#sidebar-menu');
+  if (!container) return;
+  container.querySelectorAll('li.submenu > a[href="#"], li.submenu > a:not([href])').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === 'function') {
+        e.stopImmediatePropagation();
+      }
+      const link = e.currentTarget;
+      const openSiblings = link.closest('ul')?.querySelectorAll('a.subdrop') || [];
+      openSiblings.forEach((el) => {
+        if (el !== link) {
+          el.classList.remove('subdrop');
+          const ul = el.nextElementSibling;
+          if (ul && ul.tagName === 'UL') {
+            ul.style.display = 'none';
+          }
+        }
+      });
+      link.classList.toggle('subdrop');
+      const next = link.nextElementSibling;
+      if (next && next.tagName === 'UL') {
+        if (link.classList.contains('subdrop')) {
+          next.style.display = 'block';
+        } else {
+          next.style.display = 'none';
+        }
+      }
+    });
+  });
+  const expandActiveSections = () => {
+    container.querySelectorAll('li.submenu').forEach((li) => {
+      const anchor = li.querySelector(':scope > a');
+      const ul = li.querySelector(':scope > ul');
+      let activeChild = false;
+      li.querySelectorAll(':scope ul a.router-link-active, :scope ul a.active').forEach(() => {
+        activeChild = true;
+      });
+      if (activeChild && anchor && ul) {
+        anchor.classList.add('subdrop', 'active');
+        ul.style.display = 'block';
+      } else if (anchor && ul) {
+        if (!anchor.matches(':focus')) {
+          anchor.classList.remove('subdrop');
+          ul.style.display = 'none';
+        }
+      }
+    });
+  };
+  expandActiveSections();
+  watch(() => route.path, () => expandActiveSections());
+});
 </script>

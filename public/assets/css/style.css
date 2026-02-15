@@ -12923,7 +12923,7 @@ Author URL: https://themeforest.net/user/dreamstechnologies
     bottom: 0px;
     right: 0px;
 }
-.auth-bg .login-backgrounds .authentication-card {
+/* .auth-bg .login-backgrounds .authentication-card {
     padding: 10px 40px;
 }
 .auth-bg .login-backgrounds .authentication-card .authen-overlay-item {
@@ -12933,7 +12933,7 @@ Author URL: https://themeforest.net/user/dreamstechnologies
     z-index: 1;
     backdrop-filter: blur(13px);
     border: 1px solid rgba(6, 174, 212, 0.7019607843);
-}
+} */
 .auth-bg
     .login-backgrounds
     .authentication-card

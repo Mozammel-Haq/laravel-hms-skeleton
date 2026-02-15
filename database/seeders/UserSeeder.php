@@ -49,6 +49,11 @@ class UserSeeder extends Seeder
                 'role' => 'Clinic Admin',
             ],
             [
+                'name' => 'HR Admin',
+                'email' => 'hr@hospital.com',
+                'role' => 'HR Admin',
+            ],
+            [
                 'name' => 'Default Doctor',
                 'email' => 'doctor@hospital.com',
                 'role' => 'Doctor',

@@ -12,7 +12,7 @@
           </span>
         </a>
 
-        <a id="mobile_btn" class="mobile-btn" href="#sidebar">
+        <a id="mobile_btn" class="mobile-btn" href="#sidebar" @click.prevent="handleMobileToggle">
           <i class="ti ti-menu-deep fs-24"></i>
         </a>
 
@@ -62,7 +62,7 @@
         </div>
 
         <div class="header-item d-flex me-2">
-          <button class="topbar-link btn btn-icon topbar-link" id="light-dark-mode" type="button">
+          <button class="topbar-link btn btn-icon topbar-link" id="light-dark-mode" type="button" @click="toggleTheme">
             <i class="ti ti-moon fs-16"></i>
           </button>
         </div>
@@ -112,6 +112,7 @@
 import { useAuthStore } from '../../store/authStore';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { onMounted } from 'vue';
 
 const auth = useAuthStore();
 const assetBase = window.LARAVEL_ASSET_BASE || '/assets';
@@ -136,4 +137,42 @@ const handleLogout = async () => {
 
 const clinicName = computed(() => auth.user?.clinic?.name || 'Dhaka Medical Center');
 const clinicBranch = computed(() => auth.user?.clinic?.branch_name || 'Main Branch');
+
+const toggleTheme = () => {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-bs-theme') || 'light';
+  const next = current === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-bs-theme', next);
+  try {
+    const key = '__THEME_CONFIG__';
+    const cfg = sessionStorage.getItem(key);
+    const obj = cfg ? JSON.parse(cfg) : {};
+    obj.theme = next;
+    sessionStorage.setItem(key, JSON.stringify(obj));
+    window.config = Object.assign({}, window.config || {}, { theme: next });
+  } catch (_) {}
+};
+
+const handleMobileToggle = () => {
+  const wrapper = document.querySelector('.main-wrapper');
+  if (wrapper) {
+    wrapper.classList.toggle('slide-nav');
+  }
+  let overlay = document.querySelector('.sidebar-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+  }
+  overlay.classList.toggle('opened');
+  document.documentElement.classList.add('menu-opened');
+};
+
+onMounted(() => {
+  const html = document.documentElement;
+  const w = window.innerWidth;
+  if (w <= 767.98) {
+    html.setAttribute('data-layout', 'full-width');
+  }
+});
 </script>

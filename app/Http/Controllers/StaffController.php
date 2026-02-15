@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Hash;
  */
 class StaffController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:view_staff')->only(['index', 'show', 'passwords']);
+        $this->middleware('can:create_staff')->only(['create', 'store']);
+        $this->middleware('can:edit_staff')->only(['edit', 'update']);
+        $this->middleware('can:delete_staff')->only(['destroy', 'restore']);
+    }
+
     /**
      * Display a listing of staff members.
      *
@@ -27,7 +35,14 @@ class StaffController extends Controller
     public function index()
     {
         Gate::authorize('viewAny', User::class);
-        $query = User::with('roles');
+        $currentUser = auth()->user();
+        $query = User::with('roles')->where('clinic_id', $currentUser->clinic_id);
+
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            $query->whereDoesntHave('roles', function ($q) {
+                $q->whereIn('name', ['Super Admin', 'Clinic Admin', 'Admin']);
+            });
+        }
 
         if (request('status') === 'trashed') {
             $query->onlyTrashed()->latest();
@@ -72,6 +87,12 @@ class StaffController extends Controller
     public function restore($id)
     {
         $user = User::withTrashed()->findOrFail($id);
+        $currentUser = auth()->user();
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            if ($user->roles()->whereIn('name', ['Super Admin', 'Clinic Admin', 'Admin'])->exists()) {
+                abort(403);
+            }
+        }
         Gate::authorize('delete', $user); // Use delete permission for restore
         $user->restore();
         $user->update(['status' => 'active']); // Restore status as well if needed
@@ -87,7 +108,12 @@ class StaffController extends Controller
     public function create()
     {
         Gate::authorize('create', User::class);
-        $roles = Role::all();
+        $currentUser = auth()->user();
+        $rolesQuery = Role::query();
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            $rolesQuery->whereNotIn('name', ['Super Admin', 'Clinic Admin', 'Admin']);
+        }
+        $roles = $rolesQuery->get();
 
         return view('staff.create', compact('roles'));
     }
@@ -109,11 +135,13 @@ class StaffController extends Controller
             'profile_photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        $currentUser = auth()->user();
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'clinic_id' => auth()->user()->clinic_id,
+            'clinic_id' => $currentUser->clinic_id,
         ]);
 
         if ($request->hasFile('profile_photo')) {
@@ -123,6 +151,11 @@ class StaffController extends Controller
         }
 
         $role = Role::find($request->role_id);
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            if (in_array($role->name, ['Super Admin', 'Clinic Admin', 'Admin'], true)) {
+                abort(403);
+            }
+        }
         $user->assignRole($role);
 
         return redirect()->route('staff.index')->with('success', 'Staff member created successfully.');
@@ -149,7 +182,18 @@ class StaffController extends Controller
     public function edit(User $staff)
     {
         Gate::authorize('update', $staff);
-        $roles = Role::all();
+        $currentUser = auth()->user();
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            if ($staff->roles()->whereIn('name', ['Super Admin', 'Clinic Admin', 'Admin'])->exists()) {
+                abort(403);
+            }
+        }
+
+        $rolesQuery = Role::query();
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            $rolesQuery->whereNotIn('name', ['Super Admin', 'Clinic Admin', 'Admin']);
+        }
+        $roles = $rolesQuery->get();
 
         return view('staff.edit', compact('staff', 'roles'));
     }
@@ -169,6 +213,13 @@ class StaffController extends Controller
             'profile_photo' => 'nullable|image|max:2048',
         ]);
 
+        $currentUser = auth()->user();
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            if ($staff->roles()->whereIn('name', ['Super Admin', 'Clinic Admin', 'Admin'])->exists()) {
+                abort(403);
+            }
+        }
+
         $staff->update(['name' => $request->name]);
 
         if ($request->hasFile('profile_photo')) {
@@ -182,7 +233,13 @@ class StaffController extends Controller
             $staff->save();
         }
 
-        $staff->roles()->sync([$request->role_id]);
+        $role = Role::find($request->role_id);
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            if (in_array($role->name, ['Super Admin', 'Clinic Admin', 'Admin'], true)) {
+                abort(403);
+            }
+        }
+        $staff->roles()->sync([$role->id]);
 
         return redirect()->route('staff.index')->with('success', 'Staff member updated successfully.');
     }
@@ -194,6 +251,12 @@ class StaffController extends Controller
      */
     public function destroy(User $staff)
     {
+        $currentUser = auth()->user();
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            if ($staff->roles()->whereIn('name', ['Super Admin', 'Clinic Admin', 'Admin'])->exists()) {
+                abort(403);
+            }
+        }
         Gate::authorize('delete', $staff);
         $staff->update(['status' => 'inactive']);
         $staff->delete();
@@ -209,12 +272,16 @@ class StaffController extends Controller
     public function passwords()
     {
         Gate::authorize('viewAny', User::class);
-        $staff = User::with('roles')
-            ->whereHas('roles', function ($q) {
-                $q->where('name', '!=', 'Super Admin');
-            })
-            ->orderBy('name')
-            ->paginate(20);
+        $currentUser = auth()->user();
+        $staffQuery = User::with('roles')->orderBy('name');
+
+        if (! $currentUser->hasRole('Super Admin') && ! $currentUser->hasRole('Clinic Admin') && ! $currentUser->hasRole('Admin')) {
+            $staffQuery->whereDoesntHave('roles', function ($q) {
+                $q->whereIn('name', ['Super Admin', 'Clinic Admin', 'Admin']);
+            });
+        }
+
+        $staff = $staffQuery->paginate(20);
 
         return view('staff.passwords', compact('staff'));
     }

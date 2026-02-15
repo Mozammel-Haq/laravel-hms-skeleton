@@ -97,6 +97,10 @@ Route::prefix('v2')->group(function () {
 
         // HRM
         Route::get('staff', [StaffController::class, 'index']);
+        Route::get('staff/{staff}', [StaffController::class, 'show']);
+        Route::post('staff', [StaffController::class, 'store']);
+        Route::put('staff/{staff}', [StaffController::class, 'update']);
+        Route::delete('staff/{staff}', [StaffController::class, 'destroy']);
         Route::apiResource('departments', ApiDepartmentController::class)->only(['index','store','update','destroy']);
         Route::apiResource('designations', ApiDesignationController::class)->only(['index','store','update','destroy']);
         // Leaves (Pilot placeholders)

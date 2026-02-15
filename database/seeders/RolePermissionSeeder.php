@@ -240,5 +240,21 @@ class RolePermissionSeeder extends Seeder
             'view_reports',
             'view_financial_reports',
         ])->pluck('id'));
+
+        // HR Admin
+        $hrAdmin = Role::firstOrCreate(['name' => 'HR Admin', 'description' => 'Human Resources Admin']);
+        $hrAdmin->permissions()->sync(Permission::whereIn('name', [
+            'view_dashboard',
+            'view_hrm_dashboard',
+            'view_staff',
+            'create_staff',
+            'edit_staff',
+            'delete_staff',
+            'view_departments',
+            'create_departments',
+            'edit_departments',
+            'delete_departments',
+            'view_reports',
+        ])->pluck('id'));
     }
 }
