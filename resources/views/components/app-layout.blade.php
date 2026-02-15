@@ -414,7 +414,6 @@
     <!-- Your custom scripts -->
     <script src="{{ asset('assets') }}/js/script.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="{{ asset('assets') }}/js/rocket-loader.min.js" defer></script>
     @stack('scripts')
 
     <script>

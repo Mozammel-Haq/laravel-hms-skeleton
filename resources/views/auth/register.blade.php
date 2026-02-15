@@ -6,7 +6,7 @@
     <!-- Meta Tags -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Register Illustration Form | Preclinic - Medical & Hospital - Bootstrap 5 Admin Template</title>
+    <title>Register | CityCare - Medical & Hospital Service</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Dreams Technologies">
 
@@ -214,7 +214,7 @@
                                         </div><!-- end card -->
                                     </div>
                                 </form>
-                                <p class="text-dark text-center">Copyright &copy; 2025 - Preclinic.</p>
+                                <p class="text-dark text-center">Copyright &copy; {{ date('Y') }} CityCare.</p>
                             </div> <!-- end row-->
                         </div>
                     </div>
@@ -230,16 +230,13 @@
 
 
     <!-- jQuery -->
-    <script src="{{asset('assets')}}/js/jquery-3.7.1.min.js" type="4db7f0863ce025f613364f40-text/javascript"></script>
+    <script src="{{ asset('assets') }}/js/jquery-3.7.1.min.js"></script>
 
     <!-- Bootstrap Core JS -->
-    <script src="{{asset('assets')}}/js/bootstrap.bundle.min.js" type="4db7f0863ce025f613364f40-text/javascript"></script>
+    <script src="{{ asset('assets') }}/js/bootstrap.bundle.min.js"></script>
 
     <!-- Main JS -->
-    <script src="{{asset('assets')}}/js/script.js" type="4db7f0863ce025f613364f40-text/javascript"></script>
-
-    <script src="{{ asset('assets') }}/js/rocket-loader.min.js" data-cf-settings="4db7f0863ce025f613364f40-|49" defer>
-    </script>
+    <script src="{{ asset('assets') }}/js/script.js"></script>
 </body>
 
 </html>

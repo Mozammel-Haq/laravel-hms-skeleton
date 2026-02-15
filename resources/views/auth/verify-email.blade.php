@@ -6,7 +6,7 @@
     <!-- Meta Tags -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Verify Email | Preclinic - Medical & Hospital</title>
+    <title>Verify Email | CityCare - Medical & Hospital Service</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Dreams Technologies">
 
@@ -107,7 +107,7 @@
                                 </div>
 
                                 <div class="text-center mt-4 text-muted small">
-                                    &copy; {{ date('Y') }} Preclinic. All rights reserved.
+                                    &copy; {{ date('Y') }} CityCare. All rights reserved.
                                 </div>
 
                             </div>
