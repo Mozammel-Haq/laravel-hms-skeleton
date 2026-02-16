@@ -47,7 +47,8 @@
           </li>
 
           <li class="menu-title"><span>Human Resources</span></li>
-          <li class="submenu">
+
+          <li class="submenu" v-if="canViewEmployees">
             <a href="#"><i class="ti ti-users"></i><span>Employees</span><span class="menu-arrow"></span></a>
             <ul>
               <li><router-link to="/staff" active-class="active" exact-active-class="active">Directory</router-link></li>
@@ -58,7 +59,7 @@
             </ul>
           </li>
 
-          <li class="submenu">
+          <li class="submenu" v-if="canViewAttendance">
             <a href="#"><i class="ti ti-fingerprint"></i><span>Attendance</span><span class="menu-arrow"></span></a>
             <ul>
               <li><router-link to="/hr/attendance" active-class="active" exact-active-class="active">Daily Attendance</router-link></li>
@@ -73,14 +74,14 @@
             <a href="#"><i class="ti ti-plane"></i><span>Leaves</span><span class="menu-arrow"></span></a>
             <ul>
               <li><router-link to="/hr/leaves/requests" active-class="active" exact-active-class="active">Requests</router-link></li>
-              <li><router-link to="/hr/leaves/approvals" active-class="active" exact-active-class="active">Approvals</router-link></li>
-              <li><router-link to="/hr/leaves/calendar" active-class="active" exact-active-class="active">Leave Calendar</router-link></li>
-              <li><router-link to="/hr/leaves/types" active-class="active" exact-active-class="active">Leave Types</router-link></li>
-              <li><router-link to="/hr/leaves/accruals" active-class="active" exact-active-class="active">Accruals</router-link></li>
+              <li v-if="canManageLeaves"><router-link to="/hr/leaves/approvals" active-class="active" exact-active-class="active">Approvals</router-link></li>
+              <li v-if="canManageLeaves"><router-link to="/hr/leaves/calendar" active-class="active" exact-active-class="active">Leave Calendar</router-link></li>
+              <li v-if="canManageLeaves"><router-link to="/hr/leaves/types" active-class="active" exact-active-class="active">Leave Types</router-link></li>
+              <li v-if="canManageLeaves"><router-link to="/hr/leaves/accruals" active-class="active" exact-active-class="active">Accruals</router-link></li>
             </ul>
           </li>
 
-          <li class="submenu">
+          <li class="submenu" v-if="canViewPayroll">
             <a href="#"><i class="ti ti-cash"></i><span>Payroll</span><span class="menu-arrow"></span></a>
             <ul>
               <li><router-link to="/hr/payroll/runs" active-class="active" exact-active-class="active">Payroll Runs</router-link></li>
@@ -92,7 +93,7 @@
             </ul>
           </li>
 
-          <li class="submenu">
+          <li class="submenu" v-if="canViewRecruitment">
             <a href="#"><i class="ti ti-briefcase"></i><span>Recruitment</span><span class="menu-arrow"></span></a>
             <ul>
               <li><router-link to="/hr/recruitment/jobs" active-class="active" exact-active-class="active">Job Posts</router-link></li>
@@ -103,7 +104,7 @@
             </ul>
           </li>
 
-          <li class="submenu">
+          <li class="submenu" v-if="canViewTraining">
             <a href="#"><i class="ti ti-school"></i><span>Training</span><span class="menu-arrow"></span></a>
             <ul>
               <li><router-link to="/hr/training/courses" active-class="active" exact-active-class="active">Courses</router-link></li>
@@ -112,7 +113,7 @@
             </ul>
           </li>
 
-          <li class="submenu">
+          <li class="submenu" v-if="canViewPerformance">
             <a href="#"><i class="ti ti-target"></i><span>Performance</span><span class="menu-arrow"></span></a>
             <ul>
               <li><router-link to="/hr/performance/kpis" active-class="active" exact-active-class="active">KPIs</router-link></li>
@@ -122,7 +123,7 @@
             </ul>
           </li>
 
-          <li class="submenu">
+          <li class="submenu" v-if="canViewCompliance">
             <a href="#"><i class="ti ti-file-text"></i><span>Compliance</span><span class="menu-arrow"></span></a>
             <ul>
               <li><router-link to="/hr/compliance/policies" active-class="active" exact-active-class="active">Policies</router-link></li>
@@ -131,16 +132,7 @@
             </ul>
           </li>
 
-          <li class="submenu">
-            <a href="#"><i class="ti ti-report-analytics"></i><span>Reports</span><span class="menu-arrow"></span></a>
-            <ul>
-              <li><router-link to="/hr/reports/attendance" active-class="active" exact-active-class="active">Attendance</router-link></li>
-              <li><router-link to="/hr/reports/payroll" active-class="active" exact-active-class="active">Payroll</router-link></li>
-              <li><router-link to="/hr/reports/recruitment" active-class="active" exact-active-class="active">Recruitment</router-link></li>
-            </ul>
-          </li>
-
-          <li class="submenu">
+          <li class="submenu" v-if="canManageHrSettings">
             <a href="#"><i class="ti ti-settings"></i><span>HR Settings</span><span class="menu-arrow"></span></a>
             <ul>
               <li><router-link to="/hr/settings" active-class="active" exact-active-class="active">General</router-link></li>
@@ -154,14 +146,29 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useAuthStore } from '../../store/authStore';
 const assetBase = window.LARAVEL_ASSET_BASE || '/assets';
 defineProps({
   isCollapsed: Boolean
 });
 defineEmits(['toggle']);
 const route = useRoute();
+const auth = useAuthStore();
+
+const abilities = computed(() => Array.isArray(auth.user?.abilities) ? auth.user.abilities : []);
+const has = (perm) => abilities.value.includes(perm);
+
+const canViewEmployees = computed(() => has('view_staff'));
+const canViewAttendance = computed(() => has('view_hrm_dashboard') && has('view_staff'));
+const canManageLeaves = computed(() => has('manage_leaves'));
+const canViewPayroll = computed(() => has('view_reports'));
+const canViewRecruitment = computed(() => has('view_reports'));
+const canViewTraining = computed(() => has('view_reports'));
+const canViewPerformance = computed(() => has('view_reports'));
+const canViewCompliance = computed(() => has('view_reports'));
+const canManageHrSettings = computed(() => has('manage_roles') || has('manage_clinic_settings'));
 
 const closeMobileSidebar = () => {
   const wrapper = document.querySelector('.main-wrapper');

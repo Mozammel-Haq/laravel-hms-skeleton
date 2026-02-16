@@ -1,12 +1,27 @@
 <template>
   <div class="staff-view-page">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <button class="btn btn-link px-0 me-2" @click="goBack">
-          <i class="ti ti-arrow-left"></i>
+    <div class="card p-3 mb-3 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-3 pb-3 rounded-3 mb-0">
+        <div>
+          <h5 class="fw-bold mb-1 text-primary">Staff Profile</h5>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-dots mb-0 text-muted small">
+              <li class="breadcrumb-item">
+                <router-link to="/">Dashboard</router-link>
+              </li>
+              <li class="breadcrumb-item">
+                <router-link :to="{ name: 'StaffDirectory' }">Staff</router-link>
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">
+                {{ staff?.name || 'Profile' }}
+              </li>
+            </ol>
+          </nav>
+        </div>
+        <button class="btn btn-sm btn-outline-primary" @click="goBack">
+          <i class="ti ti-arrow-left me-1"></i>
           Back to Directory
         </button>
-        <h4 class="mb-0">Staff Profile</h4>
       </div>
     </div>
 

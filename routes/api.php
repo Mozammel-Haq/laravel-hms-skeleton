@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V2\DepartmentController as ApiDepartmentController;
 use App\Http\Controllers\Api\V2\DesignationController as ApiDesignationController;
 use App\Http\Controllers\Api\V2\InquiryController;
 use App\Http\Controllers\Api\V2\ProcurementController;
+use App\Http\Controllers\Api\V2\LeaveRequestController;
 use App\Http\Controllers\Api\V2\StaffAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -103,21 +104,10 @@ Route::prefix('v2')->group(function () {
         Route::delete('staff/{staff}', [StaffController::class, 'destroy']);
         Route::apiResource('departments', ApiDepartmentController::class)->only(['index','store','update','destroy']);
         Route::apiResource('designations', ApiDesignationController::class)->only(['index','store','update','destroy']);
-        // Leaves (Pilot placeholders)
-        Route::get('leaves', function (\Illuminate\Http\Request $request) {
-            return response()->json([
-                'data' => [
-                    ['id' => 1, 'employee_id' => 101, 'employee' => ['name' => 'John Doe'], 'type' => 'annual', 'start_date' => now()->toDateString(), 'end_date' => now()->addDays(3)->toDateString(), 'status' => 'pending', 'days' => 4],
-                    ['id' => 2, 'employee_id' => 102, 'employee' => ['name' => 'Jane Smith'], 'type' => 'sick', 'start_date' => now()->subDays(2)->toDateString(), 'end_date' => now()->addDay()->toDateString(), 'status' => 'approved', 'days' => 4],
-                ]
-            ]);
-        });
-        Route::post('leaves', function (\Illuminate\Http\Request $request) {
-            return response()->json(['message' => 'Leave request submitted'], 201);
-        });
-        Route::patch('leaves/{leave}', function (\Illuminate\Http\Request $request, $leave) {
-            return response()->json(['message' => 'Leave status updated', 'id' => (int) $leave]);
-        });
+        Route::get('leaves', [LeaveRequestController::class, 'index']);
+        Route::post('leaves', [LeaveRequestController::class, 'store']);
+        Route::get('leaves/{leave}', [LeaveRequestController::class, 'show']);
+        Route::patch('leaves/{leave}', [LeaveRequestController::class, 'update']);
 
         // CRM
         Route::get('inquiries', [InquiryController::class, 'index']);

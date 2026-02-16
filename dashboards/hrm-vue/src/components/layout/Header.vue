@@ -12,7 +12,7 @@
           </span>
         </a>
 
-        <a id="mobile_btn" class="mobile-btn" href="#sidebar" @click.prevent="handleMobileToggle">
+        <a id="mobile_btn" class="mobile-btn" href="#sidebar">
           <i class="ti ti-menu-deep fs-24"></i>
         </a>
 
@@ -70,11 +70,24 @@
 
 
         <div class="header-item">
-          <div class="dropdown me-3">
-            <button class="topbar-link btn btn-icon topbar-link dropdown-toggle drop-arrow-none" data-bs-toggle="dropdown" data-bs-offset="0,24" type="button" aria-haspopup="false" aria-expanded="false">
+          <div class="dropdown me-3" ref="notificationsDropdown">
+            <button
+              class="topbar-link btn btn-icon topbar-link dropdown-toggle drop-arrow-none"
+              type="button"
+              @click.stop="toggleNotificationsMenu"
+              :aria-expanded="showNotificationsMenu ? 'true' : 'false'"
+            >
               <i class="ti ti-bell-check fs-16"></i>
             </button>
-            <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg" style="min-height: 200px;">
+            <div
+              class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg"
+              :class="{ show: showNotificationsMenu }"
+              :style="Object.assign(
+                { minHeight: '200px' },
+                showNotificationsMenu ? { display: 'block' } : { display: 'none' },
+                notificationsMenuStyle
+              )"
+            >
               <div class="p-2 border-bottom">
                 <div class="row align-items-center">
                   <div class="col">
@@ -89,14 +102,23 @@
           </div>
         </div>
 
-        <div class="dropdown">
-          <button class="btn border-0 d-flex align-items-center" type="button" data-bs-toggle="dropdown">
+        <div class="dropdown" ref="profileDropdown">
+          <button
+            class="btn border-0 d-flex align-items-center"
+            type="button"
+            @click.stop="toggleProfileMenu"
+            :aria-expanded="showProfileMenu ? 'true' : 'false'"
+          >
             <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
               {{ getInitials(auth.user?.name) }}
             </div>
             <span class="ms-2 d-none d-md-inline">{{ auth.user?.name || 'Loading...' }}</span>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+          <ul
+            class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+            :class="{ show: showProfileMenu }"
+            :style="{ display: showProfileMenu ? 'block' : 'none' }"
+          >
             <li><a class="dropdown-item" href="#">Profile</a></li>
             <li><a class="dropdown-item" href="#">Settings</a></li>
             <li><hr class="dropdown-divider"></li>
@@ -110,13 +132,18 @@
 
 <script setup>
 import { useAuthStore } from '../../store/authStore';
-import { computed } from 'vue';
+import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import { onMounted } from 'vue';
 
 const auth = useAuthStore();
 const assetBase = window.LARAVEL_ASSET_BASE || '/assets';
 const router = useRouter();
+
+const showNotificationsMenu = ref(false);
+const showProfileMenu = ref(false);
+const notificationsDropdown = ref(null);
+const profileDropdown = ref(null);
+const notificationsMenuStyle = ref({});
 
 defineProps({
   isCollapsed: Boolean
@@ -138,7 +165,60 @@ const handleLogout = async () => {
 const clinicName = computed(() => auth.user?.clinic?.name || 'Dhaka Medical Center');
 const clinicBranch = computed(() => auth.user?.clinic?.branch_name || 'Main Branch');
 
-const toggleTheme = () => {
+const repositionNotificationsMenu = async () => {
+  await nextTick();
+  const root = notificationsDropdown.value;
+  if (!root) {
+    notificationsMenuStyle.value = {};
+    return;
+  }
+  const menu = root.querySelector('.dropdown-menu');
+  if (!menu) {
+    notificationsMenuStyle.value = {};
+    return;
+  }
+  const rect = menu.getBoundingClientRect();
+  const overflowRight = rect.right - window.innerWidth;
+  if (overflowRight > 0) {
+    notificationsMenuStyle.value = { marginLeft: `-${overflowRight + 8}px` };
+  } else {
+    notificationsMenuStyle.value = {};
+  }
+};
+
+const toggleNotificationsMenu = async () => {
+  const next = !showNotificationsMenu.value;
+  showNotificationsMenu.value = next;
+  if (next) {
+    showProfileMenu.value = false;
+    await repositionNotificationsMenu();
+  } else {
+    notificationsMenuStyle.value = {};
+  }
+};
+
+const toggleProfileMenu = () => {
+  showProfileMenu.value = !showProfileMenu.value;
+  if (showProfileMenu.value) {
+    showNotificationsMenu.value = false;
+  }
+};
+
+const handleClickOutside = (e) => {
+  const target = e.target;
+  const notifEl = notificationsDropdown.value;
+  const profileEl = profileDropdown.value;
+  const insideNotif = notifEl && notifEl.contains(target);
+  const insideProfile = profileEl && profileEl.contains(target);
+  if (!insideNotif) {
+    showNotificationsMenu.value = false;
+  }
+  if (!insideProfile) {
+    showProfileMenu.value = false;
+  }
+};
+
+const toggleTheme = async () => {
   const html = document.documentElement;
   const current = html.getAttribute('data-bs-theme') || 'light';
   const next = current === 'light' ? 'dark' : 'light';
@@ -151,21 +231,9 @@ const toggleTheme = () => {
     sessionStorage.setItem(key, JSON.stringify(obj));
     window.config = Object.assign({}, window.config || {}, { theme: next });
   } catch (_) {}
-};
-
-const handleMobileToggle = () => {
-  const wrapper = document.querySelector('.main-wrapper');
-  if (wrapper) {
-    wrapper.classList.toggle('slide-nav');
+  if (showNotificationsMenu.value) {
+    await repositionNotificationsMenu();
   }
-  let overlay = document.querySelector('.sidebar-overlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.className = 'sidebar-overlay';
-    document.body.appendChild(overlay);
-  }
-  overlay.classList.toggle('opened');
-  document.documentElement.classList.add('menu-opened');
 };
 
 onMounted(() => {
@@ -174,5 +242,10 @@ onMounted(() => {
   if (w <= 767.98) {
     html.setAttribute('data-layout', 'full-width');
   }
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>

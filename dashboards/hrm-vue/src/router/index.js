@@ -24,7 +24,11 @@ const routes = [
   },
   {
     path: '/leaves',
-    name: 'Leaves',
+    redirect: '/hr/leaves/requests'
+  },
+  {
+    path: '/hr/leaves/requests',
+    name: 'LeaveRequests',
     component: () => import('../views/Leaves.vue')
   },
   {

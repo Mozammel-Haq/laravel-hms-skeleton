@@ -68,11 +68,12 @@ class RolePermissionSeeder extends Seeder
             'manage_doctor_schedule',
             'manage_doctor_clinic_assignments',
 
-            // Staff Management
+            // Staff Management & HR
             'view_staff',
             'create_staff',
             'edit_staff',
             'delete_staff',
+            'manage_leaves',
 
             // Appointment Management
             'view_appointments',
@@ -151,6 +152,7 @@ class RolePermissionSeeder extends Seeder
         $doctor = Role::firstOrCreate(['name' => 'Doctor', 'description' => 'Medical Doctor']);
         $doctor->permissions()->sync(Permission::whereIn('name', [
             'view_dashboard',
+            'view_hrm_dashboard',
             'view_doctor_dashboard',
             'view_patients',
             'edit_patients', // Doctors need to edit patient medical history
@@ -170,6 +172,7 @@ class RolePermissionSeeder extends Seeder
         $nurse = Role::firstOrCreate(['name' => 'Nurse', 'description' => 'IPD Nurse']);
         $nurse->permissions()->sync(Permission::whereIn('name', [
             'view_dashboard',
+            'view_hrm_dashboard',
             'view_nurse_dashboard',
             'view_patients',
             'view_ipd',
@@ -183,6 +186,7 @@ class RolePermissionSeeder extends Seeder
         $receptionist = Role::firstOrCreate(['name' => 'Receptionist', 'description' => 'Front Desk']);
         $receptionist->permissions()->sync(Permission::whereIn('name', [
             'view_dashboard',
+            'view_hrm_dashboard',
             'view_receptionist_dashboard',
             'view_patients',
             'create_patients',
@@ -204,6 +208,7 @@ class RolePermissionSeeder extends Seeder
         $labTech = Role::firstOrCreate(['name' => 'Lab Technician', 'description' => 'Lab Staff']);
         $labTech->permissions()->sync(Permission::whereIn('name', [
             'view_dashboard',
+            'view_hrm_dashboard',
             'view_lab_dashboard',
             'view_lab',
             'view_lab_orders',
@@ -215,6 +220,7 @@ class RolePermissionSeeder extends Seeder
         $pharmacist = Role::firstOrCreate(['name' => 'Pharmacist', 'description' => 'Pharmacy Staff']);
         $pharmacist->permissions()->sync(Permission::whereIn('name', [
             'view_dashboard',
+            'view_hrm_dashboard',
             'view_pharmacy_dashboard',
             'view_pharmacy',
             'view_pharmacy_inventory',
@@ -232,6 +238,7 @@ class RolePermissionSeeder extends Seeder
         $accountant = Role::firstOrCreate(['name' => 'Accountant', 'description' => 'Finance Staff']);
         $accountant->permissions()->sync(Permission::whereIn('name', [
             'view_dashboard',
+            'view_hrm_dashboard',
             'view_accountant_dashboard',
             'view_billing',
             'view_invoices',
@@ -250,6 +257,7 @@ class RolePermissionSeeder extends Seeder
             'create_staff',
             'edit_staff',
             'delete_staff',
+            'manage_leaves',
             'view_departments',
             'create_departments',
             'edit_departments',

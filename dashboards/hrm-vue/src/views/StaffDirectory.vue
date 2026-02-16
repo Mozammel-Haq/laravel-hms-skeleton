@@ -1,96 +1,112 @@
 <template>
   <div class="staff-page">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h4 class="mb-0">Staff Directory</h4>
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary" @click="fetchStaff" :disabled="loading">
-          <i class="ti ti-refresh me-2"></i> Refresh
-        </button>
-        <button class="btn btn-primary" v-if="canCreate" @click="openCreateModal">
-          <i class="ti ti-plus me-2"></i> Add Staff
-        </button>
+    <div class="card p-3 mb-3 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-3 pb-3 rounded-3 mb-0">
+        <div>
+          <h5 class="fw-bold mb-1 text-primary">Staff Directory</h5>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-dots mb-0 text-muted small">
+              <li class="breadcrumb-item">
+                <router-link to="/">Dashboard</router-link>
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">Staff</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary" @click="fetchStaff" :disabled="loading">
+            <i class="ti ti-refresh me-2"></i> Refresh
+          </button>
+          <button class="btn btn-primary" v-if="canCreate" @click="openCreateModal">
+            <i class="ti ti-plus me-2"></i> Add Staff
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Stats Row (Dashboard-style KPI cards) -->
-    <div class="row g-4 mb-4">
-      <div class="col-md-3" v-for="(kpi, idx) in kpis" :key="kpi.label">
-        <div
-          class="position-relative overflow-hidden rounded-4 h-100 kpi-card"
-          :class="'kpi-' + kpi.type"
-          data-bs-theme="light,dark"
-        >
-          <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
-            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern
-                  :id="'pattern-grid-staff-' + idx"
-                  x="0"
-                  y="0"
-                  width="30"
-                  height="30"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <rect
-                    x="0"
-                    y="0"
-                    width="2"
-                    height="2"
-                    :fill="
-                      kpi.type === 'primary'
-                        ? 'var(--primary-color)'
-                        : kpi.type === 'info'
-                          ? 'var(--info-color)'
-                          : kpi.type === 'success'
-                            ? 'var(--success-color)'
-                            : 'var(--warning-color)'
-                    "
-                    fill-opacity="0.2"
-                  />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" :fill="'url(#pattern-grid-staff-' + idx + ')'" />
-            </svg>
-          </div>
-          <div
-            class="position-absolute top-0 end-0 w-25 h-25 decorative-shape"
-            :style="{
-              background:
-                'radial-gradient(circle at top right, ' +
-                (kpi.type === 'primary'
-                  ? 'var(--primary-color)'
-                  : kpi.type === 'info'
-                    ? 'var(--info-color)'
-                    : kpi.type === 'success'
-                      ? 'var(--success-color)'
-                      : 'var(--warning-color)') +
-                ' 0%, transparent 70%)',
-              opacity: 0.15
-            }"
-          ></div>
-          <div class="card-body position-relative z-1 p-4">
-            <div class="d-flex align-items-start justify-content-between mb-3">
-              <div>
-                <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">
-                  {{ kpi.label }}
-                </h6>
-                <h2 class="fw-bold kpi-value mb-0">{{ kpi.value }}</h2>
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-md-3" v-for="(kpi, idx) in kpis" :key="kpi.label">
+            <div
+              class="position-relative overflow-hidden rounded-4 h-100 kpi-card"
+              :class="'kpi-' + kpi.type"
+              data-bs-theme="light,dark"
+            >
+              <div class="position-absolute top-0 end-0 w-100 h-100 opacity-25 pattern-bg">
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <pattern
+                      :id="'pattern-grid-staff-' + idx"
+                      x="0"
+                      y="0"
+                      width="30"
+                      height="30"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <rect
+                        x="0"
+                        y="0"
+                        width="2"
+                        height="2"
+                        :fill="
+                          kpi.type === 'primary'
+                            ? 'var(--primary-color)'
+                            : kpi.type === 'info'
+                              ? 'var(--info-color)'
+                              : kpi.type === 'success'
+                                ? 'var(--success-color)'
+                                : 'var(--warning-color)'
+                        "
+                        fill-opacity="0.2"
+                      />
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" :fill="'url(#pattern-grid-staff-' + idx + ')'" />
+                </svg>
               </div>
               <div
-                class="rounded-3 p-2 kpi-icon-container"
-                :class="['bg-' + kpi.type + '-subtle', 'border', 'border-' + kpi.type + '-subtle']"
-              >
-                <i
-                  class="ti fs-2"
-                  :class="kpi.icon"
-                  :style="{ color: 'var(--' + (kpi.type === 'primary' ? 'primary' : kpi.type) + '-color)' }"
-                ></i>
+                class="position-absolute top-0 end-0 w-25 h-25 decorative-shape"
+                :style="{
+                  background:
+                    'radial-gradient(circle at top right, ' +
+                    (kpi.type === 'primary'
+                      ? 'var(--primary-color)'
+                      : kpi.type === 'info'
+                        ? 'var(--info-color)'
+                        : kpi.type === 'success'
+                          ? 'var(--success-color)'
+                          : 'var(--warning-color)') +
+                    ' 0%, transparent 70%)',
+                  opacity: 0.15
+                }"
+              ></div>
+              <div class="card-body position-relative z-1 p-4">
+                <div class="d-flex align-items-start justify-content-between mb-3">
+                  <div>
+                    <h6 class="card-title fw-medium mb-1 kpi-label" style="letter-spacing: 0.5px;">
+                      {{ kpi.label }}
+                    </h6>
+                    <h2 class="fw-bold kpi-value mb-0">{{ kpi.value }}</h2>
+                  </div>
+                  <div
+                    class="rounded-3 p-2 kpi-icon-container"
+                    :class="['bg-' + kpi.type + '-subtle', 'border', 'border-' + kpi.type + '-subtle']"
+                  >
+                    <i
+                      class="ti fs-2"
+                      :class="kpi.icon"
+                      :style="{ color: 'var(--' + (kpi.type === 'primary' ? 'primary' : kpi.type) + '-color)' }"
+                    ></i>
+                  </div>
+                </div>
+                <div class="border-top pt-3 mt-3 kpi-divider" :class="'border-' + kpi.type + '-subtle'">
+                  <p class="text-muted kpi-footer mb-0">
+                    Clinic staff statistics
+                  </p>
+                </div>
               </div>
-            </div>
-            <div class="border-top pt-3 mt-3 kpi-divider" :class="'border-' + kpi.type + '-subtle'">
-              <p class="text-muted kpi-footer mb-0">
-                Clinic staff statistics
-              </p>
             </div>
           </div>
         </div>
@@ -227,6 +243,58 @@
             </tbody>
           </table>
         </div>
+        <div v-if="pagination.total > 0" class="d-flex justify-content-between align-items-center px-4 py-3 border-top pagination-bar">
+          <div class="text-muted small pagination-summary">
+            Showing
+            <span class="fw-semibold">{{ pagination.from }}</span>
+            to
+            <span class="fw-semibold">{{ pagination.to }}</span>
+            of
+            <span class="fw-semibold">{{ pagination.total }}</span>
+            staff
+          </div>
+          <nav aria-label="Staff pagination">
+            <ul class="pagination pagination-sm mb-0">
+              <li :class="['page-item', { disabled: !pagination.prev_page_url } ]">
+                <button
+                  class="page-link"
+                  type="button"
+                  @click="changePage(pagination.current_page - 1)"
+                  :disabled="!pagination.prev_page_url"
+                  aria-label="Previous page"
+                >
+                  <i class="ti ti-chevron-left"></i>
+                </button>
+              </li>
+              <li
+                v-for="page in paginationPages"
+                :key="page.key"
+                :class="['page-item', { active: page.number === pagination.current_page, disabled: page.isSeparator }]"
+              >
+                <button v-if="!page.isSeparator" class="page-link" type="button" @click="changePage(page.number)">
+                  {{ page.label }}
+                </button>
+                <span
+                  v-else
+                  class="page-link border-0 bg-transparent text-muted"
+                >
+                  …
+                </span>
+              </li>
+              <li :class="['page-item', { disabled: !pagination.next_page_url } ]">
+                <button
+                  class="page-link d-flex align-items-center justify-content-center"
+                  type="button"
+                  @click="changePage(pagination.current_page + 1)"
+                  :disabled="!pagination.next_page_url"
+                  aria-label="Next page"
+                >
+                  <i class="ti ti-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
     </div>
 
@@ -285,6 +353,16 @@ import * as bootstrap from 'bootstrap';
 
 const router = useRouter();
 const staffList = ref([]);
+const pagination = ref({
+  current_page: 1,
+  last_page: 1,
+  per_page: 10,
+  total: 0,
+  from: 0,
+  to: 0,
+  prev_page_url: null,
+  next_page_url: null
+});
 const stats = ref({ total_staff: 0, doctors: 0, nurses: 0, on_duty: 0 });
 const openMenuId = ref(null);
 const kpis = computed(() => [
@@ -348,7 +426,7 @@ const form = ref({
 const fetchStaff = async () => {
   loading.value = true;
   try {
-    const params = {};
+    const params = { page: pagination.value.current_page, per_page: pagination.value.per_page };
     if (filters.value.search) params.search = filters.value.search;
     if (filters.value.status) params.status = filters.value.status;
     if (filters.value.role) params.role = filters.value.role;
@@ -360,6 +438,17 @@ const fetchStaff = async () => {
     const meta = payload.meta || {};
     const apiStats = meta.stats || {};
     staffList.value = pageData.data || pageData;
+    const pageMeta = pageData.meta || {};
+    pagination.value = {
+      current_page: pageMeta.current_page || 1,
+      last_page: pageMeta.last_page || 1,
+      per_page: pageMeta.per_page || pagination.value.per_page || 10,
+      total: pageMeta.total || staffList.value.length,
+      from: pageMeta.from || (staffList.value.length ? 1 : 0),
+      to: pageMeta.to || staffList.value.length,
+      prev_page_url: pageData.prev_page_url || null,
+      next_page_url: pageData.next_page_url || null
+    };
     stats.value = {
       total_staff: apiStats.total_staff ?? staffList.value.length,
       doctors: apiStats.doctors ?? 0,
@@ -375,7 +464,40 @@ const fetchStaff = async () => {
     loading.value = false;
   }
 };
-const applyFilters = () => fetchStaff();
+const applyFilters = () => {
+  pagination.value.current_page = 1;
+  fetchStaff();
+};
+
+const changePage = (page) => {
+  if (page < 1 || page > pagination.value.last_page || page === pagination.value.current_page) return;
+  pagination.value.current_page = page;
+  fetchStaff();
+};
+
+const paginationPages = computed(() => {
+  const pages = [];
+  const total = pagination.value.last_page;
+  const current = pagination.value.current_page;
+  if (total <= 7) {
+    for (let i = 1; i <= total; i += 1) {
+      pages.push({ key: `p-${i}`, number: i, label: i, isSeparator: false });
+    }
+    return pages;
+  }
+  const addPage = (n) => pages.push({ key: `p-${n}`, number: n, label: n, isSeparator: false });
+  const addSep = (idx) => pages.push({ key: `s-${idx}`, number: null, label: '…', isSeparator: true });
+  addPage(1);
+  if (current > 4) addSep('start');
+  const start = Math.max(2, current - 1);
+  const end = Math.min(total - 1, current + 1);
+  for (let i = start; i <= end; i += 1) {
+    addPage(i);
+  }
+  if (current < total - 3) addSep('end');
+  addPage(total);
+  return pages;
+});
 
 const getInitials = (name) => {
   if (!name) return '??';
