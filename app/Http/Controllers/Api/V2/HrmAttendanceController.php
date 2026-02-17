@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
+use App\Models\HrmHoliday;
 use App\Models\HrmAttendance;
 use App\Models\User;
 use Carbon\Carbon;
@@ -83,6 +84,18 @@ class HrmAttendanceController extends Controller
             return response()->json(['message' => 'Attendance already exists for this date'], 422);
         }
 
+        $holiday = HrmHoliday::where('clinic_id', $actor->clinic_id)
+            ->whereDate('date', $validated['attendance_date'])
+            ->where('status', 'active')
+            ->where('is_full_day', true)
+            ->first();
+
+        $status = $validated['status'] ?? 'present';
+
+        if ($holiday && $status === 'present') {
+            return response()->json(['message' => 'Cannot mark present on a full-day clinic holiday; use holiday or leave status instead'], 422);
+        }
+
         $workedHours = 0;
         if (! empty($validated['check_in_time']) && ! empty($validated['check_out_time'])) {
             $in = Carbon::createFromFormat('H:i', $validated['check_in_time']);
@@ -91,6 +104,10 @@ class HrmAttendanceController extends Controller
                 $out->addDay();
             }
             $workedHours = round($in->diffInMinutes($out) / 60, 2);
+
+            if ($holiday) {
+                return response()->json(['message' => 'Cannot record working hours on a full-day clinic holiday'], 422);
+            }
         }
 
         $attendance = HrmAttendance::create([
@@ -100,7 +117,7 @@ class HrmAttendanceController extends Controller
             'check_in_time' => $validated['check_in_time'] ?? null,
             'check_out_time' => $validated['check_out_time'] ?? null,
             'worked_hours' => $workedHours,
-            'status' => $validated['status'] ?? 'present',
+            'status' => $status,
             'is_late' => $validated['is_late'] ?? false,
             'is_early_exit' => $validated['is_early_exit'] ?? false,
             'source' => $validated['source'] ?? 'manual',
@@ -140,6 +157,18 @@ class HrmAttendanceController extends Controller
         $checkIn = $data['check_in_time'] ?? $attendance->check_in_time;
         $checkOut = $data['check_out_time'] ?? $attendance->check_out_time;
 
+        $holiday = HrmHoliday::where('clinic_id', $actor->clinic_id)
+            ->whereDate('date', $attendance->attendance_date)
+            ->where('status', 'active')
+            ->where('is_full_day', true)
+            ->first();
+
+        $targetStatus = $data['status'] ?? $attendance->status;
+
+        if ($holiday && $targetStatus === 'present') {
+            return response()->json(['message' => 'Cannot mark present on a full-day clinic holiday; use holiday or leave status instead'], 422);
+        }
+
         if ($checkIn && $checkOut) {
             $in = Carbon::createFromFormat('H:i', substr((string) $checkIn, 0, 5));
             $out = Carbon::createFromFormat('H:i', substr((string) $checkOut, 0, 5));
@@ -147,6 +176,10 @@ class HrmAttendanceController extends Controller
                 $out->addDay();
             }
             $data['worked_hours'] = round($in->diffInMinutes($out) / 60, 2);
+
+            if ($holiday) {
+                return response()->json(['message' => 'Cannot record working hours on a full-day clinic holiday'], 422);
+            }
         }
 
         $attendance->update($data);
@@ -177,4 +210,3 @@ class HrmAttendanceController extends Controller
         ]);
     }
 }
-

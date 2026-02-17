@@ -123,6 +123,87 @@
         </div>
       </div>
     </div>
+
+    <div
+      v-if="canEdit"
+      class="modal fade"
+      id="staffEditModal"
+      tabindex="-1"
+      aria-hidden="true"
+      ref="staffModalRef"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Staff</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <form @submit.prevent="saveStaff">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input v-model="form.name" type="text" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Role</label>
+                <select v-model.number="form.role_id" class="form-select" required>
+                  <option :value="null" disabled>Select role</option>
+                  <option v-for="r in roleOptions" :key="r.id" :value="r.id">
+                    {{ r.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Department</label>
+                <select v-model.number="form.department_id" class="form-select">
+                  <option :value="null">Not set</option>
+                  <option v-for="d in departmentOptions" :key="d.id" :value="d.id">
+                    {{ d.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Designation</label>
+                <select v-model.number="form.designation_id" class="form-select">
+                  <option :value="null">Not set</option>
+                  <option v-for="d in designationOptions" :key="d.id" :value="d.id">
+                    {{ d.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Join Date</label>
+                <input v-model="form.join_date" type="date" class="form-control" />
+              </div>
+              <div v-if="formError" class="alert alert-danger py-2 px-3 mb-0">
+                {{ formError }}
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-light"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary" :disabled="saving">
+                <span
+                  v-if="saving"
+                  class="spinner-border spinner-border-sm me-1"
+                ></span>
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -138,6 +219,21 @@ const router = useRouter();
 const loading = ref(false);
 const staffList = ref([]);
 const search = ref('');
+const staffModalRef = ref(null);
+let staffModalInstance = null;
+const editingStaff = ref(null);
+const saving = ref(false);
+const formError = ref('');
+const form = ref({
+  name: '',
+  role_id: null,
+  department_id: null,
+  designation_id: null,
+  join_date: '',
+});
+
+const departments = ref([]);
+const designations = ref([]);
 
 const abilities = computed(() =>
   Array.isArray(auth.user?.abilities) ? auth.user.abilities : []
@@ -178,6 +274,52 @@ const filteredStaff = computed(() => {
   });
 });
 
+const roleOptions = computed(() => {
+  const map = new Map();
+  staffList.value.forEach((s) => {
+    if (Array.isArray(s.roles)) {
+      s.roles.forEach((r) => {
+        if (r && !map.has(r.id)) {
+          map.set(r.id, { id: r.id, name: r.name });
+        }
+      });
+    }
+  });
+  return Array.from(map.values());
+});
+
+const departmentOptions = computed(() => {
+  return departments.value;
+});
+
+const designationOptions = computed(() => {
+  return designations.value;
+});
+
+const fetchDepartments = async () => {
+  try {
+    const res = await api.get('/departments', { params: { per_page: 100 } });
+    const payload = res.data || {};
+    const pageData = payload.data || {};
+    const list = pageData.data || [];
+    departments.value = list;
+  } catch (e) {
+    console.error('Failed to load departments', e);
+  }
+};
+
+const fetchDesignations = async () => {
+  try {
+    const res = await api.get('/designations', { params: { per_page: 100 } });
+    const payload = res.data || {};
+    const pageData = payload.data || {};
+    const list = pageData.data || [];
+    designations.value = list;
+  } catch (e) {
+    console.error('Failed to load designations', e);
+  }
+};
+
 const formatDate = (value) => {
   if (!value) return 'Not set';
   const date = new Date(value);
@@ -198,11 +340,56 @@ const viewProfile = (staff) => {
 };
 
 const goToStaffEdit = (staff) => {
-  router.push({ name: 'StaffView', params: { id: staff.id } });
+  editingStaff.value = staff;
+  form.value = {
+    name: staff.name || '',
+    role_id:
+      Array.isArray(staff.roles) && staff.roles[0] ? staff.roles[0].id : null,
+    department_id: staff.department?.id ?? null,
+    designation_id: staff.designation?.id ?? null,
+    join_date: staff.join_date ? String(staff.join_date).slice(0, 10) : '',
+  };
+  formError.value = '';
+  if (staffModalInstance) {
+    staffModalInstance.show();
+  }
+};
+
+const saveStaff = async () => {
+  if (!editingStaff.value) return;
+  saving.value = true;
+  formError.value = '';
+  try {
+    await api.put(`/staff/${editingStaff.value.id}`, {
+      name: form.value.name,
+      role_id: form.value.role_id,
+      department_id: form.value.department_id || null,
+      designation_id: form.value.designation_id || null,
+      join_date: form.value.join_date || null,
+    });
+    if (staffModalInstance) {
+      staffModalInstance.hide();
+    }
+    await fetchStaff();
+  } catch (error) {
+    const message =
+      error.response?.data?.message || 'Failed to save staff profile';
+    formError.value = message;
+    console.error('Failed to save staff profile', error);
+  } finally {
+    saving.value = false;
+  }
 };
 
 onMounted(() => {
   fetchStaff();
+  if (canEdit.value) {
+    fetchDepartments();
+    fetchDesignations();
+  }
+  const bs = window.bootstrap;
+  if (staffModalRef.value && bs?.Modal) {
+    staffModalInstance = bs.Modal.getOrCreateInstance(staffModalRef.value);
+  }
 });
 </script>
-

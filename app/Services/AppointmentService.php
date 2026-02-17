@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\HrmHoliday;
 use Carbon\Carbon;
 
 class AppointmentService
@@ -35,6 +36,23 @@ class AppointmentService
         $slotDuration = 15; // Default
 
         $dateStr = $dateObj->format('Y-m-d');
+
+        $clinicId = $clinic_id;
+        if (! $clinicId && $doctor->primaryDepartment && $doctor->primaryDepartment->clinic_id) {
+            $clinicId = $doctor->primaryDepartment->clinic_id;
+        }
+
+        if ($clinicId) {
+            $holiday = HrmHoliday::where('clinic_id', $clinicId)
+                ->whereDate('date', $dateStr)
+                ->where('status', 'active')
+                ->where('is_full_day', true)
+                ->first();
+
+            if ($holiday) {
+                return [];
+            }
+        }
 
         // 1. Check for Exceptions (Day Off or Time Change)
         // Range-based check: start_date <= date <= end_date

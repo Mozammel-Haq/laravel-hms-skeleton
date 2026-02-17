@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\HrmHoliday;
 use App\Models\Doctor;
 use App\Models\Patient;
 use App\Services\AppointmentService;
@@ -153,6 +154,21 @@ class AppointmentsApiController extends Controller
             : ($request->header('X-Clinic-ID') ? (int) $request->header('X-Clinic-ID') : null);
 
         $doctor = Doctor::findOrFail($doctorId);
+
+        $holidayClinicId = $clinicId ?: ($request->user()->clinic_id ?? null);
+        if ($holidayClinicId) {
+            $holiday = HrmHoliday::where('clinic_id', $holidayClinicId)
+                ->whereDate('date', $date)
+                ->where('status', 'active')
+                ->where('is_full_day', true)
+                ->first();
+
+            if ($holiday) {
+                return response()->json([
+                    'slots' => [],
+                ]);
+            }
+        }
         $slots = $this->appointmentService->getAvailableSlots($doctor, $date, $clinicId);
 
         $availableSlots = array_values(array_filter(array_map(function ($slot) {
@@ -208,6 +224,19 @@ class AppointmentsApiController extends Controller
         $doctor = Doctor::findOrFail((int) $request->doctor_id);
         $startHm = substr((string) $request->start_time, 0, 5);
         $computedEndTime = null;
+
+        $holidayClinicId = $clinicId ?: ($request->user()->clinic_id ?? null);
+        if ($holidayClinicId) {
+            $holiday = HrmHoliday::where('clinic_id', $holidayClinicId)
+                ->whereDate('date', $bookingDate)
+                ->where('status', 'active')
+                ->where('is_full_day', true)
+                ->first();
+
+            if ($holiday) {
+                return response()->json(['message' => 'Cannot book appointments on a full-day clinic holiday.'], 422);
+            }
+        }
 
         $slots = $this->appointmentService->getAvailableSlots($doctor, (string) $request->appointment_date, $clinicId);
         foreach ($slots as $slot) {

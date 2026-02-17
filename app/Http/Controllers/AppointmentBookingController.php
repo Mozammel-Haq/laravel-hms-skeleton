@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Clinic;
 use App\Models\Doctor;
+use App\Models\HrmHoliday;
 use App\Models\Patient;
 use App\Notifications\AppointmentBookedNotification;
 use App\Services\AppointmentService;
@@ -158,6 +159,22 @@ class AppointmentBookingController extends Controller
         $appointmentDate = Carbon::parse($validated['appointment_date'])->toDateString();
         $startTime = Carbon::createFromFormat('H:i', $validated['start_time'])->format('H:i:s');
         $endTime = Carbon::createFromFormat('H:i', $validated['end_time'])->format('H:i:s');
+
+        $clinicIdForHoliday = TenantContext::hasClinic()
+            ? TenantContext::getClinicId()
+            : $validated['clinic_id'];
+
+        $holiday = HrmHoliday::where('clinic_id', $clinicIdForHoliday)
+            ->whereDate('date', $appointmentDate)
+            ->where('status', 'active')
+            ->where('is_full_day', true)
+            ->first();
+
+        if ($holiday) {
+            return back()
+                ->withErrors(['appointment_date' => 'Cannot book appointments on a full-day clinic holiday.'])
+                ->withInput();
+        }
 
         // Check if patient already has an appointment on this date
         $existingPatientAppointment = Appointment::where('patient_id', $validated['patient_id'])

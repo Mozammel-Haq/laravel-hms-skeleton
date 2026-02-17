@@ -96,6 +96,9 @@ class StaffController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'role_id' => 'required|integer|exists:roles,id',
+            'department_id' => 'nullable|integer|exists:departments,id',
+            'designation_id' => 'nullable|integer|exists:designations,id',
+            'join_date' => 'nullable|date',
         ]);
 
         $user = new User();
@@ -103,6 +106,9 @@ class StaffController extends Controller
         $user->email = $validated['email'];
         $user->password = Hash::make($validated['password']);
         $user->clinic_id = $actor->clinic_id;
+        $user->department_id = $validated['department_id'] ?? null;
+        $user->designation_id = $validated['designation_id'] ?? null;
+        $user->join_date = $validated['join_date'] ?? null;
         $user->status = 'active';
         $user->save();
 
@@ -138,9 +144,21 @@ class StaffController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'role_id' => 'required|integer|exists:roles,id',
+            'department_id' => 'nullable|integer|exists:departments,id',
+            'designation_id' => 'nullable|integer|exists:designations,id',
+            'join_date' => 'nullable|date',
         ]);
 
         $staff->name = $validated['name'];
+        if (array_key_exists('department_id', $validated)) {
+            $staff->department_id = $validated['department_id'];
+        }
+        if (array_key_exists('designation_id', $validated)) {
+            $staff->designation_id = $validated['designation_id'];
+        }
+        if (array_key_exists('join_date', $validated)) {
+            $staff->join_date = $validated['join_date'];
+        }
         $staff->save();
 
         $role = \App\Models\Role::find($validated['role_id']);

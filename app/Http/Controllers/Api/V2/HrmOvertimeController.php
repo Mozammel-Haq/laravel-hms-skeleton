@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
+use App\Models\HrmAttendance;
 use App\Models\HrmOvertime;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -71,6 +72,30 @@ class HrmOvertimeController extends Controller
             ->where('clinic_id', $actor->clinic_id)
             ->firstOrFail();
 
+        $attendance = HrmAttendance::where('clinic_id', $actor->clinic_id)
+            ->where('user_id', $targetUser->id)
+            ->whereDate('attendance_date', $validated['date'])
+            ->first();
+
+        if (! $attendance) {
+            return response()->json(['message' => 'Attendance record is required for this date before adding overtime'], 422);
+        }
+
+        if (($attendance->worked_hours ?? 0) <= 0) {
+            return response()->json(['message' => 'Cannot log overtime when worked hours are zero for this date'], 422);
+        }
+
+        $existingOvertime = HrmOvertime::where('clinic_id', $actor->clinic_id)
+            ->where('user_id', $targetUser->id)
+            ->whereDate('date', $validated['date'])
+            ->sum('hours');
+
+        $newTotalOvertime = $existingOvertime + (float) $validated['hours'];
+
+        if ($newTotalOvertime > 24) {
+            return response()->json(['message' => 'Total overtime hours for this date cannot exceed 24'], 422);
+        }
+
         $record = HrmOvertime::create([
             'clinic_id' => $actor->clinic_id,
             'user_id' => $targetUser->id,
@@ -108,6 +133,33 @@ class HrmOvertimeController extends Controller
             'status' => 'nullable|in:pending,approved,rejected',
         ]);
 
+        if (array_key_exists('hours', $validated)) {
+            $attendance = HrmAttendance::where('clinic_id', $actor->clinic_id)
+                ->where('user_id', $overtime->user_id)
+                ->whereDate('attendance_date', $overtime->date)
+                ->first();
+
+            if (! $attendance) {
+                return response()->json(['message' => 'Attendance record is required for this date before updating overtime'], 422);
+            }
+
+            if (($attendance->worked_hours ?? 0) <= 0) {
+                return response()->json(['message' => 'Cannot log overtime when worked hours are zero for this date'], 422);
+            }
+
+            $otherOvertime = HrmOvertime::where('clinic_id', $actor->clinic_id)
+                ->where('user_id', $overtime->user_id)
+                ->whereDate('date', $overtime->date)
+                ->where('id', '!=', $overtime->id)
+                ->sum('hours');
+
+            $newTotalOvertime = $otherOvertime + (float) $validated['hours'];
+
+            if ($newTotalOvertime > 24) {
+                return response()->json(['message' => 'Total overtime hours for this date cannot exceed 24'], 422);
+            }
+        }
+
         $overtime->update($validated);
         $overtime->load('user');
 
@@ -136,4 +188,3 @@ class HrmOvertimeController extends Controller
         ]);
     }
 }
-

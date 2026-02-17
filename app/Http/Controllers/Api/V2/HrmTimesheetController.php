@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
+use App\Models\HrmAttendance;
 use App\Models\HrmTimesheet;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -72,6 +73,32 @@ class HrmTimesheetController extends Controller
             ->where('clinic_id', $actor->clinic_id)
             ->firstOrFail();
 
+        $attendance = HrmAttendance::where('clinic_id', $actor->clinic_id)
+            ->where('user_id', $targetUser->id)
+            ->whereDate('attendance_date', $validated['date'])
+            ->first();
+
+        if (! $attendance) {
+            return response()->json(['message' => 'Attendance record is required for this date before adding timesheet'], 422);
+        }
+
+        $existingHours = HrmTimesheet::where('clinic_id', $actor->clinic_id)
+            ->where('user_id', $targetUser->id)
+            ->whereDate('date', $validated['date'])
+            ->sum('hours');
+
+        $newTotalHours = $existingHours + (float) $validated['hours'];
+
+        $maxHours = (float) ($attendance->worked_hours ?? 24);
+
+        if ($maxHours <= 0) {
+            return response()->json(['message' => 'Cannot log timesheet hours when worked hours are zero for this date'], 422);
+        }
+
+        if ($newTotalHours > $maxHours) {
+            return response()->json(['message' => 'Total timesheet hours cannot exceed worked hours recorded in attendance'], 422);
+        }
+
         $timesheet = HrmTimesheet::create([
             'clinic_id' => $actor->clinic_id,
             'user_id' => $targetUser->id,
@@ -111,6 +138,35 @@ class HrmTimesheetController extends Controller
             'status' => 'nullable|in:draft,submitted,approved,rejected',
         ]);
 
+        if (array_key_exists('hours', $validated)) {
+            $attendance = HrmAttendance::where('clinic_id', $actor->clinic_id)
+                ->where('user_id', $timesheet->user_id)
+                ->whereDate('attendance_date', $timesheet->date)
+                ->first();
+
+            if (! $attendance) {
+                return response()->json(['message' => 'Attendance record is required for this date before updating timesheet'], 422);
+            }
+
+            $otherHours = HrmTimesheet::where('clinic_id', $actor->clinic_id)
+                ->where('user_id', $timesheet->user_id)
+                ->whereDate('date', $timesheet->date)
+                ->where('id', '!=', $timesheet->id)
+                ->sum('hours');
+
+            $newTotalHours = $otherHours + (float) $validated['hours'];
+
+            $maxHours = (float) ($attendance->worked_hours ?? 24);
+
+            if ($maxHours <= 0) {
+                return response()->json(['message' => 'Cannot log timesheet hours when worked hours are zero for this date'], 422);
+            }
+
+            if ($newTotalHours > $maxHours) {
+                return response()->json(['message' => 'Total timesheet hours cannot exceed worked hours recorded in attendance'], 422);
+            }
+        }
+
         $timesheet->update($validated);
         $timesheet->load('user');
 
@@ -139,4 +195,3 @@ class HrmTimesheetController extends Controller
         ]);
     }
 }
-

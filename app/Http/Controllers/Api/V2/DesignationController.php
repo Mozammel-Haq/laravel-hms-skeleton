@@ -8,9 +8,10 @@ use Illuminate\Http\Request;
 
 class DesignationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = Designation::latest()->paginate(10);
+        $perPage = (int) $request->input('per_page', 10);
+        $data = Designation::latest()->paginate($perPage);
         return response()->json(['status' => 'success', 'data' => $data]);
     }
 

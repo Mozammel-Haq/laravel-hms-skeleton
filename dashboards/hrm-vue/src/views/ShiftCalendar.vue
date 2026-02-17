@@ -58,6 +58,45 @@
                 </div>
               </div>
             </div>
+            <div
+              class="col-md-8 d-flex justify-content-md-end align-items-start mt-3 mt-md-0"
+            >
+              <div class="btn-group btn-group-sm me-2" role="group" aria-label="View mode">
+                <button
+                  type="button"
+                  class="btn"
+                  :class="mode === 'shift' ? 'btn-primary' : 'btn-outline-primary'"
+                  @click="setMode('shift')"
+                >
+                  By Shift
+                </button>
+                <button
+                  v-if="canUseStaffMode"
+                  type="button"
+                  class="btn"
+                  :class="mode === 'staff' ? 'btn-primary' : 'btn-outline-primary'"
+                  @click="setMode('staff')"
+                >
+                  By Staff
+                </button>
+              </div>
+              <div
+                v-if="mode === 'staff' && canUseStaffMode"
+                class="ms-2"
+                style="min-width: 220px;"
+              >
+                <select v-model.number="selectedUserId" class="form-select form-select-sm">
+                  <option :value="null">All Staff</option>
+                  <option
+                    v-for="staff in staffOptions"
+                    :key="staff.id"
+                    :value="staff.id"
+                  >
+                    {{ staff.name }} ({{ staff.email }})
+                  </option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="calendar-grid">
@@ -80,17 +119,26 @@
                   <span>{{ cell.dateObj.getDate() }}</span>
                 </div>
                 <div class="calendar-meta" v-if="cell.totalAssignments > 0">
-                  <span class="badge bg-secondary-subtle text-secondary mb-1">
+                  <span
+                    v-if="mode === 'shift'"
+                    class="badge bg-secondary-subtle text-secondary mb-1"
+                  >
                     {{ cell.totalAssignments }} assignments
                   </span>
-                  <div class="small text-muted">
+                  <div class="small" :class="mode === 'shift' ? 'text-muted' : ''">
                     <div v-for="entry in cell.shiftEntries" :key="entry.shiftId">
-                      {{ entry.name }}: {{ entry.count }}
+                      <template v-if="mode === 'shift'">
+                        {{ entry.name }}: {{ entry.count }}
+                      </template>
+                      <template v-else>
+                        {{ entry.name }}
+                      </template>
                     </div>
                   </div>
                 </div>
                 <div v-else class="calendar-meta text-muted fs-12">
-                  No assignments
+                  <span v-if="mode === 'staff'">Off</span>
+                  <span v-else>No assignments</span>
                 </div>
               </div>
             </div>
@@ -104,10 +152,25 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import api from '../services/api';
+import { useAuthStore } from '../store/authStore';
 
 const loading = ref(false);
 const shifts = ref([]);
-const assignments = ref([]);
+const assignmentsRaw = ref([]);
+
+const auth = useAuthStore();
+
+const abilities = computed(() =>
+  Array.isArray(auth.user?.abilities) ? auth.user.abilities : []
+);
+const has = (perm) => abilities.value.includes(perm);
+
+const canViewStaff = computed(() => has('view_staff'));
+const canUseStaffMode = computed(() => canViewStaff.value);
+
+const mode = ref('shift');
+const staffOptions = ref([]);
+const selectedUserId = ref(null);
 
 const today = new Date();
 const currentYear = ref(today.getFullYear());
@@ -119,6 +182,18 @@ const currentMonthLabel = computed(() => {
   const date = new Date(currentYear.value, currentMonth.value, 1);
   return date.toLocaleString(undefined, { month: 'long', year: 'numeric' });
 });
+
+const loadStaff = async () => {
+  if (!canUseStaffMode.value) return;
+  try {
+    const res = await api.get('/staff', { params: { per_page: 200 } });
+    const payload = res.data || {};
+    const page = payload.data || {};
+    staffOptions.value = page.data || payload.data || [];
+  } catch (e) {
+    console.error('Failed to load staff for shift calendar', e);
+  }
+};
 
 const loadData = async () => {
   loading.value = true;
@@ -138,7 +213,7 @@ const loadData = async () => {
 
     const assignPayload = assignmentsRes.data || {};
     const assignPage = assignPayload.data || {};
-    assignments.value = assignPage.data || assignPayload.data || [];
+    assignmentsRaw.value = assignPage.data || assignPayload.data || [];
   } catch (e) {
     console.error('Failed to load shift calendar data', e);
   } finally {
@@ -156,12 +231,21 @@ const buildDateKey = (date) => {
 const firstDayOfMonth = computed(() => new Date(currentYear.value, currentMonth.value, 1));
 const lastDayOfMonth = computed(() => new Date(currentYear.value, currentMonth.value + 1, 0));
 
+const filteredAssignments = computed(() => {
+  if (mode.value === 'staff' && selectedUserId.value) {
+    return assignmentsRaw.value.filter(
+      (assignment) => assignment.user_id === selectedUserId.value
+    );
+  }
+  return assignmentsRaw.value;
+});
+
 const assignmentsByDate = computed(() => {
   const map = {};
   const start = firstDayOfMonth.value;
   const end = lastDayOfMonth.value;
 
-  assignments.value.forEach((assignment) => {
+  filteredAssignments.value.forEach((assignment) => {
     if (!assignment.shift || !assignment.status || assignment.status !== 'active') {
       return;
     }
@@ -253,6 +337,13 @@ const calendarCells = computed(() => {
   return cells;
 });
 
+const setMode = (value) => {
+  if (value === 'staff' && !canUseStaffMode.value) {
+    return;
+  }
+  mode.value = value;
+};
+
 const prevMonth = () => {
   const m = currentMonth.value - 1;
   if (m < 0) {
@@ -275,6 +366,7 @@ const nextMonth = () => {
 
 onMounted(() => {
   loadData();
+  loadStaff();
 });
 </script>
 
@@ -295,7 +387,7 @@ onMounted(() => {
   text-align: center;
   font-size: 12px;
   font-weight: 600;
-  color: #6c757d;
+  color: var(--bs-secondary-color);
 }
 
 .calendar-body {
@@ -307,21 +399,28 @@ onMounted(() => {
 .calendar-cell {
   min-height: 90px;
   border-radius: 0.5rem;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--bs-border-color);
   padding: 6px 8px;
-  background-color: #ffffff;
+  background-color: var(--bs-body-bg);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.calendar-cell:hover {
+  background-color: var(--bs-light);
+  box-shadow: 0 0.25rem 0.75rem rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
 }
 
 .calendar-cell.is-today {
-  border-color: #0d6efd;
+  border-color: var(--bs-primary);
   box-shadow: 0 0 0 1px rgba(13, 110, 253, 0.2);
 }
 
 .calendar-cell.is-other-month {
-  background-color: #f8f9fa;
+  opacity: 0.6;
 }
 
 .calendar-date {
@@ -334,4 +433,3 @@ onMounted(() => {
   font-size: 11px;
 }
 </style>
-
