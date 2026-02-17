@@ -12,7 +12,7 @@
           </span>
         </a>
 
-        <a id="mobile_btn" class="mobile-btn" href="#sidebar">
+        <a class="mobile-btn" href="#sidebar" @click.prevent="openMobileSidebar">
           <i class="ti ti-menu-deep fs-24"></i>
         </a>
 
@@ -216,6 +216,17 @@ const handleClickOutside = (e) => {
   if (!insideProfile) {
     showProfileMenu.value = false;
   }
+};
+
+const openMobileSidebar = () => {
+  const wrapper = document.querySelector('.main-wrapper');
+  if (!wrapper) return;
+  wrapper.classList.add('slide-nav');
+  const overlay = document.querySelector('.sidebar-overlay');
+  if (overlay) {
+    overlay.classList.add('opened');
+  }
+  document.documentElement.classList.add('menu-opened');
 };
 
 const toggleTheme = async () => {

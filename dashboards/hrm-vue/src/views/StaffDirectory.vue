@@ -349,7 +349,6 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
-import * as bootstrap from 'bootstrap';
 
 const router = useRouter();
 const staffList = ref([]);
@@ -511,8 +510,9 @@ const formatDate = (dateString) => {
 
 onMounted(() => {
   fetchStaff();
-  if (staffModalRef.value) {
-    staffModalInstance = bootstrap.Modal.getOrCreateInstance(staffModalRef.value);
+  const bs = window.bootstrap;
+  if (staffModalRef.value && bs?.Modal) {
+    staffModalInstance = bs.Modal.getOrCreateInstance(staffModalRef.value);
   }
 });
 

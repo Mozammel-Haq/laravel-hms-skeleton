@@ -1,0 +1,303 @@
+<template>
+  <div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Payroll Runs</h4>
+      <button class="btn btn-primary btn-sm" @click="openForm()">
+        <i class="ti ti-plus me-1"></i>
+        New Payroll Run
+      </button>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label">From</label>
+            <input v-model="filters.from_date" type="date" class="form-control" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">To</label>
+            <input v-model="filters.to_date" type="date" class="form-control" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Status</label>
+            <select v-model="filters.status" class="form-select">
+              <option value="">All</option>
+              <option value="draft">Draft</option>
+              <option value="processing">Processing</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="col-md-3 d-flex gap-2">
+            <button class="btn btn-outline-primary w-100" @click="fetchItems">
+              Apply
+            </button>
+            <button class="btn btn-light w-100" @click="resetFilters">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Period</th>
+                <th>Status</th>
+                <th class="text-end">Total Gross</th>
+                <th class="text-end">Total Net</th>
+                <th>Processed By</th>
+                <th>Updated</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="loading">
+                <td colspan="7" class="text-center py-4">
+                  <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                  Loading payroll runs...
+                </td>
+              </tr>
+              <tr v-else-if="items.length === 0">
+                <td colspan="7" class="text-center py-4 text-muted">
+                  No payroll runs found.
+                </td>
+              </tr>
+              <tr v-for="run in items" :key="run.id">
+                <td>
+                  {{ run.period_start }} to {{ run.period_end }}
+                </td>
+                <td>
+                  <span class="badge" :class="statusClass(run.status)">
+                    {{ run.status }}
+                  </span>
+                </td>
+                <td class="text-end">{{ formatMoney(run.total_gross) }}</td>
+                <td class="text-end">{{ formatMoney(run.total_net) }}</td>
+                <td>{{ run.processed_by ? '#' + run.processed_by : '-' }}</td>
+                <td>{{ run.updated_at }}</td>
+                <td class="text-end">
+                  <button class="btn btn-link btn-sm text-primary me-2" @click="openForm(run)">
+                    <i class="ti ti-edit"></i>
+                  </button>
+                  <button
+                    class="btn btn-link btn-sm text-danger"
+                    :disabled="run.status === 'completed' || deletingId === run.id"
+                    @click="deleteRun(run)"
+                  >
+                    <i class="ti ti-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" ref="formModal">
+      <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ form.id ? 'Edit Payroll Run' : 'New Payroll Run' }}</h5>
+            <button type="button" class="btn-close" @click="closeForm"></button>
+          </div>
+          <div class="modal-body">
+            <div v-if="formError" class="alert alert-danger py-2 mb-3">
+              {{ formError }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Period Start</label>
+              <input v-model="form.period_start" type="date" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Period End</label>
+              <input v-model="form.period_end" type="date" class="form-control" />
+            </div>
+            <div class="mb-3" v-if="form.id">
+              <label class="form-label">Status</label>
+              <select v-model="form.status" class="form-select">
+                <option value="draft">Draft</option>
+                <option value="processing">Processing</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <div class="form-text">
+                Mark as completed after verifying payslips for this period.
+              </div>
+            </div>
+            <div class="row" v-if="form.id">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Total Gross</label>
+                <input v-model.number="form.total_gross" type="number" step="0.01" class="form-control" />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Total Net</label>
+                <input v-model.number="form.total_net" type="number" step="0.01" class="form-control" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" @click="closeForm">Cancel</button>
+            <button type="button" class="btn btn-primary" :disabled="saving" @click="saveForm">
+              <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import api from '../services/api';
+
+const items = ref([]);
+const loading = ref(false);
+const saving = ref(false);
+const deletingId = ref(null);
+const filters = ref({
+  from_date: '',
+  to_date: '',
+  status: ''
+});
+
+const formModal = ref(null);
+const form = ref({
+  id: null,
+  period_start: '',
+  period_end: '',
+  status: 'draft',
+  total_gross: 0,
+  total_net: 0
+});
+const formError = ref('');
+
+const formatMoney = (value) => {
+  const n = typeof value === 'number' ? value : parseFloat(value || 0);
+  return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
+const statusClass = (status) => {
+  if (status === 'completed') return 'bg-success';
+  if (status === 'processing') return 'bg-info';
+  if (status === 'cancelled') return 'bg-danger';
+  return 'bg-secondary';
+};
+
+const fetchItems = async () => {
+  loading.value = true;
+  try {
+    const params = {};
+    if (filters.value.from_date) params.from_date = filters.value.from_date;
+    if (filters.value.to_date) params.to_date = filters.value.to_date;
+    if (filters.value.status) params.status = filters.value.status;
+    params.per_page = 50;
+    const response = await api.get('/payroll-runs', { params });
+    const payload = response.data;
+    const pageData = payload.data;
+    const data = pageData?.data || pageData;
+    items.value = Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const resetFilters = () => {
+  filters.value = {
+    from_date: '',
+    to_date: '',
+    status: ''
+  };
+  fetchItems();
+};
+
+const openForm = (run = null) => {
+  formError.value = '';
+  if (run) {
+    form.value = {
+      id: run.id,
+      period_start: run.period_start,
+      period_end: run.period_end,
+      status: run.status,
+      total_gross: run.total_gross ?? 0,
+      total_net: run.total_net ?? 0
+    };
+  } else {
+    form.value = {
+      id: null,
+      period_start: '',
+      period_end: '',
+      status: 'draft',
+      total_gross: 0,
+      total_net: 0
+    };
+  }
+  const modalEl = formModal.value;
+  if (modalEl) {
+    const modal = new window.bootstrap.Modal(modalEl);
+    modal.show();
+    modalEl._modalInstance = modal;
+  }
+};
+
+const closeForm = () => {
+  const modalEl = formModal.value;
+  if (modalEl && modalEl._modalInstance) {
+    modalEl._modalInstance.hide();
+  }
+};
+
+const saveForm = async () => {
+  saving.value = true;
+  formError.value = '';
+  try {
+    const payload = {
+      period_start: form.value.period_start,
+      period_end: form.value.period_end,
+      status: form.value.status,
+      total_gross: form.value.total_gross,
+      total_net: form.value.total_net
+    };
+    if (form.value.id) {
+      await api.put(`/payroll-runs/${form.value.id}`, payload);
+    } else {
+      await api.post('/payroll-runs', payload);
+    }
+    closeForm();
+    await fetchItems();
+  } catch (e) {
+    const message = e?.response?.data?.message;
+    formError.value = typeof message === 'string' ? message : 'Failed to save payroll run';
+  } finally {
+    saving.value = false;
+  }
+};
+
+const deleteRun = async (run) => {
+  if (!window.confirm('Delete this payroll run?')) return;
+  deletingId.value = run.id;
+  try {
+    await api.delete(`/payroll-runs/${run.id}`);
+    await fetchItems();
+  } catch (e) {
+    console.error(e);
+  } finally {
+    deletingId.value = null;
+  }
+};
+
+onMounted(() => {
+  fetchItems();
+});
+</script>
+

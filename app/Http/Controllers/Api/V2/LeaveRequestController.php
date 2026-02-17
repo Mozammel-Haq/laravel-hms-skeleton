@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
+use App\Models\DoctorScheduleException;
 use App\Models\LeaveRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -117,6 +118,34 @@ class LeaveRequestController extends Controller
         $leave->save();
 
         $leave->load('user');
+
+        if ($leave->status === 'approved' && $leave->user && $leave->user->doctor) {
+            $doctor = $leave->user->doctor;
+
+            $existing = DoctorScheduleException::where('doctor_id', $doctor->id)
+                ->where('clinic_id', $actor->clinic_id)
+                ->where('start_date', $leave->start_date)
+                ->where('end_date', $leave->end_date)
+                ->where('reason', 'like', '%[LeaveRequest #'.$leave->id.']%')
+                ->first();
+
+            if (! $existing) {
+                $baseReason = $leave->reason ?: 'Leave';
+                $type = $leave->leave_type ?: 'general';
+
+                DoctorScheduleException::create([
+                    'doctor_id' => $doctor->id,
+                    'clinic_id' => $actor->clinic_id,
+                    'start_date' => $leave->start_date,
+                    'end_date' => $leave->end_date,
+                    'is_available' => false,
+                    'start_time' => null,
+                    'end_time' => null,
+                    'reason' => 'Leave ('.$type.') via HRM: '.$baseReason.' [LeaveRequest #'.$leave->id.']',
+                    'status' => 'approved',
+                ]);
+            }
+        }
 
         return response()->json([
             'status' => 'success',

@@ -32,6 +32,16 @@ const routes = [
     component: () => import('../views/Leaves.vue')
   },
   {
+    path: '/hr/leaves/approvals',
+    name: 'LeaveApprovals',
+    component: () => import('../views/LeaveApprovals.vue')
+  },
+  {
+    path: '/hr/leaves/calendar',
+    name: 'LeaveCalendar',
+    component: () => import('../views/LeaveCalendar.vue')
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('../views/Login.vue')
@@ -45,6 +55,121 @@ const routes = [
     path: '/hr/designations',
     name: 'Designations',
     component: () => import('../views/Designations.vue')
+  },
+  {
+    path: '/hr/shifts',
+    name: 'Shifts',
+    component: () => import('../views/Shifts.vue')
+  },
+  {
+    path: '/hr/profiles',
+    name: 'Profiles',
+    component: () => import('../views/Profiles.vue')
+  },
+  {
+    path: '/hr/holidays',
+    name: 'Holidays',
+    component: () => import('../views/Holidays.vue')
+  },
+  {
+    path: '/hr/shift-calendar',
+    name: 'ShiftCalendar',
+    component: () => import('../views/ShiftCalendar.vue')
+  },
+  {
+    path: '/hr/leaves/types',
+    name: 'LeaveTypes',
+    component: () => import('../views/LeaveTypes.vue')
+  },
+  {
+    path: '/hr/leaves/accruals',
+    name: 'LeaveBalances',
+    component: () => import('../views/LeaveAccruals.vue')
+  },
+  {
+    path: '/hr/attendance',
+    name: 'Attendance',
+    component: () => import('../views/Attendance.vue')
+  },
+  {
+    path: '/hr/timesheets',
+    name: 'Timesheets',
+    component: () => import('../views/Timesheets.vue')
+  },
+  {
+    path: '/hr/overtime',
+    name: 'Overtime',
+    component: () => import('../views/Overtime.vue')
+  },
+  {
+    path: '/hr/payroll/runs',
+    name: 'PayrollRuns',
+    component: () => import('../views/PayrollRuns.vue')
+  },
+  {
+    path: '/hr/payroll/payslips',
+    name: 'Payslips',
+    component: () => import('../views/Payslips.vue')
+  },
+  {
+    path: '/hr/payroll/structure',
+    name: 'SalaryStructure',
+    component: () => import('../views/SalaryStructure.vue')
+  },
+  {
+    path: '/hr/payroll/allowances',
+    name: 'PayrollAllowances',
+    component: () => import('../views/PayrollAllowances.vue')
+  },
+  {
+    path: '/hr/payroll/deductions',
+    name: 'PayrollDeductions',
+    component: () => import('../views/PayrollDeductions.vue')
+  },
+  {
+    path: '/hr/payroll/taxes',
+    name: 'PayrollTaxes',
+    component: () => import('../views/PayrollTaxes.vue')
+  },
+  {
+    path: '/hr/recruitment/jobs',
+    name: 'RecruitmentJobs',
+    component: () => import('../views/RecruitmentJobs.vue')
+  },
+  {
+    path: '/hr/recruitment/candidates',
+    name: 'RecruitmentCandidates',
+    component: () => import('../views/RecruitmentCandidates.vue')
+  },
+  {
+    path: '/hr/recruitment/interviews',
+    name: 'RecruitmentInterviews',
+    component: () => import('../views/RecruitmentInterviews.vue')
+  },
+  {
+    path: '/hr/recruitment/offers',
+    name: 'RecruitmentOffers',
+    component: () => import('../views/RecruitmentOffers.vue')
+  },
+  {
+    path: '/hr/recruitment/onboarding',
+    name: 'RecruitmentOnboarding',
+    component: () => import('../views/RecruitmentOnboarding.vue')
+  },
+  {
+    path: '/hr/training/courses',
+    name: 'TrainingCourses',
+    component: () => import('../views/TrainingCourses.vue')
+  },
+  {
+    path: '/hr/training/sessions',
+    name: 'TrainingSessions',
+    component: () => import('../views/TrainingSessions.vue')
+  },
+  {
+    path: '/hr/training/evaluations',
+    name: 'TrainingEvaluations',
+    component: () => import('../views/TrainingEvaluations.vue')
   }
 ]
 

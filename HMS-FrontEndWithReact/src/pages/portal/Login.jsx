@@ -89,6 +89,14 @@ const Login = () => {
           </Link>
         </p>
       </div>
+      {/* Demo Login Credentials */}
+      <p className="mt-4 text-center text-sm text-secondary-600 dark:text-secondary-400">
+        Demo Login Credentials:
+        <br />
+        Email: <span className="font-medium">hmojammel29@gmail.com</span>
+        <br />
+        Password: <span className="font-medium">PT1234</span>
+      </p>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="bg-white dark:bg-secondary-900 py-8 px-4 sm:rounded-2xl sm:px-10 border border-primary-200 dark:border-primary-800 transition-colors duration-300">
