@@ -3,13 +3,17 @@
 namespace App\Services;
 
 use App\Models\Expense;
+use App\Models\HrmLeaveType;
+use App\Models\HrmOvertime;
 use App\Models\HrmPayrollAllowance;
 use App\Models\HrmPayrollDeduction;
 use App\Models\HrmPayrollRun;
 use App\Models\HrmPayrollTax;
 use App\Models\HrmPayslip;
 use App\Models\HrmSalaryStructure;
+use App\Models\LeaveRequest;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class PayrollService
@@ -64,6 +68,43 @@ class PayrollService
                 })
                 ->get();
 
+            $userIds = $users->pluck('id');
+
+            $leaveTypes = HrmLeaveType::query()
+                ->where('clinic_id', $clinicId)
+                ->where('status', 'active')
+                ->get();
+
+            $leaveTypesByCode = [];
+            $leaveTypesByName = [];
+
+            foreach ($leaveTypes as $type) {
+                $nameKey = mb_strtolower($type->name);
+                $leaveTypesByName[$nameKey] = $type;
+
+                if ($type->code !== null && $type->code !== '') {
+                    $codeKey = mb_strtolower($type->code);
+                    $leaveTypesByCode[$codeKey] = $type;
+                }
+            }
+
+            $leaveRequests = LeaveRequest::query()
+                ->whereIn('user_id', $userIds)
+                ->where('status', 'approved')
+                ->whereDate('start_date', '<=', $run->period_end)
+                ->whereDate('end_date', '>=', $run->period_start)
+                ->get()
+                ->groupBy('user_id');
+
+            $overtimes = HrmOvertime::query()
+                ->where('clinic_id', $clinicId)
+                ->whereIn('user_id', $userIds)
+                ->where('status', 'approved')
+                ->whereDate('date', '>=', $run->period_start)
+                ->whereDate('date', '<=', $run->period_end)
+                ->get()
+                ->groupBy('user_id');
+
             $totalGross = 0.0;
             $totalNet = 0.0;
 
@@ -94,6 +135,99 @@ class PayrollService
                     continue;
                 }
 
+                $periodStart = $run->period_start instanceof Carbon ? $run->period_start->copy()->startOfDay() : Carbon::parse($run->period_start)->startOfDay();
+                $periodEnd = $run->period_end instanceof Carbon ? $run->period_end->copy()->startOfDay() : Carbon::parse($run->period_end)->startOfDay();
+                $daysInPeriod = $periodStart->diffInDays($periodEnd) + 1;
+
+                $userLeaves = $leaveRequests->get($user->id, collect());
+                $payFactor = 1.0;
+                $payFactorDetails = [
+                    'period_days' => $daysInPeriod,
+                    'effective_days' => $daysInPeriod,
+                    'unpaid_days' => 0,
+                    'average_factor' => 1.0,
+                ];
+
+                if ($daysInPeriod > 0 && $userLeaves->isNotEmpty()) {
+                    $dayFactors = [];
+
+                    for ($i = 0; $i < $daysInPeriod; $i++) {
+                        $day = $periodStart->copy()->addDays($i)->toDateString();
+                        $dayFactors[$day] = 1.0;
+                    }
+
+                    foreach ($userLeaves as $leave) {
+                        $type = null;
+                        $rawType = $leave->leave_type ?? '';
+
+                        if ($rawType !== '') {
+                            $key = mb_strtolower($rawType);
+                            $type = $leaveTypesByCode[$key] ?? $leaveTypesByName[$key] ?? null;
+                        }
+
+                        $factorForLeave = 1.0;
+
+                        if ($type) {
+                            if ($type->pay_factor !== null) {
+                                $factorForLeave = (float) $type->pay_factor;
+                            } elseif ($type->is_paid === false) {
+                                $factorForLeave = 0.0;
+                            }
+                        }
+
+                        $leaveStart = $leave->start_date instanceof Carbon ? $leave->start_date->copy()->startOfDay() : Carbon::parse($leave->start_date)->startOfDay();
+                        $leaveEnd = $leave->end_date instanceof Carbon ? $leave->end_date->copy()->startOfDay() : Carbon::parse($leave->end_date)->startOfDay();
+
+                        if ($leaveEnd->lt($periodStart) || $leaveStart->gt($periodEnd)) {
+                            continue;
+                        }
+
+                        if ($leaveStart->lt($periodStart)) {
+                            $leaveStart = $periodStart->copy();
+                        }
+
+                        if ($leaveEnd->gt($periodEnd)) {
+                            $leaveEnd = $periodEnd->copy();
+                        }
+
+                        $leaveDays = $leaveStart->diffInDays($leaveEnd) + 1;
+
+                        for ($i = 0; $i < $leaveDays; $i++) {
+                            $current = $leaveStart->copy()->addDays($i)->toDateString();
+
+                            if (! array_key_exists($current, $dayFactors)) {
+                                continue;
+                            }
+
+                            $dayFactors[$current] = min($dayFactors[$current], $factorForLeave);
+                        }
+                    }
+
+                    $sumFactors = array_sum($dayFactors);
+                    $payFactor = $daysInPeriod > 0 ? $sumFactors / $daysInPeriod : 1.0;
+
+                    $unpaidDays = 0.0;
+
+                    foreach ($dayFactors as $value) {
+                        if ($value < 1.0) {
+                            $unpaidDays += (1.0 - $value);
+                        }
+                    }
+
+                    $payFactorDetails = [
+                        'period_days' => $daysInPeriod,
+                        'effective_days' => $daysInPeriod - $unpaidDays,
+                        'unpaid_days' => $unpaidDays,
+                        'average_factor' => $payFactor,
+                    ];
+                }
+
+                $effectiveBasic = $basic;
+
+                if ($payFactor > 0.0 && $payFactor < 1.0) {
+                    $effectiveBasic = $basic * $payFactor;
+                }
+
                 $allowanceBreakdown = [];
                 $deductionBreakdown = [];
                 $taxBreakdown = [];
@@ -102,7 +236,7 @@ class PayrollService
                 $deductionTotal = 0.0;
                 $taxTotal = 0.0;
 
-                $preGross = $basic;
+                $preGross = $effectiveBasic;
 
                 foreach ($allowances as $allowance) {
                     $amountConfig = (float) $allowance->amount;
@@ -111,7 +245,7 @@ class PayrollService
                     if ($allowance->calculation_type === 'fixed') {
                         $calculated = $amountConfig;
                     } elseif ($allowance->calculation_type === 'percent_basic') {
-                        $calculated = $basic * $amountConfig / 100;
+                        $calculated = $effectiveBasic * $amountConfig / 100;
                     } elseif ($allowance->calculation_type === 'percent_gross') {
                         continue;
                     }
@@ -131,7 +265,7 @@ class PayrollService
                     ];
                 }
 
-                $intermediateGross = $basic + $allowanceTotal;
+                $intermediateGross = $effectiveBasic + $allowanceTotal;
 
                 foreach ($allowances as $allowance) {
                     if ($allowance->calculation_type !== 'percent_gross') {
@@ -156,7 +290,45 @@ class PayrollService
                     ];
                 }
 
-                $gross = $basic + $allowanceTotal;
+                $userOvertimes = $overtimes->get($user->id, collect());
+
+                $overtimeTotal = 0.0;
+
+                if ($userOvertimes->isNotEmpty() && $daysInPeriod > 0) {
+                    $standardHours = $daysInPeriod * 8;
+                    $hourlyRate = $standardHours > 0 ? $basic / $standardHours : 0.0;
+
+                    foreach ($userOvertimes as $overtime) {
+                        $hours = (float) $overtime->hours;
+                        $multiplier = (float) $overtime->multiplier;
+
+                        if ($hours <= 0 || $multiplier <= 0) {
+                            continue;
+                        }
+
+                        $calculated = $hourlyRate * $hours * $multiplier;
+
+                        if ($calculated <= 0) {
+                            continue;
+                        }
+
+                        $overtimeTotal += $calculated;
+
+                        $allowanceBreakdown[] = [
+                            'id' => $overtime->id,
+                            'name' => 'Overtime '.$overtime->date->toDateString(),
+                            'calculation_type' => 'overtime',
+                            'amount_config' => $hours * $multiplier,
+                            'calculated_amount' => $calculated,
+                        ];
+                    }
+                }
+
+                if ($overtimeTotal > 0) {
+                    $allowanceTotal += $overtimeTotal;
+                }
+
+                $gross = $effectiveBasic + $allowanceTotal;
 
                 foreach ($deductions as $deduction) {
                     $amountConfig = (float) $deduction->amount;
@@ -234,7 +406,7 @@ class PayrollService
                     'user_id' => $user->id,
                     'period_start' => $run->period_start,
                     'period_end' => $run->period_end,
-                    'basic' => $basic,
+                    'basic' => $effectiveBasic,
                     'total_allowances' => $allowanceTotal,
                     'total_deductions' => $totalDeductions,
                     'gross' => $gross,
@@ -243,6 +415,8 @@ class PayrollService
                     'meta' => [
                         'salary_structure_id' => $structure->id,
                         'basic_source' => $user->basic_salary_override !== null ? 'override' : 'structure',
+                        'basic_original' => $basic,
+                        'payroll_factors' => $payFactorDetails,
                         'allowances' => $allowanceBreakdown,
                         'deductions' => $deductionBreakdown,
                         'taxes' => $taxBreakdown,

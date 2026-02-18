@@ -226,6 +226,9 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import api from '../services/api';
+import { useToastStore } from '../store/toastStore';
+
+const toast = useToastStore();
 
 const documents = ref([]);
 const loading = ref(false);
@@ -288,6 +291,7 @@ const fetchDocuments = async () => {
     documents.value = response.data.data || [];
   } catch (e) {
     console.error('Failed to load documents', e);
+    toast.error('Failed to load documents');
   } finally {
     loading.value = false;
   }
@@ -355,6 +359,7 @@ const handleSubmit = async () => {
   } catch (e) {
     console.error('Failed to save document', e);
     formError.value = e.response?.data?.message || 'Failed to save document';
+    toast.error(formError.value);
   } finally {
     saving.value = false;
     savingId.value = null;
@@ -369,6 +374,7 @@ const archiveDocument = async (documentItem) => {
     await fetchDocuments();
   } catch (e) {
     console.error('Failed to archive document', e);
+    toast.error('Failed to archive document');
   } finally {
     savingId.value = null;
   }
@@ -384,4 +390,3 @@ const closeRowMenu = () => {
 
 onMounted(fetchDocuments);
 </script>
-

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Base\BaseTenantModel;
-use App\Models\Designation;
 
 class HrmPerformanceAppraisal extends BaseTenantModel
 {
@@ -33,6 +32,10 @@ class HrmPerformanceAppraisal extends BaseTenantModel
         'updated_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'promotion_designation',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -46,5 +49,10 @@ class HrmPerformanceAppraisal extends BaseTenantModel
     public function promotionToDesignation()
     {
         return $this->belongsTo(Designation::class, 'promotion_to_designation_id');
+    }
+
+    public function getPromotionDesignationAttribute()
+    {
+        return $this->promotionToDesignation;
     }
 }

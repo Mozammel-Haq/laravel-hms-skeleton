@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('hrm_performance_appraisals')) {
+            return;
+        }
+
         Schema::create('hrm_performance_appraisals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('clinic_id')->constrained()->restrictOnDelete();

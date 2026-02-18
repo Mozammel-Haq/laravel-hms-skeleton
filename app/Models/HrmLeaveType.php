@@ -14,14 +14,17 @@ class HrmLeaveType extends BaseTenantModel
         'code',
         'default_days',
         'carry_forward',
+        'is_paid',
+        'pay_factor',
         'status',
     ];
 
     protected $casts = [
         'default_days' => 'float',
         'carry_forward' => 'boolean',
+        'is_paid' => 'boolean',
+        'pay_factor' => 'float',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 }
-

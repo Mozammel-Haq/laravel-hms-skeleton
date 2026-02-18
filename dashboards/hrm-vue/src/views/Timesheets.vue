@@ -236,8 +236,10 @@
 import { computed, onMounted, ref } from 'vue';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { useToastStore } from '../store/toastStore';
 
 const auth = useAuthStore();
+const toast = useToastStore();
 
 const today = new Date();
 const startOfWeek = new Date(today);
@@ -335,6 +337,7 @@ const loadTimesheets = async () => {
     records.value = page.data || payload.data || [];
   } catch (e) {
     console.error('Failed to load timesheets', e);
+    toast.error('Failed to load timesheets');
   } finally {
     loading.value = false;
   }
@@ -393,8 +396,10 @@ const save = async () => {
     };
     if (editing.value && currentId.value) {
       await api.put(`/timesheets/${currentId.value}`, payload);
+      toast.success('Timesheet updated');
     } else {
       await api.post('/timesheets', payload);
+      toast.success('Timesheet created');
     }
     closeModal();
     loadTimesheets();
@@ -405,6 +410,7 @@ const save = async () => {
     } else {
       formError.value = 'Failed to save timesheet entry';
     }
+    toast.error(formError.value);
   } finally {
     saving.value = false;
   }
@@ -417,6 +423,7 @@ const deleteRow = async (row) => {
     loadTimesheets();
   } catch (e) {
     console.error('Failed to delete timesheet entry', e);
+    toast.error('Failed to delete timesheet entry');
   }
 };
 

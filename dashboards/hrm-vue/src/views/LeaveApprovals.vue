@@ -116,6 +116,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from '../services/api';
+import { useToastStore } from '../store/toastStore';
+
+const toast = useToastStore();
 
 const loading = ref(false);
 const error = ref('');
@@ -163,6 +166,7 @@ const fetchLeaves = async () => {
   } catch (e) {
     error.value = e.response?.data?.message || 'Failed to load leave requests';
     console.error('Load leaves error', e);
+    toast.error(error.value || 'Failed to load leave requests');
   } finally {
     loading.value = false;
   }
@@ -176,7 +180,9 @@ const updateStatus = async (leave, status) => {
     leaves.value = leaves.value.filter((l) => l.id !== leave.id);
   } catch (e) {
     console.error('Update leave status error', e);
-    alert(e.response?.data?.message || 'Failed to update status');
+    const message = e.response?.data?.message;
+    const text = typeof message === 'string' ? message : 'Failed to update status';
+    toast.error(text);
   } finally {
     actionBusyId.value = null;
     pendingAction.value = '';

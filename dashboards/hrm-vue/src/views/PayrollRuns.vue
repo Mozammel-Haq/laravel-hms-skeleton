@@ -4,6 +4,9 @@
       <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-3 pb-3 rounded-3 mb-0">
         <div>
           <h5 class="fw-bold mb-1 text-primary">Payroll Runs</h5>
+          <p class="text-muted small mb-2">
+            Generate monthly payroll and track processing status across the clinic.
+          </p>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-dots mb-0 text-muted small">
               <li class="breadcrumb-item">
@@ -228,6 +231,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from '../services/api';
+import { useToastStore } from '../store/toastStore';
 
 const normalizeDateForPeriod = (value) => {
   if (!value) return null;
@@ -253,6 +257,8 @@ const formatDateTime = (value) => {
   if (Number.isNaN(d.getTime())) return value;
   return d.toLocaleString();
 };
+
+const toast = useToastStore();
 
 const items = ref([]);
 const loading = ref(false);
@@ -380,14 +386,17 @@ const saveForm = async () => {
     };
     if (form.value.id) {
       await api.put(`/payroll-runs/${form.value.id}`, payload);
+      toast.success('Payroll run updated');
     } else {
       await api.post('/payroll-runs', payload);
+      toast.success('Payroll run created');
     }
     closeForm();
     await fetchItems();
   } catch (e) {
     const message = e?.response?.data?.message;
     formError.value = typeof message === 'string' ? message : 'Failed to save payroll run';
+    toast.error(formError.value);
   } finally {
     saving.value = false;
   }
@@ -405,13 +414,13 @@ const processRun = async (run) => {
     });
     await fetchItems();
   } catch (e) {
-    // For debugging: log full error details instead of showing an alert
     console.error('Failed to run payroll', {
       error: e,
       response: e?.response,
       data: e?.response?.data,
       status: e?.response?.status
     });
+    toast.error('Failed to run payroll');
   } finally {
     processingId.value = null;
   }
@@ -425,6 +434,7 @@ const deleteRun = async (run) => {
     await fetchItems();
   } catch (e) {
     console.error(e);
+    toast.error('Failed to delete payroll run');
   } finally {
     deletingId.value = null;
   }

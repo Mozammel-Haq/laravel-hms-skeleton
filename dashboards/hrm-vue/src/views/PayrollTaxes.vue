@@ -198,6 +198,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import api from '../services/api';
+import { useToastStore } from '../store/toastStore';
+
+const toast = useToastStore();
 
 const items = ref([]);
 const loading = ref(false);
@@ -246,6 +249,7 @@ const fetchItems = async () => {
     items.value = Array.isArray(payload.data) ? payload.data : [];
   } catch (e) {
     console.error(e);
+    toast.error('Failed to load payroll taxes');
   } finally {
     loading.value = false;
   }
@@ -313,6 +317,7 @@ const saveForm = async () => {
   } catch (e) {
     const message = e?.response?.data?.message;
     formError.value = typeof message === 'string' ? message : 'Failed to save tax rule';
+    toast.error(formError.value);
   } finally {
     saving.value = false;
     savingId.value = null;
@@ -327,6 +332,7 @@ const archiveItem = async (item) => {
     await fetchItems();
   } catch (e) {
     console.error(e);
+    toast.error('Failed to archive tax rule');
   } finally {
     savingId.value = null;
   }

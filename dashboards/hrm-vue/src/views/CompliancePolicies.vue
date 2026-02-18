@@ -205,6 +205,9 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import api from '../services/api';
+import { useToastStore } from '../store/toastStore';
+
+const toast = useToastStore();
 
 const policies = ref([]);
 const loading = ref(false);
@@ -265,6 +268,7 @@ const fetchPolicies = async () => {
     policies.value = response.data.data || [];
   } catch (e) {
     console.error('Failed to load policies', e);
+    toast.error('Failed to load policies');
   } finally {
     loading.value = false;
   }
@@ -326,6 +330,7 @@ const handleSubmit = async () => {
   } catch (e) {
     console.error('Failed to save policy', e);
     formError.value = e.response?.data?.message || 'Failed to save policy';
+    toast.error(formError.value);
   } finally {
     saving.value = false;
     savingId.value = null;
@@ -340,6 +345,7 @@ const archivePolicy = async (policy) => {
     await fetchPolicies();
   } catch (e) {
     console.error('Failed to archive policy', e);
+    toast.error('Failed to archive policy');
   } finally {
     savingId.value = null;
   }
@@ -355,4 +361,3 @@ const closeRowMenu = () => {
 
 onMounted(fetchPolicies);
 </script>
-

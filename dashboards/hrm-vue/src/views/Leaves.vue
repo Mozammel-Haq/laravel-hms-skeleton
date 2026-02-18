@@ -280,8 +280,10 @@
 import { ref, onMounted, computed } from 'vue';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { useToastStore } from '../store/toastStore';
 
 const auth = useAuthStore();
+const toast = useToastStore();
 const loading = ref(false);
 const submitting = ref(false);
 const showNewModal = ref(false);
@@ -339,6 +341,7 @@ const fetchLeaves = async () => {
     };
   } catch (e) {
     console.error('Failed to fetch leaves', e);
+    toast.error('Failed to load leave requests');
   } finally {
     loading.value = false;
   }
@@ -359,6 +362,7 @@ const loadStaff = async () => {
     }));
   } catch (e) {
     console.error('Failed to load staff', e);
+    toast.error('Failed to load staff list');
   } finally {
     staffLoading.value = false;
   }
@@ -373,7 +377,9 @@ const submit = async () => {
     fetchLeaves();
   } catch (e) {
     console.error('Failed to submit leave', e);
-    alert('Failed to submit leave request.');
+    const message = e?.response?.data?.message;
+    const text = typeof message === 'string' ? message : 'Failed to submit leave request';
+    toast.error(text);
   } finally {
     submitting.value = false;
   }
@@ -385,6 +391,7 @@ const approve = async (leave) => {
     fetchLeaves();
   } catch (e) {
     console.error('Failed to approve', e);
+    toast.error('Failed to approve leave');
   }
 };
 
@@ -394,6 +401,7 @@ const reject = async (leave) => {
     fetchLeaves();
   } catch (e) {
     console.error('Failed to reject', e);
+    toast.error('Failed to reject leave');
   }
 };
 
@@ -407,6 +415,7 @@ const viewLeave = async (leave) => {
     console.error('Failed to load leave details', e);
     selectedLeave.value = leave;
     showViewModal.value = true;
+    toast.error('Failed to load leave details');
   }
 };
 

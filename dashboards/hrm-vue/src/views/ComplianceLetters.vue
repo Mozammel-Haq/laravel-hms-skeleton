@@ -211,6 +211,9 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import api from '../services/api';
+import { useToastStore } from '../store/toastStore';
+
+const toast = useToastStore();
 
 const letters = ref([]);
 const loading = ref(false);
@@ -265,6 +268,7 @@ const fetchLetters = async () => {
     letters.value = response.data.data || [];
   } catch (e) {
     console.error('Failed to load letters', e);
+    toast.error('Failed to load letters');
   } finally {
     loading.value = false;
   }
@@ -329,6 +333,7 @@ const handleSubmit = async () => {
   } catch (e) {
     console.error('Failed to save letter', e);
     formError.value = e.response?.data?.message || 'Failed to save letter';
+    toast.error(formError.value);
   } finally {
     saving.value = false;
     savingId.value = null;
@@ -343,6 +348,7 @@ const archiveLetter = async (letter) => {
     await fetchLetters();
   } catch (e) {
     console.error('Failed to archive letter', e);
+    toast.error('Failed to archive letter');
   } finally {
     savingId.value = null;
   }
@@ -358,4 +364,3 @@ const closeRowMenu = () => {
 
 onMounted(fetchLetters);
 </script>
-

@@ -94,6 +94,78 @@
             </div>
           </div>
         </div>
+
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-0">Salary &amp; Promotion History</h5>
+              <p class="text-muted small mb-0">
+                Approved performance appraisals that changed this staff member&apos;s pay or role.
+              </p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div v-if="historyLoading" class="text-center py-4">
+              <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            </div>
+            <div v-else-if="appraisals.length === 0" class="text-muted small">
+              No salary or promotion changes recorded yet.
+            </div>
+            <div v-else class="table-responsive">
+              <table class="table table-sm align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Effective Date</th>
+                    <th>Salary</th>
+                    <th>Change</th>
+                    <th>Promotion</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in appraisals" :key="item.id">
+                    <td>{{ formatDate(item.effective_date) }}</td>
+                    <td>
+                      <div class="fw-semibold">
+                        {{ formatMoney(item.new_salary ?? item.current_salary) }}
+                      </div>
+                      <div class="text-muted small" v-if="item.current_salary != null && item.new_salary != null">
+                        {{ formatMoney(item.current_salary) }} → {{ formatMoney(item.new_salary) }}
+                      </div>
+                    </td>
+                    <td>
+                      <div v-if="item.salary_change_amount != null">
+                        {{ formatMoney(item.salary_change_amount) }}
+                      </div>
+                      <div class="text-muted small" v-if="item.salary_change_percent != null">
+                        {{ item.salary_change_percent }}%
+                      </div>
+                    </td>
+                    <td>
+                      <span v-if="item.promotion_designation">
+                        {{ item.promotion_designation.name }}
+                      </span>
+                      <span v-else class="text-muted small">No promotion</span>
+                    </td>
+                    <td>
+                      <span
+                        class="badge"
+                        :class="{
+                          'bg-secondary-subtle text-secondary': item.status === 'draft',
+                          'bg-info-subtle text-info': item.status === 'recommended',
+                          'bg-success-subtle text-success': item.status === 'approved',
+                          'bg-danger-subtle text-danger': item.status === 'rejected'
+                        }"
+                      >
+                        {{ item.status }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -110,6 +182,8 @@ const router = useRouter();
 const staff = ref(null);
 const loading = ref(false);
 const error = ref('');
+const appraisals = ref([]);
+const historyLoading = ref(false);
 
 const getInitials = (name) => {
   if (!name) return '??';
@@ -119,6 +193,13 @@ const getInitials = (name) => {
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A';
   return new Date(dateString).toLocaleDateString();
+};
+
+const formatMoney = (value) => {
+  if (value == null) return 'N/A';
+  const num = typeof value === 'number' ? value : parseFloat(value);
+  if (!Number.isFinite(num)) return 'N/A';
+  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 const goBack = () => {
@@ -141,5 +222,27 @@ const fetchStaff = async () => {
   }
 };
 
-onMounted(fetchStaff);
+const fetchAppraisals = async () => {
+  if (!route.params.id) return;
+  historyLoading.value = true;
+  try {
+    const response = await api.get('/performance-appraisals', {
+      params: {
+        user_id: route.params.id,
+      },
+    });
+    const payload = response.data || {};
+    const pageData = payload.data || {};
+    const list = pageData.data || pageData;
+    appraisals.value = Array.isArray(list) ? list : [];
+  } catch (err) {
+    console.error('Failed to load appraisal history', err);
+  } finally {
+    historyLoading.value = false;
+  }
+};
+
+onMounted(async () => {
+  await Promise.all([fetchStaff(), fetchAppraisals()]);
+});
 </script>

@@ -503,8 +503,10 @@
 import { ref, computed, onMounted } from 'vue';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { useToastStore } from '../store/toastStore';
 
 const auth = useAuthStore();
+const toast = useToastStore();
 
 const shifts = ref([]);
 const shiftPagination = ref({
@@ -621,6 +623,7 @@ const fetchShifts = async () => {
     };
   } catch (e) {
     console.error('Failed to fetch shifts', e);
+    toast.error('Failed to load shifts');
   } finally {
     loadingShifts.value = false;
   }
@@ -653,6 +656,7 @@ const fetchAssignments = async () => {
     };
   } catch (e) {
     console.error('Failed to fetch assignments', e);
+    toast.error('Failed to load shift assignments');
   } finally {
     loadingAssignments.value = false;
   }
@@ -673,6 +677,7 @@ const loadStaffOptions = async () => {
     }));
   } catch (e) {
     console.error('Failed to load staff options', e);
+    toast.error('Failed to load staff');
   } finally {
     staffLoading.value = false;
   }
@@ -799,6 +804,7 @@ const saveShift = async () => {
   } catch (e) {
     console.error('Failed to save shift', e);
     shiftError.value = e.response?.data?.message || 'Failed to save shift';
+    toast.error(shiftError.value);
   } finally {
     savingShift.value = false;
   }
@@ -811,6 +817,7 @@ const deactivateShift = async (shift) => {
     await fetchShifts();
   } catch (e) {
     console.error('Failed to deactivate shift', e);
+    toast.error('Failed to deactivate shift');
   }
 };
 
@@ -876,6 +883,7 @@ const saveAssignment = async () => {
   } catch (e) {
     console.error('Failed to save assignment', e);
     assignmentError.value = e.response?.data?.message || 'Failed to save assignment';
+    toast.error(assignmentError.value);
   } finally {
     savingAssignment.value = false;
   }
@@ -888,6 +896,7 @@ const deactivateAssignment = async (assignment) => {
     await fetchAssignments();
   } catch (e) {
     console.error('Failed to deactivate assignment', e);
+    toast.error('Failed to deactivate assignment');
   }
 };
 
