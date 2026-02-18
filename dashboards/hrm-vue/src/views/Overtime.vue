@@ -236,6 +236,12 @@ const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
 const formatIso = (d) => d.toISOString().slice(0, 10);
 
+const normalizeDateForPeriod = (value) => {
+  if (!value) return null;
+  const v = String(value).slice(0, 10);
+  return `${v}T00:00:00.000000Z`;
+};
+
 const filters = ref({
   from_date: formatIso(startOfMonth),
   to_date: formatIso(endOfMonth),
@@ -297,10 +303,12 @@ const loadStaff = async () => {
 const loadOvertime = async () => {
   loading.value = true;
   try {
+    const from = normalizeDateForPeriod(filters.value.from_date);
+    const to = normalizeDateForPeriod(filters.value.to_date);
     const res = await api.get('/overtimes', {
       params: {
-        from_date: filters.value.from_date,
-        to_date: filters.value.to_date,
+        from_date: from,
+        to_date: to,
         per_page: 200,
       },
     });

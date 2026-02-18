@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
 use App\Models\HrmPayrollRun;
+use App\Services\PayrollService;
 use Illuminate\Http\Request;
 
 class HrmPayrollRunController extends Controller
@@ -18,6 +19,7 @@ class HrmPayrollRunController extends Controller
 
         $query = HrmPayrollRun::query()
             ->where('clinic_id', $user->clinic_id)
+            ->with('processor')
             ->orderByDesc('period_end');
 
         if ($status = $request->string('status')->toString()) {
@@ -69,7 +71,7 @@ class HrmPayrollRunController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, HrmPayrollRun $run)
+    public function update(Request $request, HrmPayrollRun $run, PayrollService $payrollService)
     {
         $user = $request->user();
 
@@ -95,11 +97,39 @@ class HrmPayrollRunController extends Controller
             }
         }
 
-        if (isset($validated['status']) && $validated['status'] === 'completed') {
-            $validated['processed_by'] = $user->id;
+        $shouldAutoProcess = false;
+
+        if (isset($validated['status']) && in_array($validated['status'], ['processing', 'completed'], true)) {
+            $hasManualTotals = false;
+
+            if (array_key_exists('total_gross', $validated) || array_key_exists('total_net', $validated)) {
+                $grossVal = $validated['total_gross'] ?? null;
+                $netVal = $validated['total_net'] ?? null;
+
+                $grossIsManual = $grossVal !== null && $grossVal !== '' && (float) $grossVal > 0;
+                $netIsManual = $netVal !== null && $netVal !== '' && (float) $netVal > 0;
+
+                $hasManualTotals = $grossIsManual || $netIsManual;
+            }
+
+            $shouldAutoProcess = ! $hasManualTotals;
         }
 
-        $run->update($validated);
+        if ($shouldAutoProcess) {
+            $updateData = $validated;
+            $updateData['status'] = 'processing';
+            unset($updateData['total_gross'], $updateData['total_net']);
+
+            $run->update($updateData);
+            $run = $payrollService->processRun($run->fresh(), $user);
+        } else {
+            if (isset($validated['status']) && $validated['status'] === 'completed') {
+                $validated['processed_by'] = $user->id;
+            }
+
+            $run->update($validated);
+            $run->refresh();
+        }
 
         return response()->json([
             'status' => 'success',
@@ -130,4 +160,3 @@ class HrmPayrollRunController extends Controller
         ]);
     }
 }
-

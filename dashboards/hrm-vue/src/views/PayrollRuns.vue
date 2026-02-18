@@ -96,7 +96,7 @@
               </tr>
               <tr v-for="run in items" :key="run.id">
                 <td>
-                  {{ run.period_start }} to {{ run.period_end }}
+                  {{ formatDateOnly(run.period_start) }} to {{ formatDateOnly(run.period_end) }}
                 </td>
                 <td>
                   <span class="badge" :class="statusClass(run.status)">
@@ -105,8 +105,20 @@
                 </td>
                 <td class="text-end">{{ formatMoney(run.total_gross) }}</td>
                 <td class="text-end">{{ formatMoney(run.total_net) }}</td>
-                <td>{{ run.processed_by ? '#' + run.processed_by : '-' }}</td>
-                <td>{{ run.updated_at }}</td>
+                <td>
+                  <span v-if="run.status === 'processing'" class="text-warning small">
+                    Running...
+                  </span>
+                  <span v-else>
+                    <template v-if="run.processor && run.processor.name">
+                      {{ run.processor.name }}
+                    </template>
+                    <template v-else>
+                      {{ run.processed_by ? '#' + run.processed_by : '-' }}
+                    </template>
+                  </span>
+                </td>
+                <td>{{ formatDateTime(run.updated_at) }}</td>
                 <td class="text-end">
                   <div class="dropdown">
                     <button
@@ -120,6 +132,15 @@
                       class="dropdown-menu dropdown-menu-end shadow-sm border-0"
                       :class="{ show: openMenuId === run.id }"
                     >
+                      <li v-if="run.status === 'draft' || run.status === 'cancelled'">
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); processRun(run); }"
+                        >
+                          <i class="ti ti-play me-2"></i>Run Payroll
+                        </a>
+                      </li>
                       <li>
                         <a
                           href="#"
@@ -208,10 +229,36 @@
 import { ref, onMounted } from 'vue';
 import api from '../services/api';
 
+const normalizeDateForPeriod = (value) => {
+  if (!value) return null;
+  const v = String(value).slice(0, 10);
+  return `${v}T00:00:00.000000Z`;
+};
+
+const toDateInputValue = (value) => {
+  if (!value) return '';
+  return String(value).slice(0, 10);
+};
+
+const formatDateOnly = (value) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString();
+};
+
+const formatDateTime = (value) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleString();
+};
+
 const items = ref([]);
 const loading = ref(false);
 const saving = ref(false);
 const deletingId = ref(null);
+const processingId = ref(null);
 const filters = ref({
   from_date: '',
   to_date: '',
@@ -255,8 +302,10 @@ const fetchItems = async () => {
   loading.value = true;
   try {
     const params = {};
-    if (filters.value.from_date) params.from_date = filters.value.from_date;
-    if (filters.value.to_date) params.to_date = filters.value.to_date;
+    const from = normalizeDateForPeriod(filters.value.from_date);
+    const to = normalizeDateForPeriod(filters.value.to_date);
+    if (from) params.from_date = from;
+    if (to) params.to_date = to;
     if (filters.value.status) params.status = filters.value.status;
     params.per_page = 50;
     const response = await api.get('/payroll-runs', { params });
@@ -285,8 +334,8 @@ const openForm = (run = null) => {
   if (run) {
     form.value = {
       id: run.id,
-      period_start: run.period_start,
-      period_end: run.period_end,
+      period_start: toDateInputValue(run.period_start),
+      period_end: toDateInputValue(run.period_end),
       status: run.status,
       total_gross: run.total_gross ?? 0,
       total_net: run.total_net ?? 0
@@ -320,9 +369,11 @@ const saveForm = async () => {
   saving.value = true;
   formError.value = '';
   try {
+    const start = normalizeDateForPeriod(form.value.period_start);
+    const end = normalizeDateForPeriod(form.value.period_end);
     const payload = {
-      period_start: form.value.period_start,
-      period_end: form.value.period_end,
+      period_start: start,
+      period_end: end,
       status: form.value.status,
       total_gross: form.value.total_gross,
       total_net: form.value.total_net
@@ -339,6 +390,30 @@ const saveForm = async () => {
     formError.value = typeof message === 'string' ? message : 'Failed to save payroll run';
   } finally {
     saving.value = false;
+  }
+};
+
+const processRun = async (run) => {
+  if (!run || !run.id) return;
+  if (!window.confirm('Run payroll for this period now?')) return;
+
+  processingId.value = run.id;
+
+  try {
+    await api.put(`/payroll-runs/${run.id}`, {
+      status: 'processing'
+    });
+    await fetchItems();
+  } catch (e) {
+    // For debugging: log full error details instead of showing an alert
+    console.error('Failed to run payroll', {
+      error: e,
+      response: e?.response,
+      data: e?.response?.data,
+      status: e?.response?.status
+    });
+  } finally {
+    processingId.value = null;
   }
 };
 

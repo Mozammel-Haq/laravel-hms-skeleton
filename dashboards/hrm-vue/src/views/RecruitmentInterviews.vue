@@ -227,6 +227,12 @@
 import { ref, onMounted } from 'vue';
 import api from '../services/api';
 
+const normalizeDateForPeriod = (value) => {
+  if (!value) return null;
+  const v = String(value).slice(0, 10);
+  return `${v}T00:00:00.000000Z`;
+};
+
 const items = ref([]);
 const loading = ref(false);
 const saving = ref(false);
@@ -291,8 +297,10 @@ const fetchItems = async () => {
   try {
     const params = {};
     if (filters.value.result) params.result = filters.value.result;
-    if (filters.value.from_date) params.from_date = filters.value.from_date;
-    if (filters.value.to_date) params.to_date = filters.value.to_date;
+    const from = normalizeDateForPeriod(filters.value.from_date);
+    const to = normalizeDateForPeriod(filters.value.to_date);
+    if (from) params.from_date = from;
+    if (to) params.to_date = to;
     const response = await api.get('/interviews', { params });
     const payload = response.data;
     items.value = Array.isArray(payload.data) ? payload.data : [];

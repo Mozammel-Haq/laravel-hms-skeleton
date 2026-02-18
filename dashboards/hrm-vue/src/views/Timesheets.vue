@@ -247,6 +247,12 @@ endOfWeek.setDate(startOfWeek.getDate() + 6);
 
 const formatIso = (d) => d.toISOString().slice(0, 10);
 
+const normalizeDateForPeriod = (value) => {
+  if (!value) return null;
+  const v = String(value).slice(0, 10);
+  return `${v}T00:00:00.000000Z`;
+};
+
 const filters = ref({
   from_date: formatIso(startOfWeek),
   to_date: formatIso(endOfWeek),
@@ -315,10 +321,12 @@ const loadStaff = async () => {
 const loadTimesheets = async () => {
   loading.value = true;
   try {
+    const from = normalizeDateForPeriod(filters.value.from_date);
+    const to = normalizeDateForPeriod(filters.value.to_date);
     const res = await api.get('/timesheets', {
       params: {
-        from_date: filters.value.from_date,
-        to_date: filters.value.to_date,
+        from_date: from,
+        to_date: to,
         per_page: 200,
       },
     });

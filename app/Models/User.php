@@ -67,6 +67,8 @@ class User extends BaseTenantModel implements AuthenticatableContract, Authoriza
         'department_id',
         'designation_id',
         'join_date',
+        'salary_structure_id',
+        'basic_salary_override',
         'name',
         'email',
         'password',
@@ -110,6 +112,11 @@ class User extends BaseTenantModel implements AuthenticatableContract, Authoriza
     public function clinic(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Clinic::class);
+    }
+
+    public function salaryStructure(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(HrmSalaryStructure::class, 'salary_structure_id');
     }
 
     public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany

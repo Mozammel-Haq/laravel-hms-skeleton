@@ -113,7 +113,7 @@
                   </div>
                 </td>
                 <td>
-                  {{ item.period_start }} to {{ item.period_end }}
+                  {{ formatDateOnly(item.period_start) }} to {{ formatDateOnly(item.period_end) }}
                 </td>
                 <td>
                   <span class="badge" :class="statusClass(item.status)">
@@ -179,8 +179,13 @@
             </div>
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Employee ID</label>
-                <input v-model.number="form.user_id" type="number" class="form-control" />
+                <label class="form-label">Employee</label>
+                <select v-model.number="form.user_id" class="form-select">
+                  <option :value="null" disabled>Select employee</option>
+                  <option v-for="staff in staffOptions" :key="staff.id" :value="staff.id">
+                    {{ staff.name }} ({{ staff.email || 'ID ' + staff.id }})
+                  </option>
+                </select>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Period Start</label>
@@ -215,8 +220,13 @@
                 <input v-model.number="form.net" type="number" step="0.01" class="form-control" />
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Payroll Run ID</label>
-                <input v-model.number="form.payroll_run_id" type="number" class="form-control" />
+                <label class="form-label">Payroll Run</label>
+                <select v-model.number="form.payroll_run_id" class="form-select">
+                  <option :value="null">No payroll run</option>
+                  <option v-for="run in payrollRunOptions" :key="run.id" :value="run.id">
+                    {{ formatDateOnly(run.period_start) }} to {{ formatDateOnly(run.period_end) }} ({{ run.status }})
+                  </option>
+                </select>
               </div>
             </div>
             <div class="row">
@@ -248,6 +258,24 @@ import { computed, ref, onMounted } from 'vue';
 import { useAuthStore } from '../store/authStore';
 import api from '../services/api';
 
+const normalizeDateForPeriod = (value) => {
+  if (!value) return null;
+  const v = String(value).slice(0, 10);
+  return `${v}T00:00:00.000000Z`;
+};
+
+const toDateInputValue = (value) => {
+  if (!value) return '';
+  return String(value).slice(0, 10);
+};
+
+const formatDateOnly = (value) => {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return value;
+  return d.toLocaleDateString();
+};
+
 const auth = useAuthStore();
 const abilities = computed(() => Array.isArray(auth.user?.abilities) ? auth.user.abilities : []);
 const has = (perm) => abilities.value.includes(perm);
@@ -264,6 +292,9 @@ const filters = ref({
   user_id: '',
   payroll_run_id: ''
 });
+
+const staffOptions = ref([]);
+const payrollRunOptions = ref([]);
 
 const formModal = ref(null);
 const form = ref({
@@ -306,8 +337,10 @@ const fetchItems = async () => {
   loading.value = true;
   try {
     const params = {};
-    if (filters.value.from_date) params.from_date = filters.value.from_date;
-    if (filters.value.to_date) params.to_date = filters.value.to_date;
+    const from = normalizeDateForPeriod(filters.value.from_date);
+    const to = normalizeDateForPeriod(filters.value.to_date);
+    if (from) params.from_date = from;
+    if (to) params.to_date = to;
     if (filters.value.status) params.status = filters.value.status;
     if (filters.value.user_id && canManage.value) params.user_id = filters.value.user_id;
     if (filters.value.payroll_run_id && canManage.value) params.payroll_run_id = filters.value.payroll_run_id;
@@ -342,8 +375,8 @@ const openForm = (payslip = null) => {
       id: payslip.id,
       user_id: payslip.user_id,
       payroll_run_id: payslip.payroll_run_id ?? null,
-      period_start: payslip.period_start,
-      period_end: payslip.period_end,
+      period_start: toDateInputValue(payslip.period_start),
+      period_end: toDateInputValue(payslip.period_end),
       basic: payslip.basic ?? 0,
       total_allowances: payslip.total_allowances ?? 0,
       total_deductions: payslip.total_deductions ?? 0,
@@ -385,11 +418,13 @@ const saveForm = async () => {
   saving.value = true;
   formError.value = '';
   try {
+    const start = normalizeDateForPeriod(form.value.period_start);
+    const end = normalizeDateForPeriod(form.value.period_end);
     const payload = {
       user_id: form.value.user_id,
       payroll_run_id: form.value.payroll_run_id,
-      period_start: form.value.period_start,
-      period_end: form.value.period_end,
+      period_start: start,
+      period_end: end,
       basic: form.value.basic,
       total_allowances: form.value.total_allowances,
       total_deductions: form.value.total_deductions,
@@ -425,7 +460,33 @@ const deletePayslip = async (payslip) => {
   }
 };
 
+const fetchStaffOptions = async () => {
+  try {
+    const res = await api.get('/staff', { params: { per_page: 100 } });
+    const payload = res.data || {};
+    const pageData = payload.data || {};
+    const list = pageData.data || [];
+    staffOptions.value = list;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+const fetchPayrollRunOptions = async () => {
+  try {
+    const res = await api.get('/payroll-runs', { params: { per_page: 100 } });
+    const payload = res.data || {};
+    const pageData = payload.data || {};
+    const list = pageData.data || [];
+    payrollRunOptions.value = list;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
 onMounted(() => {
   fetchItems();
+  fetchStaffOptions();
+  fetchPayrollRunOptions();
 });
 </script>
