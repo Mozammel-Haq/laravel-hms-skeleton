@@ -105,25 +105,50 @@
                 </td>
                 <td class="small">{{ formatDateTime(item.created_at) }}</td>
                 <td class="text-end">
-                  <a
-                    v-if="item.resume_url"
-                    :href="item.resume_url"
-                    target="_blank"
-                    rel="noopener"
-                    class="btn btn-link btn-sm text-secondary me-1"
-                  >
-                    <i class="ti ti-file-text"></i>
-                  </a>
-                  <button class="btn btn-link btn-sm text-primary me-2" @click="openForm(item)">
-                    <i class="ti ti-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-link btn-sm text-danger"
-                    :disabled="item.status === 'archived' || savingId === item.id"
-                    @click="archiveItem(item)"
-                  >
-                    <i class="ti ti-archive"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(item.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === item.id }"
+                    >
+                      <li v-if="item.resume_url">
+                        <a
+                          :href="item.resume_url"
+                          target="_blank"
+                          rel="noopener"
+                          class="dropdown-item"
+                          @click="closeRowMenu"
+                        >
+                          <i class="ti ti-file-text me-2"></i>View Resume
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); openForm(item); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item text-danger"
+                          @click.prevent="() => { closeRowMenu(); archiveItem(item); }"
+                          :class="{ disabled: item.status === 'archived' || savingId === item.id }"
+                        >
+                          <i class="ti ti-archive me-2"></i>Archive
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -229,6 +254,8 @@ const form = ref({
 });
 const formError = ref('');
 
+const openMenuId = ref(null);
+
 const statusClass = (status) => {
   const map = {
     new: 'bg-secondary',
@@ -240,6 +267,14 @@ const statusClass = (status) => {
     archived: 'bg-dark'
   };
   return map[status] || 'bg-light';
+};
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
 };
 
 const formatDateTime = (value) => {
@@ -367,4 +402,3 @@ onMounted(() => {
   fetchItems();
 });
 </script>
-

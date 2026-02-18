@@ -14,6 +14,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Carbon\Carbon;
 use Tests\TestCase;
 
 class ConsultationFlowTest extends TestCase
@@ -33,6 +34,8 @@ class ConsultationFlowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Carbon::setTestNow(Carbon::create(2024, 1, 1, 10, 15, 0, 'UTC'));
 
         // 1. Setup Clinic
         $this->clinic = Clinic::create([
@@ -120,6 +123,12 @@ class ConsultationFlowTest extends TestCase
             'status' => 'active',
             'price' => 2.00,
         ]);
+    }
+
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
     }
 
     public function test_consultation_lifecycle_bugs()

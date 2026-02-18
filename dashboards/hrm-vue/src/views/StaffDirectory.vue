@@ -175,10 +175,19 @@
               <tr v-for="staff in staffList" :key="staff.id">
                 <td class="ps-4">
                   <div class="d-flex align-items-center">
-                    <div class="avatar bg-primary-subtle text-primary rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px;">
-                      {{ getInitials(staff.name) }}
+                    <div
+                      class="avatar rounded-circle me-3 overflow-hidden bg-light border"
+                      style="width: 32px; height: 32px;"
+                    >
+                      <img
+                        :src="staff.profile_photo_url || fallbackAvatar"
+                        :alt="staff.name || ('User #' + staff.id)"
+                        class="w-100 h-100 object-fit-cover"
+                      />
                     </div>
-                    <div class="fw-semibold">{{ staff.name }}</div>
+                    <div class="fw-semibold">
+                      {{ staff.name }}
+                    </div>
                   </div>
                 </td>
                 <td class="small">{{ staff.email }}</td>
@@ -349,6 +358,9 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+
+const assetBase = window.LARAVEL_ASSET_BASE || '/assets';
+const fallbackAvatar = assetBase + '/img/users/user-01.jpg';
 
 const router = useRouter();
 const staffList = ref([]);

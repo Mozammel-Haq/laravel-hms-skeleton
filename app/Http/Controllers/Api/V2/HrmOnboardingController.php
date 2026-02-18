@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
 use App\Models\HrmOnboarding;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class HrmOnboardingController extends Controller
@@ -51,6 +52,16 @@ class HrmOnboardingController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        if (! empty($validated['user_id'])) {
+            $linkedUser = User::whereKey($validated['user_id'])
+                ->where('clinic_id', $user->clinic_id)
+                ->first();
+
+            if (! $linkedUser) {
+                return response()->json(['message' => 'Invalid user for this clinic'], 422);
+            }
+        }
+
         $item = HrmOnboarding::create([
             'clinic_id' => $user->clinic_id,
             'candidate_id' => $validated['candidate_id'] ?? null,
@@ -90,6 +101,16 @@ class HrmOnboardingController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        if (array_key_exists('user_id', $validated) && ! empty($validated['user_id'])) {
+            $linkedUser = User::whereKey($validated['user_id'])
+                ->where('clinic_id', $user->clinic_id)
+                ->first();
+
+            if (! $linkedUser) {
+                return response()->json(['message' => 'Invalid user for this clinic'], 422);
+            }
+        }
+
         $onboarding->update($validated);
 
         return response()->json([
@@ -117,4 +138,3 @@ class HrmOnboardingController extends Controller
         ]);
     }
 }
-

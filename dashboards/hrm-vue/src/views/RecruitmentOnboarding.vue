@@ -94,16 +94,39 @@
                   </div>
                 </td>
                 <td class="text-end">
-                  <button class="btn btn-link btn-sm text-primary me-2" @click="openForm(item)">
-                    <i class="ti ti-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-link btn-sm text-danger"
-                    :disabled="savingId === item.id"
-                    @click="deleteItem(item)"
-                  >
-                    <i class="ti ti-trash"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(item.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === item.id }"
+                    >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); openForm(item); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item text-danger"
+                          @click.prevent="() => { closeRowMenu(); deleteItem(item); }"
+                          :class="{ disabled: savingId === item.id }"
+                        >
+                          <i class="ti ti-trash me-2"></i>Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -205,6 +228,8 @@ const form = ref({
 const formChecklistText = ref('');
 const formError = ref('');
 
+const openMenuId = ref(null);
+
 watch(
   () => formChecklistText.value,
   (value) => {
@@ -239,6 +264,14 @@ const formatDate = (value) => {
 const completedCount = (checklist) => {
   if (!Array.isArray(checklist)) return 0;
   return checklist.filter((item) => item && item.done).length;
+};
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
 };
 
 const fetchItems = async () => {
@@ -360,4 +393,3 @@ onMounted(() => {
   fetchItems();
 });
 </script>
-

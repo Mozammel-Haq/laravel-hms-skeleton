@@ -41,6 +41,14 @@ use App\Http\Controllers\Api\V2\HrmInterviewController;
 use App\Http\Controllers\Api\V2\HrmJobOfferController;
 use App\Http\Controllers\Api\V2\HrmOnboardingController;
 use App\Http\Controllers\Api\V2\HrmSalaryStructureController;
+use App\Http\Controllers\Api\V2\HrmPerformanceKpiController;
+use App\Http\Controllers\Api\V2\HrmPerformanceGoalController;
+use App\Http\Controllers\Api\V2\HrmPerformanceReviewController;
+use App\Http\Controllers\Api\V2\HrmPerformanceAppraisalController;
+use App\Http\Controllers\Api\V2\HrmCompliancePolicyController;
+use App\Http\Controllers\Api\V2\HrmComplianceDocumentController;
+use App\Http\Controllers\Api\V2\HrmComplianceLetterController;
+use App\Http\Controllers\Api\V2\HrmDashboardSummaryController;
 use App\Http\Controllers\Api\V2\StaffController;
 use App\Http\Controllers\Api\V2\StaffAuthController;
 use Illuminate\Http\Request;
@@ -118,14 +126,20 @@ Route::prefix('v2')->group(function () {
     Route::middleware(['auth:sanctum', 'api.tenant'])->group(function () {
         Route::get('me', [StaffController::class, 'me']);
 
+        Route::get('hrm-summary', [HrmDashboardSummaryController::class, 'index']);
+
         // HRM
         Route::get('staff', [StaffController::class, 'index']);
         Route::get('staff/{staff}', [StaffController::class, 'show']);
         Route::post('staff', [StaffController::class, 'store']);
         Route::put('staff/{staff}', [StaffController::class, 'update']);
         Route::delete('staff/{staff}', [StaffController::class, 'destroy']);
-        Route::apiResource('departments', ApiDepartmentController::class)->only(['index','store','update','destroy']);
-        Route::apiResource('designations', ApiDesignationController::class)->only(['index','store','update','destroy']);
+        Route::apiResource('departments', ApiDepartmentController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->names('api.v2.departments');
+        Route::apiResource('designations', ApiDesignationController::class)
+            ->only(['index', 'store', 'update', 'destroy'])
+            ->names('api.v2.designations');
         Route::get('shifts', [HrmShiftController::class, 'index']);
         Route::post('shifts', [HrmShiftController::class, 'store']);
         Route::put('shifts/{shift}', [HrmShiftController::class, 'update']);
@@ -209,6 +223,41 @@ Route::prefix('v2')->group(function () {
         Route::get('training-evaluations', [HrmTrainingEvaluationController::class, 'index']);
         Route::post('training-evaluations', [HrmTrainingEvaluationController::class, 'store']);
         Route::delete('training-evaluations/{trainingEvaluation}', [HrmTrainingEvaluationController::class, 'destroy']);
+
+        Route::get('performance-kpis', [HrmPerformanceKpiController::class, 'index']);
+        Route::post('performance-kpis', [HrmPerformanceKpiController::class, 'store']);
+        Route::put('performance-kpis/{performanceKpi}', [HrmPerformanceKpiController::class, 'update']);
+        Route::delete('performance-kpis/{performanceKpi}', [HrmPerformanceKpiController::class, 'destroy']);
+
+        Route::get('performance-goals', [HrmPerformanceGoalController::class, 'index']);
+        Route::post('performance-goals', [HrmPerformanceGoalController::class, 'store']);
+        Route::put('performance-goals/{performanceGoal}', [HrmPerformanceGoalController::class, 'update']);
+        Route::delete('performance-goals/{performanceGoal}', [HrmPerformanceGoalController::class, 'destroy']);
+
+        Route::get('performance-reviews', [HrmPerformanceReviewController::class, 'index']);
+        Route::post('performance-reviews', [HrmPerformanceReviewController::class, 'store']);
+        Route::put('performance-reviews/{performanceReview}', [HrmPerformanceReviewController::class, 'update']);
+        Route::delete('performance-reviews/{performanceReview}', [HrmPerformanceReviewController::class, 'destroy']);
+
+        Route::get('performance-appraisals', [HrmPerformanceAppraisalController::class, 'index']);
+        Route::post('performance-appraisals', [HrmPerformanceAppraisalController::class, 'store']);
+        Route::put('performance-appraisals/{performanceAppraisal}', [HrmPerformanceAppraisalController::class, 'update']);
+        Route::delete('performance-appraisals/{performanceAppraisal}', [HrmPerformanceAppraisalController::class, 'destroy']);
+
+        Route::get('compliance-policies', [HrmCompliancePolicyController::class, 'index']);
+        Route::post('compliance-policies', [HrmCompliancePolicyController::class, 'store']);
+        Route::put('compliance-policies/{policy}', [HrmCompliancePolicyController::class, 'update']);
+        Route::delete('compliance-policies/{policy}', [HrmCompliancePolicyController::class, 'destroy']);
+
+        Route::get('compliance-documents', [HrmComplianceDocumentController::class, 'index']);
+        Route::post('compliance-documents', [HrmComplianceDocumentController::class, 'store']);
+        Route::put('compliance-documents/{document}', [HrmComplianceDocumentController::class, 'update']);
+        Route::delete('compliance-documents/{document}', [HrmComplianceDocumentController::class, 'destroy']);
+
+        Route::get('compliance-letters', [HrmComplianceLetterController::class, 'index']);
+        Route::post('compliance-letters', [HrmComplianceLetterController::class, 'store']);
+        Route::put('compliance-letters/{letter}', [HrmComplianceLetterController::class, 'update']);
+        Route::delete('compliance-letters/{letter}', [HrmComplianceLetterController::class, 'destroy']);
 
         Route::get('job-posts', [HrmJobPostController::class, 'index']);
         Route::post('job-posts', [HrmJobPostController::class, 'store']);

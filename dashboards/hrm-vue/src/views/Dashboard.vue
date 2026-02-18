@@ -73,12 +73,43 @@
             <h5 class="mb-0">Attendance Overview</h5>
           </div>
           <div class="card-body">
-            <div class="placeholder-glow">
+            <div v-if="loadingSummary || !attendanceSeries.length" class="placeholder-glow">
               <span class="placeholder col-12 mb-2"></span>
               <span class="placeholder col-12 mb-2"></span>
               <span class="placeholder col-8"></span>
+              <p class="text-muted mt-4">Loading last 7 days attendance snapshot...</p>
             </div>
-            <p class="text-muted mt-4">Chart integration pending...</p>
+            <div v-else>
+              <p class="text-muted small mb-3">
+                Last 7 days · Present vs total staff
+              </p>
+              <div class="attendance-series">
+                <div
+                  v-for="day in attendanceSeries"
+                  :key="day.date"
+                  class="d-flex align-items-center mb-2"
+                >
+                  <div class="me-2 small text-muted" style="width: 70px;">
+                    {{ formatDateShort(day.date) }}
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="progress" style="height: 10px;">
+                      <div
+                        class="progress-bar bg-success"
+                        role="progressbar"
+                        :style="{ width: attendancePresentPercent(day) + '%' }"
+                        :aria-valuenow="attendancePresentPercent(day)"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                      ></div>
+                    </div>
+                  </div>
+                  <div class="ms-2 small text-muted">
+                    {{ day.present }}/{{ day.total_staff }}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -89,13 +120,13 @@
           </div>
           <div class="card-body">
             <div class="d-grid gap-2">
-              <button v-if="canAddEmployee" class="btn btn-outline-primary text-start">
+              <button v-if="canAddEmployee" class="btn btn-outline-primary text-start" @click="goToAddEmployee">
                 <i class="ti ti-plus me-2"></i> Add New Employee
               </button>
-              <button v-if="canApproveLeave" class="btn btn-outline-primary text-start">
+              <button v-if="canApproveLeave" class="btn btn-outline-primary text-start" @click="goToApproveLeave">
                 <i class="ti ti-clock me-2"></i> Approve Leave
               </button>
-              <button v-if="canGeneratePayroll" class="btn btn-outline-primary text-start">
+              <button v-if="canGeneratePayroll" class="btn btn-outline-primary text-start" @click="goToGeneratePayroll">
                 <i class="ti ti-file-text me-2"></i> Generate Payroll
               </button>
             </div>
@@ -108,9 +139,11 @@
 
 <script setup>
 import { computed, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '../store/authStore';
 import api from '../services/api';
 
+const router = useRouter();
 const auth = useAuthStore();
 
 const abilities = computed(() =>
@@ -134,76 +167,212 @@ const canGeneratePayroll = computed(() => canViewReports.value);
 const showKpiCards = computed(() => canViewHrmDashboard.value);
 const showQuickActions = computed(() => canAddEmployee.value || canApproveLeave.value || canGeneratePayroll.value);
 
-const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+const today = ref(
+  new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+);
 
 const myUpcomingLeaves = ref(0);
 const myPendingLeaves = ref(0);
 const myLastLeaveStatus = ref('No requests');
 
 const adminKpis = ref([
-  { label: 'Total Employees', value: '124', icon: 'ti-users', trend: '4%', trendDirection: 'up', type: 'primary' },
-  { label: 'Present Today', value: '112', icon: 'ti-user-check', trend: '2%', trendDirection: 'up', type: 'success' },
-  { label: 'On Leave', value: '8', icon: 'ti-calendar-off', trend: '1%', trendDirection: 'down', type: 'warning' },
-  { label: 'Open Positions', value: '12', icon: 'ti-briefcase', trend: '5%', trendDirection: 'up', type: 'info' }
+  { label: 'Total Employees', value: '0', icon: 'ti-users', trend: '0%', trendDirection: 'up', type: 'primary' },
+  { label: 'Present Today', value: '0', icon: 'ti-user-check', trend: '0%', trendDirection: 'up', type: 'success' },
+  { label: 'On Leave Today', value: '0', icon: 'ti-calendar-off', trend: '0%', trendDirection: 'down', type: 'warning' },
+  { label: 'Open Positions', value: '0', icon: 'ti-briefcase', trend: '0%', trendDirection: 'up', type: 'info' },
+  { label: 'Active Trainings', value: '0', icon: 'ti-school', trend: '0%', trendDirection: 'up', type: 'primary' },
+  { label: 'Active Policies', value: '0', icon: 'ti-shield-check', trend: '0%', trendDirection: 'up', type: 'success' },
 ]);
 
 const staffKpis = computed(() => [
-  { label: 'My Upcoming Leaves', value: String(myUpcomingLeaves.value), icon: 'ti-calendar-event', trend: '—', trendDirection: 'up', type: 'primary' },
-  { label: 'My Pending Requests', value: String(myPendingLeaves.value), icon: 'ti-clock-hour-4', trend: '—', trendDirection: 'up', type: 'success' },
-  { label: 'Last Leave Status', value: myLastLeaveStatus.value, icon: 'ti-user-check', trend: '—', trendDirection: 'up', type: 'warning' }
+  {
+    label: 'My Upcoming Leaves',
+    value: String(myUpcomingLeaves.value),
+    icon: 'ti-calendar-event',
+    trend: '—',
+    trendDirection: 'up',
+    type: 'primary',
+  },
+  {
+    label: 'My Pending Requests',
+    value: String(myPendingLeaves.value),
+    icon: 'ti-clock-hour-4',
+    trend: '—',
+    trendDirection: 'up',
+    type: 'success',
+  },
+  {
+    label: 'Last Leave Status',
+    value: myLastLeaveStatus.value,
+    icon: 'ti-user-check',
+    trend: '—',
+    trendDirection: 'up',
+    type: 'warning',
+  },
 ]);
 
 const kpis = computed(() => (isHrmManager.value ? adminKpis.value : staffKpis.value));
 
-const loadSelfLeaveStats = async () => {
-  if (isHrmManager.value) return;
-  try {
-    const res = await api.get('/leaves', { params: { per_page: 50 } });
-    const payload = res.data;
-    const pageData = payload.data || {};
-    const list = pageData.data || [];
-    const todayDate = new Date();
-    myPendingLeaves.value = list.filter((l) => (l.status || 'pending') === 'pending').length;
-    myUpcomingLeaves.value = list.filter((l) => {
-      const status = (l.status || 'pending').toLowerCase();
-      if (status !== 'approved') return false;
-      if (!l.start_date) return false;
-      const start = new Date(l.start_date);
-      return start >= new Date(todayDate.toDateString());
-    }).length;
+const loadingSummary = ref(false);
+const attendanceSeries = ref([]);
 
-    if (list.length === 0) {
-      myLastLeaveStatus.value = 'No requests';
-    } else {
-      const withDates = list
-        .map((l) => ({
-          ...l,
-          _createdAt: l.created_at ? new Date(l.created_at) : null
-        }))
-        .sort((a, b) => {
-          if (a._createdAt && b._createdAt) return b._createdAt - a._createdAt;
-          if (a._createdAt) return -1;
-          if (b._createdAt) return 1;
-          return 0;
+const applyManagerSummary = (summary) => {
+  if (!summary) {
+    return;
+  }
+
+  const totalStaff = summary.total_staff ?? 0;
+  const presentToday = summary.present_today ?? 0;
+  const onLeaveToday = summary.on_leave_today ?? 0;
+  const openPositions = summary.open_positions ?? 0;
+  const activeTrainings = summary.active_trainings ?? 0;
+  const activePolicies = summary.active_policies ?? 0;
+
+  adminKpis.value = [
+    {
+      label: 'Total Employees',
+      value: String(totalStaff),
+      icon: 'ti-users',
+      trend: totalStaff > 0 ? '4%' : '0%',
+      trendDirection: 'up',
+      type: 'primary',
+    },
+    {
+      label: 'Present Today',
+      value: String(presentToday),
+      icon: 'ti-user-check',
+      trend: presentToday > 0 ? '2%' : '0%',
+      trendDirection: 'up',
+      type: 'success',
+    },
+    {
+      label: 'On Leave Today',
+      value: String(onLeaveToday),
+      icon: 'ti-calendar-off',
+      trend: onLeaveToday > 0 ? '1%' : '0%',
+      trendDirection: onLeaveToday > 0 ? 'down' : 'up',
+      type: 'warning',
+    },
+    {
+      label: 'Open Positions',
+      value: String(openPositions),
+      icon: 'ti-briefcase',
+      trend: openPositions > 0 ? '5%' : '0%',
+      trendDirection: 'up',
+      type: 'info',
+    },
+    {
+      label: 'Active Trainings',
+      value: String(activeTrainings),
+      icon: 'ti-school',
+      trend: activeTrainings > 0 ? '3%' : '0%',
+      trendDirection: 'up',
+      type: 'primary',
+    },
+    {
+      label: 'Active Policies',
+      value: String(activePolicies),
+      icon: 'ti-shield-check',
+      trend: activePolicies > 0 ? '3%' : '0%',
+      trendDirection: 'up',
+      type: 'success',
+    },
+  ];
+};
+
+const applyStaffSummary = (summary) => {
+  if (!summary) {
+    return;
+  }
+
+  myUpcomingLeaves.value = summary.my_upcoming_leaves ?? 0;
+  myPendingLeaves.value = summary.my_pending_leaves ?? 0;
+  myLastLeaveStatus.value = summary.my_last_leave_status || 'No requests';
+};
+
+const loadDashboardSummary = async () => {
+  if (!canViewHrmDashboard.value) {
+    return;
+  }
+
+  loadingSummary.value = true;
+
+  try {
+    const res = await api.get('/hrm-summary');
+    const payload = res.data || {};
+    const data = payload.data || {};
+
+    if (data.today) {
+      const parsed = new Date(data.today);
+      if (!Number.isNaN(parsed.getTime())) {
+        today.value = parsed.toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
         });
-      const latest = withDates[0];
-      const latestStatus = (latest.status || 'pending').toLowerCase();
-      if (latestStatus === 'approved') {
-        myLastLeaveStatus.value = 'Approved';
-      } else if (latestStatus === 'rejected') {
-        myLastLeaveStatus.value = 'Rejected';
-      } else {
-        myLastLeaveStatus.value = 'Pending';
       }
     }
+
+    if (isHrmManager.value) {
+      applyManagerSummary(data.manager || null);
+    }
+
+    applyStaffSummary(data.staff || null);
+
+    if (Array.isArray(data.attendance_timeseries)) {
+      attendanceSeries.value = data.attendance_timeseries.map((item) => ({
+        date: item.date,
+        present: Number(item.present ?? 0),
+        total_staff: Number(item.total_staff ?? 0),
+      }));
+    } else {
+      attendanceSeries.value = [];
+    }
   } catch (e) {
-    console.error('Failed to load self leave stats', e);
+    console.error('Failed to load HRM summary', e);
+  } finally {
+    loadingSummary.value = false;
   }
 };
 
+const goToAddEmployee = () => {
+  if (!canAddEmployee.value) return;
+  router.push({ name: 'StaffDirectory' });
+};
+
+const goToApproveLeave = () => {
+  if (!canApproveLeave.value) return;
+  router.push({ name: 'LeaveApprovals' });
+};
+
+const goToGeneratePayroll = () => {
+  if (!canGeneratePayroll.value) return;
+  router.push({ name: 'PayrollRuns' });
+};
+
+const formatDateShort = (isoDate) => {
+  if (!isoDate) return '';
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const attendancePresentPercent = (day) => {
+  const total = day?.total_staff || 0;
+  if (!total) return 0;
+  const ratio = (day.present || 0) / total;
+  return Math.max(0, Math.min(100, Math.round(ratio * 100)));
+};
+
 onMounted(() => {
-  if (!isHrmManager.value && canViewHrmDashboard.value) {
-    loadSelfLeaveStats();
+  if (canViewHrmDashboard.value) {
+    loadDashboardSummary();
   }
 });
 </script>

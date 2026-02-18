@@ -10,8 +10,11 @@ class DepartmentController extends Controller
 {
     public function index(Request $request)
     {
+        $user = $request->user();
         $perPage = (int) $request->input('per_page', 10);
-        $data = Department::latest()->paginate($perPage);
+        $data = Department::where('clinic_id', $user->clinic_id)
+            ->latest()
+            ->paginate($perPage);
         return response()->json(['status' => 'success', 'data' => $data]);
     }
 
@@ -30,6 +33,12 @@ class DepartmentController extends Controller
 
     public function update(Request $request, Department $department)
     {
+        $user = $request->user();
+
+        if ($department->clinic_id !== $user->clinic_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
@@ -43,6 +52,12 @@ class DepartmentController extends Controller
 
     public function destroy(Department $department)
     {
+        $user = request()->user();
+
+        if ($department->clinic_id !== $user->clinic_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
         $department->delete();
         return response()->json(['status' => 'success']);
     }

@@ -53,15 +53,47 @@
                   </span>
                 </td>
                 <td class="text-end pe-4">
-                  <div class="btn-group btn-group-sm">
-                    <button class="btn btn-success" :disabled="actionBusyId === leave.id" @click="updateStatus(leave, 'approved')">
-                      <span v-if="actionBusyId === leave.id && pendingAction === 'approved'" class="spinner-border spinner-border-sm me-1"></span>
-                      Approve
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(leave.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
                     </button>
-                    <button class="btn btn-outline-danger" :disabled="actionBusyId === leave.id" @click="updateStatus(leave, 'rejected')">
-                      <span v-if="actionBusyId === leave.id && pendingAction === 'rejected'" class="spinner-border spinner-border-sm me-1"></span>
-                      Reject
-                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === leave.id }"
+                    >
+                      <li>
+                        <button
+                          class="dropdown-item text-success"
+                          type="button"
+                          :disabled="actionBusyId === leave.id"
+                          @click.prevent="() => { closeRowMenu(); updateStatus(leave, 'approved'); }"
+                        >
+                          <span
+                            v-if="actionBusyId === leave.id && pendingAction === 'approved'"
+                            class="spinner-border spinner-border-sm me-2"
+                          ></span>
+                          <i class="ti ti-circle-check me-2"></i>Approve
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          class="dropdown-item text-danger"
+                          type="button"
+                          :disabled="actionBusyId === leave.id"
+                          @click.prevent="() => { closeRowMenu(); updateStatus(leave, 'rejected'); }"
+                        >
+                          <span
+                            v-if="actionBusyId === leave.id && pendingAction === 'rejected'"
+                            class="spinner-border spinner-border-sm me-2"
+                          ></span>
+                          <i class="ti ti-circle-x me-2"></i>Reject
+                        </button>
+                      </li>
+                    </ul>
                   </div>
                 </td>
               </tr>
@@ -91,6 +123,8 @@ const leaves = ref([]);
 const actionBusyId = ref(null);
 const pendingAction = ref('');
 
+const openMenuId = ref(null);
+
 const statusClass = (status) => {
   const s = (status || 'pending').toLowerCase();
   if (s === 'approved') return 'bg-success-subtle text-success';
@@ -108,6 +142,14 @@ const calcDays = (start, end) => {
   const s = new Date(start);
   const e = new Date(end);
   return Math.max(1, Math.round((e - s) / (1000 * 60 * 60 * 24)) + 1);
+};
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
 };
 
 const fetchLeaves = async () => {

@@ -70,16 +70,39 @@
                       </span>
                     </td>
                     <td class="text-end pe-4" v-if="canManage">
-                      <button class="btn btn-sm btn-light me-1" @click="editShift(shift)">
-                        <i class="ti ti-edit"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-outline-danger"
-                        @click="deactivateShift(shift)"
-                        :disabled="shift.status === 'inactive'"
-                      >
-                        <i class="ti ti-archive"></i>
-                      </button>
+                      <div class="dropdown">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-light btn-icon"
+                          @click="toggleShiftMenu(shift.id)"
+                        >
+                          <i class="ti ti-dots-vertical"></i>
+                        </button>
+                        <ul
+                          class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                          :class="{ show: openShiftMenuId === shift.id }"
+                        >
+                          <li>
+                            <a
+                              href="#"
+                              class="dropdown-item"
+                              @click.prevent="() => { closeShiftMenu(); editShift(shift); }"
+                            >
+                              <i class="ti ti-edit me-2"></i>Edit
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="#"
+                              class="dropdown-item text-danger"
+                              @click.prevent="() => { closeShiftMenu(); deactivateShift(shift); }"
+                              :class="{ disabled: shift.status === 'inactive' }"
+                            >
+                              <i class="ti ti-archive me-2"></i>Archive
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
                     </td>
                   </tr>
                   <tr v-if="!loadingShifts && shifts.length === 0">
@@ -241,16 +264,39 @@
                       </span>
                     </td>
                     <td class="text-end pe-4" v-if="canManage">
-                      <button class="btn btn-sm btn-light me-1" @click="editAssignment(a)">
-                        <i class="ti ti-edit"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-outline-danger"
-                        @click="deactivateAssignment(a)"
-                        :disabled="a.status === 'inactive'"
-                      >
-                        <i class="ti ti-archive"></i>
-                      </button>
+                      <div class="dropdown">
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-light btn-icon"
+                          @click="toggleAssignmentMenu(a.id)"
+                        >
+                          <i class="ti ti-dots-vertical"></i>
+                        </button>
+                        <ul
+                          class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                          :class="{ show: openAssignmentMenuId === a.id }"
+                        >
+                          <li>
+                            <a
+                              href="#"
+                              class="dropdown-item"
+                              @click.prevent="() => { closeAssignmentMenu(); editAssignment(a); }"
+                            >
+                              <i class="ti ti-edit me-2"></i>Edit
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              href="#"
+                              class="dropdown-item text-danger"
+                              @click.prevent="() => { closeAssignmentMenu(); deactivateAssignment(a); }"
+                              :class="{ disabled: a.status === 'inactive' }"
+                            >
+                              <i class="ti ti-archive me-2"></i>Archive
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
                     </td>
                   </tr>
                   <tr v-if="!loadingAssignments && assignments.length === 0">
@@ -473,6 +519,8 @@ const shiftPagination = ref({
 });
 const loadingShifts = ref(false);
 
+const openShiftMenuId = ref(null);
+
 const assignments = ref([]);
 const assignmentPagination = ref({
   current_page: 1,
@@ -485,6 +533,8 @@ const assignmentPagination = ref({
   next_page_url: null
 });
 const loadingAssignments = ref(false);
+
+const openAssignmentMenuId = ref(null);
 
 const assignmentFilters = ref({
   user_id: null,
@@ -524,6 +574,22 @@ const canManage = computed(() => {
   const abilities = auth.user?.abilities || [];
   return Array.isArray(abilities) && abilities.includes('create_staff');
 });
+
+const toggleShiftMenu = (id) => {
+  openShiftMenuId.value = openShiftMenuId.value === id ? null : id;
+};
+
+const closeShiftMenu = () => {
+  openShiftMenuId.value = null;
+};
+
+const toggleAssignmentMenu = (id) => {
+  openAssignmentMenuId.value = openAssignmentMenuId.value === id ? null : id;
+};
+
+const closeAssignmentMenu = () => {
+  openAssignmentMenuId.value = null;
+};
 
 const refreshAll = async () => {
   await Promise.all([fetchShifts(), fetchAssignments()]);

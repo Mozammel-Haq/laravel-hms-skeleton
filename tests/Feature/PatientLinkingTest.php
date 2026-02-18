@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class PatientLinkingTest extends TestCase
 {
-    // We don't use RefreshDatabase to keep your current data
+    use RefreshDatabase;
     
     public function test_patient_linking_route_exists()
     {

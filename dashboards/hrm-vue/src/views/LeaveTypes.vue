@@ -67,17 +67,39 @@
                   </span>
                 </td>
                 <td class="text-end pe-4" v-if="canManage">
-                  <button class="btn btn-sm btn-light me-1" type="button" @click="editType(type)">
-                    <i class="ti ti-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-outline-danger"
-                    type="button"
-                    @click="archiveType(type)"
-                    :disabled="type.status === 'inactive'"
-                  >
-                    <i class="ti ti-archive"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(type.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === type.id }"
+                    >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); editType(type); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item text-danger"
+                          @click.prevent="() => { closeRowMenu(); archiveType(type); }"
+                          :class="{ disabled: type.status === 'inactive' }"
+                        >
+                          <i class="ti ti-archive me-2"></i>Archive
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
               <tr v-if="!loading && leaveTypes.length === 0">
@@ -167,6 +189,8 @@ const saving = ref(false);
 const editingType = ref(null);
 const formError = ref('');
 
+const openMenuId = ref(null);
+
 const form = ref({
   name: '',
   code: '',
@@ -181,6 +205,14 @@ const abilities = computed(() =>
 const has = (perm) => abilities.value.includes(perm);
 
 const canManage = computed(() => has('manage_leaves'));
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
+};
 
 const loadTypes = async () => {
   loading.value = true;
@@ -269,4 +301,3 @@ onMounted(() => {
   loadTypes();
 });
 </script>
-

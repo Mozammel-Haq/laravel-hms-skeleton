@@ -170,6 +170,41 @@ const routes = [
     path: '/hr/training/evaluations',
     name: 'TrainingEvaluations',
     component: () => import('../views/TrainingEvaluations.vue')
+  },
+  {
+    path: '/hr/performance/kpis',
+    name: 'PerformanceKpis',
+    component: () => import('../views/PerformanceKpis.vue')
+  },
+  {
+    path: '/hr/performance/goals',
+    name: 'PerformanceGoals',
+    component: () => import('../views/PerformanceGoals.vue')
+  },
+  {
+    path: '/hr/performance/reviews',
+    name: 'PerformanceReviews',
+    component: () => import('../views/PerformanceReviews.vue')
+  },
+  {
+    path: '/hr/performance/appraisals',
+    name: 'PerformanceAppraisals',
+    component: () => import('../views/PerformanceAppraisals.vue')
+  },
+  {
+    path: '/hr/compliance/policies',
+    name: 'CompliancePolicies',
+    component: () => import('../views/CompliancePolicies.vue')
+  },
+  {
+    path: '/hr/compliance/documents',
+    name: 'ComplianceDocuments',
+    component: () => import('../views/ComplianceDocuments.vue')
+  },
+  {
+    path: '/hr/compliance/letters',
+    name: 'ComplianceLetters',
+    component: () => import('../views/ComplianceLetters.vue')
   }
 ]
 

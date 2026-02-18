@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V2;
 use App\Http\Controllers\Controller;
 use App\Models\HrmTrainingCourse;
 use App\Models\HrmTrainingSession;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class HrmTrainingSessionController extends Controller
@@ -74,6 +75,16 @@ class HrmTrainingSessionController extends Controller
             return response()->json(['message' => 'Invalid course'], 422);
         }
 
+        if (! empty($validated['facilitator_user_id'])) {
+            $facilitator = User::whereKey($validated['facilitator_user_id'])
+                ->where('clinic_id', $user->clinic_id)
+                ->first();
+
+            if (! $facilitator) {
+                return response()->json(['message' => 'Invalid facilitator for this clinic'], 422);
+            }
+        }
+
         $item = HrmTrainingSession::create([
             'clinic_id' => $user->clinic_id,
             'course_id' => $course->id,
@@ -125,6 +136,16 @@ class HrmTrainingSessionController extends Controller
             }
         }
 
+        if (array_key_exists('facilitator_user_id', $validated) && ! empty($validated['facilitator_user_id'])) {
+            $facilitator = User::whereKey($validated['facilitator_user_id'])
+                ->where('clinic_id', $user->clinic_id)
+                ->first();
+
+            if (! $facilitator) {
+                return response()->json(['message' => 'Invalid facilitator for this clinic'], 422);
+            }
+        }
+
         $trainingSession->update($validated);
 
         return response()->json([
@@ -152,4 +173,3 @@ class HrmTrainingSessionController extends Controller
         ]);
     }
 }
-

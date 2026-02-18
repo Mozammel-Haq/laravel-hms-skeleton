@@ -65,17 +65,39 @@
                   </span>
                 </td>
                 <td class="text-end pe-4" v-if="canManage">
-                  <button class="btn btn-sm btn-light me-1" type="button" @click="editHoliday(h)">
-                    <i class="ti ti-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-outline-danger"
-                    type="button"
-                    @click="deactivateHoliday(h)"
-                    :disabled="h.status === 'inactive'"
-                  >
-                    <i class="ti ti-archive"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(h.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === h.id }"
+                    >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); editHoliday(h); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item text-danger"
+                          @click.prevent="() => { closeRowMenu(); deactivateHoliday(h); }"
+                          :class="{ disabled: h.status === 'inactive' }"
+                        >
+                          <i class="ti ti-archive me-2"></i>Archive
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
               <tr v-if="!loading && holidays.length === 0">
@@ -162,6 +184,8 @@ const saving = ref(false);
 const editingHoliday = ref(null);
 const formError = ref('');
 
+const openMenuId = ref(null);
+
 const now = new Date();
 const selectedYear = ref(now.getFullYear());
 
@@ -188,6 +212,14 @@ const form = ref({
   is_full_day: true,
   status: 'active',
 });
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
+};
 
 const loadHolidays = async () => {
   loading.value = true;
@@ -287,4 +319,3 @@ onMounted(() => {
   loadHolidays();
 });
 </script>
-

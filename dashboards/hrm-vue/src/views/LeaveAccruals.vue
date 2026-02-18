@@ -79,17 +79,39 @@
                   </span>
                 </td>
                 <td class="text-end pe-4" v-if="canManage">
-                  <button class="btn btn-sm btn-light me-1" type="button" @click="editBalance(item)">
-                    <i class="ti ti-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-outline-danger"
-                    type="button"
-                    @click="deactivateBalance(item)"
-                    :disabled="item.status === 'inactive'"
-                  >
-                    <i class="ti ti-archive"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(item.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === item.id }"
+                    >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); editBalance(item); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item text-danger"
+                          @click.prevent="() => { closeRowMenu(); deactivateBalance(item); }"
+                          :class="{ disabled: item.status === 'inactive' }"
+                        >
+                          <i class="ti ti-archive me-2"></i>Archive
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
               <tr v-if="!loading && balances.length === 0">
@@ -251,6 +273,8 @@ const showModal = ref(false);
 const editingBalance = ref(null);
 const formError = ref('');
 
+const openMenuId = ref(null);
+
 const now = new Date();
 const filters = ref({
   year: now.getFullYear(),
@@ -282,6 +306,14 @@ const yearOptions = computed(() => {
   }
   return years;
 });
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
+};
 
 const loadBalances = async () => {
   loading.value = true;
@@ -408,4 +440,3 @@ onMounted(async () => {
   await Promise.all([loadMeta(), loadBalances()]);
 });
 </script>
-

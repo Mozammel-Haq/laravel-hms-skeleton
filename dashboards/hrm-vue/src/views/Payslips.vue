@@ -1,15 +1,38 @@
 <template>
   <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="mb-0">Payslips</h4>
-      <button
-        v-if="canManage"
-        class="btn btn-primary btn-sm"
-        @click="openForm()"
-      >
-        <i class="ti ti-plus me-1"></i>
-        New Payslip
-      </button>
+    <div class="card p-3 mb-3 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-3 pb-3 rounded-3 mb-0">
+        <div>
+          <h5 class="fw-bold mb-1 text-primary">Payslips</h5>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-dots mb-0 text-muted small">
+              <li class="breadcrumb-item">
+                <router-link to="/">Dashboard</router-link>
+              </li>
+              <li class="breadcrumb-item">Payroll</li>
+              <li class="breadcrumb-item active" aria-current="page">Payslips</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            @click="fetchItems"
+            :disabled="loading"
+          >
+            <i class="ti ti-refresh me-2"></i>Refresh
+          </button>
+          <button
+            v-if="canManage"
+            type="button"
+            class="btn btn-primary"
+            @click="openForm()"
+          >
+            <i class="ti ti-plus me-2"></i>New Payslip
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="card border-0 shadow-sm mb-3">
@@ -26,6 +49,10 @@
           <div class="col-md-3" v-if="canManage">
             <label class="form-label">Employee ID</label>
             <input v-model="filters.user_id" type="number" class="form-control" placeholder="User ID" />
+          </div>
+          <div class="col-md-3" v-if="canManage">
+            <label class="form-label">Payroll Run ID</label>
+            <input v-model="filters.payroll_run_id" type="number" class="form-control" placeholder="Run ID" />
           </div>
           <div class="col-md-3">
             <label class="form-label">Status</label>
@@ -98,16 +125,39 @@
                 <td class="text-end">{{ formatMoney(item.total_deductions) }}</td>
                 <td class="text-end fw-semibold">{{ formatMoney(item.net) }}</td>
                 <td class="text-end" v-if="canManage">
-                  <button class="btn btn-link btn-sm text-primary me-2" @click="openForm(item)">
-                    <i class="ti ti-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-link btn-sm text-danger"
-                    :disabled="item.status === 'paid' || deletingId === item.id"
-                    @click="deletePayslip(item)"
-                  >
-                    <i class="ti ti-trash"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(item.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === item.id }"
+                    >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); openForm(item); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item text-danger"
+                          @click.prevent="() => { closeRowMenu(); deletePayslip(item); }"
+                          :class="{ disabled: item.status === 'paid' || deletingId === item.id }"
+                        >
+                          <i class="ti ti-trash me-2"></i>Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -165,6 +215,12 @@
                 <input v-model.number="form.net" type="number" step="0.01" class="form-control" />
               </div>
               <div class="col-md-4 mb-3">
+                <label class="form-label">Payroll Run ID</label>
+                <input v-model.number="form.payroll_run_id" type="number" class="form-control" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mb-3">
                 <label class="form-label">Status</label>
                 <select v-model="form.status" class="form-select">
                   <option value="draft">Draft</option>
@@ -205,13 +261,15 @@ const filters = ref({
   from_date: '',
   to_date: '',
   status: '',
-  user_id: ''
+  user_id: '',
+  payroll_run_id: ''
 });
 
 const formModal = ref(null);
 const form = ref({
   id: null,
   user_id: null,
+  payroll_run_id: null,
   period_start: '',
   period_end: '',
   basic: 0,
@@ -222,6 +280,8 @@ const form = ref({
   status: 'draft'
 });
 const formError = ref('');
+
+const openMenuId = ref(null);
 
 const formatMoney = (value) => {
   const n = typeof value === 'number' ? value : parseFloat(value || 0);
@@ -234,6 +294,14 @@ const statusClass = (status) => {
   return 'bg-secondary';
 };
 
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
+};
+
 const fetchItems = async () => {
   loading.value = true;
   try {
@@ -242,6 +310,7 @@ const fetchItems = async () => {
     if (filters.value.to_date) params.to_date = filters.value.to_date;
     if (filters.value.status) params.status = filters.value.status;
     if (filters.value.user_id && canManage.value) params.user_id = filters.value.user_id;
+    if (filters.value.payroll_run_id && canManage.value) params.payroll_run_id = filters.value.payroll_run_id;
     params.per_page = 50;
     const response = await api.get('/payslips', { params });
     const payload = response.data;
@@ -260,7 +329,8 @@ const resetFilters = () => {
     from_date: '',
     to_date: '',
     status: '',
-    user_id: ''
+    user_id: '',
+    payroll_run_id: ''
   };
   fetchItems();
 };
@@ -271,6 +341,7 @@ const openForm = (payslip = null) => {
     form.value = {
       id: payslip.id,
       user_id: payslip.user_id,
+      payroll_run_id: payslip.payroll_run_id ?? null,
       period_start: payslip.period_start,
       period_end: payslip.period_end,
       basic: payslip.basic ?? 0,
@@ -284,6 +355,7 @@ const openForm = (payslip = null) => {
     form.value = {
       id: null,
       user_id: null,
+      payroll_run_id: null,
       period_start: '',
       period_end: '',
       basic: 0,
@@ -315,6 +387,7 @@ const saveForm = async () => {
   try {
     const payload = {
       user_id: form.value.user_id,
+      payroll_run_id: form.value.payroll_run_id,
       period_start: form.value.period_start,
       period_end: form.value.period_end,
       basic: form.value.basic,
@@ -356,4 +429,3 @@ onMounted(() => {
   fetchItems();
 });
 </script>
-

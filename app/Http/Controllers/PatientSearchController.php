@@ -26,7 +26,7 @@ class PatientSearchController extends Controller
     public function search(Request $request)
     {
         // If it's a direct browser request to /patients/global-search, show the view
-        if (! $request->ajax() && $request->routeIs('patients.search')) {
+        if (! $request->ajax() && $request->routeIs('patients.search') && ! $request->wantsJson()) {
             return view('patients.search');
         }
 

@@ -61,10 +61,14 @@
               <tr v-for="staff in filteredStaff" :key="staff.id">
                 <td class="ps-4">
                   <div class="d-flex align-items-center">
-                    <div class="avatar avatar-md rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center me-2">
-                      <span class="fw-bold">
-                        {{ staff.name ? staff.name.charAt(0).toUpperCase() : '?' }}
-                      </span>
+                    <div
+                      class="avatar avatar-md rounded-circle bg-light border overflow-hidden d-flex align-items-center justify-content-center me-2"
+                    >
+                      <img
+                        :src="staff.profile_photo_url || fallbackAvatar"
+                        :alt="staff.name || ('User #' + staff.id)"
+                        class="w-100 h-100 object-fit-cover"
+                      />
                     </div>
                     <div>
                       <div class="fw-semibold">{{ staff.name || 'User #' + staff.id }}</div>
@@ -96,21 +100,38 @@
                   </span>
                 </td>
                 <td class="text-end pe-4">
-                  <button
-                    class="btn btn-sm btn-light me-1"
-                    type="button"
-                    @click="viewProfile(staff)"
-                  >
-                    <i class="ti ti-eye"></i>
-                  </button>
-                  <button
-                    v-if="canEdit"
-                    class="btn btn-sm btn-outline-primary"
-                    type="button"
-                    @click="goToStaffEdit(staff)"
-                  >
-                    <i class="ti ti-edit"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      class="btn btn-sm btn-light btn-icon"
+                      type="button"
+                      @click="toggleRowMenu(staff.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === staff.id }"
+                    >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); viewProfile(staff); }"
+                        >
+                          <i class="ti ti-eye me-2"></i>View
+                        </a>
+                      </li>
+                      <li v-if="canEdit">
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); goToStaffEdit(staff); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
               <tr v-if="!loading && filteredStaff.length === 0">
@@ -213,6 +234,9 @@ import { useRouter } from 'vue-router';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
 
+const assetBase = window.LARAVEL_ASSET_BASE || '/assets';
+const fallbackAvatar = assetBase + '/img/users/user-01.jpg';
+
 const auth = useAuthStore();
 const router = useRouter();
 
@@ -235,6 +259,8 @@ const form = ref({
 const departments = ref([]);
 const designations = ref([]);
 
+const openMenuId = ref(null);
+
 const abilities = computed(() =>
   Array.isArray(auth.user?.abilities) ? auth.user.abilities : []
 );
@@ -255,6 +281,14 @@ const fetchStaff = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
 };
 
 const filteredStaff = computed(() => {

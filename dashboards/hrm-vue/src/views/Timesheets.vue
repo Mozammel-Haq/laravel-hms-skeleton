@@ -80,20 +80,38 @@
                   </span>
                 </td>
                 <td class="text-end pe-4">
-                  <button
-                    class="btn btn-sm btn-light me-1"
-                    type="button"
-                    @click="editRow(row)"
-                  >
-                    <i class="ti ti-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-sm btn-outline-danger"
-                    type="button"
-                    @click="deleteRow(row)"
-                  >
-                    <i class="ti ti-trash"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(row.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === row.id }"
+                    >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); editRow(row); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item text-danger"
+                          @click.prevent="() => { closeRowMenu(); deleteRow(row); }"
+                        >
+                          <i class="ti ti-trash me-2"></i>Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
               <tr v-if="!loading && records.length === 0">
@@ -243,6 +261,8 @@ const editing = ref(false);
 const currentId = ref(null);
 const formError = ref('');
 
+const openMenuId = ref(null);
+
 const form = ref({
   user_id: '',
   date: formatIso(today),
@@ -264,6 +284,14 @@ const statusClass = (status) => {
   if (s === 'submitted') return 'bg-info-subtle text-info';
   if (s === 'rejected') return 'bg-danger-subtle text-danger';
   return 'bg-success-subtle text-success';
+};
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
 };
 
 const formatDate = (value) => {
@@ -388,4 +416,3 @@ onMounted(async () => {
   await Promise.all([loadStaff(), loadTimesheets()]);
 });
 </script>
-

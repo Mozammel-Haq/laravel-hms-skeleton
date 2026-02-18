@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
+use App\Models\Department;
+use App\Models\Designation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -101,6 +103,33 @@ class StaffController extends Controller
             'join_date' => 'nullable|date',
         ]);
 
+        if (! empty($validated['department_id'])) {
+            $department = Department::whereKey($validated['department_id'])
+                ->where('clinic_id', $actor->clinic_id)
+                ->first();
+
+            if (! $department) {
+                return response()->json(['message' => 'Invalid department for this clinic'], 422);
+            }
+        }
+
+        if (! empty($validated['designation_id'])) {
+            $designation = Designation::whereKey($validated['designation_id'])
+                ->where('clinic_id', $actor->clinic_id)
+                ->first();
+
+            if (! $designation) {
+                return response()->json(['message' => 'Invalid designation for this clinic'], 422);
+            }
+        }
+
+        $role = \App\Models\Role::find($validated['role_id']);
+        if (! $actor->hasRole('Super Admin') && ! $actor->hasRole('Clinic Admin') && ! $actor->hasRole('Admin')) {
+            if (in_array($role->name, ['Super Admin', 'Clinic Admin', 'Admin'], true)) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+        }
+
         $user = new User();
         $user->name = $validated['name'];
         $user->email = $validated['email'];
@@ -112,12 +141,6 @@ class StaffController extends Controller
         $user->status = 'active';
         $user->save();
 
-        $role = \App\Models\Role::find($validated['role_id']);
-        if (! $actor->hasRole('Super Admin') && ! $actor->hasRole('Clinic Admin') && ! $actor->hasRole('Admin')) {
-            if (in_array($role->name, ['Super Admin', 'Clinic Admin', 'Admin'], true)) {
-                return response()->json(['message' => 'Forbidden'], 403);
-            }
-        }
         $user->assignRole($role);
 
         $user->load(['roles', 'department', 'designation']);
@@ -135,6 +158,10 @@ class StaffController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
+        if ($staff->clinic_id !== $actor->clinic_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
         if (! $actor->hasRole('Super Admin') && ! $actor->hasRole('Clinic Admin') && ! $actor->hasRole('Admin')) {
             if ($staff->roles()->whereIn('name', ['Super Admin', 'Clinic Admin', 'Admin'])->exists()) {
                 return response()->json(['message' => 'Forbidden'], 403);
@@ -148,6 +175,26 @@ class StaffController extends Controller
             'designation_id' => 'nullable|integer|exists:designations,id',
             'join_date' => 'nullable|date',
         ]);
+
+        if (! empty($validated['department_id'])) {
+            $department = Department::whereKey($validated['department_id'])
+                ->where('clinic_id', $actor->clinic_id)
+                ->first();
+
+            if (! $department) {
+                return response()->json(['message' => 'Invalid department for this clinic'], 422);
+            }
+        }
+
+        if (! empty($validated['designation_id'])) {
+            $designation = Designation::whereKey($validated['designation_id'])
+                ->where('clinic_id', $actor->clinic_id)
+                ->first();
+
+            if (! $designation) {
+                return response()->json(['message' => 'Invalid designation for this clinic'], 422);
+            }
+        }
 
         $staff->name = $validated['name'];
         if (array_key_exists('department_id', $validated)) {
@@ -182,6 +229,10 @@ class StaffController extends Controller
         $actor = $request->user();
         if (! $actor->can('delete_staff')) {
             return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        if ($staff->clinic_id !== $actor->clinic_id) {
+            return response()->json(['message' => 'Not Found'], 404);
         }
 
         if (! $actor->hasRole('Super Admin') && ! $actor->hasRole('Clinic Admin') && ! $actor->hasRole('Admin')) {

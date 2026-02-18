@@ -26,12 +26,23 @@
           <a href="javascript:void(0);" class="drop-arrow-none">
             <div class="d-flex justify-content-between align-items-center">
               <div class="d-flex align-items-center">
-                <span class="avatar rounded-circle flex-shrink-0 p-0 border bg-white overflow-hidden d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                  <img :src="assetBase + '/img/icons/trustcare.svg'" alt="Clinic Logo" class="w-100 h-100 object-fit-contain p-2" />
+                <span
+                  class="avatar rounded-circle flex-shrink-0 p-0 border bg-white overflow-hidden d-flex align-items-center justify-content-center"
+                  style="width: 40px; height: 40px;"
+                >
+                  <img
+                    :src="clinicLogo"
+                    :alt="clinicName"
+                    class="w-100 h-100 object-fit-contain p-2"
+                  />
                 </span>
                 <div class="ms-2">
-                  <h6 class="fs-14 fw-semibold mb-0">Trustcare Clinic</h6>
-                  <p class="fs-13 mb-0">Location</p>
+                  <h6 class="fs-14 fw-semibold mb-0">
+                    {{ clinicName }}
+                  </h6>
+                  <p class="fs-13 mb-0">
+                    {{ clinicLocation }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -150,6 +161,7 @@ import { computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '../../store/authStore';
 const assetBase = window.LARAVEL_ASSET_BASE || '/assets';
+const storageBase = window.LARAVEL_STORAGE_BASE || '/storage';
 defineProps({
   isCollapsed: Boolean
 });
@@ -159,6 +171,40 @@ const auth = useAuthStore();
 
 const abilities = computed(() => Array.isArray(auth.user?.abilities) ? auth.user.abilities : []);
 const has = (perm) => abilities.value.includes(perm);
+
+const clinic = computed(() => auth.user?.clinic || null);
+
+const clinicName = computed(() => {
+  const name = clinic.value?.name;
+  if (typeof name === 'string' && name.trim().length > 0) {
+    return name;
+  }
+  return 'Clinic';
+});
+
+const clinicLocation = computed(() => {
+  const city = typeof clinic.value?.city === 'string' ? clinic.value.city.trim() : '';
+  const country = typeof clinic.value?.country === 'string' ? clinic.value.country.trim() : '';
+  if (city && country) {
+    return `${city}, ${country}`;
+  }
+  if (city) {
+    return city;
+  }
+  if (country) {
+    return country;
+  }
+  return 'Location';
+});
+
+const clinicLogo = computed(() => {
+  const logoPath = clinic.value?.logo_path;
+  if (typeof logoPath === 'string' && logoPath.trim().length > 0) {
+    const normalized = logoPath.replace(/^\/+/, '');
+    return `${storageBase}/${normalized}`;
+  }
+  return assetBase + '/img/icons/trustcare.svg';
+});
 
 const canViewEmployees = computed(() => has('view_staff'));
 const canViewAttendance = computed(() => has('view_hrm_dashboard') && has('view_staff'));
@@ -227,13 +273,19 @@ onMounted(() => {
         ul.style.display = 'block';
       } else if (anchor && ul) {
         if (!anchor.matches(':focus')) {
-          anchor.classList.remove('subdrop');
+          anchor.classList.remove('subdrop', 'active');
           ul.style.display = 'none';
         }
       }
     });
   };
   expandActiveSections();
-  watch(() => route.path, () => expandActiveSections());
+  watch(
+    () => route.path,
+    () => {
+      expandActiveSections();
+    },
+    { flush: 'post' }
+  );
 });
 </script>

@@ -106,16 +106,39 @@
                   </span>
                 </td>
                 <td class="text-end">
-                  <button class="btn btn-link btn-sm text-primary me-2" @click="openForm(item)">
-                    <i class="ti ti-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-link btn-sm text-danger"
-                    :disabled="savingId === item.id"
-                    @click="deleteItem(item)"
-                  >
-                    <i class="ti ti-trash"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(item.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === item.id }"
+                    >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); openForm(item); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item text-danger"
+                          @click.prevent="() => { closeRowMenu(); deleteItem(item); }"
+                          :class="{ disabled: savingId === item.id }"
+                        >
+                          <i class="ti ti-trash me-2"></i>Delete
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -229,6 +252,8 @@ const form = ref({
 });
 const formError = ref('');
 
+const openMenuId = ref(null);
+
 const formatMode = (mode) => {
   if (!mode) return '-';
   return mode.replace('_', ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -242,6 +267,14 @@ const resultClass = (result) => {
     on_hold: 'bg-warning'
   };
   return map[result] || 'bg-light';
+};
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
 };
 
 const formatDateTime = (value) => {
@@ -373,4 +406,3 @@ onMounted(() => {
   fetchItems();
 });
 </script>
-

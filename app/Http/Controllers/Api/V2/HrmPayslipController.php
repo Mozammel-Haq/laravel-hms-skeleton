@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
 use App\Models\HrmPayslip;
+use App\Models\HrmPayrollRun;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class HrmPayslipController extends Controller
@@ -31,6 +33,10 @@ class HrmPayslipController extends Controller
 
         if ($to = $request->date('to_date')) {
             $query->whereDate('period_end', '<=', $to);
+        }
+
+        if ($request->filled('payroll_run_id')) {
+            $query->where('payroll_run_id', $request->input('payroll_run_id'));
         }
 
         if ($request->filled('user_id') && ($user->can('view_reports') || $user->can('view_financial_reports'))) {
@@ -67,6 +73,24 @@ class HrmPayslipController extends Controller
             'status' => 'nullable|in:draft,confirmed,paid',
             'meta' => 'nullable|array',
         ]);
+
+        $targetUser = User::whereKey($validated['user_id'])
+            ->where('clinic_id', $user->clinic_id)
+            ->first();
+
+        if (! $targetUser) {
+            return response()->json(['message' => 'Invalid user for this clinic'], 422);
+        }
+
+        if (! empty($validated['payroll_run_id'])) {
+            $run = HrmPayrollRun::whereKey($validated['payroll_run_id'])
+                ->where('clinic_id', $user->clinic_id)
+                ->first();
+
+            if (! $run) {
+                return response()->json(['message' => 'Invalid payroll run for this clinic'], 422);
+            }
+        }
 
         $payslip = HrmPayslip::create([
             'clinic_id' => $user->clinic_id,
@@ -120,7 +144,27 @@ class HrmPayslipController extends Controller
             }
         }
 
-        $payslip->update($validated);
+        if (array_key_exists('payroll_run_id', $validated) && ! empty($validated['payroll_run_id'])) {
+            $run = HrmPayrollRun::whereKey($validated['payroll_run_id'])
+                ->where('clinic_id', $user->clinic_id)
+                ->first();
+
+            if (! $run) {
+                return response()->json(['message' => 'Invalid payroll run for this clinic'], 422);
+            }
+        }
+
+        $updateData = $validated;
+
+        if (array_key_exists('period_start', $validated) && $validated['period_start'] === null) {
+            unset($updateData['period_start']);
+        }
+
+        if (array_key_exists('period_end', $validated) && $validated['period_end'] === null) {
+            unset($updateData['period_end']);
+        }
+
+        $payslip->update($updateData);
 
         return response()->json([
             'status' => 'success',
@@ -151,4 +195,3 @@ class HrmPayslipController extends Controller
         ]);
     }
 }
-

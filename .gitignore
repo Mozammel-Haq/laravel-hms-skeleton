@@ -29,3 +29,13 @@ Thumbs.db
 /seed_*.php
 /previousweb.php
 /public/app.php
+
+# Local learning and private materials
+/tutorials/
+/personal
+tutorials/
+/video-scripts/
+/videoscripts/
+/build_guide/
+/build_guide.md
+*.draft.md

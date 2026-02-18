@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V2;
 use App\Http\Controllers\Controller;
 use App\Models\HrmTrainingEvaluation;
 use App\Models\HrmTrainingSession;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class HrmTrainingEvaluationController extends Controller
@@ -63,6 +64,14 @@ class HrmTrainingEvaluationController extends Controller
             return response()->json(['message' => 'Invalid session'], 422);
         }
 
+        $targetUser = User::whereKey($validated['user_id'])
+            ->where('clinic_id', $user->clinic_id)
+            ->first();
+
+        if (! $targetUser) {
+            return response()->json(['message' => 'Invalid user for this clinic'], 422);
+        }
+
         $item = HrmTrainingEvaluation::updateOrCreate(
             [
                 'clinic_id' => $user->clinic_id,
@@ -101,4 +110,3 @@ class HrmTrainingEvaluationController extends Controller
         ]);
     }
 }
-

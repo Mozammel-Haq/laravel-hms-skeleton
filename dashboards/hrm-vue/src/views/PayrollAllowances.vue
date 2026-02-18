@@ -1,11 +1,37 @@
 <template>
   <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="mb-0">Payroll Allowances</h4>
-      <button class="btn btn-primary btn-sm" @click="openForm()">
-        <i class="ti ti-plus me-1"></i>
-        New Allowance
-      </button>
+    <div class="card p-3 mb-3 border-0 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-3 pb-3 rounded-3 mb-0">
+        <div>
+          <h5 class="fw-bold mb-1 text-primary">Payroll Allowances</h5>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-dots mb-0 text-muted small">
+              <li class="breadcrumb-item">
+                <router-link to="/">Dashboard</router-link>
+              </li>
+              <li class="breadcrumb-item">Payroll</li>
+              <li class="breadcrumb-item active" aria-current="page">Allowances</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            @click="fetchItems"
+            :disabled="loading"
+          >
+            <i class="ti ti-refresh me-2"></i>Refresh
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="openForm()"
+          >
+            <i class="ti ti-plus me-2"></i>New Allowance
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="card border-0 shadow-sm">
@@ -56,16 +82,39 @@
                   </span>
                 </td>
                 <td class="text-end">
-                  <button class="btn btn-link btn-sm text-primary me-2" @click="openForm(item)">
-                    <i class="ti ti-edit"></i>
-                  </button>
-                  <button
-                    class="btn btn-link btn-sm text-danger"
-                    :disabled="item.status === 'inactive' || savingId === item.id"
-                    @click="archiveItem(item)"
-                  >
-                    <i class="ti ti-archive"></i>
-                  </button>
+                  <div class="dropdown">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-light btn-icon"
+                      @click="toggleRowMenu(item.id)"
+                    >
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul
+                      class="dropdown-menu dropdown-menu-end shadow-sm border-0"
+                      :class="{ show: openMenuId === item.id }"
+                    >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); openForm(item); }"
+                        >
+                          <i class="ti ti-edit me-2"></i>Edit
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item text-danger"
+                          @click.prevent="() => { closeRowMenu(); archiveItem(item); }"
+                          :class="{ disabled: item.status === 'inactive' || savingId === item.id }"
+                        >
+                          <i class="ti ti-archive me-2"></i>Archive
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -149,6 +198,8 @@ const form = ref({
 });
 const formError = ref('');
 
+const openMenuId = ref(null);
+
 const formatMoney = (value) => {
   const n = typeof value === 'number' ? value : parseFloat(value || 0);
   return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -165,6 +216,14 @@ const formatCalculation = (item) => {
     return `${item.amount}% of Gross`;
   }
   return item.calculation_type;
+};
+
+const toggleRowMenu = (id) => {
+  openMenuId.value = openMenuId.value === id ? null : id;
+};
+
+const closeRowMenu = () => {
+  openMenuId.value = null;
 };
 
 const fetchItems = async () => {
@@ -266,4 +325,3 @@ onMounted(() => {
   fetchItems();
 });
 </script>
-

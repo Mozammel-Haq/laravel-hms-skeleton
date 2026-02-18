@@ -10,8 +10,11 @@ class DesignationController extends Controller
 {
     public function index(Request $request)
     {
+        $user = $request->user();
         $perPage = (int) $request->input('per_page', 10);
-        $data = Designation::latest()->paginate($perPage);
+        $data = Designation::where('clinic_id', $user->clinic_id)
+            ->latest()
+            ->paginate($perPage);
         return response()->json(['status' => 'success', 'data' => $data]);
     }
 
@@ -31,6 +34,12 @@ class DesignationController extends Controller
 
     public function update(Request $request, Designation $designation)
     {
+        $user = $request->user();
+
+        if ($designation->clinic_id !== $user->clinic_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'slug' => 'sometimes|required|string|max:255|unique:designations,slug,'.$designation->id,
@@ -45,6 +54,12 @@ class DesignationController extends Controller
 
     public function destroy(Designation $designation)
     {
+        $user = request()->user();
+
+        if ($designation->clinic_id !== $user->clinic_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
         $designation->delete();
         return response()->json(['status' => 'success']);
     }
