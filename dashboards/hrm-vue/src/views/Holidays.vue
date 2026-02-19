@@ -174,8 +174,10 @@
 import { computed, onMounted, ref } from 'vue';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { useToastStore } from '../store/toastStore';
 
 const auth = useAuthStore();
+const toast = useToastStore();
 
 const holidays = ref([]);
 const loading = ref(false);
@@ -233,6 +235,7 @@ const loadHolidays = async () => {
     holidays.value = payload.data || [];
   } catch (e) {
     console.error('Failed to load holidays', e);
+    toast.error('Failed to load holidays');
   } finally {
     loading.value = false;
   }
@@ -301,6 +304,7 @@ const saveHoliday = async () => {
     } else {
       formError.value = 'Failed to save holiday';
     }
+    toast.error(formError.value);
   } finally {
     saving.value = false;
   }
@@ -312,6 +316,7 @@ const deactivateHoliday = async (holiday) => {
     loadHolidays();
   } catch (e) {
     console.error('Failed to deactivate holiday', e);
+    toast.error('Failed to deactivate holiday');
   }
 };
 

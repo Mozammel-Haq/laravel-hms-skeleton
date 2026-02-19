@@ -261,8 +261,10 @@
 import { computed, onMounted, ref } from 'vue';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { useToastStore } from '../store/toastStore';
 
 const auth = useAuthStore();
+const toast = useToastStore();
 
 const balances = ref([]);
 const leaveTypes = ref([]);
@@ -329,6 +331,7 @@ const loadBalances = async () => {
     balances.value = page.data || payload.data || [];
   } catch (e) {
     console.error('Failed to load leave balances', e);
+    toast.error('Failed to load leave balances');
   } finally {
     loading.value = false;
   }
@@ -351,6 +354,7 @@ const loadMeta = async () => {
     }
   } catch (e) {
     console.error('Failed to load leave meta', e);
+    toast.error('Failed to load leave metadata');
   }
 };
 
@@ -422,6 +426,7 @@ const saveBalance = async () => {
     } else {
       formError.value = 'Failed to save leave balance';
     }
+    toast.error(formError.value);
   } finally {
     saving.value = false;
   }
@@ -433,6 +438,7 @@ const deactivateBalance = async (item) => {
     loadBalances();
   } catch (e) {
     console.error('Failed to deactivate leave balance', e);
+    toast.error('Failed to deactivate leave balance');
   }
 };
 

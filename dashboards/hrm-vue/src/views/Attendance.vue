@@ -269,8 +269,10 @@
 import { computed, onMounted, ref } from 'vue';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { useToastStore } from '../store/toastStore';
 
 const auth = useAuthStore();
+const toast = useToastStore();
 
 const now = new Date();
 const selectedDate = ref(now.toISOString().slice(0, 10));
@@ -329,6 +331,7 @@ const loadStaff = async () => {
     staffOptions.value = page.data || payload.data || [];
   } catch (e) {
     console.error('Failed to load staff list', e);
+    toast.error('Failed to load staff list');
   }
 };
 
@@ -347,6 +350,7 @@ const loadAttendance = async () => {
     records.value = page.data || payload.data || [];
   } catch (e) {
     console.error('Failed to load attendance', e);
+    toast.error('Failed to load attendance');
   } finally {
     loading.value = false;
   }
@@ -405,8 +409,10 @@ const save = async () => {
     };
     if (editing.value && currentId.value) {
       await api.put(`/attendance/${currentId.value}`, payload);
+      toast.success('Attendance updated');
     } else {
       await api.post('/attendance', payload);
+      toast.success('Attendance saved');
     }
     closeModal();
     loadAttendance();
@@ -417,6 +423,7 @@ const save = async () => {
     } else {
       formError.value = 'Failed to save attendance';
     }
+    toast.error(formError.value);
   } finally {
     saving.value = false;
   }
@@ -429,6 +436,7 @@ const deleteRow = async (row) => {
     loadAttendance();
   } catch (e) {
     console.error('Failed to delete attendance', e);
+    toast.error('Failed to delete attendance');
   }
 };
 

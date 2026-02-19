@@ -10,6 +10,8 @@
       <Footer />
     </div>
 
+    <ToastContainer />
+
     <div class="modal fade" id="searchModal">
       <div class="modal-dialog modal-lg">
         <div class="modal-content bg-transparent">
@@ -33,6 +35,7 @@ import { ref } from 'vue';
 import Header from './Header.vue';
 import Sidebar from './Sidebar.vue';
 import Footer from './Footer.vue';
+import ToastContainer from '../feedback/ToastContainer.vue';
 
 const isSidebarCollapsed = ref(false);
 

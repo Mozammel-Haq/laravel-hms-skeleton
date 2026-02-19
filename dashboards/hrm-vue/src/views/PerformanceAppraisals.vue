@@ -157,19 +157,43 @@
                 </div>
                 <div class="col-md-3">
                   <label class="form-label">Current Salary</label>
-                  <input v-model.number="form.current_salary" type="number" step="0.01" class="form-control" />
+                  <input
+                    v-model.number="form.current_salary"
+                    type="number"
+                    step="0.01"
+                    class="form-control"
+                    @change="onSalaryFieldsChange"
+                    @blur="onSalaryFieldsChange"
+                  />
                 </div>
                 <div class="col-md-3">
                   <label class="form-label">New Salary</label>
-                  <input v-model.number="form.new_salary" type="number" step="0.01" class="form-control" />
+                  <input
+                    v-model.number="form.new_salary"
+                    type="number"
+                    step="0.01"
+                    class="form-control"
+                    @change="onSalaryFieldsChange"
+                    @blur="onSalaryFieldsChange"
+                  />
                 </div>
                 <div class="col-md-3">
                   <label class="form-label">Change Amount</label>
-                  <input v-model.number="form.salary_change_amount" type="number" step="0.01" class="form-control" />
+                  <input
+                    v-model.number="form.salary_change_amount"
+                    type="number"
+                    step="0.01"
+                    class="form-control"
+                  />
                 </div>
                 <div class="col-md-3">
                   <label class="form-label">Change %</label>
-                  <input v-model.number="form.salary_change_percent" type="number" step="0.01" class="form-control" />
+                  <input
+                    v-model.number="form.salary_change_percent"
+                    type="number"
+                    step="0.01"
+                    class="form-control"
+                  />
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Status</label>
@@ -178,6 +202,15 @@
                     <option value="recommended">Recommended</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Promotion To</label>
+                  <select v-model.number="form.promotion_to_designation_id" class="form-select">
+                    <option :value="null">No promotion</option>
+                    <option v-for="d in designationOptions" :key="d.id" :value="d.id">
+                      {{ d.name }}
+                    </option>
                   </select>
                 </div>
                 <div class="col-12">
@@ -205,7 +238,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import api from '../services/api';
 
 const appraisals = ref([]);
@@ -236,6 +269,9 @@ const form = reactive({
 });
 
 const openMenuId = ref(null);
+const designations = ref([]);
+
+const designationOptions = computed(() => designations.value);
 
 const formatDate = (value) => {
   if (!value) return '';
@@ -260,6 +296,18 @@ const fetchAppraisals = async () => {
     console.error('Failed to load appraisals', e);
   } finally {
     loading.value = false;
+  }
+};
+
+const fetchDesignations = async () => {
+  try {
+    const res = await api.get('/designations', { params: { per_page: 100 } });
+    const payload = res.data || {};
+    const pageData = payload.data || {};
+    const list = pageData.data || [];
+    designations.value = list;
+  } catch (e) {
+    console.error('Failed to load designations', e);
   }
 };
 
@@ -311,6 +359,31 @@ const closeForm = () => {
   showForm.value = false;
 };
 
+const onSalaryFieldsChange = () => {
+  if (form.current_salary == null || form.new_salary == null) {
+    return;
+  }
+
+  const current = Number(form.current_salary) || 0;
+  const next = Number(form.new_salary) || 0;
+
+  if (!current && !next) {
+    form.salary_change_amount = null;
+    form.salary_change_percent = null;
+    return;
+  }
+
+  const diff = next - current;
+  form.salary_change_amount = Number.isFinite(diff) ? Number(diff.toFixed(2)) : null;
+
+  if (current) {
+    const pct = (diff / current) * 100;
+    form.salary_change_percent = Number.isFinite(pct) ? Number(pct.toFixed(2)) : null;
+  } else {
+    form.salary_change_percent = null;
+  }
+};
+
 const handleSubmit = async () => {
   saving.value = true;
   formError.value = '';
@@ -354,5 +427,7 @@ const confirmDelete = async (item) => {
   }
 };
 
-onMounted(fetchAppraisals);
+onMounted(async () => {
+  await Promise.all([fetchAppraisals(), fetchDesignations()]);
+});
 </script>

@@ -229,6 +229,9 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import api from '../services/api';
+import { useToastStore } from '../store/toastStore';
+
+const toast = useToastStore();
 
 const today = new Date();
 const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -297,6 +300,7 @@ const loadStaff = async () => {
     staffOptions.value = page.data || payload.data || [];
   } catch (e) {
     console.error('Failed to load staff list', e);
+    toast.error('Failed to load staff list');
   }
 };
 
@@ -317,6 +321,7 @@ const loadOvertime = async () => {
     records.value = page.data || payload.data || [];
   } catch (e) {
     console.error('Failed to load overtime records', e);
+    toast.error('Failed to load overtime records');
   } finally {
     loading.value = false;
   }
@@ -372,8 +377,10 @@ const save = async () => {
     };
     if (editing.value && currentId.value) {
       await api.put(`/overtimes/${currentId.value}`, payload);
+      toast.success('Overtime updated');
     } else {
       await api.post('/overtimes', payload);
+      toast.success('Overtime saved');
     }
     closeModal();
     loadOvertime();
@@ -384,6 +391,7 @@ const save = async () => {
     } else {
       formError.value = 'Failed to save overtime';
     }
+    toast.error(formError.value);
   } finally {
     saving.value = false;
   }
@@ -396,6 +404,7 @@ const deleteRow = async (row) => {
     loadOvertime();
   } catch (e) {
     console.error('Failed to delete overtime record', e);
+    toast.error('Failed to delete overtime record');
   }
 };
 

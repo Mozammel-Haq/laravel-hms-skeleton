@@ -179,8 +179,10 @@
 import { computed, onMounted, ref } from 'vue';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { useToastStore } from '../store/toastStore';
 
 const auth = useAuthStore();
+const toast = useToastStore();
 
 const leaveTypes = ref([]);
 const loading = ref(false);
@@ -222,6 +224,7 @@ const loadTypes = async () => {
     leaveTypes.value = payload.data || [];
   } catch (e) {
     console.error('Failed to load leave types', e);
+    toast.error('Failed to load leave types');
   } finally {
     loading.value = false;
   }
@@ -283,6 +286,7 @@ const saveType = async () => {
     } else {
       formError.value = 'Failed to save leave type';
     }
+    toast.error(formError.value);
   } finally {
     saving.value = false;
   }
@@ -294,6 +298,7 @@ const archiveType = async (type) => {
     loadTypes();
   } catch (e) {
     console.error('Failed to archive leave type', e);
+    toast.error('Failed to archive leave type');
   }
 };
 

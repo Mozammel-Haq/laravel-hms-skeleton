@@ -4,6 +4,9 @@
       <div class="d-flex justify-content-between align-items-center bg-primary-subtle text-primary px-4 pt-3 pb-3 rounded-3 mb-0">
         <div>
           <h5 class="fw-bold mb-1 text-primary">Payslips</h5>
+          <p class="text-muted small mb-2">
+            Review and manage individual salary payouts for staff.
+          </p>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-dots mb-0 text-muted small">
               <li class="breadcrumb-item">
@@ -213,11 +216,11 @@
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label class="form-label">Gross</label>
-                <input v-model.number="form.gross" type="number" step="0.01" class="form-control" />
+                <input v-model.number="form.gross" type="number" step="0.01" class="form-control" readonly />
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Net</label>
-                <input v-model.number="form.net" type="number" step="0.01" class="form-control" />
+                <input v-model.number="form.net" type="number" step="0.01" class="form-control" readonly />
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">Payroll Run</label>
@@ -254,8 +257,9 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useAuthStore } from '../store/authStore';
+import { useToastStore } from '../store/toastStore';
 import api from '../services/api';
 
 const normalizeDateForPeriod = (value) => {
@@ -277,6 +281,7 @@ const formatDateOnly = (value) => {
 };
 
 const auth = useAuthStore();
+const toast = useToastStore();
 const abilities = computed(() => Array.isArray(auth.user?.abilities) ? auth.user.abilities : []);
 const has = (perm) => abilities.value.includes(perm);
 const canManage = computed(() => has('view_reports') || has('view_financial_reports'));
@@ -414,6 +419,28 @@ const closeForm = () => {
   }
 };
 
+const recomputeFinancials = () => {
+  const basic = Number(form.value.basic || 0);
+  const allowances = Number(form.value.total_allowances || 0);
+  const deductions = Number(form.value.total_deductions || 0);
+  const gross = basic + allowances;
+  let net = gross - deductions;
+
+  if (net < 0) {
+    net = 0;
+  }
+
+  form.value.gross = gross;
+  form.value.net = net;
+};
+
+watch(
+  () => [form.value.basic, form.value.total_allowances, form.value.total_deductions],
+  () => {
+    recomputeFinancials();
+  }
+);
+
 const saveForm = async () => {
   saving.value = true;
   formError.value = '';
@@ -434,14 +461,17 @@ const saveForm = async () => {
     };
     if (form.value.id) {
       await api.put(`/payslips/${form.value.id}`, payload);
+      toast.success('Payslip updated');
     } else {
       await api.post('/payslips', payload);
+      toast.success('Payslip created');
     }
     closeForm();
     await fetchItems();
   } catch (e) {
     const message = e?.response?.data?.message;
     formError.value = typeof message === 'string' ? message : 'Failed to save payslip';
+    toast.error(formError.value);
   } finally {
     saving.value = false;
   }
@@ -455,6 +485,7 @@ const deletePayslip = async (payslip) => {
     await fetchItems();
   } catch (e) {
     console.error(e);
+    toast.error('Failed to delete payslip');
   } finally {
     deletingId.value = null;
   }
