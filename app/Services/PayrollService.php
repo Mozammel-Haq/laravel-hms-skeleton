@@ -3,14 +3,20 @@
 namespace App\Services;
 
 use App\Models\Expense;
+use App\Models\HrmAttendance;
 use App\Models\HrmPayrollAllowance;
 use App\Models\HrmPayrollDeduction;
 use App\Models\HrmPayrollRun;
 use App\Models\HrmPayrollTax;
+use App\Models\HrmOvertime;
+use App\Models\HrmTimesheet;
 use App\Models\HrmPayslip;
 use App\Models\HrmSalaryStructure;
+use App\Models\HrmShiftAssignment;
+use App\Models\HrmShift;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 
 class PayrollService
 {
@@ -94,13 +100,29 @@ class PayrollService
                     continue;
                 }
 
+                $hasFinalizedForPeriod = HrmPayslip::query()
+                    ->where('clinic_id', $clinicId)
+                    ->where('user_id', $user->id)
+                    ->whereDate('period_start', $run->period_start instanceof Carbon ? $run->period_start->toDateString() : (string) $run->period_start)
+                    ->whereDate('period_end', $run->period_end instanceof Carbon ? $run->period_end->toDateString() : (string) $run->period_end)
+                    ->whereIn('status', ['confirmed', 'paid'])
+                    ->exists();
+                if ($hasFinalizedForPeriod) {
+                    continue;
+                }
+
                 $allowanceBreakdown = [];
                 $deductionBreakdown = [];
                 $taxBreakdown = [];
+                $attendanceSummary = [];
+                $overtimeItems = [];
+                $timesheetSummary = [];
 
                 $allowanceTotal = 0.0;
                 $deductionTotal = 0.0;
                 $taxTotal = 0.0;
+                $attendanceDeduction = 0.0;
+                $overtimeAllowance = 0.0;
 
                 $preGross = $basic;
 
@@ -157,6 +179,140 @@ class PayrollService
                 }
 
                 $gross = $basic + $allowanceTotal;
+
+                $periodStart = Carbon::parse($run->period_start)->startOfDay();
+                $periodEnd = Carbon::parse($run->period_end)->endOfDay();
+                $periodDays = (int) ceil(max(1, $periodStart->diffInDays($periodEnd) + 1));
+                $dailyRate = $basic / $periodDays;
+
+                $hoursPerDay = 8.0;
+                $primaryAssignment = HrmShiftAssignment::query()
+                    ->with('shift')
+                    ->where('clinic_id', $clinicId)
+                    ->where('user_id', $user->id)
+                    ->where('is_primary', true)
+                    ->where('status', 'active')
+                    ->whereDate('effective_from', '<=', $periodEnd->toDateString())
+                    ->where(function ($q) use ($periodStart) {
+                        $q->whereNull('effective_to')
+                            ->orWhereDate('effective_to', '>=', $periodStart->toDateString());
+                    })
+                    ->orderByDesc('effective_from')
+                    ->first();
+
+                if ($primaryAssignment && $primaryAssignment->shift) {
+                    $startStr = substr((string) $primaryAssignment->shift->start_time, 0, 5);
+                    $endStr = substr((string) $primaryAssignment->shift->end_time, 0, 5);
+                    try {
+                        $start = Carbon::createFromFormat('H:i', $startStr);
+                        $end = Carbon::createFromFormat('H:i', $endStr);
+                        if ($end->lessThanOrEqualTo($start)) {
+                            $end->addDay();
+                        }
+                        $durationMinutes = $start->diffInMinutes($end);
+                        $breakMinutes = (int) ($primaryAssignment->shift->break_minutes ?? 0);
+                        $workMinutes = max(0, $durationMinutes - $breakMinutes);
+                        $hoursPerDayCandidate = round($workMinutes / 60, 2);
+                        if ($hoursPerDayCandidate > 0 && $hoursPerDayCandidate <= 24) {
+                            $hoursPerDay = $hoursPerDayCandidate;
+                        }
+                    } catch (\Throwable $e) {
+                        // ignore parsing errors, fallback to default hoursPerDay
+                    }
+                }
+
+                $hourlyRate = $dailyRate / $hoursPerDay;
+
+                $attendances = HrmAttendance::query()
+                    ->where('clinic_id', $clinicId)
+                    ->where('user_id', $user->id)
+                    ->whereDate('attendance_date', '>=', $periodStart->toDateString())
+                    ->whereDate('attendance_date', '<=', $periodEnd->toDateString())
+                    ->get();
+
+                $presentDays = 0.0;
+                $halfDays = 0.0;
+                $absentDays = 0.0;
+                $leaveDays = 0.0;
+                $holidayDays = 0.0;
+
+                foreach ($attendances as $a) {
+                    $s = strtolower((string) $a->status);
+                    if ($s === 'present') {
+                        $presentDays += 1.0;
+                    } elseif ($s === 'half-day') {
+                        $halfDays += 1.0;
+                    } elseif ($s === 'absent') {
+                        $absentDays += 1.0;
+                    } elseif ($s === 'leave') {
+                        $leaveDays += 1.0;
+                    } elseif ($s === 'holiday') {
+                        $holidayDays += 1.0;
+                    }
+                }
+
+                $treatMissingDaysAsAbsent = true;
+                $countedDays = $presentDays + $halfDays + $leaveDays + $holidayDays + $absentDays;
+                $missingDays = max(0.0, $periodDays - $countedDays);
+                if ($treatMissingDaysAsAbsent && $missingDays > 0) {
+                    $absentDays += $missingDays;
+                }
+
+                $attendanceSummary = [
+                    'period_days' => (int) $periodDays,
+                    'present_days' => (int) round($presentDays),
+                    'half_days' => (int) round($halfDays),
+                    'absent_days' => (int) round($absentDays),
+                    'leave_days' => (int) round($leaveDays),
+                    'holiday_days' => (int) round($holidayDays),
+                ];
+
+                $attendanceDeduction = ($absentDays * $dailyRate) + ($halfDays * $dailyRate * 0.5) + ($leaveDays * $dailyRate);
+
+                if ($attendanceDeduction > 0) {
+                    $deductionTotal += $attendanceDeduction;
+                    $deductionBreakdown[] = [
+                        'id' => null,
+                        'name' => 'Attendance Proration',
+                        'calculation_type' => 'derived',
+                        'amount_config' => null,
+                        'calculated_amount' => round($attendanceDeduction, 2),
+                    ];
+                }
+
+                $overtime = HrmOvertime::query()
+                    ->where('clinic_id', $clinicId)
+                    ->where('user_id', $user->id)
+                    ->whereDate('date', '>=', $periodStart->toDateString())
+                    ->whereDate('date', '<=', $periodEnd->toDateString())
+                    ->get();
+
+                foreach ($overtime as $ot) {
+                    $hours = (float) $ot->hours;
+                    $multiplier = $ot->multiplier !== null ? (float) $ot->multiplier : 1.0;
+                    $calc = $hourlyRate * $hours * $multiplier;
+                    if ($calc <= 0) {
+                        continue;
+                    }
+                    $overtimeAllowance += $calc;
+                    $overtimeItems[] = [
+                        'date' => $ot->date?->toDateString(),
+                        'hours' => $hours,
+                        'multiplier' => $multiplier,
+                        'calculated_amount' => round($calc, 2),
+                    ];
+                }
+
+                if ($overtimeAllowance > 0) {
+                    $allowanceTotal += $overtimeAllowance;
+                    $allowanceBreakdown[] = [
+                        'id' => null,
+                        'name' => 'Overtime',
+                        'calculation_type' => 'derived',
+                        'amount_config' => null,
+                        'calculated_amount' => round($overtimeAllowance, 2),
+                    ];
+                }
 
                 foreach ($deductions as $deduction) {
                     $amountConfig = (float) $deduction->amount;
@@ -228,6 +384,17 @@ class PayrollService
                 $totalGross += $gross;
                 $totalNet += $net;
 
+                $timesheetHours = HrmTimesheet::query()
+                    ->where('clinic_id', $clinicId)
+                    ->where('user_id', $user->id)
+                    ->whereDate('date', '>=', $periodStart->toDateString())
+                    ->whereDate('date', '<=', $periodEnd->toDateString())
+                    ->sum('hours');
+
+                $timesheetSummary = [
+                    'total_hours' => (float) $timesheetHours,
+                ];
+
                 HrmPayslip::create([
                     'clinic_id' => $clinicId,
                     'payroll_run_id' => $run->id,
@@ -246,6 +413,16 @@ class PayrollService
                         'allowances' => $allowanceBreakdown,
                         'deductions' => $deductionBreakdown,
                         'taxes' => $taxBreakdown,
+                        'attendance' => $attendanceSummary,
+                        'attendance_deduction' => round($attendanceDeduction, 2),
+                        'overtime' => $overtimeItems,
+                        'overtime_allowance' => round($overtimeAllowance, 2),
+                        'timesheets' => $timesheetSummary,
+                        'derived_rates' => [
+                            'hours_per_day' => $hoursPerDay,
+                            'daily_rate' => round($dailyRate, 2),
+                            'hourly_rate' => round($hourlyRate, 2),
+                        ],
                     ],
                 ]);
             }

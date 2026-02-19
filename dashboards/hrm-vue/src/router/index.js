@@ -107,6 +107,11 @@ const routes = [
     component: () => import('../views/PayrollRuns.vue')
   },
   {
+    path: '/hr/payroll/runs/:id',
+    name: 'PayrollRunDetail',
+    component: () => import('../views/PayrollRunDetail.vue')
+  },
+  {
     path: '/hr/payroll/payslips',
     name: 'Payslips',
     component: () => import('../views/Payslips.vue')

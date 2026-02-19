@@ -92,6 +92,21 @@ class HrmPayslipController extends Controller
             }
         }
 
+        // Prevent duplicate finalized payslips for the same employee and period
+        $finalizingStatus = $validated['status'] ?? 'draft';
+        if (in_array($finalizingStatus, ['confirmed', 'paid'], true)) {
+            $exists = HrmPayslip::query()
+                ->where('clinic_id', $user->clinic_id)
+                ->where('user_id', $validated['user_id'])
+                ->whereDate('period_start', $validated['period_start'])
+                ->whereDate('period_end', $validated['period_end'])
+                ->whereIn('status', ['confirmed', 'paid'])
+                ->exists();
+            if ($exists) {
+                return response()->json(['message' => 'A finalized payslip already exists for this employee and period'], 422);
+            }
+        }
+
         $payslip = HrmPayslip::create([
             'clinic_id' => $user->clinic_id,
             'payroll_run_id' => $validated['payroll_run_id'] ?? null,
@@ -162,6 +177,23 @@ class HrmPayslipController extends Controller
 
         if (array_key_exists('period_end', $validated) && $validated['period_end'] === null) {
             unset($updateData['period_end']);
+        }
+
+        // Prevent duplicate finalized payslips when setting status to confirmed/paid
+        if (isset($updateData['status']) && in_array($updateData['status'], ['confirmed', 'paid'], true)) {
+            $targetPeriodStart = $updateData['period_start'] ?? $payslip->period_start;
+            $targetPeriodEnd = $updateData['period_end'] ?? $payslip->period_end;
+            $exists = HrmPayslip::query()
+                ->where('clinic_id', $user->clinic_id)
+                ->where('user_id', $payslip->user_id)
+                ->whereDate('period_start', $targetPeriodStart)
+                ->whereDate('period_end', $targetPeriodEnd)
+                ->whereIn('status', ['confirmed', 'paid'])
+                ->where('id', '!=', $payslip->id)
+                ->exists();
+            if ($exists) {
+                return response()->json(['message' => 'A finalized payslip already exists for this employee and period'], 422);
+            }
         }
 
         $payslip->update($updateData);

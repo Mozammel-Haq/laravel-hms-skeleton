@@ -132,6 +132,15 @@
                       class="dropdown-menu dropdown-menu-end shadow-sm border-0"
                       :class="{ show: openMenuId === run.id }"
                     >
+                      <li>
+                        <a
+                          href="#"
+                          class="dropdown-item"
+                          @click.prevent="() => { closeRowMenu(); openDetails(run); }"
+                        >
+                          <i class="ti ti-eye me-2"></i>View Details
+                        </a>
+                      </li>
                       <li v-if="run.status === 'draft' || run.status === 'cancelled'">
                         <a
                           href="#"
@@ -227,8 +236,10 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import api from '../services/api';
 
+const router = useRouter();
 const normalizeDateForPeriod = (value) => {
   if (!value) return null;
   const v = String(value).slice(0, 10);
@@ -428,6 +439,11 @@ const deleteRun = async (run) => {
   } finally {
     deletingId.value = null;
   }
+};
+
+const openDetails = (run) => {
+  if (!run || !run.id) return;
+  router.push({ name: 'PayrollRunDetail', params: { id: run.id } });
 };
 
 onMounted(() => {

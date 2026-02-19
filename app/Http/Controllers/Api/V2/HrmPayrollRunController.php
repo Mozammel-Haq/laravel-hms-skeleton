@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
 use App\Models\HrmPayrollRun;
+use App\Models\HrmPayslip;
+use App\Models\Expense;
 use App\Services\PayrollService;
 use Illuminate\Http\Request;
 
@@ -153,10 +155,39 @@ class HrmPayrollRunController extends Controller
             return response()->json(['message' => 'Completed runs cannot be deleted'], 422);
         }
 
+        HrmPayslip::query()
+            ->where('clinic_id', $user->clinic_id)
+            ->where('payroll_run_id', $run->id)
+            ->delete();
+
+        Expense::query()
+            ->where('clinic_id', $user->clinic_id)
+            ->where('reference_type', HrmPayrollRun::class)
+            ->where('reference_id', $run->id)
+            ->delete();
+
         $run->delete();
 
         return response()->json([
             'status' => 'success',
+        ]);
+    }
+
+    public function show(Request $request, HrmPayrollRun $run)
+    {
+        $user = $request->user();
+
+        if ($run->clinic_id !== $user->clinic_id) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+
+        if (! $user->can('view_reports') && ! $user->can('view_financial_reports')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $run->load('processor'),
         ]);
     }
 }

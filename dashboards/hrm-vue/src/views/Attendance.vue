@@ -15,6 +15,23 @@
           </nav>
         </div>
         <div class="d-flex gap-2 align-items-center">
+          <div v-if="canManage" class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 small text-muted">Employee</label>
+            <select
+              v-model.number="selectedUserId"
+              class="form-select form-select-sm w-auto"
+              @change="loadAttendance"
+            >
+              <option :value="null">All</option>
+              <option
+                v-for="staff in staffOptions"
+                :key="staff.id"
+                :value="staff.id"
+              >
+                {{ staff.name }} ({{ staff.email }})
+              </option>
+            </select>
+          </div>
           <input
             v-model="selectedDate"
             type="date"
@@ -268,6 +285,7 @@ const currentId = ref(null);
 const formError = ref('');
 
 const openMenuId = ref(null);
+const selectedUserId = ref(null);
 
 const form = ref({
   user_id: '',
@@ -320,6 +338,7 @@ const loadAttendance = async () => {
     const res = await api.get('/attendance', {
       params: {
         date: selectedDate.value,
+        user_id: selectedUserId.value || undefined,
         per_page: 200,
       },
     });

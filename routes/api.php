@@ -204,6 +204,7 @@ Route::prefix('v2')->group(function () {
         Route::post('payroll-runs', [HrmPayrollRunController::class, 'store']);
         Route::put('payroll-runs/{run}', [HrmPayrollRunController::class, 'update']);
         Route::delete('payroll-runs/{run}', [HrmPayrollRunController::class, 'destroy']);
+        Route::get('payroll-runs/{run}', [HrmPayrollRunController::class, 'show']);
 
         Route::get('payslips', [HrmPayslipController::class, 'index']);
         Route::post('payslips', [HrmPayslipController::class, 'store']);
