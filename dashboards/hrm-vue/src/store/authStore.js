@@ -20,7 +20,7 @@ export const useAuthStore = defineStore('auth', {
                 if (error.response?.status === 401) {
                     this.user = null;
                     this.error = null;
-                    localStorage.removeItem('hrm_token');
+                    sessionStorage.removeItem('hrm_token');
                 } else {
                     this.user = null;
                     this.error = error.response?.data?.message || 'Failed to fetch user';
@@ -38,7 +38,7 @@ export const useAuthStore = defineStore('auth', {
                 const res = await api.post('/login', credentials);
                 const token = res.data.token;
                 if (token) {
-                    localStorage.setItem('hrm_token', token);
+                    sessionStorage.setItem('hrm_token', token);
                 }
                 const me = await api.get('/me');
                 this.user = me.data.data;
@@ -60,7 +60,7 @@ export const useAuthStore = defineStore('auth', {
             } finally {
                 // Always clear local auth state
                 this.user = null;
-                localStorage.removeItem('hrm_token');
+                sessionStorage.removeItem('hrm_token');
             }
         }
     }

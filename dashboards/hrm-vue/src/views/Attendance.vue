@@ -398,11 +398,17 @@ const save = async () => {
   saving.value = true;
   formError.value = '';
   try {
+    const normalizeTime = (value) => {
+      if (!value) return null;
+      const s = String(value);
+      const m = s.match(/^(\d{2}):(\d{2})/);
+      return m ? `${m[1]}:${m[2]}` : null;
+    };
     const payload = {
       user_id: form.value.user_id,
       attendance_date: form.value.attendance_date,
-      check_in_time: form.value.check_in_time || null,
-      check_out_time: form.value.check_out_time || null,
+      check_in_time: normalizeTime(form.value.check_in_time),
+      check_out_time: normalizeTime(form.value.check_out_time),
       status: form.value.status,
       is_late: form.value.is_late,
       is_early_exit: form.value.is_early_exit,

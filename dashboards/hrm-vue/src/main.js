@@ -15,7 +15,7 @@ router.beforeEach(async (to, from, next) => {
   const publicPaths = ['/login', '/forbidden']
   const requiresAuth = !publicPaths.includes(to.path)
   const auth = useAuthStore()
-  const token = localStorage.getItem('hrm_token')
+  const token = sessionStorage.getItem('hrm_token')
 
   console.debug('[Guard] enter', { to: to.path, requiresAuth, hasToken: !!token, hasUser: !!auth.user })
 

@@ -38,7 +38,7 @@
 
     <div class="card border-0 shadow-sm mb-3">
       <div class="card-body">
-        <div class="row g-3 align-items-end">
+        <div class="row g-3 align-items-end justify-content-center">
           <div class="col-md-3">
             <label class="form-label">Status</label>
             <select v-model="filters.status" class="form-select">
@@ -54,10 +54,10 @@
             <input v-model="filters.search" type="text" class="form-control" placeholder="Title, code or category" />
           </div>
           <div class="col-md-3 d-flex gap-2">
-            <button class="btn btn-outline-primary w-100" @click="fetchItems">
+            <button class="btn btn-primary w-100" @click="fetchItems">
               Apply
             </button>
-            <button class="btn btn-light w-100" @click="resetFilters">
+            <button class="btn btn-outline-danger w-100" @click="resetFilters">
               Reset
             </button>
           </div>
