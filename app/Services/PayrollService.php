@@ -3,30 +3,22 @@
 namespace App\Services;
 
 use App\Models\Expense;
-<<<<<<< HEAD
 use App\Models\HrmAttendance;
-=======
 use App\Models\HrmLeaveType;
 use App\Models\HrmOvertime;
->>>>>>> f96678b944ab795acd27463a1e77c7170ce1b9f3
 use App\Models\HrmPayrollAllowance;
 use App\Models\HrmPayrollDeduction;
 use App\Models\HrmPayrollRun;
 use App\Models\HrmPayrollTax;
-use App\Models\HrmOvertime;
 use App\Models\HrmTimesheet;
 use App\Models\HrmPayslip;
 use App\Models\HrmSalaryStructure;
-<<<<<<< HEAD
 use App\Models\HrmShiftAssignment;
 use App\Models\HrmShift;
-=======
 use App\Models\LeaveRequest;
->>>>>>> f96678b944ab795acd27463a1e77c7170ce1b9f3
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Carbon;
 
 class PayrollService
 {
@@ -147,19 +139,21 @@ class PayrollService
                     continue;
                 }
 
-<<<<<<< HEAD
+                $periodStart = $run->period_start instanceof Carbon ? $run->period_start->copy()->startOfDay() : Carbon::parse($run->period_start)->startOfDay();
+                $periodEnd = $run->period_end instanceof Carbon ? $run->period_end->copy()->startOfDay() : Carbon::parse($run->period_end)->startOfDay();
+
                 $hasFinalizedForPeriod = HrmPayslip::query()
                     ->where('clinic_id', $clinicId)
                     ->where('user_id', $user->id)
-                    ->whereDate('period_start', $run->period_start instanceof Carbon ? $run->period_start->toDateString() : (string) $run->period_start)
-                    ->whereDate('period_end', $run->period_end instanceof Carbon ? $run->period_end->toDateString() : (string) $run->period_end)
+                    ->whereDate('period_start', $periodStart->toDateString())
+                    ->whereDate('period_end', $periodEnd->toDateString())
                     ->whereIn('status', ['confirmed', 'paid'])
                     ->exists();
+
                 if ($hasFinalizedForPeriod) {
                     continue;
-=======
-                $periodStart = $run->period_start instanceof Carbon ? $run->period_start->copy()->startOfDay() : Carbon::parse($run->period_start)->startOfDay();
-                $periodEnd = $run->period_end instanceof Carbon ? $run->period_end->copy()->startOfDay() : Carbon::parse($run->period_end)->startOfDay();
+                }
+
                 $daysInPeriod = $periodStart->diffInDays($periodEnd) + 1;
 
                 $userLeaves = $leaveRequests->get($user->id, collect());
@@ -249,7 +243,6 @@ class PayrollService
 
                 if ($payFactor > 0.0 && $payFactor < 1.0) {
                     $effectiveBasic = $basic * $payFactor;
->>>>>>> f96678b944ab795acd27463a1e77c7170ce1b9f3
                 }
 
                 $allowanceBreakdown = [];

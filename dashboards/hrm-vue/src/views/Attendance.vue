@@ -150,46 +150,32 @@
       </div>
     </div>
 
-    <div class="modal fade show" tabindex="-1" style="display: block" v-if="showModal">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              {{ editing ? 'Edit Attendance' : 'Add Attendance' }}
-            </h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
-          </div>
-          <div class="modal-body">
-            <div v-if="formError" class="alert alert-danger py-2 mb-3">
-              {{ formError }}
+    <div v-if="showModal">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">{{ editing ? 'Edit Attendance' : 'Add Attendance' }}</h5>
+              <button type="button" class="btn-close" @click="closeModal"></button>
             </div>
-            <form @submit.prevent>
-              <div class="row">
-                <div class="col-md-6 mb-3">
+            <div class="modal-body">
+              <div v-if="formError" class="alert alert-danger py-2 mb-3">{{ formError }}</div>
+              <div class="row g-3">
+                <div class="col-md-6">
                   <label class="form-label">Employee</label>
-                  <select
-                    v-model.number="form.user_id"
-                    class="form-select"
-                  >
+                  <select v-model.number="form.user_id" class="form-select" :disabled="editing">
                     <option value="" disabled>Select employee</option>
-                    <option
-                      v-for="staff in staffOptions"
-                      :key="staff.id"
-                      :value="staff.id"
-                    >
+                    <option v-for="staff in staffOptions" :key="staff.id" :value="staff.id">
                       {{ staff.name }} ({{ staff.email }})
                     </option>
                   </select>
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-3">
                   <label class="form-label">Date</label>
-                  <input
-                    v-model="form.attendance_date"
-                    type="date"
-                    class="form-control"
-                  />
+                  <input v-model="form.attendance_date" type="date" class="form-control" :disabled="editing" />
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-3">
                   <label class="form-label">Status</label>
                   <select v-model="form.status" class="form-select">
                     <option value="present">Present</option>
@@ -199,69 +185,39 @@
                     <option value="holiday">Holiday</option>
                   </select>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-md-3 mb-3">
+                <div class="col-md-3">
                   <label class="form-label">Check In</label>
-                  <input
-                    v-model="form.check_in_time"
-                    type="time"
-                    class="form-control"
-                  />
+                  <input v-model="form.check_in_time" type="time" class="form-control" />
                 </div>
-                <div class="col-md-3 mb-3">
+                <div class="col-md-3">
                   <label class="form-label">Check Out</label>
-                  <input
-                    v-model="form.check_out_time"
-                    type="time"
-                    class="form-control"
-                  />
+                  <input v-model="form.check_out_time" type="time" class="form-control" />
                 </div>
-                <div class="col-md-3 mb-3 d-flex align-items-center">
-                  <div class="form-check mt-4">
-                    <input
-                      v-model="form.is_late"
-                      class="form-check-input"
-                      type="checkbox"
-                      id="isLate"
-                    />
-                    <label class="form-check-label" for="isLate">
-                      Late Arrival
-                    </label>
+                <div class="col-md-3 d-flex align-items-end">
+                  <div class="form-check mb-2">
+                    <input v-model="form.is_late" class="form-check-input" type="checkbox" id="isLate" />
+                    <label class="form-check-label" for="isLate">Late Arrival</label>
                   </div>
                 </div>
-                <div class="col-md-3 mb-3 d-flex align-items-center">
-                  <div class="form-check mt-4">
-                    <input
-                      v-model="form.is_early_exit"
-                      class="form-check-input"
-                      type="checkbox"
-                      id="isEarlyExit"
-                    />
-                    <label class="form-check-label" for="isEarlyExit">
-                      Early Exit
-                    </label>
+                <div class="col-md-3 d-flex align-items-end">
+                  <div class="form-check mb-2">
+                    <input v-model="form.is_early_exit" class="form-check-input" type="checkbox" id="isEarlyExit" />
+                    <label class="form-check-label" for="isEarlyExit">Early Exit</label>
                   </div>
                 </div>
               </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" @click="closeModal">Cancel</button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              @click="save"
-              :disabled="saving"
-            >
-              <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-              {{ editing ? 'Save Changes' : 'Save Attendance' }}
-            </button>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" @click="closeModal" :disabled="saving">Cancel</button>
+              <button type="button" class="btn btn-primary" @click="save" :disabled="saving">
+                <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                {{ editing ? 'Update' : 'Create' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal-backdrop fade show" v-if="showModal"></div>
   </div>
 </template>
 

@@ -92,21 +92,6 @@ class HrmPayslipController extends Controller
             }
         }
 
-<<<<<<< HEAD
-        // Prevent duplicate finalized payslips for the same employee and period
-        $finalizingStatus = $validated['status'] ?? 'draft';
-        if (in_array($finalizingStatus, ['confirmed', 'paid'], true)) {
-            $exists = HrmPayslip::query()
-                ->where('clinic_id', $user->clinic_id)
-                ->where('user_id', $validated['user_id'])
-                ->whereDate('period_start', $validated['period_start'])
-                ->whereDate('period_end', $validated['period_end'])
-                ->whereIn('status', ['confirmed', 'paid'])
-                ->exists();
-            if ($exists) {
-                return response()->json(['message' => 'A finalized payslip already exists for this employee and period'], 422);
-            }
-=======
         $basic = isset($validated['basic']) ? (float) $validated['basic'] : 0.0;
         $totalAllowances = isset($validated['total_allowances']) ? (float) $validated['total_allowances'] : 0.0;
         $totalDeductions = isset($validated['total_deductions']) ? (float) $validated['total_deductions'] : 0.0;
@@ -116,7 +101,6 @@ class HrmPayslipController extends Controller
 
         if ($net < 0) {
             $net = 0.0;
->>>>>>> f96678b944ab795acd27463a1e77c7170ce1b9f3
         }
 
         $payslip = HrmPayslip::create([
@@ -217,7 +201,6 @@ class HrmPayslipController extends Controller
             unset($updateData['period_end']);
         }
 
-<<<<<<< HEAD
         // Prevent duplicate finalized payslips when setting status to confirmed/paid
         if (isset($updateData['status']) && in_array($updateData['status'], ['confirmed', 'paid'], true)) {
             $targetPeriodStart = $updateData['period_start'] ?? $payslip->period_start;
@@ -233,33 +216,6 @@ class HrmPayslipController extends Controller
             if ($exists) {
                 return response()->json(['message' => 'A finalized payslip already exists for this employee and period'], 422);
             }
-=======
-        $recalculateFinancials = array_key_exists('basic', $validated)
-            || array_key_exists('total_allowances', $validated)
-            || array_key_exists('total_deductions', $validated);
-
-        if ($recalculateFinancials) {
-            $basic = array_key_exists('basic', $validated) ? (float) $validated['basic'] : (float) $payslip->basic;
-            $totalAllowances = array_key_exists('total_allowances', $validated)
-                ? (float) $validated['total_allowances']
-                : (float) $payslip->total_allowances;
-            $totalDeductions = array_key_exists('total_deductions', $validated)
-                ? (float) $validated['total_deductions']
-                : (float) $payslip->total_deductions;
-
-            $gross = $basic + $totalAllowances;
-            $net = $gross - $totalDeductions;
-
-            if ($net < 0) {
-                $net = 0.0;
-            }
-
-            $updateData['basic'] = $basic;
-            $updateData['total_allowances'] = $totalAllowances;
-            $updateData['total_deductions'] = $totalDeductions;
-            $updateData['gross'] = $gross;
-            $updateData['net'] = $net;
->>>>>>> f96678b944ab795acd27463a1e77c7170ce1b9f3
         }
 
         $payslip->update($updateData);

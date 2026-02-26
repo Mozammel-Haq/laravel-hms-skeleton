@@ -146,57 +146,59 @@
       </div>
     </div>
   </div>
-  <div v-if="showModal" class="modal fade show" style="display: block;" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ isEditing ? 'Edit Department' : 'Add Department' }}</h5>
-          <button type="button" class="btn-close" @click="closeModal"></button>
-        </div>
-        <div class="modal-body">
-          <div v-if="formError" class="alert alert-danger">{{ formError }}</div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Name</label>
-              <input type="text" class="form-control" v-model="form.name" />
-              <div class="text-danger small mt-1" v-if="errors.name">{{ errors.name }}</div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Status</label>
-              <select class="form-select" v-model="form.status">
-                <option value="active">active</option>
-                <option value="inactive">inactive</option>
-              </select>
-              <div class="text-danger small mt-1" v-if="errors.status">{{ errors.status }}</div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Floor Number</label>
-              <input type="text" class="form-control" v-model="form.floor_number" />
-              <div class="text-danger small mt-1" v-if="errors.floor_number">{{ errors.floor_number }}</div>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Phone Extension</label>
-              <input type="text" class="form-control" v-model="form.phone_extension" />
-              <div class="text-danger small mt-1" v-if="errors.phone_extension">{{ errors.phone_extension }}</div>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Description</label>
-              <textarea class="form-control" rows="3" v-model="form.description"></textarea>
-              <div class="text-danger small mt-1" v-if="errors.description">{{ errors.description }}</div>
+  <div v-if="showModal">
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ isEditing ? 'Edit Department' : 'Add Department' }}</h5>
+            <button type="button" class="btn-close" @click="closeModal"></button>
+          </div>
+          <div class="modal-body">
+            <div v-if="formError" class="alert alert-danger py-2 mb-3">{{ formError }}</div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" v-model="form.name" />
+                <div class="text-danger small mt-1" v-if="errors.name">{{ errors.name }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Status</label>
+                <select class="form-select" v-model="form.status">
+                  <option value="active">active</option>
+                  <option value="inactive">inactive</option>
+                </select>
+                <div class="text-danger small mt-1" v-if="errors.status">{{ errors.status }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Floor Number</label>
+                <input type="text" class="form-control" v-model="form.floor_number" />
+                <div class="text-danger small mt-1" v-if="errors.floor_number">{{ errors.floor_number }}</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone Extension</label>
+                <input type="text" class="form-control" v-model="form.phone_extension" />
+                <div class="text-danger small mt-1" v-if="errors.phone_extension">{{ errors.phone_extension }}</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="3" v-model="form.description"></textarea>
+                <div class="text-danger small mt-1" v-if="errors.description">{{ errors.description }}</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-light" @click="closeModal" :disabled="saving">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="submitForm" :disabled="saving">
-            <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
-            {{ isEditing ? 'Update' : 'Create' }}
-          </button>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" @click="closeModal" :disabled="saving">Cancel</button>
+            <button type="button" class="btn btn-primary" @click="submitForm" :disabled="saving">
+              <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
+              {{ isEditing ? 'Update' : 'Create' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <div v-if="showModal" class="modal-backdrop fade show"></div>
   </template>
 <script setup>
 import { ref, onMounted, computed } from 'vue';

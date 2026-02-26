@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
+  base: '/hrm/',
   server: {
     proxy: {
       // API only — prevent SPA routes like /login being proxied to Laravel

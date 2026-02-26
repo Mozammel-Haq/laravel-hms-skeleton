@@ -148,9 +148,11 @@
       </div>
     </div>
 
-    <div class="modal fade show d-block" tabindex="-1" v-if="showForm">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
+    <div v-if="showForm">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
           <form @submit.prevent="handleSubmit">
             <div class="modal-header">
               <h5 class="modal-title">{{ editingPolicy ? 'Edit Policy' : 'New Policy' }}</h5>
@@ -197,8 +199,8 @@
           </form>
         </div>
       </div>
-      <div class="modal-backdrop fade show"></div>
     </div>
+  </div>
   </div>
 </template>
 

@@ -111,62 +111,64 @@
       </div>
     </div>
 
-    <div class="modal fade show" tabindex="-1" style="display: block" v-if="showModal">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              {{ editingHoliday ? 'Edit Holiday' : 'New Holiday' }}
-            </h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
-          </div>
-          <div class="modal-body">
-            <div v-if="formError" class="alert alert-danger py-2 mb-3">
-              {{ formError }}
+    <div v-if="showModal">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                {{ editingHoliday ? 'Edit Holiday' : 'Add Holiday' }}
+              </h5>
+              <button type="button" class="btn-close" @click="closeModal"></button>
             </div>
-            <form @submit.prevent>
-              <div class="mb-3">
-                <label class="form-label">Date</label>
-                <input v-model="form.date" type="date" class="form-control" required />
+            <div class="modal-body">
+              <div v-if="formError" class="alert alert-danger py-2 mb-3">
+                {{ formError }}
               </div>
-              <div class="mb-3">
-                <label class="form-label">Name</label>
-                <input v-model="form.name" type="text" class="form-control" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Type</label>
-                <select v-model="form.type" class="form-select">
-                  <option value="public">Public Holiday</option>
-                  <option value="clinic">Clinic Holiday</option>
-                  <option value="optional">Optional Holiday</option>
-                </select>
-              </div>
-              <div class="form-check mb-3">
-                <input v-model="form.is_full_day" class="form-check-input" type="checkbox" id="isFullDay" />
-                <label class="form-check-label" for="isFullDay">
-                  Full day
-                </label>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select v-model="form.status" class="form-select">
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" @click="closeModal">Cancel</button>
-            <button type="button" class="btn btn-primary" @click="saveHoliday" :disabled="saving">
-              <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-              {{ editingHoliday ? 'Save Changes' : 'Save Holiday' }}
-            </button>
+              <form @submit.prevent>
+                <div class="mb-3">
+                  <label class="form-label">Date</label>
+                  <input v-model="form.date" type="date" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Name</label>
+                  <input v-model="form.name" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Type</label>
+                  <select v-model="form.type" class="form-select">
+                    <option value="public">Public Holiday</option>
+                    <option value="clinic">Clinic Holiday</option>
+                    <option value="optional">Optional Holiday</option>
+                  </select>
+                </div>
+                <div class="form-check mb-3">
+                  <input v-model="form.is_full_day" class="form-check-input" type="checkbox" id="isFullDay" />
+                  <label class="form-check-label" for="isFullDay">
+                    Full day
+                  </label>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <select v-model="form.status" class="form-select">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" @click="closeModal">Cancel</button>
+              <button type="button" class="btn btn-primary" @click="saveHoliday" :disabled="saving">
+                <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                {{ editingHoliday ? 'Save Changes' : 'Save Holiday' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal-backdrop fade show" v-if="showModal"></div>
   </div>
 </template>
 

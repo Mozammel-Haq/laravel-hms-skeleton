@@ -135,69 +135,71 @@
       </div>
     </div>
 
-    <div class="modal fade show d-block" tabindex="-1" v-if="showForm">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <form @submit.prevent="handleSubmit">
-            <div class="modal-header">
-              <h5 class="modal-title">{{ editingKpi ? 'Edit KPI' : 'New KPI' }}</h5>
-              <button type="button" class="btn-close" @click="closeForm"></button>
-            </div>
-            <div class="modal-body">
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label">Name</label>
-                  <input v-model="form.name" type="text" class="form-control" required />
+    <div v-if="showForm">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <form @submit.prevent="handleSubmit">
+              <div class="modal-header">
+                <h5 class="modal-title">{{ editingKpi ? 'Edit KPI' : 'New KPI' }}</h5>
+                <button type="button" class="btn-close" @click="closeForm"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Name</label>
+                    <input v-model="form.name" type="text" class="form-control" required />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Code</label>
+                    <input v-model="form.code" type="text" class="form-control" />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Category</label>
+                    <input v-model="form.category" type="text" class="form-control" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Frequency</label>
+                    <select v-model="form.frequency" class="form-select">
+                      <option value="annually">Annually</option>
+                      <option value="quarterly">Quarterly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Weight (%)</label>
+                    <input v-model.number="form.weight" type="number" min="0" max="100" class="form-control" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select v-model="form.status" class="form-select">
+                      <option value="draft">Draft</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                      <option value="archived">Archived</option>
+                    </select>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <textarea v-model="form.description" rows="3" class="form-control"></textarea>
+                  </div>
                 </div>
-                <div class="col-md-3">
-                  <label class="form-label">Code</label>
-                  <input v-model="form.code" type="text" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                  <label class="form-label">Category</label>
-                  <input v-model="form.category" type="text" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Frequency</label>
-                  <select v-model="form.frequency" class="form-select">
-                    <option value="annually">Annually</option>
-                    <option value="quarterly">Quarterly</option>
-                    <option value="monthly">Monthly</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Weight (%)</label>
-                  <input v-model.number="form.weight" type="number" min="0" max="100" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Status</label>
-                  <select v-model="form.status" class="form-select">
-                    <option value="draft">Draft</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="archived">Archived</option>
-                  </select>
-                </div>
-                <div class="col-12">
-                  <label class="form-label">Description</label>
-                  <textarea v-model="form.description" rows="3" class="form-control"></textarea>
+                <div v-if="formError" class="alert alert-danger mt-3">
+                  {{ formError }}
                 </div>
               </div>
-              <div v-if="formError" class="alert alert-danger mt-3">
-                {{ formError }}
+              <div class="modal-footer">
+                <button type="button" class="btn btn-light" @click="closeForm">Cancel</button>
+                <button type="submit" class="btn btn-primary" :disabled="saving">
+                  <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                  Save
+                </button>
               </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-light" @click="closeForm">Cancel</button>
-              <button type="submit" class="btn btn-primary" :disabled="saving">
-                <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-                Save
-              </button>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
-      <div class="modal-backdrop fade show"></div>
     </div>
   </div>
 </template>

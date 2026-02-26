@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: '/api/v2',
-    withCredentials: true,
+    baseURL: 'http://mozammel.intelsofts.com/hms/public/api/v2',
     headers: {
         'X-Requested-With': 'XMLHttpRequest',
         'Accept': 'application/json',
@@ -11,7 +10,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(async (config) => {
-    const token = localStorage.getItem('hrm_token');
+    const token = localStorage.getItem('hrm_token') || sessionStorage.getItem('hrm_token');
     if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -24,6 +23,7 @@ api.interceptors.response.use(
     error => {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('hrm_token');
+            sessionStorage.removeItem('hrm_token');
             console.warn('Unauthorized: token cleared');
         }
         return Promise.reject(error);

@@ -125,104 +125,73 @@
       </div>
     </div>
 
-    <div class="modal fade show" tabindex="-1" style="display: block" v-if="showModal">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              {{ editing ? 'Edit Overtime' : 'Log Overtime' }}
-            </h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
-          </div>
-          <div class="modal-body">
-            <div v-if="formError" class="alert alert-danger py-2 mb-3">
-              {{ formError }}
+    <div v-if="showModal">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                {{ editing ? 'Edit Overtime' : 'Request Overtime' }}
+              </h5>
+              <button type="button" class="btn-close" @click="closeModal"></button>
             </div>
-            <form @submit.prevent>
-              <div class="row">
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Date</label>
-                  <input
-                    v-model="form.date"
-                    type="date"
-                    class="form-control"
-                  />
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Employee</label>
-                  <select
-                    v-model.number="form.user_id"
-                    class="form-select"
-                  >
-                    <option value="" disabled>Select employee</option>
-                    <option
-                      v-for="staff in staffOptions"
-                      :key="staff.id"
-                      :value="staff.id"
-                    >
-                      {{ staff.name }} ({{ staff.email }})
-                    </option>
-                  </select>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Hours</label>
-                  <input
-                    v-model.number="form.hours"
-                    type="number"
-                    step="0.25"
-                    min="0"
-                    max="24"
-                    class="form-control"
-                  />
-                </div>
+            <div class="modal-body">
+              <div v-if="formError" class="alert alert-danger py-2 mb-3">
+                {{ formError }}
               </div>
-              <div class="row">
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Multiplier</label>
-                  <input
-                    v-model.number="form.multiplier"
-                    type="number"
-                    step="0.1"
-                    min="1"
-                    max="5"
-                    class="form-control"
-                  />
+              <form @submit.prevent>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Employee</label>
+                    <select v-model.number="form.user_id" class="form-select" :disabled="editing">
+                      <option value="" disabled>Select employee</option>
+                      <option v-for="staff in staffOptions" :key="staff.id" :value="staff.id">
+                        {{ staff.name }} ({{ staff.email }})
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Date</label>
+                    <input v-model="form.overtime_date" type="date" class="form-control" :disabled="editing" />
+                  </div>
                 </div>
-                <div class="col-md-8 mb-3">
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Hours</label>
+                    <input v-model.number="form.hours" type="number" step="0.5" min="0.5" class="form-control" />
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Rate Multiplier</label>
+                    <input v-model.number="form.rate_multiplier" type="number" step="0.1" min="1" class="form-control" />
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Status</label>
+                    <select v-model="form.status" class="form-select">
+                      <option value="pending">Pending</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="paid">Paid</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="mb-3">
                   <label class="form-label">Reason</label>
-                  <input
-                    v-model="form.reason"
-                    type="text"
-                    class="form-control"
-                  />
+                  <textarea v-model="form.reason" rows="2" class="form-control"></textarea>
                 </div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select v-model="form.status" class="form-select">
-                  <option value="approved">Approved</option>
-                  <option value="pending">Pending</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" @click="closeModal">Cancel</button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              @click="save"
-              :disabled="saving"
-            >
-              <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-              {{ editing ? 'Save Changes' : 'Save Overtime' }}
-            </button>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" @click="closeModal">Cancel</button>
+              <button type="button" class="btn btn-primary" @click="save" :disabled="saving">
+                <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                {{ editing ? 'Save Changes' : 'Submit Request' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal-backdrop fade show" v-if="showModal"></div>
   </div>
 </template>
 

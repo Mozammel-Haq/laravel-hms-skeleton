@@ -18,7 +18,7 @@ class StaffController extends Controller
     public function index(Request $request)
     {
         $viewer = $request->user();
-        $query = User::with(['roles', 'department', 'designation'])
+        $query = User::with(['roles', 'department', 'designation', 'salaryStructure'])
             ->where('clinic_id', $viewer->clinic_id);
 
         if (! $viewer->hasRole('Super Admin') && ! $viewer->hasRole('Clinic Admin')) {
@@ -100,6 +100,7 @@ class StaffController extends Controller
             'role_id' => 'required|integer|exists:roles,id',
             'department_id' => 'nullable|integer|exists:departments,id',
             'designation_id' => 'nullable|integer|exists:designations,id',
+            'salary_structure_id' => 'nullable|integer|exists:hrm_salary_structures,id',
             'join_date' => 'nullable|date',
         ]);
 
@@ -123,6 +124,16 @@ class StaffController extends Controller
             }
         }
 
+        if (! empty($validated['salary_structure_id'])) {
+            $structure = \App\Models\HrmSalaryStructure::whereKey($validated['salary_structure_id'])
+                ->where('clinic_id', $actor->clinic_id)
+                ->first();
+
+            if (! $structure) {
+                return response()->json(['message' => 'Invalid salary structure for this clinic'], 422);
+            }
+        }
+
         $role = \App\Models\Role::find($validated['role_id']);
         if (! $actor->hasRole('Super Admin') && ! $actor->hasRole('Clinic Admin') && ! $actor->hasRole('Admin')) {
             if (in_array($role->name, ['Super Admin', 'Clinic Admin', 'Admin'], true)) {
@@ -137,6 +148,7 @@ class StaffController extends Controller
         $user->clinic_id = $actor->clinic_id;
         $user->department_id = $validated['department_id'] ?? null;
         $user->designation_id = $validated['designation_id'] ?? null;
+        $user->salary_structure_id = $validated['salary_structure_id'] ?? null;
         $user->join_date = $validated['join_date'] ?? null;
         $user->status = 'active';
         $user->save();
@@ -173,6 +185,7 @@ class StaffController extends Controller
             'role_id' => 'required|integer|exists:roles,id',
             'department_id' => 'nullable|integer|exists:departments,id',
             'designation_id' => 'nullable|integer|exists:designations,id',
+            'salary_structure_id' => 'nullable|integer|exists:hrm_salary_structures,id',
             'join_date' => 'nullable|date',
         ]);
 
@@ -196,12 +209,25 @@ class StaffController extends Controller
             }
         }
 
+        if (! empty($validated['salary_structure_id'])) {
+            $structure = \App\Models\HrmSalaryStructure::whereKey($validated['salary_structure_id'])
+                ->where('clinic_id', $actor->clinic_id)
+                ->first();
+
+            if (! $structure) {
+                return response()->json(['message' => 'Invalid salary structure for this clinic'], 422);
+            }
+        }
+
         $staff->name = $validated['name'];
         if (array_key_exists('department_id', $validated)) {
             $staff->department_id = $validated['department_id'];
         }
         if (array_key_exists('designation_id', $validated)) {
             $staff->designation_id = $validated['designation_id'];
+        }
+        if (array_key_exists('salary_structure_id', $validated)) {
+            $staff->salary_structure_id = $validated['salary_structure_id'];
         }
         if (array_key_exists('join_date', $validated)) {
             $staff->join_date = $validated['join_date'];

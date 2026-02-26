@@ -133,6 +133,8 @@ function runCommand($command) {
             <h3>Step 2: Standard Operations</h3>
             <p>Once the error is gone, use these to set up your app.</p>
             <a href="?cmd=migrate" class="btn">Run Migrations</a>
+            <a href="?cmd=migrate-fresh" class="btn btn-warning" style="background:#fd7e14;">Fresh Migrate & Seed</a>
+            <a href="?cmd=db-export" class="btn btn-warning" style="background:#20c997;">Export DB for Server</a>
             <a href="?cmd=storage-link" class="btn">Create Storage Link</a>
             <a href="?cmd=optimize" class="btn btn-warning">Optimize (May break Home Page)</a>
             <a href="?cmd=clear-all" class="btn btn-danger" style="background:#dc3545;">Nuclear Clear (Stable Mode)</a>
@@ -144,6 +146,59 @@ function runCommand($command) {
             $cmd = $_GET['cmd'];
             switch ($cmd) {
                 case 'migrate': runCommand('migrate --force'); break;
+                case 'migrate-fresh': runCommand('migrate:fresh --seed --force'); break;
+                case 'db-export':
+                    echo "<h3>Exporting Database...</h3>";
+                    try {
+                        $rootPath = file_exists(__DIR__ . '/bootstrap/app.php') ? __DIR__ : __DIR__ . '/..';
+                        require_once $rootPath . '/vendor/autoload.php';
+                        $app = require $rootPath . '/bootstrap/app.php';
+                        $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
+                        $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+                        $dbName = \Illuminate\Support\Facades\DB::getDatabaseName();
+                        $tableNameKey = "Tables_in_" . $dbName;
+                        $sql = "-- HMS Database Dump\n";
+                        $sql .= "-- Generated: " . date('Y-m-d H:i:s') . "\n\n";
+                        $sql .= "SET FOREIGN_KEY_CHECKS=0;\n\n";
+
+                        foreach ($tables as $table) {
+                            $tableName = $table->$tableNameKey;
+
+                            // Structure
+                            $res = \Illuminate\Support\Facades\DB::select("SHOW CREATE TABLE `$tableName`")[0];
+                            $createSql = $res->{'Create Table'};
+                            $sql .= "DROP TABLE IF EXISTS `$tableName`;\n";
+                            $sql .= $createSql . ";\n\n";
+
+                            // Data
+                            $rows = \Illuminate\Support\Facades\DB::table($tableName)->get();
+                            if ($rows->count() > 0) {
+                                $sql .= "INSERT INTO `$tableName` VALUES \n";
+                                $rowStrings = [];
+                                foreach ($rows as $row) {
+                                    $values = array_values((array)$row);
+                                    $values = array_map(function($v) {
+                                        if (is_null($v)) return 'NULL';
+                                        return "'" . addslashes($v) . "'";
+                                    }, $values);
+                                    $rowStrings[] = "(" . implode(', ', $values) . ")";
+                                }
+                                $sql .= implode(",\n", $rowStrings) . ";\n\n";
+                            }
+                        }
+                        $sql .= "SET FOREIGN_KEY_CHECKS=1;";
+
+                        $fileName = 'db_dump_' . date('Y_m_d_His') . '.sql';
+                        file_put_contents($rootPath . '/public/' . $fileName, $sql);
+                        echo "<div class='alert' style='background:#d4edda; color:#155724; border:1px solid #c3e6cb;'>";
+                        echo "<strong>Success!</strong> Database exported to: <strong>public/$fileName</strong><br>";
+                        echo "You can now download this file and import it to your server.";
+                        echo "</div>";
+                    } catch (\Exception $e) {
+                        echo "<p style='color:red;'>Error: " . $e->getMessage() . "</p>";
+                    }
+                    break;
                 case 'storage-link':
                     echo "<h3>Creating Storage Link...</h3>";
                     $rootPath = file_exists(__DIR__ . '/bootstrap/app.php') ? __DIR__ : __DIR__ . '/..';

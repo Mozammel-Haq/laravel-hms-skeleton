@@ -198,6 +198,18 @@
                 </select>
               </div>
               <div class="mb-3">
+                <label class="form-label">Salary Structure</label>
+                <select v-model.number="form.salary_structure_id" class="form-select">
+                  <option :value="null">Use clinic default</option>
+                  <option v-for="s in salaryStructureOptions" :key="s.id" :value="s.id">
+                    {{ s.name }} ({{ formatMoney(s.basic_amount) }})
+                  </option>
+                </select>
+                <div class="form-text fs-12">
+                  Overrides the clinic default structure for this employee.
+                </div>
+              </div>
+              <div class="mb-3">
                 <label class="form-label">Join Date</label>
                 <input v-model="form.join_date" type="date" class="form-control" />
               </div>
@@ -253,11 +265,13 @@ const form = ref({
   role_id: null,
   department_id: null,
   designation_id: null,
+  salary_structure_id: null,
   join_date: '',
 });
 
 const departments = ref([]);
 const designations = ref([]);
+const salaryStructures = ref([]);
 
 const openMenuId = ref(null);
 
@@ -322,36 +336,28 @@ const roleOptions = computed(() => {
   return Array.from(map.values());
 });
 
-const departmentOptions = computed(() => {
-  return departments.value;
-});
+const departmentOptions = computed(() => departments.value);
+const designationOptions = computed(() => designations.value);
+const salaryStructureOptions = computed(() => salaryStructures.value);
 
-const designationOptions = computed(() => {
-  return designations.value;
-});
+const fetchMetadata = async () => {
+    try {
+     const [deptRes, desRes, structRes] = await Promise.all([
+       api.get('/departments', { params: { per_page: 100 } }),
+       api.get('/designations', { params: { per_page: 100 } }),
+       api.get('/salary-structures'),
+     ]);
+     departments.value = deptRes.data?.data?.data || [];
+     designations.value = desRes.data?.data?.data || [];
+     salaryStructures.value = structRes.data?.data || [];
+    } catch (e) {
+     console.error('Failed to load metadata', e);
+    }
+  };
 
-const fetchDepartments = async () => {
-  try {
-    const res = await api.get('/departments', { params: { per_page: 100 } });
-    const payload = res.data || {};
-    const pageData = payload.data || {};
-    const list = pageData.data || [];
-    departments.value = list;
-  } catch (e) {
-    console.error('Failed to load departments', e);
-  }
-};
-
-const fetchDesignations = async () => {
-  try {
-    const res = await api.get('/designations', { params: { per_page: 100 } });
-    const payload = res.data || {};
-    const pageData = payload.data || {};
-    const list = pageData.data || [];
-    designations.value = list;
-  } catch (e) {
-    console.error('Failed to load designations', e);
-  }
+const formatMoney = (value) => {
+  const n = typeof value === 'number' ? value : parseFloat(value || 0);
+  return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 const formatDate = (value) => {
@@ -381,6 +387,7 @@ const goToStaffEdit = (staff) => {
       Array.isArray(staff.roles) && staff.roles[0] ? staff.roles[0].id : null,
     department_id: staff.department?.id ?? null,
     designation_id: staff.designation?.id ?? null,
+    salary_structure_id: staff.salary_structure_id ?? null,
     join_date: staff.join_date ? String(staff.join_date).slice(0, 10) : '',
   };
   formError.value = '';
@@ -399,6 +406,7 @@ const saveStaff = async () => {
       role_id: form.value.role_id,
       department_id: form.value.department_id || null,
       designation_id: form.value.designation_id || null,
+      salary_structure_id: form.value.salary_structure_id || null,
       join_date: form.value.join_date || null,
     });
     if (staffModalInstance) {
@@ -418,8 +426,7 @@ const saveStaff = async () => {
 onMounted(() => {
   fetchStaff();
   if (canEdit.value) {
-    fetchDepartments();
-    fetchDesignations();
+    fetchMetadata();
   }
   const bs = window.bootstrap;
   if (staffModalRef.value && bs?.Modal) {

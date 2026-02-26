@@ -133,9 +133,11 @@
       </div>
     </div>
 
-    <div class="modal fade show d-block" tabindex="-1" v-if="showForm">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
+    <div v-if="showForm">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+          <div class="modal-content">
           <form @submit.prevent="handleSubmit">
             <div class="modal-header">
               <h5 class="modal-title">{{ editingAppraisal ? 'Edit Appraisal' : 'New Appraisal' }}</h5>
@@ -143,57 +145,55 @@
             </div>
             <div class="modal-body">
               <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <label class="form-label">Employee</label>
-                  <input v-model="form.user_name" type="text" class="form-control" disabled />
+                  <select v-model.number="form.user_id" class="form-select" :disabled="editingAppraisal" @change="handleEmployeeChange" required>
+                    <option :value="null" disabled>Select employee</option>
+                    <option v-for="emp in staffOptions" :key="emp.id" :value="emp.id">
+                      {{ emp.name }} ({{ emp.email }})
+                    </option>
+                  </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <label class="form-label">Related Review</label>
-                  <input v-model="form.review_label" type="text" class="form-control" disabled />
+                  <select v-model.number="form.review_id" class="form-select" :disabled="editingAppraisal">
+                    <option :value="null">No specific review</option>
+                    <option v-for="review in reviewOptions" :key="review.id" :value="review.id">
+                      {{ review.user?.name }} ({{ review.period?.start_date }} - {{ review.period?.end_date }})
+                    </option>
+                  </select>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Effective Date</label>
-                  <input v-model="form.effective_date" type="date" class="form-control" />
+                  <input v-model="form.effective_date" type="date" class="form-control" required />
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <label class="form-label">Current Salary</label>
-                  <input
-                    v-model.number="form.current_salary"
-                    type="number"
-                    step="0.01"
-                    class="form-control"
-                    @change="onSalaryFieldsChange"
-                    @blur="onSalaryFieldsChange"
-                  />
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input v-model.number="form.current_salary" type="number" class="form-control" readonly disabled />
+                  </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <label class="form-label">New Salary</label>
-                  <input
-                    v-model.number="form.new_salary"
-                    type="number"
-                    step="0.01"
-                    class="form-control"
-                    @change="onSalaryFieldsChange"
-                    @blur="onSalaryFieldsChange"
-                  />
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input v-model.number="form.new_salary" type="number" step="0.01" class="form-control" @input="handleNewSalaryInput" />
+                  </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <label class="form-label">Change Amount</label>
-                  <input
-                    v-model.number="form.salary_change_amount"
-                    type="number"
-                    step="0.01"
-                    class="form-control"
-                  />
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input v-model.number="form.salary_change_amount" type="number" step="0.01" class="form-control" @input="handleChangeAmountInput" />
+                  </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                   <label class="form-label">Change %</label>
-                  <input
-                    v-model.number="form.salary_change_percent"
-                    type="number"
-                    step="0.01"
-                    class="form-control"
-                  />
+                  <div class="input-group">
+                    <input v-model.number="form.salary_change_percent" type="number" step="0.1" class="form-control" @input="handleChangePercentInput" />
+                    <span class="input-group-text">%</span>
+                  </div>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label">Status</label>
@@ -232,8 +232,8 @@
           </form>
         </div>
       </div>
-      <div class="modal-backdrop fade show"></div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -255,10 +255,8 @@ const filters = reactive({
 const form = reactive({
   id: null,
   user_id: null,
-  user_name: '',
   review_id: null,
-  review_label: '',
-  effective_date: '',
+  effective_date: new Date().toISOString().split('T')[0],
   current_salary: null,
   new_salary: null,
   salary_change_amount: null,
@@ -270,8 +268,12 @@ const form = reactive({
 
 const openMenuId = ref(null);
 const designations = ref([]);
+const staff = ref([]);
+const reviews = ref([]);
 
 const designationOptions = computed(() => designations.value);
+const staffOptions = computed(() => staff.value);
+const reviewOptions = computed(() => reviews.value);
 
 const formatDate = (value) => {
   if (!value) return '';
@@ -299,16 +301,58 @@ const fetchAppraisals = async () => {
   }
 };
 
-const fetchDesignations = async () => {
+const fetchMetadata = async () => {
   try {
-    const res = await api.get('/designations', { params: { per_page: 100 } });
-    const payload = res.data || {};
-    const pageData = payload.data || {};
-    const list = pageData.data || [];
-    designations.value = list;
+    const [desRes, staffRes, reviewRes] = await Promise.all([
+      api.get('/designations', { params: { per_page: 100 } }),
+      api.get('/staff', { params: { per_page: 500 } }),
+      api.get('/performance-reviews', { params: { per_page: 100 } }),
+    ]);
+    designations.value = desRes.data?.data?.data || [];
+    staff.value = staffRes.data?.data?.data || [];
+    reviews.value = reviewRes.data?.data?.data || [];
   } catch (e) {
-    console.error('Failed to load designations', e);
+    console.error('Failed to load metadata', e);
   }
+};
+
+const handleEmployeeChange = () => {
+  const selectedEmp = staff.value.find((s) => s.id === form.user_id);
+  if (selectedEmp) {
+    // Basic Salary Override takes priority
+    form.current_salary = selectedEmp.basic_salary_override || 0;
+
+    // Fallback to assigned Salary Structure if no override
+    if (form.current_salary === 0) {
+      // Check both camelCase and snake_case as JSON keys can vary
+      const structure = selectedEmp.salary_structure || selectedEmp.salaryStructure;
+      if (structure) {
+        form.current_salary = structure.basic_amount || 0;
+      }
+    }
+    handleNewSalaryInput();
+  }
+};
+
+const handleNewSalaryInput = () => {
+  const current = Number(form.current_salary) || 0;
+  const next = Number(form.new_salary) || 0;
+  form.salary_change_amount = Number((next - current).toFixed(2));
+  form.salary_change_percent = current > 0 ? Number(((form.salary_change_amount / current) * 100).toFixed(2)) : 0;
+};
+
+const handleChangeAmountInput = () => {
+  const current = Number(form.current_salary) || 0;
+  const change = Number(form.salary_change_amount) || 0;
+  form.new_salary = Number((current + change).toFixed(2));
+  form.salary_change_percent = current > 0 ? Number(((change / current) * 100).toFixed(2)) : 0;
+};
+
+const handleChangePercentInput = () => {
+  const current = Number(form.current_salary) || 0;
+  const percent = Number(form.salary_change_percent) || 0;
+  form.salary_change_amount = Number(((current * percent) / 100).toFixed(2));
+  form.new_salary = Number((current + form.salary_change_amount).toFixed(2));
 };
 
 const toggleRowMenu = (id) => {
@@ -324,9 +368,7 @@ const openForm = (item = null) => {
     editingAppraisal.value = item;
     form.id = item.id;
     form.user_id = item.user_id;
-    form.user_name = item.user?.name || '';
     form.review_id = item.review_id;
-    form.review_label = item.review ? `${item.review.period_start || ''} - ${item.review.period_end || ''}` : '';
     form.effective_date = item.effective_date || '';
     form.current_salary = item.current_salary;
     form.new_salary = item.new_salary;
@@ -339,10 +381,8 @@ const openForm = (item = null) => {
     editingAppraisal.value = null;
     form.id = null;
     form.user_id = null;
-    form.user_name = 'Me';
     form.review_id = null;
-    form.review_label = '';
-    form.effective_date = '';
+    form.effective_date = new Date().toISOString().split('T')[0];
     form.current_salary = null;
     form.new_salary = null;
     form.salary_change_amount = null;
@@ -357,31 +397,6 @@ const openForm = (item = null) => {
 
 const closeForm = () => {
   showForm.value = false;
-};
-
-const onSalaryFieldsChange = () => {
-  if (form.current_salary == null || form.new_salary == null) {
-    return;
-  }
-
-  const current = Number(form.current_salary) || 0;
-  const next = Number(form.new_salary) || 0;
-
-  if (!current && !next) {
-    form.salary_change_amount = null;
-    form.salary_change_percent = null;
-    return;
-  }
-
-  const diff = next - current;
-  form.salary_change_amount = Number.isFinite(diff) ? Number(diff.toFixed(2)) : null;
-
-  if (current) {
-    const pct = (diff / current) * 100;
-    form.salary_change_percent = Number.isFinite(pct) ? Number(pct.toFixed(2)) : null;
-  } else {
-    form.salary_change_percent = null;
-  }
 };
 
 const handleSubmit = async () => {
@@ -428,6 +443,6 @@ const confirmDelete = async (item) => {
 };
 
 onMounted(async () => {
-  await Promise.all([fetchAppraisals(), fetchDesignations()]);
+  await Promise.all([fetchAppraisals(), fetchMetadata()]);
 });
 </script>

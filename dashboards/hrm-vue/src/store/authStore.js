@@ -11,6 +11,25 @@ export const useAuthStore = defineStore('auth', {
     }),
 
     actions: {
+        getToken() {
+            return localStorage.getItem('hrm_token') || sessionStorage.getItem('hrm_token');
+        },
+
+        setToken(token, remember = false) {
+            if (remember) {
+                localStorage.setItem('hrm_token', token);
+                sessionStorage.removeItem('hrm_token');
+            } else {
+                sessionStorage.setItem('hrm_token', token);
+                localStorage.removeItem('hrm_token');
+            }
+        },
+
+        clearToken() {
+            localStorage.removeItem('hrm_token');
+            sessionStorage.removeItem('hrm_token');
+        },
+
         async fetchUser() {
             this.loading = true;
             try {
@@ -20,7 +39,7 @@ export const useAuthStore = defineStore('auth', {
                 if (error.response?.status === 401) {
                     this.user = null;
                     this.error = null;
-                    localStorage.removeItem('hrm_token');
+                    this.clearToken();
                 } else {
                     this.user = null;
                     this.error = error.response?.data?.message || 'Failed to fetch user';
@@ -34,11 +53,12 @@ export const useAuthStore = defineStore('auth', {
         async login(credentials) {
             this.loading = true;
             try {
+                const { email, password, remember } = credentials;
                 // API token-based login, no redirect to web dashboard
-                const res = await api.post('/login', credentials);
+                const res = await api.post('/login', { email, password });
                 const token = res.data.token;
                 if (token) {
-                    localStorage.setItem('hrm_token', token);
+                    this.setToken(token, remember);
                 }
                 const me = await api.get('/me');
                 this.user = me.data.data;
@@ -60,7 +80,7 @@ export const useAuthStore = defineStore('auth', {
             } finally {
                 // Always clear local auth state
                 this.user = null;
-                localStorage.removeItem('hrm_token');
+                this.clearToken();
             }
         }
     }

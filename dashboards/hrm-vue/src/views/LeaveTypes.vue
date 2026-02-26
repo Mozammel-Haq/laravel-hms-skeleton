@@ -113,65 +113,67 @@
       </div>
     </div>
 
-    <div class="modal fade show" tabindex="-1" style="display: block" v-if="showModal">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              {{ editingType ? 'Edit Leave Type' : 'New Leave Type' }}
-            </h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
-          </div>
-          <div class="modal-body">
-            <div v-if="formError" class="alert alert-danger py-2 mb-3">
-              {{ formError }}
+    <div v-if="showModal">
+      <div class="modal-backdrop fade show"></div>
+      <div class="modal fade show d-block" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                {{ editingType ? 'Edit Leave Type' : 'New Leave Type' }}
+              </h5>
+              <button type="button" class="btn-close" @click="closeModal"></button>
             </div>
-            <form @submit.prevent>
-              <div class="mb-3">
-                <label class="form-label">Name</label>
-                <input v-model="form.name" type="text" class="form-control" required />
+            <div class="modal-body">
+              <div v-if="formError" class="alert alert-danger py-2 mb-3">
+                {{ formError }}
               </div>
-              <div class="mb-3">
-                <label class="form-label">Code</label>
-                <input v-model="form.code" type="text" class="form-control" placeholder="Optional short code" />
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Default Days Per Year</label>
-                <input
-                  v-model.number="form.default_days"
-                  type="number"
-                  step="0.5"
-                  min="0"
-                  max="365"
-                  class="form-control"
-                />
-              </div>
-              <div class="form-check mb-3">
-                <input v-model="form.carry_forward" class="form-check-input" type="checkbox" id="carryForward" />
-                <label class="form-check-label" for="carryForward">
-                  Allow carry forward
-                </label>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select v-model="form.status" class="form-select">
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-light" @click="closeModal">Cancel</button>
-            <button type="button" class="btn btn-primary" @click="saveType" :disabled="saving">
-              <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
-              {{ editingType ? 'Save Changes' : 'Save Leave Type' }}
-            </button>
+              <form @submit.prevent>
+                <div class="mb-3">
+                  <label class="form-label">Name</label>
+                  <input v-model="form.name" type="text" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Code</label>
+                  <input v-model="form.code" type="text" class="form-control" placeholder="Optional short code" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Default Days Per Year</label>
+                  <input
+                    v-model.number="form.default_days"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="365"
+                    class="form-control"
+                  />
+                </div>
+                <div class="form-check mb-3">
+                  <input v-model="form.carry_forward" class="form-check-input" type="checkbox" id="carryForward" />
+                  <label class="form-check-label" for="carryForward">
+                    Allow carry forward
+                  </label>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <select v-model="form.status" class="form-select">
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" @click="closeModal">Cancel</button>
+              <button type="button" class="btn btn-primary" @click="saveType" :disabled="saving">
+                <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
+                {{ editingType ? 'Save Changes' : 'Save Leave Type' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal-backdrop fade show" v-if="showModal"></div>
   </div>
 </template>
 

@@ -20,26 +20,22 @@
             </svg>
             <div class="auth-hero d-flex align-items-center justify-content-center w-100 h-100">
               <div class="glass border rounded-4 p-4 p-lg-5 w-75">
-                <h4 class="text-white text-center mb-2">CityCare HMS</h4>
-                <p class="text-white-50 text-center mb-4">Modern, secure HR dashboard for clinics</p>
-                <ul class="list-unstyled text-white-50 mb-0">
-                  <li class="d-flex align-items-start gap-2 mb-2">
-                    <i class="ti ti-shield-check text-white"></i>
-                    <span>Single sign-on with clinic-level tenant isolation</span>
-                  </li>
-                  <li class="d-flex align-items-start gap-2 mb-2">
-                    <i class="ti ti-users-group text-white"></i>
-                    <span>Manage employees, departments and designations</span>
-                  </li>
-                  <li class="d-flex align-items-start gap-2 mb-2">
-                    <i class="ti ti-fingerprint text-white"></i>
-                    <span>Attendance and leave workflows integrated</span>
-                  </li>
-                  <li class="d-flex align-items-start gap-2">
-                    <i class="ti ti-chart-arrows-vertical text-white"></i>
-                    <span>Insights with KPI cards and real-time stats</span>
-                  </li>
-                </ul>
+                <div class="text-center mb-4">
+                  <h4 class="text-white fw-bold mb-2">Demo Login Accounts</h4>
+                  <p class="text-white-50 small mb-0">Click a role to auto-fill credentials</p>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-4" v-for="demo in demoAccounts" :key="demo.email">
+                    <button type="button"
+                      class="card-left w-100 d-flex align-items-center justify-content-center gap-2 py-3 rounded-3 border-0"
+                      @click="fillDemo(demo.email)">
+                      <i :class="'ti ' + demo.icon + ' fs-4'"></i>
+                      <span>{{ demo.role }}</span>
+                    </button>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -56,6 +52,8 @@
                 </div>
                 <h4 class="mb-1 text-center">Sign In</h4>
                 <p class="text-muted mb-4 text-center">Please enter below details to access the dashboard</p>
+
+
                 <form @submit.prevent="handleSubmit">
                   <div class="mb-3">
                     <label class="form-label">Email Address</label>
@@ -74,7 +72,7 @@
                   </div>
                   <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="rememberMe" />
+                      <input v-model="rememberMe" class="form-check-input" type="checkbox" id="rememberMe" />
                       <label class="form-check-label" for="rememberMe">Remember Me</label>
                     </div>
                     <a href="#" class="text-danger small">Forgot your password?</a>
@@ -105,6 +103,24 @@
                   <span class="text-muted">Don’t have an account yet?</span>
                   <a href="#" class="ms-1">Register</a>
                 </div>
+                                <!-- Mobile Demo Credentials (Visible only on mobile) -->
+                <div class="card shadow-sm mb-4 d-lg-none bg-light border-0">
+                  <div class="card-body p-3">
+                    <h6 class="fw-bold text-center mb-2">Demo Login Accounts</h6>
+                    <div class="list-group list-group-flush rounded-3 overflow-hidden">
+                      <button v-for="demo in demoAccounts" :key="demo.email"
+                        type="button"
+                        class="list-group-item list-group-item-action py-2 small"
+                        @click="fillDemo(demo.email)">
+                        <i :class="'ti ' + demo.icon + ' me-2'"></i>
+                        {{ demo.role }}
+                      </button>
+                    </div>
+                    <div class="text-center mt-2">
+                      <span class="badge bg-white text-dark border">Password: password</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -126,8 +142,27 @@
 
   const email = ref('')
   const password = ref('')
+  const rememberMe = ref(false)
   const error = ref(null)
   const loading = ref(false)
+
+  const demoAccounts = [
+    { role: 'Super Admin', email: 'superadmin@hospital.com', icon: 'ti-shield-lock' },
+    { role: 'Clinic Admin', email: 'admin@hospital.com', icon: 'ti-settings' },
+    { role: 'HR Manager', email: 'hr@hospital.com', icon: 'ti-users' },
+    { role: 'Doctor', email: 'doctor@hospital.com', icon: 'ti-stethoscope' },
+    { role: 'Nurse', email: 'nurse@hospital.com', icon: 'ti-heartbeat' },
+    { role: 'Accountant', email: 'accountant@hospital.com', icon: 'ti-report-money' },
+    { role: 'Pharmacist', email: 'pharmacist@hospital.com', icon: 'ti-pill' },
+    { role: 'Receptionist', email: 'receptionist@hospital.com', icon: 'ti-headset' },
+    { role: 'Lab', email: 'lab@hospital.com', icon: 'ti-flask' }
+  ]
+
+  const fillDemo = (demoEmail) => {
+    email.value = demoEmail
+    password.value = 'password'
+  }
+
   const sideStyle = {
     backgroundImage: 'linear-gradient(180deg, #2f3ec9 0%, #2a35b8 70%, #222c9a 100%)',
     backgroundSize: 'cover',
@@ -146,7 +181,7 @@
     error.value = null
     loading.value = true
     try {
-      await auth.login({ email: email.value, password: password.value })
+      await auth.login({ email: email.value, password: password.value, remember: rememberMe.value })
       console.info('[Login] Success, fetching dashboard...')
       router.replace('/')
     } catch (e) {
@@ -160,7 +195,7 @@
 
   <style scoped>
   .auth-side {
-    background: linear-gradient(180deg, #2f3ec9 0%, #2a35b8 70%, #222c9a 100%);
+    background: linear-gradient(180deg, #5867f1 0%, #2c39c7 70%, #2e39b8 100%);
     position: relative;
   }
   .auth-side:before{
@@ -173,6 +208,8 @@
     background:#ff7a00;
     border-radius:50%;
     box-shadow:0 0 40px rgba(255,122,0,0.6);
+    pointer-events: none;
+    z-index: 1;
   }
   .auth-side:after{
     content:'';
@@ -184,15 +221,56 @@
     border-radius:50%;
     box-shadow:0 0 0 80px rgba(255,255,255,0.06), 0 0 0 160px rgba(255,255,255,0.04);
     background: transparent;
+    pointer-events: none;
+    z-index: 1;
   }
   .auth-overlay {
     background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(1px);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .auth-pattern {
+    pointer-events: none;
+    z-index: 1;
+  }
+  .auth-hero {
+    position: relative;
+    z-index: 10;
   }
   .glass {
     background: rgba(255,255,255,0.08);
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
     backdrop-filter: blur(4px);
+    position: relative;
+    z-index: 20;
+  }
+  .border-white-10 {
+    border-color: rgba(255,255,255,0.1) !important;
+  }
+  .card-left {
+    background: rgba(255, 255, 255, 0.885);
+    transition: all 0.2s ease;
+    color: #222;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  .card-left:hover {
+    background: #fff;
+    /* transform: translateY(-2px); */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  button{
+     cursor: pointer;
+  }
+  .demo-btn {
+    transition: all 0.2s ease-in-out;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .demo-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    border-color: #fff;
   }
   .social-btn {
     width: 44px;

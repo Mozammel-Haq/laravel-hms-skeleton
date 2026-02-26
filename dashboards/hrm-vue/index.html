@@ -7,7 +7,7 @@
     <title>hrm-vue</title>
     <!-- minimal debug: no theme script -->
     <script>
-      window.LARAVEL_ASSET_BASE = window.LARAVEL_ASSET_BASE || '/assets';
+      window.LARAVEL_ASSET_BASE = '/hms/public/assets';
       const cssAssets = [
         '/css/bootstrap.min.css',
         '/plugins/tabler-icons/tabler-icons.min.css',
@@ -24,7 +24,7 @@
         document.head.appendChild(link);
       });
     </script>
-    <script defer src="/assets/js/theme-script.js"></script>
+    <script defer src="/hms/public/assets/js/theme-script.js"></script>
     <style id="kpi-styles">
       :root {
         --primary-color: #0d6efd;
