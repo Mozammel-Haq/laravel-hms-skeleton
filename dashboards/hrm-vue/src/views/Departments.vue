@@ -28,6 +28,36 @@
     </div>
     <div v-else class="card border-0 shadow-sm">
       <div class="card-body p-0">
+        <div class="bg-light p-3 rounded mb-4 mx-3 mt-3">
+          <form @submit.prevent="applyFilters">
+            <div class="row g-2 align-items-end justify-content-center">
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted mb-1">Search</label>
+                <input v-model="filters.search" type="text" class="form-control form-control-sm" placeholder="Name..." />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted mb-1">Status</label>
+                <select v-model="filters.status" class="form-select form-select-sm">
+                  <option value="">All</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted mb-1 d-block">&nbsp;</label>
+                <button type="submit" class="btn btn-sm btn-primary w-100">
+                  <i class="ti ti-filter"></i>
+                </button>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted mb-1 d-block">&nbsp;</label>
+                <button type="button" class="btn btn-sm btn-outline-danger w-100" @click="resetFilters">
+                  Reset
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="bg-light">
@@ -40,7 +70,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="dept in departments" :key="dept.id">
+              <tr v-for="dept in filteredDepartments" :key="dept.id">
                 <td class="ps-4">{{ dept.name }}</td>
                 <td>
                   <span :class="['badge', dept.status === 'active' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary']">
@@ -85,7 +115,7 @@
                   </div>
                 </td>
               </tr>
-              <tr v-if="departments.length === 0">
+              <tr v-if="filteredDepartments.length === 0">
                 <td colspan="5" class="text-center py-4 text-muted">No departments</td>
               </tr>
             </tbody>
@@ -230,6 +260,30 @@ const form = ref({
   description: ''
 });
 const errors = ref({});
+
+const filters = ref({
+  search: '',
+  status: ''
+});
+
+const filteredDepartments = computed(() => {
+  const list = departments.value || [];
+  const term = filters.value.search.trim().toLowerCase();
+  const status = filters.value.status;
+  return list.filter((d) => {
+    const matchesTerm = !term || (d.name || '').toLowerCase().includes(term);
+    const matchesStatus = !status || (d.status || '').toLowerCase() === status;
+    return matchesTerm && matchesStatus;
+  });
+});
+
+const applyFilters = () => {
+  // server doesn't support filters; client-side only
+};
+
+const resetFilters = () => {
+  filters.value = { search: '', status: '' };
+};
 
 const resetForm = () => {
   form.value = { name: '', status: 'active', floor_number: '', phone_extension: '', description: '' };

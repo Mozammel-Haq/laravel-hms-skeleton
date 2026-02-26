@@ -123,7 +123,7 @@
       <div class="card-body p-0">
         <div class="bg-light p-3 rounded mb-4 mx-3 mt-3">
           <form @submit.prevent="applyFilters">
-            <div class="row g-2 align-items-end">
+            <div class="row g-2 align-items-end justify-content-center">
               <div class="col-md-3">
                 <label class="form-label small fw-bold text-muted mb-1">Search</label>
                 <input v-model="filters.search" type="text" class="form-control form-control-sm" placeholder="Name or Email..." />
@@ -154,6 +154,12 @@
                 <label class="form-label small fw-bold text-muted mb-1 d-block">&nbsp;</label>
                 <button type="submit" class="btn btn-sm btn-primary w-100">
                   <i class="ti ti-filter"></i>
+                </button>
+              </div>
+              <div class="col-md-1">
+                <label class="form-label small fw-bold text-muted mb-1 d-block">&nbsp;</label>
+                <button type="button" class="btn btn-sm btn-outline-danger w-100" @click="resetFilters">
+                  Reset
                 </button>
               </div>
             </div>
@@ -476,6 +482,18 @@ const fetchStaff = async () => {
   }
 };
 const applyFilters = () => {
+  pagination.value.current_page = 1;
+  fetchStaff();
+};
+
+const resetFilters = () => {
+  filters.value = {
+    search: '',
+    status: 'active',
+    role: null,
+    from: '',
+    to: '',
+  };
   pagination.value.current_page = 1;
   fetchStaff();
 };

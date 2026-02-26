@@ -66,8 +66,10 @@
                     <label class="form-label">Password</label>
                     <div class="input-group">
                       <span class="input-group-text"><i class="ti ti-lock"></i></span>
-                      <input v-model="password" type="password" class="form-control" placeholder="****************" required />
-                      <span class="input-group-text"><i class="ti ti-eye-off"></i></span>
+                      <input v-model="password" :type="showPassword ? 'text' : 'password'" class="form-control" placeholder="****************" required />
+                      <button type="button" class="btn btn-outline-primary" @click="togglePassword" :aria-label="showPassword ? 'Hide password' : 'Show password'">
+                        <i :class="showPassword ? 'ti ti-eye' : 'ti ti-eye-off'"></i>
+                      </button>
                     </div>
                   </div>
                   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -167,6 +169,10 @@
     backgroundImage: 'linear-gradient(180deg, #2f3ec9 0%, #2a35b8 70%, #222c9a 100%)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
+  }
+
+  const togglePassword = () => {
+    showPassword.value = !showPassword.value
   }
 
   const setReasonError = () => {

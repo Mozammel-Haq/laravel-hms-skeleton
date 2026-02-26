@@ -24,22 +24,54 @@
             <h6 class="mb-1 fw-bold">Staff Profiles</h6>
             <p class="text-muted fs-12 mb-0">Overview of employees with department, designation, and status</p>
           </div>
-          <div class="d-flex gap-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text bg-light border-end-0">
-                <i class="ti ti-search"></i>
-              </span>
-              <input
-                v-model="search"
-                type="text"
-                class="form-control border-start-0"
-                placeholder="Search by name, email, or department"
-              />
-            </div>
-          </div>
+        <div></div>
         </div>
       </div>
-      <div class="card-body p-0">
+    <div class="card-body p-0">
+      <div class="bg-light p-3 rounded mb-3 mx-3 mt-3">
+        <form @submit.prevent="applyFilters">
+          <div class="row g-2 align-items-end justify-content-center">
+            <div class="col-md-3">
+              <label class="form-label small fw-bold text-muted mb-1">Search</label>
+              <input v-model="filters.search" type="text" class="form-control form-control-sm" placeholder="Name, email, department..." />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold text-muted mb-1">Department</label>
+              <select v-model.number="filters.department_id" class="form-select form-select-sm">
+                <option :value="null">All</option>
+                <option v-for="d in departmentFilterOptions" :key="d.id" :value="d.id">{{ d.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small fw-bold text-muted mb-1">Designation</label>
+              <select v-model.number="filters.designation_id" class="form-select form-select-sm">
+                <option :value="null">All</option>
+                <option v-for="d in designationFilterOptions" :key="d.id" :value="d.id">{{ d.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small fw-bold text-muted mb-1">Status</label>
+              <select v-model="filters.status" class="form-select form-select-sm">
+                <option value="">All</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="col-md-1">
+              <label class="form-label small fw-bold text-muted mb-1 d-block">&nbsp;</label>
+              <button type="submit" class="btn btn-sm btn-primary w-100">
+                <i class="ti ti-filter"></i>
+              </button>
+            </div>
+            <div class="col-md-1">
+              <label class="form-label small fw-bold text-muted mb-1 d-block">&nbsp;</label>
+              <button type="button" class="btn btn-sm btn-outline-danger w-100" @click="resetFilters">
+                Reset
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
         <div v-if="loading" class="text-center py-4">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -275,6 +307,13 @@ const salaryStructures = ref([]);
 
 const openMenuId = ref(null);
 
+const filters = ref({
+  search: '',
+  department_id: null,
+  designation_id: null,
+  status: ''
+});
+
 const abilities = computed(() =>
   Array.isArray(auth.user?.abilities) ? auth.user.abilities : []
 );
@@ -306,19 +345,25 @@ const closeRowMenu = () => {
 };
 
 const filteredStaff = computed(() => {
-  const term = search.value.trim().toLowerCase();
-  if (!term) return staffList.value;
+  const term = (filters.value.search || '').trim().toLowerCase();
+  const depId = filters.value.department_id;
+  const desId = filters.value.designation_id;
+  const status = (filters.value.status || '').trim().toLowerCase();
   return staffList.value.filter((s) => {
     const name = (s.name || '').toLowerCase();
     const email = (s.email || '').toLowerCase();
     const department = (s.department?.name || '').toLowerCase();
     const designation = (s.designation?.name || '').toLowerCase();
-    return (
+    const hasTerm =
+      !term ||
       name.includes(term) ||
       email.includes(term) ||
       department.includes(term) ||
-      designation.includes(term)
-    );
+      designation.includes(term);
+    const hasDep = !depId || s.department?.id === depId;
+    const hasDes = !desId || s.designation?.id === desId;
+    const hasStatus = !status || (String(s.status || 'active').toLowerCase() === status);
+    return hasTerm && hasDep && hasDes && hasStatus;
   });
 });
 
@@ -336,9 +381,13 @@ const roleOptions = computed(() => {
   return Array.from(map.values());
 });
 
-const departmentOptions = computed(() => departments.value);
-const designationOptions = computed(() => designations.value);
-const salaryStructureOptions = computed(() => salaryStructures.value);
+const departmentOptions = computed(() => {
+  return departments.value;
+});
+
+const designationOptions = computed(() => {
+  return designations.value;
+});
 
 const fetchMetadata = async () => {
     try {
@@ -391,7 +440,11 @@ const goToStaffEdit = (staff) => {
     join_date: staff.join_date ? String(staff.join_date).slice(0, 10) : '',
   };
   formError.value = '';
-  if (staffModalInstance) {
+  const el = staffModalRef.value;
+  const bs = window.bootstrap;
+  if (el && bs?.Modal) {
+    // ensure instance exists even if not initialized on mount
+    staffModalInstance = bs.Modal.getOrCreateInstance(el);
     staffModalInstance.show();
   }
 };
@@ -426,11 +479,21 @@ const saveStaff = async () => {
 onMounted(() => {
   fetchStaff();
   if (canEdit.value) {
-    fetchMetadata();
+    fetchDepartments();
+    fetchDesignations();
   }
   const bs = window.bootstrap;
   if (staffModalRef.value && bs?.Modal) {
     staffModalInstance = bs.Modal.getOrCreateInstance(staffModalRef.value);
   }
 });
+
+const resetFilters = () => {
+  filters.value = {
+    search: '',
+    department_id: null,
+    designation_id: null,
+    status: ''
+  };
+};
 </script>

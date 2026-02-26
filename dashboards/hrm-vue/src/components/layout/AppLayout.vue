@@ -43,3 +43,12 @@ const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value;
 };
 </script>
+
+<style>
+.page-wrapper .table-responsive {
+  min-height: 240px;
+}
+.page-wrapper .card-body .table {
+  margin-bottom: 0;
+}
+</style>

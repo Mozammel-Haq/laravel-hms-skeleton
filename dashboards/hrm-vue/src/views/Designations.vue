@@ -28,6 +28,36 @@
     </div>
     <div v-else class="card border-0 shadow-sm">
       <div class="card-body p-0">
+        <div class="bg-light p-3 rounded mb-4 mx-3 mt-3">
+          <form @submit.prevent="applyFilters">
+            <div class="row g-2 align-items-end justify-content-center">
+              <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted mb-1">Search</label>
+                <input v-model="filters.search" type="text" class="form-control form-control-sm" placeholder="Name or code..." />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted mb-1">Status</label>
+                <select v-model="filters.status" class="form-select form-select-sm">
+                  <option value="">All</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted mb-1 d-block">&nbsp;</label>
+                <button type="submit" class="btn btn-sm btn-primary w-100">
+                  <i class="ti ti-filter"></i>
+                </button>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label small fw-bold text-muted mb-1 d-block">&nbsp;</label>
+                <button type="button" class="btn btn-sm btn-outline-danger w-100" @click="resetFilters">
+                  Reset
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="bg-light">
@@ -40,7 +70,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="d in rows" :key="d.id">
+              <tr v-for="d in filteredRows" :key="d.id">
                 <td class="ps-4">{{ d.name }}</td>
                 <td>{{ d.code || '—' }}</td>
                 <td>{{ d.grade || '—' }}</td>
@@ -85,7 +115,7 @@
                   </div>
                 </td>
               </tr>
-              <tr v-if="rows.length === 0">
+              <tr v-if="filteredRows.length === 0">
                 <td colspan="5" class="text-center py-4 text-muted">No designations</td>
               </tr>
             </tbody>
@@ -237,6 +267,30 @@ const form = ref({
   description: ''
 });
 const errors = ref({});
+
+const filters = ref({
+  search: '',
+  status: ''
+});
+
+const filteredRows = computed(() => {
+  const list = rows.value || [];
+  const term = filters.value.search.trim().toLowerCase();
+  const status = filters.value.status;
+  return list.filter((d) => {
+    const matchesTerm =
+      !term ||
+      (d.name || '').toLowerCase().includes(term) ||
+      (d.code || '').toLowerCase().includes(term);
+    const matchesStatus = !status || (d.status || '').toLowerCase() === status;
+    return matchesTerm && matchesStatus;
+  });
+});
+
+const applyFilters = () => {};
+const resetFilters = () => {
+  filters.value = { search: '', status: '' };
+};
 
 const fetchDesignations = async () => {
   loading.value = true;
