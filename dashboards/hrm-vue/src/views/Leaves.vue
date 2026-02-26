@@ -243,9 +243,9 @@
               <div class="mb-3">
                 <label class="form-label">Type</label>
                 <select v-model="form.type" class="form-select" required>
-                  <option value="annual">Annual</option>
-                  <option value="sick">Sick</option>
-                  <option value="casual">Casual</option>
+                  <option v-for="type in leaveTypes" :key="type.id" :value="type.code || type.name">
+                    {{ type.name }}
+                  </option>
                 </select>
               </div>
               <div class="row">
@@ -312,6 +312,7 @@ const form = ref({
 
 const staffOptions = ref([]);
 const staffLoading = ref(false);
+const leaveTypes = ref([]);
 
 const canManageLeaves = computed(() => {
   const abilities = auth.user?.abilities || [];
@@ -344,6 +345,20 @@ const fetchLeaves = async () => {
     toast.error('Failed to load leave requests');
   } finally {
     loading.value = false;
+  }
+};
+
+const fetchLeaveTypes = async () => {
+  try {
+    const res = await api.get('/leave-types', { params: { per_page: 100 } });
+    const payload = res.data;
+    const list = payload.data || [];
+    leaveTypes.value = list;
+    if (list.length > 0 && !form.value.type) {
+      form.value.type = list[0].code || list[0].name;
+    }
+  } catch (e) {
+    console.error('Failed to fetch leave types', e);
   }
 };
 
@@ -490,6 +505,7 @@ const paginationPages = computed(() => {
 
 onMounted(async () => {
   await fetchLeaves();
+  await fetchLeaveTypes();
   if (canManageLeaves.value) {
     await loadStaff();
   }

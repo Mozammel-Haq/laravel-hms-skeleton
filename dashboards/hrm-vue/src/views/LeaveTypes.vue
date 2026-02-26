@@ -35,6 +35,8 @@
                 <th>Code</th>
                 <th>Default Days</th>
                 <th>Carry Forward</th>
+                <th>Paid Leave</th>
+                <th>Pay Factor</th>
                 <th>Status</th>
                 <th class="text-end pe-4" v-if="canManage">Actions</th>
               </tr>
@@ -53,10 +55,21 @@
                 <td>
                   <span
                     class="badge"
-                    :class="type.carry_forward ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'"
+                    :class="type.carry_forward ? 'bg-success-subtle text-success' : 'bg-light text-muted'"
                   >
-                    {{ type.carry_forward ? 'YES' : 'NO' }}
+                    {{ type.carry_forward ? 'Yes' : 'No' }}
                   </span>
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    :class="type.is_paid ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'"
+                  >
+                    {{ type.is_paid ? 'Paid' : 'Unpaid' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="fw-semibold">{{ type.pay_factor ?? '1.0' }}</span>
                 </td>
                 <td>
                   <span
@@ -154,6 +167,25 @@
                     Allow carry forward
                   </label>
                 </div>
+                <div class="form-check mb-3">
+                  <input v-model="form.is_paid" class="form-check-input" type="checkbox" id="isPaid" />
+                  <label class="form-check-label" for="isPaid">
+                    Paid Leave
+                  </label>
+                </div>
+                <div v-if="!form.is_paid" class="mb-3">
+                  <label class="form-label">Pay Factor (0 to 1)</label>
+                  <input
+                    v-model.number="form.pay_factor"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="1"
+                    class="form-control"
+                    placeholder="e.g. 0.5 for half-pay"
+                  />
+                  <div class="form-text">0 = Fully Unpaid, 1 = Fully Paid</div>
+                </div>
                 <div class="mb-3">
                   <label class="form-label">Status</label>
                   <select v-model="form.status" class="form-select">
@@ -200,6 +232,8 @@ const form = ref({
   code: '',
   default_days: 0,
   carry_forward: false,
+  is_paid: true,
+  pay_factor: 1.0,
   status: 'active',
 });
 
@@ -240,6 +274,8 @@ const openModal = () => {
     code: '',
     default_days: 0,
     carry_forward: false,
+    is_paid: true,
+    pay_factor: 1.0,
     status: 'active',
   };
   showModal.value = true;
@@ -253,6 +289,8 @@ const editType = (type) => {
     code: type.code || '',
     default_days: type.default_days ?? 0,
     carry_forward: !!type.carry_forward,
+    is_paid: !!type.is_paid,
+    pay_factor: type.pay_factor ?? 1.0,
     status: type.status || 'active',
   };
   showModal.value = true;
@@ -272,6 +310,8 @@ const saveType = async () => {
       code: form.value.code || null,
       default_days: form.value.default_days,
       carry_forward: form.value.carry_forward,
+      is_paid: form.value.is_paid,
+      pay_factor: form.value.is_paid ? 1.0 : form.value.pay_factor,
       status: form.value.status,
     };
     if (editingType.value) {

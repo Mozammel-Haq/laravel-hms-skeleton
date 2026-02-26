@@ -45,6 +45,8 @@ class HrmLeaveTypeController extends Controller
             'code' => 'nullable|string|max:50',
             'default_days' => 'nullable|numeric|min:0|max:365',
             'carry_forward' => 'nullable|boolean',
+            'is_paid' => 'nullable|boolean',
+            'pay_factor' => 'nullable|numeric|min:0|max:1',
             'status' => 'nullable|in:active,inactive',
         ]);
 
@@ -71,6 +73,8 @@ class HrmLeaveTypeController extends Controller
             'code' => $validated['code'] ?? null,
             'default_days' => $validated['default_days'] ?? 0,
             'carry_forward' => $validated['carry_forward'] ?? false,
+            'is_paid' => $validated['is_paid'] ?? true,
+            'pay_factor' => $validated['pay_factor'] ?? 1.0,
             'status' => $validated['status'] ?? 'active',
         ]);
 
@@ -97,6 +101,8 @@ class HrmLeaveTypeController extends Controller
             'code' => 'nullable|string|max:50',
             'default_days' => 'nullable|numeric|min:0|max:365',
             'carry_forward' => 'nullable|boolean',
+            'is_paid' => 'nullable|boolean',
+            'pay_factor' => 'nullable|numeric|min:0|max:1',
             'status' => 'nullable|in:active,inactive',
         ]);
 
