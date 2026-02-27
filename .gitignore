@@ -31,11 +31,13 @@ Thumbs.db
 /public/app.php
 
 # Local learning and private materials
-/tutorials/
+/TUTORIALS
 /personal
-tutorials/
-/video-scripts/
-/videoscripts/
-/build_guide/
+/video_scripts
+/build_guide
 /build_guide.md
 *.draft.md
+/NOTES.md
+/PROJECT_STATUS.md
+/REFERENCE PATIENTDETAILS.HTML
+/REFERENCE_DOCTORDETAILSPAGE.HTML
